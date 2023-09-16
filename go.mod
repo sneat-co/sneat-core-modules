@@ -3,7 +3,6 @@ module github.com/sneat-co/sneat-core-modules
 go 1.21.0
 
 require (
-	cloud.google.com/go/firestore v1.12.0
 	firebase.google.com/go/v4 v4.12.0
 	github.com/dal-go/dalgo v0.10.2
 	github.com/dal-go/mocks4dalgo v0.1.16
@@ -21,6 +20,7 @@ require (
 	cloud.google.com/go v0.110.2 // indirect
 	cloud.google.com/go/compute v1.19.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/firestore v1.12.0 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/longrunning v0.5.0 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect

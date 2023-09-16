@@ -1,7 +1,6 @@
 package facade4teamus
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
@@ -36,7 +35,7 @@ func RemoveMetrics(ctx context.Context, user facade.User, request dto4teamus.Tea
 				var updates []dal.Update
 				if len(metrics) == 0 {
 					updates = []dal.Update{
-						{Field: "metrics", Value: firestore.Delete},
+						{Field: "metrics", Value: dal.DeleteField},
 					}
 				} else {
 					updates = []dal.Update{
