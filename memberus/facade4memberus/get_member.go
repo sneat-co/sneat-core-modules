@@ -3,8 +3,8 @@ package facade4memberus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/dal4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 )
 
 // GetMemberByID returns member by ID

@@ -3,9 +3,9 @@ package models4userus
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/core4teamus"
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
 	"net/mail"

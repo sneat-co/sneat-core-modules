@@ -5,14 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dal4teamus"
 )
 
 // CreateContact creates team contact

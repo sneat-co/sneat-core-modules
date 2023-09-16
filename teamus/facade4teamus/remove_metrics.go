@@ -4,10 +4,10 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dal4teamus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/models4teamus"
 )
 
 // RemoveMetrics removes a metric

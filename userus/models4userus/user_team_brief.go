@@ -2,9 +2,9 @@ package models4userus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/core4teamus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/models4teamus"
+	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/strongo/validation"
 )
 

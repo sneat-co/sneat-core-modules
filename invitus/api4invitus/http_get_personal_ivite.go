@@ -1,10 +1,10 @@
 package api4invitus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/facade4invitus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
 	"net/http"
 	"strings"
 )

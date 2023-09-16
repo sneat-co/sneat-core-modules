@@ -2,11 +2,11 @@ package dto4contactus
 
 import (
 	"fmt"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
 	"github.com/strongo/validation"
 )
 

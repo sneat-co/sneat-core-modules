@@ -1,7 +1,7 @@
 package briefs4memberus
 
 import (
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 )
 
 // GetFullMemberID returns full member ContactID

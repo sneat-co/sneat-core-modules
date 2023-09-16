@@ -2,7 +2,7 @@ package facade4contactus
 
 import (
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/models4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 )
 
 func updateTeamDtoWithNumberOfContact(numberOfContacts int) (update dal.Update) {

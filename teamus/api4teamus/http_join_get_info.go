@@ -1,10 +1,10 @@
 package api4teamus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/httpserver"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/facade4invitus"
 	"net/http"
 )
 

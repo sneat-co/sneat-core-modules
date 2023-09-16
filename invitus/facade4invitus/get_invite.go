@@ -3,7 +3,7 @@ package facade4invitus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/models4invitus"
+	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 )
 
 // GetInviteByID returns an invitation record by ContactID

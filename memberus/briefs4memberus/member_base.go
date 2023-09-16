@@ -2,7 +2,7 @@ package briefs4memberus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/strongo/validation"
 )
 

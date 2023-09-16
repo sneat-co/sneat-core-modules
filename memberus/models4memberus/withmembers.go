@@ -3,7 +3,7 @@ package models4memberus
 import (
 	"errors"
 	"fmt"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/briefs4memberus"
+	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
 )

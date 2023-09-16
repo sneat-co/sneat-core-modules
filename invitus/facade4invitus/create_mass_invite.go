@@ -2,7 +2,7 @@ package facade4invitus
 
 import (
 	"context"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/models4invitus"
+	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 )
 
 // CreateMassInviteRequest parameters for creating a mass invite

@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
+	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
-	"github.com/sneat-co/sneat-go-core/modules/userus/models4userus"
 )
 
 // LeaveTeam leaves team

@@ -2,8 +2,8 @@ package dal4contactus
 
 import (
 	"github.com/dal-go/dalgo/record"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dal4teamus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 )
 
 type ContactusTeamContext = record.DataWithID[string, *models4contactus.ContactusTeamDto]

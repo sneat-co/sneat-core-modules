@@ -2,9 +2,9 @@ package models4contactus
 
 import (
 	"fmt"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/models4invitus"
 	"github.com/strongo/validation"
 )
 

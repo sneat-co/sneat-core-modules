@@ -3,7 +3,7 @@ package dal4contactus
 import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 )
 
 type ContactContext = record.DataWithID[string, *models4contactus.ContactDto]

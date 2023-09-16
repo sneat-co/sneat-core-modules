@@ -3,7 +3,7 @@ package facade4invitus
 import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
-	"github.com/sneat-co/sneat-go-core/modules/invitus/models4invitus"
+	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 )
 
 // InvitesCollection table name

@@ -1,7 +1,7 @@
 package api4teamus
 
 import (
-	"github.com/sneat-co/sneat-go-core/sneatfb"
+	"github.com/sneat-co/sneat-go-firebase/sneatfb"
 	"net/http"
 	"os"
 	"testing"

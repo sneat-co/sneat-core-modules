@@ -2,7 +2,7 @@ package dto4contactus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/strongo/validation"
 	"strings"
 )

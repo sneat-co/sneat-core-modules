@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/dal4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
+	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 )
 
 // CreateMemberRecordFromBrief creates a member record from member's brief

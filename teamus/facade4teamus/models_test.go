@@ -1,7 +1,7 @@
 package facade4teamus
 
 import (
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dto4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"testing"
 )
 

@@ -1,9 +1,9 @@
 package api4teamus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/memberus/facade4memberus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/facade4memberus"
 	"net/http"
 	"strconv"
 )

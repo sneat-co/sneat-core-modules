@@ -1,9 +1,9 @@
 package userus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/userus/api4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-go-core/modules"
-	"github.com/sneat-co/sneat-go-core/modules/userus/api4userus"
-	"github.com/sneat-co/sneat-go-core/modules/userus/const4userus"
 )
 
 func Module() modules.Module {

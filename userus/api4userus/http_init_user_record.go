@@ -1,11 +1,11 @@
 package api4userus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"github.com/sneat-co/sneat-go-core/modules/userus/dto4userus"
-	"github.com/sneat-co/sneat-go-core/modules/userus/facade4userus"
-	"github.com/sneat-co/sneat-go-core/modules/userus/models4userus"
 	"net/http"
 )
 

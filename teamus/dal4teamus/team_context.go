@@ -2,7 +2,7 @@ package dal4teamus
 
 import (
 	"github.com/dal-go/dalgo/record"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/models4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 )
 
 type TeamContext = record.DataWithID[string, *models4teamus.TeamDto]

@@ -1,7 +1,7 @@
 package models4memberus
 
 import (
-	"github.com/sneat-co/sneat-go-core/modules/teamus/core4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/strongo/validation"
 	"strings"
 )

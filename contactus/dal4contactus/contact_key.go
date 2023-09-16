@@ -3,9 +3,9 @@ package dal4contactus
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/dal4teamus"
 )
 
 // NewContactKey creates a new contact's key in format "teamID:memberID"

@@ -2,8 +2,8 @@ package dal4memberus
 
 import (
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-go-core/modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-go-core/modules/memberus/models4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/memberus/models4memberus"
 )
 
 type MemberContext = dal4contactus.ContactContext

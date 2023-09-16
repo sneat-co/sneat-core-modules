@@ -1,8 +1,8 @@
 package dto4teamus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/modules/teamus/core4teamus"
 	"github.com/strongo/validation"
 	"strings"
 )
