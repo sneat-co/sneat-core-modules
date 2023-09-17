@@ -1,7 +1,7 @@
 github.com/alexsergivan/transliterator v1.0.0 h1:SAA+fkGZKLnak47h8Dr6829IE2kpSZR2Y3yTd69cIwY=
 github.com/alexsergivan/transliterator v1.0.0/go.mod h1:0IrumukulURJ4PD0z6UcdJKP2job1DYDhnHAP5y+5pE=
-github.com/crediterra/money v0.2.0 h1:0DsJhRKSEP9CIc3LUnMPPcRY8JJpj8E7CWRWPdfe9cg=
-github.com/crediterra/money v0.2.0/go.mod h1:X9dmXT1lI2mLyV/7V7vrMGkFy9jWJY3JmDUYKydQKkY=
+github.com/crediterra/money v0.2.1 h1:VWe0gMQy/o9iDW84mLQnjM1TqyLRJ14C81VvaTU7jVg=
+github.com/crediterra/money v0.2.1/go.mod h1:0BT7dzPk4Wv+Wi8J6sxlFbCknYioLWVVQM4ciMJh6TI=
 github.com/dal-go/dalgo v0.10.2 h1:kBVNpH3wRK4uP9eBwMYsL5U5QjvPX8jYcZAgJgaG2tE=
 github.com/dal-go/dalgo v0.10.2/go.mod h1:741DXTLpQfmvkazyEiivX8OBFylpzS1QErdh/6WquqI=
 github.com/dal-go/mocks4dalgo v0.1.16 h1:hpaqlWk7HQsCO4xH1LVnE//yjFcwYmFGsAIL2+J9xSU=
@@ -17,10 +17,8 @@ github.com/gosimple/unidecode v1.0.1 h1:hZzFTMMqSswvf0LBJZCZgThIZrpDHFXux9KeGmn6
 github.com/gosimple/unidecode v1.0.1/go.mod h1:CP0Cr1Y1kogOtx0bJblKzsVWrqYaqfNOnHzpgWw4Awc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7 h1:xoIK0ctDddBMnc74udxJYBqlo9Ylnsp1waqjLsnef20=
-github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7/go.mod h1:YARuvh7BUWHNhzDq2OM5tzR2RiCcN2D7sapiKyCel/M=
-github.com/sneat-co/sneat-go-core v0.7.0 h1:CBHA/vPEQbrV1hiTP3KGDc3YU9wPNueLvwM9G/bV6W8=
-github.com/sneat-co/sneat-go-core v0.7.0/go.mod h1:fHzJZESmTRYiDYKBXl+y2RkIpm0SzC88vP120Kmdkdw=
+github.com/sneat-co/sneat-go-core v0.7.1 h1:K5iIUbPsmmUxiY82rHv4RrBtjWKA0zSNroNPE5+4+E8=
+github.com/sneat-co/sneat-go-core v0.7.1/go.mod h1:7FPOHtwk97vYGDpPa79tA8Hiz+7KwkTnc4xrfbsX6ws=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
