@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"firebase.google.com/go/v4/auth"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
-	"github.com/sneat-co/sneat-go-firebase/sneatfb"
+	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -64,8 +63,9 @@ func TestCreateMassInvite(t *testing.T) {
 		response.ID = "test-id"
 		return
 	}
-	apicore.NewContextWithToken = func(r *http.Request, authRequired bool) (ctx context.Context, err error) {
-		return sneatfb.NewContextWithFirebaseToken(r.Context(), &auth.Token{UID: "unit-test-user"}), nil
+
+	apicore.GetAuthTokenFromHttpRequest = func(r *http.Request) (token *sneatauth.Token, err error) {
+		return &sneatauth.Token{UID: "unit-test-user"}, nil
 	}
 
 	rr := httptest.NewRecorder()

@@ -2,7 +2,6 @@ package api4memberus
 
 import (
 	"context"
-	"firebase.google.com/go/v4/auth"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
@@ -12,7 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/apicore/httpmock"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/sneat-co/sneat-go-firebase/sneatfb"
+	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -48,8 +47,11 @@ func TestHttpAddMember(t *testing.T) {
 		}}
 	request.CountryID = "IE"
 
-	apicore.UserContextProvider = func() facade.User {
-		return facade.NewUser("TestUserID")
+	defer func() {
+		apicore.GetAuthTokenFromHttpRequest = nil
+	}()
+	apicore.GetAuthTokenFromHttpRequest = func(r *http.Request) (token *sneatauth.Token, err error) {
+		return &sneatauth.Token{UID: "TestUserID"}, nil
 	}
 
 	//t.Log(buffer.String())
@@ -88,12 +90,12 @@ func TestHttpAddMember(t *testing.T) {
 	}
 
 	const uid = "unit-test-user"
-	apicore.NewContextWithToken = func(r *http.Request, authRequired bool) (ctx context.Context, err error) {
-		return sneatfb.NewContextWithFirebaseToken(r.Context(), &auth.Token{UID: uid}), nil
+	apicore.GetAuthTokenFromHttpRequest = func(r *http.Request) (token *sneatauth.Token, err error) {
+		return &sneatauth.Token{UID: uid}, nil
 	}
-	sneatfb.NewFirebaseAuthToken = func(ctx context.Context, fbIDToken func() (string, error), authRequired bool) (*auth.Token, error) {
-		return &auth.Token{UID: uid}, nil
-	}
+	//sneatfb.NewFirebaseAuthToken = func(ctx context.Context, fbIDToken func() (string, error), authRequired bool) (*auth.Token, error) {
+	//	return &auth.Token{UID: uid}, nil
+	//}
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(httpPostCreateMember)
