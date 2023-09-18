@@ -13,8 +13,7 @@ var initUserRecord = facade4userus.InitUserRecord
 
 // httpInitUserRecord sets user title
 func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.AuthenticationRequired(false), verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

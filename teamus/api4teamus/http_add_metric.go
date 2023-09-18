@@ -10,8 +10,7 @@ import (
 
 // httpPostAddMetric is an API endpoint that adds a metric
 func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

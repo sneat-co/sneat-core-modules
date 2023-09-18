@@ -12,8 +12,7 @@ var leaveTeam = facade4memberus.LeaveTeam
 
 // httpPostLeaveTeam is an API endpoint that removes user from a team by his/here request
 func httpPostLeaveTeam(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

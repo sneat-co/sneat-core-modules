@@ -12,8 +12,7 @@ var removeMetrics = facade4teamus.RemoveMetrics
 
 // httpPostRemoveMetrics is an API endpoint that removes a team metric
 func httpPostRemoveMetrics(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.AuthenticationRequired(false), verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

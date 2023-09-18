@@ -12,8 +12,7 @@ var removeMember = facade4memberus.RemoveMember
 
 // httpPostRemoveMember is an API endpoint that removes a members from a team
 func httpPostRemoveMember(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

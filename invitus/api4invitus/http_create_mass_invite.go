@@ -11,8 +11,7 @@ var createMassInvite = facade4invitus.CreateMassInvite
 
 // httpPostCreateMassInvite is an API endpoint to create a mass-invite
 func httpPostCreateMassInvite(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	ctx, err := apicore.VerifyRequest(w, r, verifyOptions)
+	ctx, err := apicore.VerifyRequest(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

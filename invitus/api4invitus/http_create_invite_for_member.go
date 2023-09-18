@@ -23,8 +23,7 @@ func httpPostCreateOrReuseInviteForMember(w http.ResponseWriter, r *http.Request
 		request.RemoteClient = apicore.GetRemoteClientInfo(r)
 		return createOrReuseInviteForMember(ctx, userCtx, request)
 	}
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(2*apicore.KB), verify.AuthenticationRequired(true))
-	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verifyOptions)
+	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }
 
 // httpGetOrCreateInviteLink gets or creates an invitation link
@@ -34,8 +33,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 	request.TeamID = q.Get("team")
 	request.To.MemberID = q.Get("member")
 	request.To.Channel = "link"
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		httpserver.HandleError(err, "VerifyRequestAndCreateUserContext", w, r)
 		return

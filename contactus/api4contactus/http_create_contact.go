@@ -18,6 +18,5 @@ func httpPostCreateContact(w http.ResponseWriter, r *http.Request) {
 	handler := func(ctx context.Context, userCtx facade.User) (interface{}, error) {
 		return createContact(ctx, userCtx, request)
 	}
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(true))
-	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verifyOptions)
+	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }

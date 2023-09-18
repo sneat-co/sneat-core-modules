@@ -11,8 +11,7 @@ import (
 
 // httpGetPersonal is an API endpoint that returns personal invite data
 func httpGetPersonal(w http.ResponseWriter, r *http.Request) {
-	verifyOptions := verify.Request(verify.MinimumContentLength(apicore.MinJSONRequestSize), verify.MaximumContentLength(10*apicore.KB), verify.AuthenticationRequired(false))
-	ctx, user, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, user, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}

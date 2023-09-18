@@ -19,6 +19,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/sneat-co/sneat-go-core v0.7.1 h1:K5iIUbPsmmUxiY82rHv4RrBtjWKA0zSNroNPE5+4+E8=
 github.com/sneat-co/sneat-go-core v0.7.1/go.mod h1:7FPOHtwk97vYGDpPa79tA8Hiz+7KwkTnc4xrfbsX6ws=
+github.com/sneat-co/sneat-go-core v0.8.2 h1:P+fBfXvs8Q6+0wRnHy69oCuf59ji+rFakjKZDE6ZVqM=
+github.com/sneat-co/sneat-go-core v0.8.2/go.mod h1:7FPOHtwk97vYGDpPa79tA8Hiz+7KwkTnc4xrfbsX6ws=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=

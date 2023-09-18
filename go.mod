@@ -7,7 +7,7 @@ require (
 	github.com/dal-go/mocks4dalgo v0.1.16
 	github.com/golang/mock v1.6.0
 	github.com/gosimple/slug v1.13.1
-	github.com/sneat-co/sneat-go-core v0.7.1
+	github.com/sneat-co/sneat-go-core v0.8.2
 	github.com/stretchr/testify v1.8.4
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.1.4

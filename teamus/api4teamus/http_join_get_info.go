@@ -12,10 +12,7 @@ var getTeamJoinInfo = facade4invitus.GetTeamJoinInfo
 
 // httpPostGetTeamJoinInfo is an API endpoint that return team info for user willing to join
 func httpPostGetTeamJoinInfo(w http.ResponseWriter, r *http.Request) {
-	ctx, err := apicore.VerifyRequest(w, r, verify.Request(
-		verify.MinimumContentLength(apicore.MinJSONRequestSize),
-		verify.MaximumContentLength(10*apicore.KB),
-	))
+	ctx, err := apicore.VerifyRequest(w, r, verify.DefaultJsonWithNoAuthRequired)
 	if err != nil {
 		httpserver.HandleError(err, "VerifyRequest", w, r)
 		return
