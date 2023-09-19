@@ -6,7 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 )
 
-type ContactContext = record.DataWithID[string, *models4contactus.ContactDto]
+type ContactContext = record.DataWithID[string, models4contactus.ContactDto]
 
 func NewContactContext(teamID, contactID string) ContactContext {
 	return NewContactContextWithDto(teamID, contactID, new(models4contactus.ContactDto))

@@ -44,11 +44,11 @@ type SliceIndexes struct {
 // BriefsAdapter defines brief adapters
 type BriefsAdapter[D TeamModuleData] struct {
 	BriefsFieldName string
-	BriefsValue     func(team D) interface{}
-	GetBriefsCount  func(team D) int
-	GetBriefItemID  func(team D, i int) (id string)
-	ShiftBriefs     func(team D, from SliceIndexes, end SliceIndexes)
-	TrimBriefs      func(team D, count int)
+	BriefsValue     func(team *D) interface{}
+	GetBriefsCount  func(team *D) int
+	GetBriefItemID  func(team *D, i int) (id string)
+	ShiftBriefs     func(team *D, from SliceIndexes, end SliceIndexes)
+	TrimBriefs      func(team *D, count int)
 }
 
 // TeamItemRunnerInput request

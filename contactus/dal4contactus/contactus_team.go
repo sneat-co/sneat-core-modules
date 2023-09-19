@@ -6,7 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 )
 
-type ContactusTeamContext = record.DataWithID[string, *models4contactus.ContactusTeamDto]
+type ContactusTeamContext = record.DataWithID[string, models4contactus.ContactusTeamDto]
 
 func NewContactusTeamContext(teamID string) ContactusTeamContext {
 	return NewContactusTeamContextWithData(teamID, new(models4contactus.ContactusTeamDto))

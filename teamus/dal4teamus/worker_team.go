@@ -8,7 +8,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"log"
-	"reflect"
 	"time"
 )
 
@@ -55,7 +54,7 @@ func RunModuleTeamWorker[D TeamModuleData](
 		TeamWorkerParams: teamWorkerParams,
 		TeamModuleEntry: record.NewDataWithID("",
 			dal.NewKeyWithParentAndID(teamWorkerParams.Team.Key, Collection, moduleID),
-			reflect.New(reflect.TypeOf(d)).Elem().Interface().(D),
+			&d,
 		),
 	}
 
