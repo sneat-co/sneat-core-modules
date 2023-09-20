@@ -50,7 +50,7 @@ func TestRunModuleTeamWorker(t *testing.T) {
 		})
 		return db
 	}
-	err := RunModuleTeamWorker(ctx, user, request, moduleID, assertTxWorker)
+	err := RunModuleTeamWorker(ctx, user, request, moduleID, new(fooModuleTeamData), assertTxWorker)
 	assert.Nil(t, err)
 	//type args[D TeamModuleData] struct {
 	//	ctx      context.Context

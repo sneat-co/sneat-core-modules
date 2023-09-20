@@ -44,11 +44,11 @@ type SliceIndexes struct {
 // BriefsAdapter defines brief adapters
 type BriefsAdapter[D TeamModuleData] struct {
 	BriefsFieldName string
-	BriefsValue     func(team *D) interface{}
-	GetBriefsCount  func(team *D) int
-	GetBriefItemID  func(team *D, i int) (id string)
-	ShiftBriefs     func(team *D, from SliceIndexes, end SliceIndexes)
-	TrimBriefs      func(team *D, count int)
+	BriefsValue     func(team D) interface{}
+	GetBriefsCount  func(team D) int
+	GetBriefItemID  func(team D, i int) (id string)
+	ShiftBriefs     func(team D, from SliceIndexes, end SliceIndexes)
+	TrimBriefs      func(team D, count int)
 }
 
 // TeamItemRunnerInput request
@@ -165,6 +165,7 @@ func DeleteTeamItem[D TeamModuleData](
 	user facade.User,
 	input TeamItemRunnerInput[D],
 	moduleID string,
+	data D,
 	worker teamItemWorker,
 ) (err error) {
 	if err := input.Validate(); err != nil {
@@ -173,7 +174,7 @@ func DeleteTeamItem[D TeamModuleData](
 	if input.Counter != "" && worker == nil {
 		return validation.NewErrBadRequestFieldValue("counter", "input specifies counter but worker was not provided")
 	}
-	return RunModuleTeamWorker(ctx, user, input.TeamRequest, moduleID,
+	return RunModuleTeamWorker(ctx, user, input.TeamRequest, moduleID, data,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, moduleWorkerParams *ModuleTeamWorkerParams[D]) (err error) {
 			params := TeamItemWorkerParams{
 				Started: time.Now(),

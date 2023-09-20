@@ -52,7 +52,7 @@ NAMES:
 	return shortNames
 }
 
-type User = record.DataWithID[string, UserDto]
+type User = record.DataWithID[string, *UserDto]
 
 func NewUser(id string) User {
 	key := dal.NewKeyWithID(UsersCollection, id)

@@ -46,15 +46,15 @@ func RunModuleTeamWorker[D TeamModuleData](
 	user facade.User,
 	request dto4teamus.TeamRequest,
 	moduleID string,
+	data D,
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
 ) (err error) {
-	var d D
 	teamWorkerParams := NewTeamWorkerParams(user.GetID(), request.TeamID)
 	params := ModuleTeamWorkerParams[D]{
 		TeamWorkerParams: teamWorkerParams,
 		TeamModuleEntry: record.NewDataWithID("",
 			dal.NewKeyWithParentAndID(teamWorkerParams.Team.Key, Collection, moduleID),
-			&d,
+			data,
 		),
 	}
 
@@ -112,6 +112,7 @@ func CreateTeamItem[D TeamModuleData](
 	counter string,
 	teamRequest dto4teamus.TeamRequest,
 	moduleID string,
+	data D,
 	worker func(
 		ctx context.Context,
 		tx dal.ReadwriteTransaction,
@@ -124,7 +125,7 @@ func CreateTeamItem[D TeamModuleData](
 	if err := teamRequest.Validate(); err != nil {
 		return err
 	}
-	err = RunModuleTeamWorker(ctx, user, teamRequest, moduleID,
+	err = RunModuleTeamWorker(ctx, user, teamRequest, moduleID, data,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleTeamWorkerParams[D]) (err error) {
 			if err := worker(ctx, tx, params); err != nil {
 				return fmt.Errorf("failed to execute team worker passed to CreateTeamItem: %w", err)

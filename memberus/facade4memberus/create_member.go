@@ -33,8 +33,7 @@ func CreateMember(
 		return
 	}
 
-	err = dal4teamus.CreateTeamItem(ctx, user, "members", request.TeamRequest,
-		const4contactus.ModuleID,
+	err = dal4teamus.CreateTeamItem(ctx, user, "members", request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			team := params.Team
 			contactusTeam := dal4contactus.NewContactusTeamContext(params.Team.ID)
