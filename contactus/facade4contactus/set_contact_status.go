@@ -43,14 +43,14 @@ func setContactStatusTxWorker(
 	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusTeamWorkerParams,
 	contactID string, status string,
 ) (err error) {
-	contact := dal4contactus.NewContactContext(params.Team.ID, contactID)
+	contact := dal4contactus.NewContactEntry(params.Team.ID, contactID)
 	if err = tx.Get(ctx, contact.Record); err != nil {
 		return fmt.Errorf("failed to get contact record: %w", err)
 	}
 
-	var relatedContacts []dal4contactus.ContactContext
+	var relatedContacts []dal4contactus.ContactEntry
 
-	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, "child", 0, -1, []dal4contactus.ContactContext{contact})
+	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, "child", 0, -1, []dal4contactus.ContactEntry{contact})
 	if err != nil {
 		return fmt.Errorf("failed to get descendant contacts: %w", err)
 	}

@@ -12,7 +12,7 @@ import (
 func updateParentContact(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	contact, parent dal4contactus.ContactContext,
+	contact, parent dal4contactus.ContactEntry,
 ) error {
 	log.Printf("updateParentContact(contact=%v, parentID=%v)", contact.ID, parent.ID)
 	contactBrief := &briefs4contactus.ContactBrief{
@@ -25,7 +25,7 @@ func updateParentContact(
 	if err := parent.Data.Validate(); err != nil {
 		return fmt.Errorf("parent contact DTO validation error: %w", err)
 	}
-	if err := updateContact(ctx, tx, parent.Key, updates); err != nil {
+	if err := tx.Update(ctx, parent.Key, updates); err != nil {
 		return fmt.Errorf("failed to update parent contact record: %w", err)
 	}
 	log.Printf("updateParentContact(contact=%v, parentID=%v) - success!", contact.ID, parent.ID)

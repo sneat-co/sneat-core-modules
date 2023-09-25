@@ -3,6 +3,7 @@ package dal4contactus
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core"
@@ -13,6 +14,6 @@ func NewContactKey(teamID, contactID string) *dal.Key {
 	if !core.IsAlphanumericOrUnderscore(contactID) {
 		panic(fmt.Errorf("contactID should be alphanumeric, got: [%v]", contactID))
 	}
-	teamKey := dal4teamus.NewTeamKey(teamID)
-	return dal.NewKeyWithParentAndID(teamKey, models4contactus.TeamContactsCollection, contactID)
+	teamModuleKey := dal4teamus.NewTeamModuleKey(teamID, const4contactus.ModuleID)
+	return dal.NewKeyWithParentAndID(teamModuleKey, models4contactus.TeamContactsCollection, contactID)
 }

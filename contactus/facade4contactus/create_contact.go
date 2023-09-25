@@ -30,7 +30,7 @@ func CreateContact(
 
 	err = dal4teamus.CreateTeamItem(ctx, userContext, "contacts", request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
-			var contact dal4contactus.ContactContext
+			var contact dal4contactus.ContactEntry
 			if contact, err = CreateContactTx(ctx, tx, params.UserID, request, params); err != nil {
 				return err
 			}
@@ -55,7 +55,7 @@ func CreateContactTx(
 	request dto4contactus.CreateContactRequest,
 	params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto],
 ) (
-	contact dal4contactus.ContactContext,
+	contact dal4contactus.ContactEntry,
 	err error,
 ) {
 	if userID == "" {
@@ -67,15 +67,15 @@ func CreateContactTx(
 
 	parentContactID := request.ParentContactID
 
-	var parent dal4contactus.ContactContext
+	var parent dal4contactus.ContactEntry
 	if parentContactID != "" {
-		parent = dal4contactus.NewContactContext(request.TeamID, parentContactID)
+		parent = dal4contactus.NewContactEntry(request.TeamID, parentContactID)
 		if err = tx.Get(ctx, parent.Record); err != nil {
 			return contact, fmt.Errorf("failed to get parent contact with ID=[%s]: %w", parentContactID, err)
 		}
 	}
 
-	teamContactus := dal4contactus.NewContactusTeamContext(request.TeamID)
+	teamContactus := dal4contactus.NewContactusTeamModuleEntry(request.TeamID)
 	if err = tx.Get(ctx, teamContactus.Record); err != nil && !dal.IsNotFound(err) {
 		return contact, fmt.Errorf("failed to get team conctacts brief record")
 	}
@@ -139,7 +139,7 @@ func CreateContactTx(
 	}
 
 	params.TeamUpdates = append(params.TeamUpdates, params.Team.Data.UpdateNumberOf("contacts", len(teamContactus.Data.Contacts)))
-	contact = dal4contactus.NewContactContextWithDto(request.TeamID, contactID, &contactDto)
+	contact = dal4contactus.NewContactEntryWithData(request.TeamID, contactID, &contactDto)
 
 	//contact.Data.UserIDs = params.Team.Data.UserIDs
 	if err := contact.Data.Validate(); err != nil {

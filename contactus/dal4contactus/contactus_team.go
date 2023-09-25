@@ -1,18 +1,23 @@
 package dal4contactus
 
 import (
+	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 )
 
-type ContactusTeamContext = record.DataWithID[string, *models4contactus.ContactusTeamDto]
+type ContactusTeamModuleEntry = record.DataWithID[string, *models4contactus.ContactusTeamDto]
 
-func NewContactusTeamContext(teamID string) ContactusTeamContext {
-	return NewContactusTeamContextWithData(teamID, new(models4contactus.ContactusTeamDto))
+func NewContactusTeamModuleKey(teamID string) *dal.Key {
+	return dal4teamus.NewTeamModuleKey(teamID, const4contactus.ModuleID)
 }
 
-func NewContactusTeamContextWithData(teamID string, data *models4contactus.ContactusTeamDto) ContactusTeamContext {
-	key := dal4teamus.NewTeamModuleKey(teamID, "contactus")
-	return record.NewDataWithID(teamID, key, data)
+func NewContactusTeamModuleEntry(teamID string) ContactusTeamModuleEntry {
+	return NewContactusTeamModuleEntryWithData(teamID, new(models4contactus.ContactusTeamDto))
+}
+
+func NewContactusTeamModuleEntryWithData(teamID string, data *models4contactus.ContactusTeamDto) ContactusTeamModuleEntry {
+	return dal4teamus.NewTeamModuleEntry(teamID, const4contactus.ModuleID, data)
 }

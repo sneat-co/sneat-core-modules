@@ -36,7 +36,7 @@ func CreateMember(
 	err = dal4teamus.CreateTeamItem(ctx, user, "members", request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			team := params.Team
-			contactusTeam := dal4contactus.NewContactusTeamContext(params.Team.ID)
+			contactusTeam := dal4contactus.NewContactusTeamModuleEntry(params.Team.ID)
 			if err := tx.Get(ctx, contactusTeam.Record); err != nil {
 				return fmt.Errorf("failed to get contactus team record: %w", err)
 			}

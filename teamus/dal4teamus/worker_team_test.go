@@ -5,7 +5,9 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mocks4dal"
 	"github.com/golang/mock/gomock"
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
+	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -43,6 +45,12 @@ func TestRunModuleTeamWorker(t *testing.T) {
 			tx.EXPECT().GetMulti(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, records []dal.Record) error {
 				for _, record := range records {
 					record.SetError(nil)
+					if record.Key().Collection() == "teams" {
+						teamData := record.Data().(*models4teamus.TeamDto)
+						teamData.Type = core4teamus.TeamTypeFamily
+						teamData.CountryID = "UK"
+						teamData.UserIDs = []string{user.ID}
+					}
 				}
 				return nil
 			})

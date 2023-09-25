@@ -6,7 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 )
 
-func GetContactByID(ctx context.Context, tx dal.ReadSession, teamID, contactID string) (contact dal4contactus.ContactContext, err error) {
-	contact = dal4contactus.NewContactContext(teamID, contactID)
+func GetContactByID(ctx context.Context, tx dal.ReadSession, teamID, contactID string) (contact dal4contactus.ContactEntry, err error) {
+	contact = dal4contactus.NewContactEntry(teamID, contactID)
 	return contact, tx.Get(ctx, contact.Record)
 }

@@ -12,14 +12,14 @@ import (
 
 type ContactusTeamWorkerParams struct {
 	dal4teamus.TeamWorkerParams
-	ContactusTeam        ContactusTeamContext
+	ContactusTeam        ContactusTeamModuleEntry
 	ContactusTeamUpdates []dal.Update
 }
 
 func NewContactusTeamWorkerParams(userID, teamID string) *ContactusTeamWorkerParams {
 	return &ContactusTeamWorkerParams{
 		TeamWorkerParams: dal4teamus.NewTeamWorkerParams(userID, teamID),
-		ContactusTeam:    NewContactusTeamContext(teamID),
+		ContactusTeam:    NewContactusTeamModuleEntry(teamID),
 	}
 }
 

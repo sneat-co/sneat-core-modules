@@ -66,7 +66,12 @@ func RunModuleTeamWorker[D TeamModuleData](
 		if err = worker(ctx, tx, &params); err != nil {
 			return fmt.Errorf("failed to execute module team worker: %w", err)
 		}
-
+		if err = applyTeamUpdates(ctx, tx, params.TeamWorkerParams); err != nil {
+			return fmt.Errorf("module team worker failed to apply team record updates: %w", err)
+		}
+		if err = applyTeamModuleUpdates(ctx, tx, params); err != nil {
+			return fmt.Errorf("module team worker failed to apply team module record updates: %w", err)
+		}
 		return nil
 	})
 }
@@ -96,13 +101,32 @@ var RunTeamWorker = func(ctx context.Context, user facade.User, request dto4team
 		if err = worker(ctx, tx, &params); err != nil {
 			return fmt.Errorf("failed to execute team worker: %w", err)
 		}
-		if len(params.TeamUpdates) > 0 {
-			if err = TxUpdateTeam(ctx, tx, params.Started, params.Team, params.TeamUpdates); err != nil {
-				return fmt.Errorf("failed to update team record: %w", err)
-			}
+		if err = applyTeamUpdates(ctx, tx, params); err != nil {
+			return fmt.Errorf("team worker failed to apply team record updates: %w", err)
 		}
 		return err
 	})
+}
+
+func applyTeamUpdates(ctx context.Context, tx dal.ReadwriteTransaction, params TeamWorkerParams) (err error) {
+	if err = params.Team.Data.Validate(); err != nil {
+		return fmt.Errorf("team record is not valid before applying team updates: %w", err)
+	}
+	if len(params.TeamUpdates) > 0 {
+		if err = TxUpdateTeam(ctx, tx, params.Started, params.Team, params.TeamUpdates); err != nil {
+			return fmt.Errorf("failed to update team record: %w", err)
+		}
+	}
+	return err
+}
+
+func applyTeamModuleUpdates[D TeamModuleData](ctx context.Context, tx dal.ReadwriteTransaction, params ModuleTeamWorkerParams[D]) (err error) {
+	if len(params.TeamModuleUpdates) > 0 {
+		if err = txUpdateTeamModule(ctx, tx, params.Started, params.TeamModuleEntry, params.TeamModuleUpdates); err != nil {
+			return fmt.Errorf("failed to update team record: %w", err)
+		}
+	}
+	return err
 }
 
 // CreateTeamItem creates a team item

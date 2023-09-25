@@ -10,19 +10,19 @@ import (
 const RelatedAsChild = "child"
 const RelatedAsParent = "parent"
 
-func GetRelatedContacts(ctx context.Context, tx dal.ReadTransaction, teamID, relatedAs string, deepness, maxDeepness int, contacts []dal4contactus.ContactContext) (related []dal4contactus.ContactContext, err error) {
+func GetRelatedContacts(ctx context.Context, tx dal.ReadTransaction, teamID, relatedAs string, deepness, maxDeepness int, contacts []dal4contactus.ContactEntry) (related []dal4contactus.ContactEntry, err error) {
 	switch relatedAs {
 	case RelatedAsChild, RelatedAsParent: // OK
 	default:
 		return nil, fmt.Errorf("unknown relatedAs: [%v]", relatedAs)
 	}
-	var directlyRelated []dal4contactus.ContactContext
+	var directlyRelated []dal4contactus.ContactEntry
 	for _, contact := range contacts {
 		for relatedContactID, relatedContact := range contact.Data.Contacts {
 			if relatedContact.RelatedAs == relatedAs {
 				if _, found := dal4contactus.GetContactByID(related, relatedContactID.ItemID()); !found {
 					if _, found = dal4contactus.GetContactByID(directlyRelated, relatedContactID.ItemID()); !found {
-						directlyRelated = append(related, dal4contactus.NewContactContext(teamID, relatedContactID.ItemID()))
+						directlyRelated = append(related, dal4contactus.NewContactEntry(teamID, relatedContactID.ItemID()))
 					}
 				}
 			}

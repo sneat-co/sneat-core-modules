@@ -84,7 +84,7 @@ func AcceptPersonalInvite(ctx context.Context, userContext facade.User, request 
 				return fmt.Errorf("failed to update team record: %w", err)
 			}
 
-			memberContext := dal4contactus.NewContactContext(params.Team.ID, member.ID)
+			memberContext := dal4contactus.NewContactEntry(params.Team.ID, member.ID)
 
 			if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, teamMember); err != nil {
 				return fmt.Errorf("failed to update team member record: %w", err)

@@ -112,7 +112,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 		return response, fmt.Errorf("failed to insert a new teamDto record: %w", err)
 	}
 
-	teamContactus := dal4contactus.NewContactusTeamContext(teamID)
+	teamContactus := dal4contactus.NewContactusTeamModuleEntry(teamID)
 
 	teamMember := user.Dto.ContactBrief
 	teamMember.UserID = userID

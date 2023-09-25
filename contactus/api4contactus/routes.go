@@ -10,8 +10,7 @@ func RegisterHttpRoutes(handle modules.HTTPHandleFunc) {
 	handle(http.MethodPost, "/v0/contacts/create_contact", httpPostCreateContact)
 	handle(http.MethodDelete, "/v0/contacts/delete_contact", httpDeleteContact)
 	handle(http.MethodPost, "/v0/contacts/set_contacts_status", httpSetContactStatus)
-	handle(http.MethodPost, "/v0/contacts/set_contact_address", httpSetContactAddress)
-	handle(http.MethodPost, "/v0/contacts/set_contact_roles", httpSetContactRoles)
+	handle(http.MethodPost, "/v0/contacts/update_contact", httpUpdateContact)
 	////
 	//handle(http.MethodGet, "/v0/team/join_info", api.GetTeamJoinInfo)
 	//handle(http.MethodPost, "/v0/team/join_team", api.JoinTeam)

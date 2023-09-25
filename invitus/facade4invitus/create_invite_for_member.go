@@ -71,7 +71,7 @@ func CreateOrReuseInviteForMember(ctx context.Context, user facade.User, request
 				personalInvite *models4invitus.PersonalInviteDto
 			)
 
-			fromContact := dal4contactus.NewContactContext(request.TeamID, fromContactID)
+			fromContact := dal4contactus.NewContactEntry(request.TeamID, fromContactID)
 			if err = tx.Get(ctx, fromContact.Record); err != nil {
 				return err
 			}

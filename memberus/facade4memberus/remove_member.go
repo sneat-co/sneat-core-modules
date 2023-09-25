@@ -70,7 +70,7 @@ func updateUserRecordOnTeamMemberRemoved(user *models4userus.UserDto, teamID str
 
 func removeTeamMember(
 	team dal4teamus.TeamContext,
-	contactusTeam dal4contactus.ContactusTeamContext,
+	contactusTeam dal4contactus.ContactusTeamModuleEntry,
 	match func(contactID string, m *briefs4memberus.MemberBrief) bool,
 ) (memberUserID string, updates []dal.Update, err error) {
 	userIds := contactusTeam.Data.UserIDs

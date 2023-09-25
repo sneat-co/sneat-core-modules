@@ -10,14 +10,6 @@ import (
 	"github.com/strongo/validation"
 )
 
-// UpdateContact updates team contact
-func UpdateContact(ctx context.Context, tx dal.ReadwriteTransaction, contact dal4contactus.ContactContext, updates []dal.Update) (err error) {
-	if err = contact.Data.Validate(); err != nil {
-		return
-	}
-	return tx.Set(ctx, contact.Record)
-}
-
 // DeleteContact deletes team contact
 func DeleteContact(ctx context.Context, userContext facade.User, request dto4contactus.ContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
@@ -38,7 +30,7 @@ func deleteContactTxWorker(
 	if contactID == params.Team.ID {
 		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents team/company itself")
 	}
-	contact := dal4contactus.NewContactContext(params.Team.ID, contactID)
+	contact := dal4contactus.NewContactEntry(params.Team.ID, contactID)
 	if err = tx.Get(ctx, contact.Record); err != nil {
 		return fmt.Errorf("failed to get contact: %w", err)
 	}
@@ -46,8 +38,8 @@ func deleteContactTxWorker(
 		return fmt.Errorf("failed to get team contacts brief: %w", err)
 	}
 
-	var relatedContacts []dal4contactus.ContactContext
-	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, RelatedAsChild, 0, -1, []dal4contactus.ContactContext{contact})
+	var relatedContacts []dal4contactus.ContactEntry
+	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, RelatedAsChild, 0, -1, []dal4contactus.ContactEntry{contact})
 	if err != nil {
 		return fmt.Errorf("failed to get related contacts: %w", err)
 	}

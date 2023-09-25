@@ -6,7 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/memberus/models4memberus"
 )
 
-type MemberContext = dal4contactus.ContactContext
+type MemberContext = dal4contactus.ContactEntry
 
 func NewMemberContext(teamID, memberID string) MemberContext {
 	return NewMemberContextWithDto(teamID, memberID, new(models4memberus.MemberDto))

@@ -272,7 +272,7 @@ func Test_updateTeamRecord(t *testing.T) {
 		uid           string
 		memberID      string
 		team          dal4teamus.TeamContext
-		contactusTeam dal4contactus.ContactusTeamContext
+		contactusTeam dal4contactus.ContactusTeamModuleEntry
 		requestMember dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 	}
 	testMember := dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
@@ -298,7 +298,7 @@ func Test_updateTeamRecord(t *testing.T) {
 						Title: "Family",
 					},
 				}),
-				contactusTeam: dal4contactus.NewContactusTeamContextWithData("testteamid", &models4contactus.ContactusTeamDto{
+				contactusTeam: dal4contactus.NewContactusTeamModuleEntryWithData("testteamid", &models4contactus.ContactusTeamDto{
 					WithSingleTeamContactsWithoutContactIDs: briefs4contactus.WithSingleTeamContactsWithoutContactIDs[*briefs4memberus.MemberBrief]{
 						WithContactsBase: briefs4contactus.WithContactsBase[string, *briefs4memberus.MemberBrief]{
 							WithContactBriefs: briefs4contactus.WithContactBriefs[string, *briefs4memberus.MemberBrief]{

@@ -35,7 +35,7 @@ func (v *CreateMemberRequest) Validate() error {
 
 // CreateTeamMemberResponse response
 type CreateTeamMemberResponse struct {
-	Member ContactContext `json:"member"`
+	Member ContactEntry `json:"member"`
 }
 
 // Validate returns error if not valid

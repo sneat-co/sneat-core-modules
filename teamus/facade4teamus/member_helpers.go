@@ -23,7 +23,7 @@ func CreateMemberRecordFromBrief(
 	if err = memberBrief.Validate(); err != nil {
 		return member, fmt.Errorf("supplied member brief is not valid: %w", err)
 	}
-	member = dal4contactus.NewContactContext(teamID, contactID)
+	member = dal4contactus.NewContactEntry(teamID, contactID)
 	//member.Brief = &memberBrief
 	//member.Data.TeamID = teamID
 	member.Data.ContactBrief = memberBrief
