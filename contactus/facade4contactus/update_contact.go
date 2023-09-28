@@ -65,6 +65,15 @@ func updateContactTxWorker(
 			contactUpdates = append(contactUpdates, dal.Update{Field: "address", Value: request.Address})
 		}
 	}
+
+	if request.VatNumber != nil {
+		if vat := *request.VatNumber; vat != contact.Data.VATNumber {
+			updatedContactFields = append(updatedContactFields, "vatNumber")
+			contact.Data.VATNumber = vat
+			contactUpdates = append(contactUpdates, dal.Update{Field: "vatNumber", Value: vat})
+		}
+	}
+
 	if request.AgeGroup != "" {
 		if request.AgeGroup != contact.Data.AgeGroup {
 			updatedContactFields = append(updatedContactFields, "ageGroup")
@@ -79,6 +88,7 @@ func updateContactTxWorker(
 				})
 		}
 	}
+
 	if request.Roles != nil {
 		for _, role := range request.Roles.Remove {
 			contact.Data.Roles = slice.RemoveInPlace(role, contact.Data.Roles)
@@ -92,13 +102,16 @@ func updateContactTxWorker(
 				Value: contact.Data.Roles,
 			})
 	}
+
 	if err := contact.Data.Validate(); err != nil {
 		return fmt.Errorf("contact DTO is not valid after updating %d fields %+v: %w", len(updatedContactFields), updatedContactFields, err)
 	}
+
 	if len(contactUpdates) > 0 {
 		if err := tx.Update(ctx, contact.Key, contactUpdates); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

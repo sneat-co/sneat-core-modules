@@ -4,13 +4,15 @@ import (
 	"errors"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
+	"strings"
 )
 
 type UpdateContactRequest struct {
 	ContactRequest
-	Address  *dbmodels.Address       `json:"address,omitempty"`
-	AgeGroup string                  `json:"ageGroup,omitempty"`
-	Roles    *SetContactRolesRequest `json:"roles,omitempty"`
+	Address   *dbmodels.Address       `json:"address,omitempty"`
+	AgeGroup  string                  `json:"ageGroup,omitempty"`
+	Roles     *SetContactRolesRequest `json:"roles,omitempty"`
+	VatNumber *string                 `json:"vatNumber,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
@@ -32,6 +34,13 @@ func (v UpdateContactRequest) Validate() error {
 		if err := v.Roles.Validate(); err != nil {
 			return validation.NewErrBadRequestFieldValue("roles", err.Error())
 		}
+	}
+	if v.VatNumber != nil {
+		vat := *v.VatNumber
+		if strings.TrimSpace(vat) == vat {
+			return validation.NewErrBadRequestFieldValue("vatNumber", "must not have leading or trailing spaces")
+		}
+
 	}
 	return nil
 }
