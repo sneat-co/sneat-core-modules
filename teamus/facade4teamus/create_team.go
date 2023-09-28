@@ -16,6 +16,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/random"
 	"strings"
+	"time"
 )
 
 // CreateTeam creates TeamIDs record
@@ -33,6 +34,7 @@ func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus
 }
 
 func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTransaction, request dto4teamus.CreateTeamRequest) (response dto4teamus.CreateTeamResponse, err error) {
+	now := time.Now()
 	if strings.TrimSpace(userID) == "" {
 		return response, facade.ErrUnauthenticated
 	}
@@ -42,7 +44,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 		return
 	}
 
-	memberID, err = dbmodels.GenerateIDFromNameOrRandom(*user.Dto.Name, nil)
+	memberID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
 	if err != nil {
 		return response, fmt.Errorf("failed to generate  member ContactID: %w", err)
 	}
@@ -62,19 +64,24 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 	teamDto := &models4teamus.TeamDto{
 		TeamBrief: models4teamus.TeamBrief{
-			Type:  request.Type,
-			Title: request.Title,
+			Type:   request.Type,
+			Title:  request.Title,
+			Status: dbmodels.StatusActive,
 		},
 		WithUserIDs: dbmodels.WithUserIDs{
 			UserIDs: []string{userID},
 		},
-		//WithMembers: models4memberus.WithMembers{
-		//	Members: []*briefs4memberus.MemberBrief{&teamMember},
-		//},
+		WithCreated: dbmodels.WithCreated{
+			CreatedAt: now,
+			CreatedBy: userID,
+		},
+		//WithUpdated: dbmodels.WithUpdated{}, // This is updated by IncreaseVersion()
+		//WithMembers: models4memberus.WithMembers{}, // Moved to contactus module
 		NumberOf: map[string]int{
 			"members": 1,
 		},
 	}
+	teamDto.IncreaseVersion(now, userID)
 	teamDto.CountryID = user.Dto.CountryID
 	if request.Type == "work" {
 		zero := 0
@@ -136,12 +143,8 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	teamInfo := models4userus.UserTeamBrief{
-		TeamBrief: models4teamus.TeamBrief{
-			Type:  request.Type,
-			Title: request.Title,
-		},
-		//MemberType: briefs4memberus.TeamMemberTypeCreator,
-		Roles: roles,
+		TeamBrief: teamDto.TeamBrief,
+		Roles:     roles,
 	}
 
 	if user.Dto.Teams == nil {

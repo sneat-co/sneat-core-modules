@@ -87,7 +87,7 @@ func CreateMember(
 			//if memberBrief.Name.First != "" && memberBrief.Name.Last != "" {
 			//
 			//}
-			contactID, err = dbmodels.GenerateIDFromNameOrRandom(*memberBrief.Name, contactusTeam.Data.ContactIDs())
+			contactID, err = dbmodels.GenerateIDFromNameOrRandom(memberBrief.Name, contactusTeam.Data.ContactIDs())
 			if err != nil {
 				return fmt.Errorf("failed to generate new member ContactID: %w", err)
 			}
@@ -122,7 +122,7 @@ func CreateMember(
 				return fmt.Errorf("failed to create member's record: %w", err)
 			}
 
-			if err = txUpdateMemberGroup(ctx, tx, params.Started, params.Team.Data, params.Team.Key, params.TeamUpdates); err != nil {
+			if err = txUpdateMemberGroup(ctx, tx, params.Started, user.GetID(), params.Team.Data, params.Team.Key, params.TeamUpdates); err != nil {
 				return fmt.Errorf("failed to update team record: %w", err)
 			}
 			if contactID == "" {

@@ -41,6 +41,57 @@ type TeamModuleData interface {
 	Validate() error
 }
 
+func RunModuleTeamWorkerTx[D TeamModuleData](
+	ctx context.Context,
+	tx dal.ReadwriteTransaction,
+	user facade.User,
+	request dto4teamus.TeamRequest,
+	moduleID string,
+	data D,
+	worker func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
+) (err error) {
+	if worker == nil {
+		panic("worker is nil")
+	}
+	teamWorkerParams := NewTeamWorkerParams(user.GetID(), request.TeamID)
+	params := NewTeamModuleWorkerParams(moduleID, teamWorkerParams, data)
+	return runModuleTeamWorkerTx(ctx, tx, params, worker)
+}
+
+func NewTeamModuleWorkerParams[D TeamModuleData](
+	moduleID string,
+	teamWorkerParams TeamWorkerParams,
+	data D,
+) ModuleTeamWorkerParams[D] {
+	return ModuleTeamWorkerParams[D]{
+		TeamWorkerParams: teamWorkerParams,
+		TeamModuleEntry: record.NewDataWithID("",
+			dal.NewKeyWithParentAndID(teamWorkerParams.Team.Key, Collection, moduleID),
+			data,
+		),
+	}
+}
+func runModuleTeamWorkerTx[D TeamModuleData](
+	ctx context.Context,
+	tx dal.ReadwriteTransaction,
+	params ModuleTeamWorkerParams[D],
+	worker func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
+) (err error) {
+	if err := tx.GetMulti(ctx, []dal.Record{params.Team.Record, params.TeamModuleEntry.Record}); err != nil && !dal.IsNotFound(err) {
+		return fmt.Errorf("failed to get team & team module records: %w", err)
+	}
+	if err = worker(ctx, tx, &params); err != nil {
+		return fmt.Errorf("failed to execute module team worker: %w", err)
+	}
+	if err = applyTeamUpdates(ctx, tx, params.TeamWorkerParams); err != nil {
+		return fmt.Errorf("module team worker failed to apply team record updates: %w", err)
+	}
+	if err = applyTeamModuleUpdates(ctx, tx, params); err != nil {
+		return fmt.Errorf("module team worker failed to apply team module record updates: %w", err)
+	}
+	return nil
+}
+
 func RunModuleTeamWorker[D TeamModuleData](
 	ctx context.Context,
 	user facade.User,
@@ -50,29 +101,11 @@ func RunModuleTeamWorker[D TeamModuleData](
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
 ) (err error) {
 	teamWorkerParams := NewTeamWorkerParams(user.GetID(), request.TeamID)
-	params := ModuleTeamWorkerParams[D]{
-		TeamWorkerParams: teamWorkerParams,
-		TeamModuleEntry: record.NewDataWithID("",
-			dal.NewKeyWithParentAndID(teamWorkerParams.Team.Key, Collection, moduleID),
-			data,
-		),
-	}
+	params := NewTeamModuleWorkerParams(moduleID, teamWorkerParams, data)
 
 	db := facade.GetDatabase(ctx)
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		if err := tx.GetMulti(ctx, []dal.Record{params.Team.Record, params.TeamModuleEntry.Record}); err != nil && !dal.IsNotFound(err) {
-			return fmt.Errorf("failed to get team & team module records: %w", err)
-		}
-		if err = worker(ctx, tx, &params); err != nil {
-			return fmt.Errorf("failed to execute module team worker: %w", err)
-		}
-		if err = applyTeamUpdates(ctx, tx, params.TeamWorkerParams); err != nil {
-			return fmt.Errorf("module team worker failed to apply team record updates: %w", err)
-		}
-		if err = applyTeamModuleUpdates(ctx, tx, params); err != nil {
-			return fmt.Errorf("module team worker failed to apply team module record updates: %w", err)
-		}
-		return nil
+		return runModuleTeamWorkerTx(ctx, tx, params, worker)
 	})
 }
 

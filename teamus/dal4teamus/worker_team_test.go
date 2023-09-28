@@ -9,8 +9,10 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 type fooModuleTeamData struct {
@@ -47,8 +49,12 @@ func TestRunModuleTeamWorker(t *testing.T) {
 					record.SetError(nil)
 					if record.Key().Collection() == "teams" {
 						teamData := record.Data().(*models4teamus.TeamDto)
+						teamData.CreatedAt = time.Now()
+						teamData.CreatedBy = "test"
+						teamData.IncreaseVersion(teamData.CreatedAt, teamData.CreatedBy)
 						teamData.Type = core4teamus.TeamTypeFamily
 						teamData.CountryID = "UK"
+						teamData.Status = dbmodels.StatusActive
 						teamData.UserIDs = []string{user.ID}
 					}
 				}
@@ -82,4 +88,22 @@ func TestRunModuleTeamWorker(t *testing.T) {
 	//		}
 	//	})
 	//}
+}
+
+func TestRunModuleTeamWorkerTx(t *testing.T) {
+	ctx := context.Background()
+	user := &facade.AuthUser{ID: "user1"}
+	request := dto4teamus.TeamRequest{TeamID: "team1"}
+	const moduleID = "test_module"
+	//assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[*fooModuleTeamData]) (err error) {
+	//	assert.NotNil(t, teamWorkerParams)
+	//	assert.NotNil(t, teamWorkerParams.TeamModuleEntry)
+	//	assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Record)
+	//	assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Data)
+	//	assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Record.Data())
+	//	return nil
+	//}
+	assert.Panics(t, func() {
+		RunModuleTeamWorkerTx(ctx, nil, user, request, moduleID, new(fooModuleTeamData), nil)
+	})
 }

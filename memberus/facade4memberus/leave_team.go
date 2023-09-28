@@ -56,7 +56,7 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 						return err
 					}
 				} else {
-					if err = txUpdateMemberGroup(ctx, tx, params.Started, params.Team.Data, params.Team.Key, updates); err != nil {
+					if err = txUpdateMemberGroup(ctx, tx, params.Started, uid, params.Team.Data, params.Team.Key, updates); err != nil {
 						return
 					}
 				}

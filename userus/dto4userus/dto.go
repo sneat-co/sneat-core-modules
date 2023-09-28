@@ -31,7 +31,7 @@ func (v InitTeamInfo) Validate() error {
 
 // InitUserRecordRequest request
 type InitUserRecordRequest struct {
-	AuthProvider    string                        `json:"authProvider,omitempty"` // TODO: Can we get it from Firebase token?
+	AuthProvider    string                        `json:"authProvider,omitempty"`
 	Email           string                        `json:"email,omitempty"`
 	EmailIsVerified bool                          `json:"emailIsVerified,omitempty"`
 	IanaTimezone    string                        `json:"ianaTimezone,omitempty"`
@@ -43,9 +43,7 @@ type InitUserRecordRequest struct {
 
 // Validate validates request
 func (v *InitUserRecordRequest) Validate() error {
-	if v.AuthProvider == "" {
-		return validation.NewErrRequestIsMissingRequiredField("authProvider")
-	} else if !dbmodels.IsKnownAuthProviderID(v.AuthProvider) {
+	if v.AuthProvider != "" && !dbmodels.IsKnownAuthProviderID(v.AuthProvider) {
 		return validation.NewErrBadRequestFieldValue("authProvider", "unknown value: "+v.AuthProvider)
 	}
 	if v.Name != nil {
@@ -53,8 +51,10 @@ func (v *InitUserRecordRequest) Validate() error {
 			return fmt.Errorf("%w: %v", facade.ErrBadRequest, err)
 		}
 	}
-	if _, err := mail.ParseAddress(v.Email); err != nil {
-		return validation.NewErrBadRequestFieldValue("email", err.Error())
+	if v.Email != "" {
+		if _, err := mail.ParseAddress(v.Email); err != nil {
+			return validation.NewErrBadRequestFieldValue("email", err.Error())
+		}
 	}
 	if v.Team != nil {
 		if err := v.Team.Validate(); err != nil {

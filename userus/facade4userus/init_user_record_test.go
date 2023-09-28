@@ -9,6 +9,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -55,6 +56,15 @@ func Test_InitUserRecord(t *testing.T) {
 				tx.EXPECT().Get(ctx, gomock.Any()).Return(dal.ErrRecordNotFound)
 				tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil)
 				return f(ctx, tx)
+			}
+
+			sneatauth.GetUserInfo = func(ctx context.Context, uid string) (authUser *sneatauth.AuthUserInfo, err error) {
+				authUser = &sneatauth.AuthUserInfo{
+					AuthProviderUserInfo: &sneatauth.AuthProviderUserInfo{
+						ProviderID: "firebase",
+					},
+				}
+				return
 			}
 			// SETUP MOCKS ENDS
 

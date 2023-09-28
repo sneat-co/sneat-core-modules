@@ -52,7 +52,7 @@ func RemoveMember(ctx context.Context, user facade.User, request dto4contactus.C
 			if err = params.Team.Data.Validate(); err != nil {
 				return fmt.Errorf("team reacord is not valid: %v", err)
 			}
-			if err = txUpdateMemberGroup(ctx, tx, params.Started, params.Team.Data, params.Team.Key, updates); err != nil {
+			if err = txUpdateMemberGroup(ctx, tx, params.Started, user.GetID(), params.Team.Data, params.Team.Key, updates); err != nil {
 				return
 			}
 			return

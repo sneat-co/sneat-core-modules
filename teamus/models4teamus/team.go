@@ -101,9 +101,11 @@ type TeamMeetings struct {
 
 // TeamBrief is a base class for TeamDto
 type TeamBrief struct {
-	Type    core4teamus.TeamType `json:"type" firestore:"type"`
-	Title   string               `json:"title" firestore:"title"`
-	Modules []string             `json:"modules" firestore:"modules"`
+	Type   core4teamus.TeamType `json:"type" firestore:"type"`
+	Title  string               `json:"title" firestore:"title"`
+	Status dbmodels.Status      `json:"status" firestore:"status"`
+
+	Modules []string `json:"modules,omitempty" firestore:"modules,omitempty"`
 
 	dbmodels.WithRequiredCountryID
 
@@ -125,20 +127,33 @@ func (v TeamBrief) Validate() error {
 		}
 		return validation.NewErrBadRecordFieldValue("type", "unknown value for team:"+v.Title)
 	}
+	if v.Status == "" {
+		return validation.NewErrRequestIsMissingRequiredField("status")
+	} else if !IsKnownTeamStatus(v.Status) {
+		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+v.Status)
+	}
 	if err := v.WithRequiredCountryID.Validate(); err != nil {
 		return err
 	}
 	return nil
 }
 
+func IsKnownTeamStatus(status dbmodels.Status) bool {
+	switch status {
+	case dbmodels.StatusActive, dbmodels.StatusArchived, dbmodels.StatusDeleted, dbmodels.StatusDraft:
+		return true
+	}
+	return false
+}
+
 // TeamDto record
 type TeamDto struct {
 	TeamBrief
+	dbmodels.WithCreated
+	dbmodels.WithUpdatedAndVersion
 	dbmodels.WithUserIDs
 
-	NumberOf  map[string]int `json:"numberOf,omitempty" firestore:"numberOf,omitempty"`
-	Version   int            `json:"v" firestore:"v"`
-	Timestamp *time.Time     `json:"timestamp" firestore:"timestamp"`
+	NumberOf map[string]int `json:"numberOf,omitempty" firestore:"numberOf,omitempty"`
 	//
 	//Contacts   []*briefs4contactus.ContactBrief `json:"contacts,omitempty" firestore:"contacts,omitempty"`
 
@@ -160,15 +175,22 @@ func (v *TeamDto) SetNumberOf(name string, value int) (update dal.Update) {
 }
 
 // IncreaseVersion increases record version and sets timestamp
-func (v *TeamDto) IncreaseVersion(timestamp time.Time) int {
+func (v *TeamDto) IncreaseVersion(timestamp time.Time, updatedBy string) int {
 	v.Version++
-	v.Timestamp = &timestamp
+	v.UpdatedAt = timestamp
+	v.UpdatedBy = updatedBy
 	return v.Version
 }
 
 // Validate validates record
 func (v *TeamDto) Validate() error {
 	if err := v.TeamBrief.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithCreated.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithUpdated.Validate(); err != nil {
 		return err
 	}
 	for i, userID := range v.UserIDs {

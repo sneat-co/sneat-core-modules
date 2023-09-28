@@ -10,6 +10,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"time"
 )
 
@@ -20,8 +21,12 @@ func InitUserRecord(ctx context.Context, userContext facade.User, request dto4us
 		return
 	}
 	userID := userContext.GetID()
+	var userInfo *sneatauth.AuthUserInfo
+	if userInfo, err = sneatauth.GetUserInfo(ctx, userID); err != nil {
+		return user, fmt.Errorf("failed to get user info: %w", err)
+	}
 	err = runReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
-		user, err = initUserRecordTxWorker(ctx, tx, userID, request)
+		user, err = initUserRecordTxWorker(ctx, tx, userID, userInfo, request)
 		return err
 	})
 	if err != nil {
@@ -47,9 +52,9 @@ func InitUserRecord(ctx context.Context, userContext facade.User, request dto4us
 	return
 }
 
-func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, userID string, request dto4userus.InitUserRecordRequest) (user models4userus.UserContext, err error) {
+func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, uid string, userInfo *sneatauth.AuthUserInfo, request dto4userus.InitUserRecordRequest) (user models4userus.UserContext, err error) {
 	var isNewUser bool
-	user = models4userus.NewUserContext(userID)
+	user = models4userus.NewUserContext(uid)
 	if err = TxGetUserByID(ctx, tx, user.Record); err != nil {
 		if dal.IsNotFound(err) {
 			isNewUser = true
@@ -58,7 +63,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, us
 		}
 	}
 	if isNewUser {
-		if err = createUserRecord(ctx, tx, request, user); err != nil {
+		if err = createUserRecord(ctx, tx, request, user, userInfo); err != nil {
 			err = fmt.Errorf("faield to create user record: %w", err)
 			return
 		}
@@ -69,7 +74,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, us
 	return
 }
 
-func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext) error {
+func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext, userInfo *sneatauth.AuthUserInfo) error {
 	user.Dto.Status = "active"
 	user.Dto.Type = briefs4contactus.ContactTypePerson
 	user.Dto.CountryID = "--"
@@ -80,14 +85,27 @@ func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request 
 	}
 	user.Dto.Created.At = time.Now()
 	user.Dto.Created.Client = request.RemoteClient
-	user.Dto.Email = request.Email
-	user.Dto.EmailVerified = request.EmailIsVerified
+	if request.Email != "" {
+		user.Dto.Email = request.Email
+		user.Dto.EmailVerified = request.EmailIsVerified
+	} else {
+		user.Dto.Email = userInfo.Email
+		user.Dto.EmailVerified = userInfo.EmailVerified
+	}
+	authProvider := request.AuthProvider
+	if authProvider == "" {
+		if len(userInfo.ProviderUserInfo) == 1 {
+			authProvider = userInfo.ProviderUserInfo[0].ProviderID
+		} else {
+			authProvider = userInfo.ProviderID
+		}
+	}
 	user.Dto.Emails = []dbmodels.PersonEmail{
 		{
 			Type:         "primary",
-			Address:      request.Email,
-			Verified:     request.EmailIsVerified,
-			AuthProvider: request.AuthProvider,
+			Address:      user.Dto.Email,
+			Verified:     user.Dto.EmailVerified,
+			AuthProvider: authProvider,
 		},
 	}
 	if request.IanaTimezone != "" {
