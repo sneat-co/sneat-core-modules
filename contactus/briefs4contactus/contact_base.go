@@ -11,6 +11,8 @@ import (
 // ContactBase is used in models4contactus.ContactDto and in requests to create a contactBrief
 type ContactBase struct {
 	ContactBrief
+	dbmodels.WithCreated
+	dbmodels.WithUpdatedAndVersion
 
 	Status dbmodels.Status `json:"status" firestore:"status"` // active, archived
 

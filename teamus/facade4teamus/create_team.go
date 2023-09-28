@@ -165,7 +165,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	teamMember.Roles = roles
-	if _, err = CreateMemberRecordFromBrief(ctx, tx, teamID, memberID, teamMember); err != nil {
+	if _, err = CreateMemberRecordFromBrief(ctx, tx, teamID, memberID, teamMember, now, userID); err != nil {
 		return response, fmt.Errorf("failed to create member's record: %w", err)
 	}
 

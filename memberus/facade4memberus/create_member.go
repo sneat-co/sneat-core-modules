@@ -17,6 +17,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
+	"time"
 )
 
 // CreateMember adds members to a team
@@ -35,6 +36,7 @@ func CreateMember(
 
 	err = dal4teamus.CreateTeamItem(ctx, user, "members", request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
+			now := time.Now()
 			team := params.Team
 			contactusTeam := dal4contactus.NewContactusTeamModuleEntry(params.Team.ID)
 			if err := tx.Get(ctx, contactusTeam.Record); err != nil {
@@ -117,7 +119,7 @@ func CreateMember(
 				)
 			}
 
-			response.Member, err = facade4teamus.CreateMemberRecordFromBrief(ctx, tx, request.TeamID, contactID, memberBrief)
+			response.Member, err = facade4teamus.CreateMemberRecordFromBrief(ctx, tx, request.TeamID, contactID, memberBrief, now, params.UserID)
 			if err != nil {
 				return fmt.Errorf("failed to create member's record: %w", err)
 			}
