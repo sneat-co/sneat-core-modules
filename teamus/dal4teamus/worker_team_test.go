@@ -104,6 +104,6 @@ func TestRunModuleTeamWorkerTx(t *testing.T) {
 	//	return nil
 	//}
 	assert.Panics(t, func() {
-		RunModuleTeamWorkerTx(ctx, nil, user, request, moduleID, new(fooModuleTeamData), nil)
+		_ = RunModuleTeamWorkerTx(ctx, nil, user, request, moduleID, new(fooModuleTeamData), nil)
 	})
 }
