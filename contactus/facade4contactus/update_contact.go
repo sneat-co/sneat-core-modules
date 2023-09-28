@@ -14,11 +14,11 @@ import (
 )
 
 // UpdateContact sets contact fields
-func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
+func UpdateContactTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
-	err = dal4teamus.RunModuleTeamWorker(ctx, user, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
+	err = dal4teamus.RunModuleTeamWorkerTx(ctx, tx, user, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			return updateContactTxWorker(ctx, tx, teamWorkerParams, request)
 		},
@@ -26,7 +26,18 @@ func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.
 	if err != nil {
 		return fmt.Errorf("failed to set contact status: %w", err)
 	}
-	return nil
+	return err
+}
+
+// UpdateContact sets contact fields
+func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
+	if err = request.Validate(); err != nil {
+		return
+	}
+	db := facade.GetDatabase(ctx)
+	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
+		return UpdateContactTx(ctx, tx, user, request)
+	})
 }
 
 func updateContactTxWorker(
