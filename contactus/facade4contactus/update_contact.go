@@ -13,7 +13,7 @@ import (
 	"github.com/strongo/slice"
 )
 
-// UpdateContact sets contact fields
+// UpdateContactTx sets contact fields
 func UpdateContactTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
