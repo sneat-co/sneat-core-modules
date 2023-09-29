@@ -14,6 +14,7 @@ type ContactBase struct {
 	dbmodels.WithCreated
 	dbmodels.WithUpdatedAndVersion
 
+	// Status belong to ContactBase and is not part of ContactBrief as we keep in briefs only active contacts
 	Status dbmodels.Status `json:"status" firestore:"status"` // active, archived
 
 	WithGroupIDs
@@ -41,7 +42,7 @@ func (v *ContactBase) Validate() error {
 		errs = append(errs, err)
 	}
 	switch v.Status {
-	case ContactStatusActive, ContactStatusArchived: // OK
+	case ContactStatusActive, ContactStatusArchived, ContactStatusDeleted: // OK
 	case "":
 		errs = append(errs, validation.NewErrRequestIsMissingRequiredField("status"))
 	default:

@@ -5,7 +5,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/strongo/validation"
 )
 
 // TeamContactsCollection defines  collection name for team contacts.
@@ -13,8 +12,7 @@ import (
 // and TeamID is also in record key as prefix.
 const TeamContactsCollection = "contacts"
 
-// ContactDto DTO - we have `Team` prefix as it can belong only to single team
-// and TeamID is also in record key as prefix
+// ContactDto belongs only to single team
 type ContactDto struct {
 	//dbmodels.WithTeamID -- not needed as it's in record key
 	//dbmodels.WithUserIDs
@@ -26,23 +24,9 @@ type ContactDto struct {
 
 // Validate returns error if not valid
 func (v ContactDto) Validate() error {
-	//if err := v.WithTeamID.Validate(); err != nil {
-	//	return err
-	//}
-	switch v.Status {
-	case dbmodels.StatusActive, dbmodels.StatusArchived:
-	// OK
-	case "":
-		return validation.NewErrRecordIsMissingRequiredField("status")
-	default:
-		return validation.NewErrBadRecordFieldValue("status", fmt.Sprintf("unknown value: [%v]", v.Status))
-	}
 	if err := v.ContactBase.Validate(); err != nil {
 		return fmt.Errorf("ContactRecordBase is not valid: %w", err)
 	}
-	//if err := v.WithUserIDs.Validate(); err != nil {
-	//	return err
-	//}
 	if err := v.WithRoles.Validate(); err != nil {
 		return err
 	}

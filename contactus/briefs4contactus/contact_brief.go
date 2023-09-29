@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// ContactBrief needed as ContactBase is used in models4contactus.ContactDto and in dto4contactus.CreatePersonRequest
+// Status is not part of ContactBrief as we keep in briefs only active contacts
 type ContactBrief struct {
 	dbmodels.WithUserID
 	Type       ContactType     `json:"type" firestore:"type"` // "person", "company", "location"

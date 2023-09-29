@@ -121,7 +121,8 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 
 	teamContactus := dal4contactus.NewContactusTeamModuleEntry(teamID)
 
-	teamMember := user.Dto.ContactBrief
+	teamMember := user.Dto.ContactBrief // This should copy data from user's contact brief as it's not a pointer
+
 	teamMember.UserID = userID
 	teamMember.Roles = roles
 	if teamMember.Gender == "" {

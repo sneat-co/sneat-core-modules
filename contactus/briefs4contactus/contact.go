@@ -68,4 +68,5 @@ func ValidateContactType(v ContactType) error {
 const (
 	ContactStatusActive   = dbmodels.StatusActive
 	ContactStatusArchived = dbmodels.StatusArchived
+	ContactStatusDeleted  = dbmodels.StatusDeleted
 )
