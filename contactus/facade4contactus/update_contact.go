@@ -107,7 +107,7 @@ func updateContactTxWorker(
 		contact.Data.IncreaseVersion(params.Started, params.UserID)
 		contactUpdates = append(contactUpdates, contact.Data.WithUpdatedAndVersion.GetUpdates()...)
 		if err := contact.Data.Validate(); err != nil {
-			return fmt.Errorf("contact DTO is not valid before updating DB: %w", err)
+			return fmt.Errorf("contact DTO is not valid after update %+v fields and before storing changes DB: %w", updatedContactFields, err)
 		}
 		if err := tx.Update(ctx, contact.Key, contactUpdates); err != nil {
 			return err
