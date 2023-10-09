@@ -1,14 +1,14 @@
-package api4memberus
+package api4contactus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/memberus/facade4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"net/http"
 )
 
-var leaveTeam = facade4memberus.LeaveTeam
+var leaveTeam = facade4contactus.LeaveTeam
 
 // httpPostLeaveTeam is an API endpoint that removes user from a team by his/here request
 func httpPostLeaveTeam(w http.ResponseWriter, r *http.Request) {

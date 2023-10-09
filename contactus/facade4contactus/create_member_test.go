@@ -1,4 +1,4 @@
-package facade4memberus
+package facade4contactus
 
 import (
 	"testing"

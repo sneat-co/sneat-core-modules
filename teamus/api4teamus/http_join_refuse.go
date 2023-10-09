@@ -1,14 +1,14 @@
 package api4teamus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/memberus/facade4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"net/http"
 	"strconv"
 )
 
-var refuseToJoinTeam = facade4memberus.RefuseToJoinTeam
+var refuseToJoinTeam = facade4contactus.RefuseToJoinTeam
 
 // httpPostRefuseToJoinTeam an API endpoint that records user refusal to join a team
 func httpPostRefuseToJoinTeam(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func httpPostRefuseToJoinTeam(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("pin is expected to be an integer"))
 		return
 	}
-	request := facade4memberus.RefuseToJoinTeamRequest{
+	request := facade4contactus.RefuseToJoinTeamRequest{
 		TeamID: q.Get("id"),
 		Pin:    int32(pin),
 	}

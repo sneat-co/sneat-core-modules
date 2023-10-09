@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/gosimple/slug"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
@@ -50,13 +50,13 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	roles := []string{
-		briefs4memberus.TeamMemberRoleTeamMember,
-		briefs4memberus.TeamMemberRoleCreator,
-		briefs4memberus.TeamMemberRoleOwner,
-		briefs4memberus.TeamMemberRoleContributor,
+		const4contactus.TeamMemberRoleTeamMember,
+		const4contactus.TeamMemberRoleCreator,
+		const4contactus.TeamMemberRoleOwner,
+		const4contactus.TeamMemberRoleContributor,
 	}
 	if request.Type == "family" {
-		roles = append(roles, briefs4memberus.TeamMemberRoleAdult)
+		roles = append(roles, const4contactus.TeamMemberRoleAdult)
 	}
 
 	if request.Type == "family" && request.Title == "" {
@@ -177,7 +177,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 }
 
 func getUniqueTeamID(ctx context.Context, getter dal.ReadSession, title string) (teamID string, err error) {
-	if title == "" || briefs4memberus.IsKnownTeamMemberRole(title, []string{}) {
+	if title == "" || const4contactus.IsKnownTeamMemberRole(title, []string{}) {
 		teamID = random.ID(5)
 	} else {
 		teamID = strings.Replace(slug.Make(title), "-", "", -1)

@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-core-modules/memberus/facade4memberus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -61,9 +60,9 @@ func (v InviteInfo) Validate() error {
 
 // JoinInfoResponse response
 type JoinInfoResponse struct {
-	Team   models4invitus.InviteTeam                         `json:"team"`
-	Invite InviteInfo                                        `json:"invite"`
-	Member *dbmodels.DtoWithID[*briefs4memberus.MemberBrief] `json:"member"`
+	Team   models4invitus.InviteTeam                           `json:"team"`
+	Invite InviteInfo                                          `json:"invite"`
+	Member *dbmodels.DtoWithID[*briefs4contactus.ContactBrief] `json:"member"`
 }
 
 func (v JoinInfoResponse) Validated() error {
@@ -107,11 +106,12 @@ func GetTeamJoinInfo(ctx context.Context, request JoinInfoRequest) (response Joi
 		)
 		return
 	}
-	var memberDto *models4contactus.ContactDto
+	var member dal4contactus.ContactEntry
 	if inviteDto.To.MemberID != "" {
-		memberDto, _, err = facade4memberus.GetMemberByID(ctx, db, inviteDto.TeamID, inviteDto.To.MemberID)
-		if err != nil {
-			err = fmt.Errorf("failed to get memer by ItemID: %w", err)
+		member = dal4contactus.NewContactEntry(inviteDto.TeamID, inviteDto.To.MemberID)
+		db := facade.GetDatabase(ctx)
+		if err = db.Get(ctx, member.Record); err != nil {
+			err = fmt.Errorf("failed to get team member's contact record: %w", err)
 			return
 		}
 	}
@@ -123,9 +123,9 @@ func GetTeamJoinInfo(ctx context.Context, request JoinInfoRequest) (response Joi
 	response.Invite.To = inviteDto.To
 	response.Invite.Message = inviteDto.Message
 	if inviteDto.To.MemberID != "" {
-		response.Member = &dbmodels.DtoWithID[*briefs4memberus.MemberBrief]{
+		response.Member = &dbmodels.DtoWithID[*briefs4contactus.ContactBrief]{
 			ID:   inviteDto.To.MemberID,
-			Data: &memberDto.ContactBrief,
+			Data: &member.Data.ContactBrief,
 		}
 	}
 	return response, nil

@@ -9,14 +9,13 @@ import (
 
 var _ facade.Request = (*CreateMemberRequest)(nil)
 
-// CreateMemberRequest request
+// CreateMemberRequest request is similar to dto4contactus.CreateContactRequest but has less fields
 type CreateMemberRequest struct {
 	dto4teamus.TeamRequest
 	dto4contactus.CreatePersonRequest
 
 	RelatedTo *dto4contactus.RelatedToRequest `json:"relatedTo,omitempty"`
-
-	Message string `json:"message"`
+	Message   string                          `json:"message"`
 }
 
 // Validate validates request

@@ -1,11 +1,7 @@
-package briefs4memberus
+package briefs4contactus
 
-import (
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-)
-
-// GetFullMemberID returns full member ItemID
-func GetFullMemberID(teamID, memberID string) string {
+// GetFullContactID returns full member ItemID
+func GetFullContactID(teamID, memberID string) string {
 	if teamID == "" {
 		panic("teamID is required parameter")
 	}
@@ -15,10 +11,8 @@ func GetFullMemberID(teamID, memberID string) string {
 	return teamID + ":" + memberID
 }
 
-type MemberBrief = briefs4contactus.ContactBrief
-
 // IsUniqueShortTitle checks if a given value is an unique member title
-func IsUniqueShortTitle(v string, contacts map[string]*briefs4contactus.ContactBrief, role string) bool {
+func IsUniqueShortTitle(v string, contacts map[string]*ContactBrief, role string) bool {
 	for _, c := range contacts {
 		if c.ShortTitle == v && (role == "" || c.HasRole(role)) {
 			return false

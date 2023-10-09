@@ -1,4 +1,4 @@
-package facade4memberus
+package facade4contactus
 
 import (
 	"context"
@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/facade4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
@@ -33,7 +32,7 @@ func CreateMember(
 		TeamRequest: request.TeamRequest,
 		RelatedTo:   request.RelatedTo,
 	}
-	return facade4contactus.CreateContact(ctx, user, createContactRequest)
+	return CreateContact(ctx, user, createContactRequest)
 }
 
 func createMemberTx(
@@ -82,13 +81,13 @@ func createMemberTx(
 
 	if team.Data.Type == "family" {
 		memberBrief.Roles = []string{
-			briefs4memberus.TeamMemberRoleContributor,
+			const4contactus.TeamMemberRoleContributor,
 		}
 	}
 
-	if memberBrief.Name.First != "" && briefs4memberus.IsUniqueShortTitle(memberBrief.Name.First, contactusTeam.Data.Contacts, briefs4memberus.TeamMemberRoleTeamMember) {
+	if memberBrief.Name.First != "" && briefs4contactus.IsUniqueShortTitle(memberBrief.Name.First, contactusTeam.Data.Contacts, const4contactus.TeamMemberRoleTeamMember) {
 		memberBrief.ShortTitle = memberBrief.Name.First
-	} else if memberBrief.Name.Nick != "" && briefs4memberus.IsUniqueShortTitle(memberBrief.Name.First, contactusTeam.Data.Contacts, briefs4memberus.TeamMemberRoleTeamMember) {
+	} else if memberBrief.Name.Nick != "" && briefs4contactus.IsUniqueShortTitle(memberBrief.Name.First, contactusTeam.Data.Contacts, const4contactus.TeamMemberRoleTeamMember) {
 		memberBrief.ShortTitle = memberBrief.Name.Nick
 	} else if memberBrief.Name.Full != "" {
 		memberBrief.ShortTitle = getShortTitle(memberBrief.Name.Full, contactusTeam.Data.Contacts)

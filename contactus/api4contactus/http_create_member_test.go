@@ -1,4 +1,4 @@
-package api4memberus
+package api4contactus
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/httpmock"
@@ -39,7 +38,7 @@ func TestHttpAddMember(t *testing.T) {
 					Title:    "Some new members",
 					AgeGroup: "unknown",
 					WithRoles: dbmodels.WithRoles{
-						Roles: []string{briefs4memberus.TeamMemberRoleContributor},
+						Roles: []string{const4contactus.TeamMemberRoleContributor},
 					},
 				},
 				Status: "active",
@@ -81,7 +80,7 @@ func TestHttpAddMember(t *testing.T) {
 						CountryID: "IE",
 					},
 					WithRoles: dbmodels.WithRoles{
-						Roles: []string{briefs4memberus.TeamMemberRoleContributor},
+						Roles: []string{const4contactus.TeamMemberRoleContributor},
 					},
 				},
 				Status: "active",

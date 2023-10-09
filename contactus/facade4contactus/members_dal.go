@@ -1,4 +1,4 @@
-package facade4memberus
+package facade4contactus
 
 import (
 	"context"
@@ -13,8 +13,8 @@ var txUpdate = func(ctx context.Context, tx dal.ReadwriteTransaction, key *dal.K
 	return db.TxUpdate(ctx, tx, key, data, opts...)
 }
 
-// updateMembersGroup wrapper to update TeamIDs
-func updateMembersGroup(ctx context.Context, tx dal.ReadwriteTransaction, updatedAt time.Time, updatedBy string, membersGroup dbmodels.Versioned, key *dal.Key, data []dal.Update, opts ...dal.Precondition) error {
+// UpdateMemberGroup weird unclear method - TODO: remove/replace or document to make sense
+func txUpdateMemberGroup(ctx context.Context, tx dal.ReadwriteTransaction, updatedAt time.Time, updatedBy string, membersGroup dbmodels.Versioned, key *dal.Key, data []dal.Update, opts ...dal.Precondition) error {
 	version := membersGroup.IncreaseVersion(updatedAt, updatedBy)
 	if err := membersGroup.Validate(); err != nil {
 		return fmt.Errorf("membersGroup record is not valid: %w", err)

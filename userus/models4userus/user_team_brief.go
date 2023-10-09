@@ -2,7 +2,7 @@ package models4userus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/strongo/validation"
@@ -49,9 +49,9 @@ func (v UserTeamBrief) Validate() error {
 		if role == "" {
 			return validation.NewErrRecordIsMissingRequiredField(fmt.Sprintf("roles[%v]", i))
 		}
-		if !briefs4memberus.IsKnownTeamMemberRole(role, nil) {
+		if !const4contactus.IsKnownTeamMemberRole(role, nil) {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("roles[%v]", i), fmt.Sprintf("unknown role (expected one of this role: %+v): %v",
-				briefs4memberus.TeamMemberKnownRoles, role))
+				const4contactus.TeamMemberKnownRoles, role))
 		}
 	}
 	//if len(v.RetroItems) > 0 {

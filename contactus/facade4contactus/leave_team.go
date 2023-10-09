@@ -1,11 +1,11 @@
-package facade4memberus
+package facade4contactus
 
 import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -37,7 +37,7 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 				var updates []dal.Update
 				var memberUserID string
 				memberUserID, updates, err = removeTeamMember(team, params.TeamModuleEntry,
-					func(_ string, m *briefs4memberus.MemberBrief) bool {
+					func(_ string, m *briefs4contactus.ContactBrief) bool {
 						return m.UserID == uid
 					})
 				if err != nil || len(updates) == 0 {

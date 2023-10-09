@@ -22,7 +22,7 @@ func NewContactEntryWithData(teamID, contactID string, data *models4contactus.Co
 	return
 }
 
-func GetContactByID(contacts []ContactEntry, contactID string) (contact ContactEntry, found bool) {
+func FindContactEntryByContactID(contacts []ContactEntry, contactID string) (contact ContactEntry, found bool) {
 	for _, contact := range contacts {
 		if contact.ID == contactID {
 			return contact, true

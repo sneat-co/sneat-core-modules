@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/random"
@@ -100,7 +100,7 @@ func createInviteForMember(
 			Roles:   []string{"contributor"},
 		},
 		Address:        toAddressLower,
-		ToTeamMemberID: briefs4memberus.GetFullMemberID(teamID, to.MemberID),
+		ToTeamMemberID: briefs4contactus.GetFullContactID(teamID, to.MemberID),
 		ToAvatar:       toAvatar,
 	}
 	id = randomInviteID()

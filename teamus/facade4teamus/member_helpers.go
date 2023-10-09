@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"time"
 )
@@ -16,7 +17,7 @@ func CreateMemberRecordFromBrief(
 	tx dal.ReadwriteTransaction,
 	teamID string,
 	contactID string,
-	memberBrief briefs4memberus.MemberBrief,
+	memberBrief briefs4contactus.ContactBrief,
 	now time.Time,
 	byUserID string,
 ) (
@@ -31,7 +32,7 @@ func CreateMemberRecordFromBrief(
 	//member.Data.TeamID = teamID
 	member.Data.ContactBrief = memberBrief
 	member.Data.Status = dbmodels.StatusActive
-	_ = member.Data.AddRole(briefs4memberus.TeamMemberRoleTeamMember)
+	_ = member.Data.AddRole(const4contactus.TeamMemberRoleTeamMember)
 	member.Data.CreatedAt = now
 	member.Data.CreatedBy = byUserID
 	member.Data.IncreaseVersion(now, byUserID)

@@ -1,11 +1,12 @@
-package facade4memberus
+package facade4contactus
 
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
@@ -27,7 +28,7 @@ func RemoveMember(ctx context.Context, user facade.User, request dto4contactus.C
 func removeTeamMemberTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.ContactRequest, params *dal4contactus.ContactusTeamWorkerParams) (err error) {
 	var memberUserID string
 
-	var contactMatcher = func(contactID string, _ *briefs4memberus.MemberBrief) bool {
+	var contactMatcher = func(contactID string, _ *briefs4contactus.ContactBrief) bool {
 		return contactID == request.ContactID
 	}
 
@@ -67,7 +68,7 @@ func updateUserRecordOnTeamMemberRemoved(user *models4userus.UserDto, teamID str
 func removeTeamMember(
 	team dal4teamus.TeamContext,
 	contactusTeam dal4contactus.ContactusTeamModuleEntry,
-	match func(contactID string, m *briefs4memberus.MemberBrief) bool,
+	match func(contactID string, m *briefs4contactus.ContactBrief) bool,
 ) (memberUserID string, updates []dal.Update, err error) {
 	userIds := contactusTeam.Data.UserIDs
 
@@ -90,7 +91,7 @@ func removeTeamMember(
 		}
 	}
 	//updates = append(updates, team.Data.SetNumberOf("contacts", len(contactusTeam.Data.Contacts)))
-	updates = append(updates, team.Data.SetNumberOf("members", len(contactusTeam.Data.GetContactBriefsByRoles(briefs4memberus.TeamMemberRoleTeamMember))))
+	updates = append(updates, team.Data.SetNumberOf("members", len(contactusTeam.Data.GetContactBriefsByRoles(const4contactus.TeamMemberRoleTeamMember))))
 	return
 }
 

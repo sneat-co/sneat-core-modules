@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -34,8 +34,8 @@ func (v *GetPersonalInviteRequest) Validate() error {
 
 // PersonalInviteResponse holds response data for created personal invite
 type PersonalInviteResponse struct {
-	Invite  *models4invitus.PersonalInviteDto       `json:"invite,omitempty"`
-	Members map[string]*briefs4memberus.MemberBrief `json:"members,omitempty"`
+	Invite  *models4invitus.PersonalInviteDto         `json:"invite,omitempty"`
+	Members map[string]*briefs4contactus.ContactBrief `json:"members,omitempty"`
 }
 
 func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusTeamWorkerParams, inviteID, memberID string) (
@@ -92,7 +92,7 @@ func GetPersonal(ctx context.Context, user facade.User, request GetPersonalInvit
 		invite.Dto.Pin = "" // Hide PIN code from visitor
 		response = PersonalInviteResponse{
 			Invite:  invite.Dto,
-			Members: make(map[string]*briefs4memberus.MemberBrief, len(params.TeamModuleEntry.Data.Contacts)),
+			Members: make(map[string]*briefs4contactus.ContactBrief, len(params.TeamModuleEntry.Data.Contacts)),
 		}
 		// TODO: Is this is a security breach in current implementation?
 		//for id, contact := range contactusTeam.Data.Contacts {

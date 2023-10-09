@@ -1,4 +1,4 @@
-package briefs4memberus
+package const4contactus
 
 type TeamMemberRole = string
 

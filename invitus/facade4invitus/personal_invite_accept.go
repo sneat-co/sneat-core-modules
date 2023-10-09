@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -175,7 +175,7 @@ func updateTeamRecord(
 			if u, ok := params.TeamModuleEntry.Data.AddUserID(uid); ok {
 				params.TeamModuleUpdates = append(params.TeamModuleUpdates, u)
 			}
-			if m.AddRole(briefs4memberus.TeamMemberRoleTeamMember) {
+			if m.AddRole(const4contactus.TeamMemberRoleTeamMember) {
 				params.TeamModuleUpdates = append(params.TeamModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
 			}
 			break

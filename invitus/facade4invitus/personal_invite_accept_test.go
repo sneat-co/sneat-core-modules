@@ -9,7 +9,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
@@ -299,10 +298,10 @@ func Test_updateTeamRecord(t *testing.T) {
 					},
 				}),
 				contactusTeam: dal4contactus.NewContactusTeamModuleEntryWithData("testteamid", &models4contactus.ContactusTeamDto{
-					WithSingleTeamContactsWithoutContactIDs: briefs4contactus.WithSingleTeamContactsWithoutContactIDs[*briefs4memberus.MemberBrief]{
-						WithContactsBase: briefs4contactus.WithContactsBase[string, *briefs4memberus.MemberBrief]{
-							WithContactBriefs: briefs4contactus.WithContactBriefs[string, *briefs4memberus.MemberBrief]{
-								Contacts: map[string]*briefs4memberus.MemberBrief{
+					WithSingleTeamContactsWithoutContactIDs: briefs4contactus.WithSingleTeamContactsWithoutContactIDs[*briefs4contactus.ContactBrief]{
+						WithContactsBase: briefs4contactus.WithContactsBase[string, *briefs4contactus.ContactBrief]{
+							WithContactBriefs: briefs4contactus.WithContactBriefs[string, *briefs4contactus.ContactBrief]{
+								Contacts: map[string]*briefs4contactus.ContactBrief{
 									testMember.ID: &testMember.Data.ContactBrief,
 								},
 							},

@@ -7,7 +7,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
@@ -265,7 +264,7 @@ func onJoinUpdateMemberBriefInTeamOrAddIfMissing(
 
 UserIdAddedToUserIDsField:
 
-	var memberBrief *briefs4memberus.MemberBrief
+	var memberBrief *briefs4contactus.ContactBrief
 
 	var isValidInviter bool
 
@@ -283,7 +282,7 @@ UserIdAddedToUserIDsField:
 	if !isValidInviter {
 		return fmt.Errorf("supplied inviterMemberID does not belong to the team: %v", inviterMemberID)
 	}
-	memberBrief = &briefs4memberus.MemberBrief{
+	memberBrief = &briefs4contactus.ContactBrief{
 		Type:   briefs4contactus.ContactTypePerson,
 		Title:  user.Name.Full,
 		Avatar: user.Avatar,
