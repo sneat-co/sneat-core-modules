@@ -7,7 +7,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -41,7 +40,7 @@ type PersonalInviteResponse struct {
 
 func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusTeamWorkerParams, inviteID, memberID string) (
 	invite PersonalInviteContext,
-	member dal4memberus.MemberContext,
+	member dal4contactus.ContactEntry,
 	err error,
 ) {
 	if inviteID == "" {
@@ -50,18 +49,18 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 	}
 	invite = NewPersonalInviteContext(inviteID)
 
-	records := []dal.Record{params.ContactusTeam.Record, invite.Record}
+	records := []dal.Record{params.TeamModuleEntry.Record, invite.Record}
 	if memberID != "" {
-		member = dal4memberus.NewMemberContext(params.Team.ID, memberID)
+		member = dal4contactus.NewContactEntry(params.Team.ID, memberID)
 		records = append(records, member.Record)
 	}
 	if err = getter.GetMulti(ctx, records); err != nil {
 		return
 	}
-	if !params.ContactusTeam.Record.Exists() {
+	if !params.TeamModuleEntry.Record.Exists() {
 		err = validation.NewErrBadRequestFieldValue("teamID",
 			fmt.Sprintf("contactusTeam record not found by key=%v: record.Error=%v",
-				params.ContactusTeam.Key, params.ContactusTeam.Record.Error()),
+				params.TeamModuleEntry.Key, params.TeamModuleEntry.Record.Error()),
 		)
 		return
 	}
@@ -93,7 +92,7 @@ func GetPersonal(ctx context.Context, user facade.User, request GetPersonalInvit
 		invite.Dto.Pin = "" // Hide PIN code from visitor
 		response = PersonalInviteResponse{
 			Invite:  invite.Dto,
-			Members: make(map[string]*briefs4memberus.MemberBrief, len(params.ContactusTeam.Data.Contacts)),
+			Members: make(map[string]*briefs4memberus.MemberBrief, len(params.TeamModuleEntry.Data.Contacts)),
 		}
 		// TODO: Is this is a security breach in current implementation?
 		//for id, contact := range contactusTeam.Data.Contacts {

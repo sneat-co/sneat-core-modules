@@ -23,7 +23,7 @@ func (v WithMembers) Validate() error {
 		for j, m2 := range v.Members {
 			if i != j {
 				//if m1.ID == m2.ID {
-				//	return errors.New("duplicate members ContactID: " + m1.ID)
+				//	return errors.New("duplicate members ItemID: " + m1.ID)
 				//}
 				if m1.UserID != "" && m1.UserID == m2.UserID {
 					return errors.New("duplicate members UserID: " + m1.UserID)
@@ -39,7 +39,7 @@ func (v WithMembers) Validate() error {
 	return nil
 }
 
-// GetMemberBriefByUserID returns member's brief by user's ContactID
+// GetMemberBriefByUserID returns member's brief by user's ItemID
 func (v WithMembers) GetMemberBriefByUserID(userID string) *briefs4memberus.MemberBrief {
 	for _, m := range v.Members {
 		if m.UserID == userID {

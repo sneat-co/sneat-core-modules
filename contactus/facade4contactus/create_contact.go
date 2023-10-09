@@ -28,15 +28,15 @@ func CreateContact(
 		return
 	}
 
-	err = dal4teamus.CreateTeamItem(ctx, userContext, "contacts", request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
+	err = dal4teamus.CreateTeamItem(ctx, userContext, const4contactus.ContactsCollection, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			var contact dal4contactus.ContactEntry
 			if contact, err = CreateContactTx(ctx, tx, params.UserID, request, params); err != nil {
 				return err
 			}
 			response = dto4contactus.CreateContactResponse{
-				ID:  contact.ID,
-				Dto: contact.Data,
+				ID:   contact.ID,
+				Data: contact.Data,
 			}
 			return err
 		},
@@ -75,15 +75,21 @@ func CreateContactTx(
 		}
 	}
 
-	teamContactus := dal4contactus.NewContactusTeamModuleEntry(request.TeamID)
-	if err = tx.Get(ctx, teamContactus.Record); err != nil && !dal.IsNotFound(err) {
-		return contact, fmt.Errorf("failed to get team conctacts brief record")
-	}
-
 	var contactDto models4contactus.ContactDto
 	contactDto.Status = "active"
 	contactDto.ParentID = parentContactID
 	contactDto.WithRoles = request.WithRoles
+	if request.RelatedTo != nil {
+		if request.RelatedTo.ItemID == "" {
+			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(userID)
+			if request.RelatedTo.ItemID == "" {
+				err = errors.New("user does not have a contact brief in contactus team record")
+				return
+			}
+		}
+		contactDto.RelatedAsByContactID[request.RelatedTo.ItemID] = request.RelatedTo.RelatedAs
+		// TODO: Update users contact & brief with relationship info
+	}
 	if request.Person != nil {
 		contactDto.ContactBase = request.Person.ContactBase
 		contactDto.Type = briefs4contactus.ContactTypePerson
@@ -115,30 +121,30 @@ func CreateContactTx(
 	var contactID string
 	contactBrief := contactDto.ContactBrief
 	if request.ContactID == "" {
-		contactID, err = dbmodels.NewUniqueRandomID(teamContactus.Data.ContactIDs(), 3)
+		contactID, err = dbmodels.NewUniqueRandomID(params.TeamModuleEntry.Data.ContactIDs(), 3)
 		if err != nil {
-			return contact, fmt.Errorf("failed to generate new contact ContactID: %w", err)
+			return contact, fmt.Errorf("failed to generate new contact ItemID: %w", err)
 		}
 	} else {
 		contactID = request.ContactID
 	}
-	teamContactus.Data.AddContact(contactID, &contactBrief)
-	if teamContactus.Record.Exists() {
-		if err = tx.Update(ctx, teamContactus.Key, []dal.Update{
+	params.TeamModuleEntry.Data.AddContact(contactID, &contactBrief)
+	if params.TeamModuleEntry.Record.Exists() {
+		if err = tx.Update(ctx, params.TeamModuleEntry.Key, []dal.Update{
 			{
-				Field: "contacts",
-				Value: teamContactus.Data.Contacts,
+				Field: const4contactus.ContactsField,
+				Value: params.TeamModuleEntry.Data.Contacts,
 			},
 		}); err != nil {
 			return contact, fmt.Errorf("failed to update team contact briefs: %w", err)
 		}
 	} else {
-		if err = tx.Insert(ctx, teamContactus.Record); err != nil {
+		if err = tx.Insert(ctx, params.TeamModuleEntry.Record); err != nil {
 			return contact, fmt.Errorf("faield to insert team contacts brief record: %w", err)
 		}
 	}
 
-	params.TeamUpdates = append(params.TeamUpdates, params.Team.Data.UpdateNumberOf("contacts", len(teamContactus.Data.Contacts)))
+	params.TeamUpdates = append(params.TeamUpdates, params.Team.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.TeamModuleEntry.Data.Contacts)))
 	contact = dal4contactus.NewContactEntryWithData(request.TeamID, contactID, &contactDto)
 
 	//contact.Data.UserIDs = params.Team.Data.UserIDs

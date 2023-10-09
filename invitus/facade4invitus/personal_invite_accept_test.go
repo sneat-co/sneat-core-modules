@@ -234,12 +234,12 @@ func Test_updateInviteRecord(t *testing.T) {
 								InviteContact: models4invitus.InviteContact{
 									UserID:   "from_user_id1",
 									MemberID: "from_member_id1",
-									Title:    "From ContactID 1",
+									Title:    "From ItemID 1",
 								},
 							},
 							To: &models4invitus.InviteTo{
 								InviteContact: models4invitus.InviteContact{
-									Title:    "To ContactID 2",
+									Title:    "To ItemID 2",
 									MemberID: "to_member_id2",
 									Channel:  "email",
 									Address:  "to.test.user@example.com",
@@ -332,8 +332,8 @@ func Test_updateTeamRecord(t *testing.T) {
 			//tx.EXPECT().Update(gomock.Any(), tt.args.contactusTeam.Key, gomock.Any()).Return(nil)
 			tt.args.contactusTeam.Record.SetError(tt.teamRecordErr)
 			params := dal4contactus.NewContactusTeamWorkerParams(tt.args.uid, tt.args.team.ID)
-			params.ContactusTeam.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
-			params.ContactusTeam.Data.AddUserID(tt.args.uid)
+			params.TeamModuleEntry.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
+			params.TeamModuleEntry.Data.AddUserID(tt.args.uid)
 			params.Team.Data.AddUserID(tt.args.uid)
 			gotTeamMember, err := updateTeamRecord(tt.args.uid, tt.args.memberID, params, tt.args.requestMember)
 			if (err != nil) != tt.wantErr {

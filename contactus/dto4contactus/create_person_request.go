@@ -8,8 +8,7 @@ import (
 // CreatePersonRequest - base for CreateMemberRequest & facade4contactus.CreateTeamContactRequest
 type CreatePersonRequest struct {
 	briefs4contactus.ContactBase
-	Relationship string `json:"relationship"` // Related to creator
-	Message      string `json:"message"`
+	Message string `json:"message"`
 }
 
 // Validate returns error if not valid

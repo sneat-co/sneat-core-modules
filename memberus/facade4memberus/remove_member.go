@@ -2,7 +2,6 @@ package facade4memberus
 
 import (
 	"context"
-	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
@@ -21,42 +20,39 @@ func RemoveMember(ctx context.Context, user facade.User, request dto4contactus.C
 	}
 	return dal4contactus.RunContactusTeamWorker(ctx, user, request.TeamRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusTeamWorkerParams) (err error) {
-			var updates []dal.Update
-			var memberUserID string
-
-			if memberUserID, updates, err = removeTeamMember(params.Team, params.ContactusTeam,
-				func(contactID string, _ *briefs4memberus.MemberBrief) bool {
-					return contactID == request.ContactID
-				},
-			); err != nil || len(updates) == 0 {
-				return
-			}
-
-			if memberUserID != "" {
-				var (
-					userRef *dal.Key
-				)
-				user := new(models4userus.UserDto)
-				userRecord := dal.NewRecordWithData(models4userus.NewUserKey(memberUserID), user)
-				if err = facade4userus.TxGetUserByID(ctx, tx, userRecord); err != nil {
-					return
-				}
-
-				update := updateUserRecordOnTeamMemberRemoved(user, request.TeamID)
-				if update != nil {
-					if err = txUpdate(ctx, tx, userRef, []dal.Update{*update}); err != nil {
-						return err
-					}
-				}
-			}
-			if err = params.Team.Data.Validate(); err != nil {
-				return fmt.Errorf("team reacord is not valid: %v", err)
-			}
-			if err = txUpdateMemberGroup(ctx, tx, params.Started, user.GetID(), params.Team.Data, params.Team.Key, updates); err != nil {
-				return
-			}
-			return
+			return removeTeamMemberTx(ctx, tx, user, request, params)
 		})
+}
+
+func removeTeamMemberTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.ContactRequest, params *dal4contactus.ContactusTeamWorkerParams) (err error) {
+	var memberUserID string
+
+	var contactMatcher = func(contactID string, _ *briefs4memberus.MemberBrief) bool {
+		return contactID == request.ContactID
+	}
+
+	memberUserID, params.TeamModuleUpdates, err = removeTeamMember(params.Team, params.TeamModuleEntry, contactMatcher)
+	if err != nil {
+		return
+	}
+
+	if memberUserID != "" {
+		var (
+			userRef *dal.Key
+		)
+		memberUser := models4userus.NewUserContext(memberUserID)
+		if err = facade4userus.TxGetUserByID(ctx, tx, memberUser.Record); err != nil {
+			return
+		}
+
+		update := updateUserRecordOnTeamMemberRemoved(memberUser.Dto, request.TeamID)
+		if update != nil {
+			if err = txUpdate(ctx, tx, userRef, []dal.Update{*update}); err != nil {
+				return err
+			}
+		}
+	}
+	return
 }
 
 func updateUserRecordOnTeamMemberRemoved(user *models4userus.UserDto, teamID string) *dal.Update {
@@ -93,7 +89,7 @@ func removeTeamMember(
 			{Field: "userIDs", Value: userIds},
 		}
 	}
-	updates = append(updates, team.Data.SetNumberOf("contacts", len(contactusTeam.Data.Contacts)))
+	//updates = append(updates, team.Data.SetNumberOf("contacts", len(contactusTeam.Data.Contacts)))
 	updates = append(updates, team.Data.SetNumberOf("members", len(contactusTeam.Data.GetContactBriefsByRoles(briefs4memberus.TeamMemberRoleTeamMember))))
 	return
 }

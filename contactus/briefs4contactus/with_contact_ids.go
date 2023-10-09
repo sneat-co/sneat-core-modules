@@ -76,7 +76,7 @@ func (v *WithMultiTeamContactIDs) Validate() error {
 	return nil
 }
 
-// HasTeamContactID check if a record has a specific contactBrief ContactID
+// HasTeamContactID check if a record has a specific contactBrief ItemID
 func (v *WithMultiTeamContactIDs) HasTeamContactID(id dbmodels.TeamItemID) bool {
 	return slice.Contains(v.ContactIDs, id)
 }

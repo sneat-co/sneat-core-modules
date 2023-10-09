@@ -4,7 +4,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 )
 
-// GetFullMemberID returns full member ContactID
+// GetFullMemberID returns full member ItemID
 func GetFullMemberID(teamID, memberID string) string {
 	if teamID == "" {
 		panic("teamID is required parameter")

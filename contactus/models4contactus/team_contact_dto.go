@@ -5,6 +5,8 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/validation"
+	"strings"
 )
 
 // TeamContactsCollection defines  collection name for team contacts.
@@ -16,6 +18,7 @@ const TeamContactsCollection = "contacts"
 type ContactDto struct {
 	//dbmodels.WithTeamID -- not needed as it's in record key
 	//dbmodels.WithUserIDs
+	RelatedAsByContactID map[string]string `json:"relatedAsByUserID,omitempty" firestore:"relatedAsByUserID,omitempty"`
 	briefs4contactus.ContactBase
 	dbmodels.WithTags
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
@@ -35,6 +38,20 @@ func (v ContactDto) Validate() error {
 	}
 	if err := v.WithInvites.Validate(); err != nil {
 		return err
+	}
+	for contactID, relatedAs := range v.RelatedAsByContactID {
+		if contactID == "" {
+			return validation.NewErrBadRecordFieldValue("relatedAsByContactID", "id is empty")
+		}
+		var field = func() string {
+			return "relatedAsByContactID." + contactID
+		}
+		if strings.TrimSpace(relatedAs) == "" {
+			return validation.NewErrBadRecordFieldValue(field(), "relatedAs is empty")
+		}
+		if strings.TrimSpace(relatedAs) != relatedAs {
+			return validation.NewErrBadRecordFieldValue(field(), "relatedAs has leading or trailing spaces: "+fmt.Sprintf("[%s]", relatedAs))
+		}
 	}
 	return nil
 }

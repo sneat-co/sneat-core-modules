@@ -14,13 +14,13 @@ const TeamBriefsCollection = "briefs"
 func NewTeamKey(id string) *dal.Key {
 	const max = 30
 	if id == "" {
-		panic("empty team ContactID")
+		panic("empty team ItemID")
 	}
 	if l := len(id); l > max {
-		panic(fmt.Sprintf("team ContactID is %v characters long exceded what is %v more then max %v", l, max-l, max))
+		panic(fmt.Sprintf("team ItemID is %v characters long exceded what is %v more then max %v", l, max-l, max))
 	}
 	if !core.IsAlphanumericOrUnderscore(id) {
-		panic(fmt.Sprintf("team ContactID has non alphanumeric characters or letters in upper case: [%v]", id))
+		panic(fmt.Sprintf("team ItemID has non alphanumeric characters or letters in upper case: [%v]", id))
 	}
 	return dal.NewKeyWithID(TeamsCollection, id)
 }

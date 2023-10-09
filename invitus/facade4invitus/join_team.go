@@ -8,7 +8,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
@@ -59,10 +58,10 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 		inviteDto := new(models4invitus.InviteDto)
 		inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
-		records := []dal.Record{params.Team.Record, params.ContactusTeam.Record, userRecord, inviteRecord}
+		records := []dal.Record{params.Team.Record, params.TeamModuleEntry.Record, userRecord, inviteRecord}
 
 		if err = tx.GetMulti(ctx, records); err != nil {
-			return fmt.Errorf("failed to get some records from DB by ContactID: %w", err)
+			return fmt.Errorf("failed to get some records from DB by ItemID: %w", err)
 		}
 
 		if inviteDto.From.UserID == uid {
@@ -94,7 +93,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 		//	}
 		//}
 
-		member := dal4memberus.NewMemberContext(inviteDto.TeamID, inviteDto.To.MemberID)
+		member := dal4contactus.NewContactEntry(inviteDto.TeamID, inviteDto.To.MemberID)
 		if err = tx.Get(ctx, member.Record); err != nil {
 			return fmt.Errorf("failed to get member record: %w", err)
 		}
@@ -126,7 +125,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 }
 
 //func joinAddUserToLastScrum(ctx context.Context, tx dal.ReadwriteTransaction, teamKey *dal.Key, team models4teamus.TeamDto, uID string) (err error) {
-//	scrumKey := dal.NewKeyWithID("scrums", team.Last.Scrum.ContactID, dal.WithParentKey(teamKey))
+//	scrumKey := dal.NewKeyWithID("scrums", team.Last.Scrum.ItemID, dal.WithParentKey(teamKey))
 //	scrum := new(dbscrum.Scrum)
 //	scrumRecord := dal.NewRecordWithData(scrumKey, scrum)
 //	if err = tx.Get(ctx, scrumRecord); err != nil {
@@ -175,7 +174,7 @@ func onJoinAddTeamToUser(
 	userRecord dal.Record,
 	teamID string,
 	team *models4teamus.TeamDto,
-	member dal4memberus.MemberContext,
+	member dal4contactus.ContactEntry,
 ) (err error) {
 	var updates []dal.Update
 	if userDto == nil {
@@ -240,7 +239,7 @@ func onJoinUpdateMemberBriefInTeamOrAddIfMissing(
 	tx dal.ReadwriteTransaction,
 	params *dal4contactus.ContactusTeamWorkerParams,
 	inviterMemberID string,
-	member dal4memberus.MemberContext,
+	member dal4contactus.ContactEntry,
 	uid string,
 	user *models4userus.UserDto,
 ) (err error) {
@@ -252,10 +251,10 @@ func onJoinUpdateMemberBriefInTeamOrAddIfMissing(
 		return validation.NewErrBadRecordFieldValue("userID", "joining member should have populated field 'userID'")
 	}
 	if member.Data.UserID != uid {
-		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ContactID as current user, got: {uid=%v, member.Data.UserID=%v}", uid, member.Data.UserID))
+		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ItemID as current user, got: {uid=%v, member.Data.UserID=%v}", uid, member.Data.UserID))
 	}
 	//updates = make([]dal.Update, 0, 2)
-	for _, userID := range params.ContactusTeam.Data.UserIDs {
+	for _, userID := range params.TeamModuleEntry.Data.UserIDs {
 		if userID == uid {
 			goto UserIdAddedToUserIDsField
 		}
@@ -272,7 +271,7 @@ UserIdAddedToUserIDsField:
 
 	var isValidInviter bool
 
-	for mID, m := range params.ContactusTeam.Data.Contacts {
+	for mID, m := range params.TeamModuleEntry.Data.Contacts {
 		if mID == member.ID {
 			memberBrief = m
 			goto MemberAdded
@@ -303,7 +302,7 @@ UserIdAddedToUserIDsField:
 		//	},
 		//},
 	}
-	params.ContactusTeam.Data.AddContact(member.ID, memberBrief)
+	params.TeamModuleEntry.Data.AddContact(member.ID, memberBrief)
 MemberAdded:
 	switch memberBrief.UserID {
 	case "":

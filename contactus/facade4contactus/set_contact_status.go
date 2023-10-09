@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -78,31 +79,34 @@ func setContactStatusTxWorker(
 			contactIDs = append(contactIDs, contactToUpdate.ID)
 		}
 		for _, contactID := range contactIDs {
-			params.ContactusTeamUpdates = append(params.ContactusTeamUpdates,
-				params.ContactusTeam.Data.RemoveContact(contactID))
+			params.TeamModuleUpdates = append(params.TeamModuleUpdates,
+				params.TeamModuleEntry.Data.RemoveContact(contactID))
 		}
 		if err := params.Team.Data.Validate(); err != nil {
 			return err
 		}
-		params.TeamUpdates = append(params.TeamUpdates, updateTeamDtoWithNumberOfContact(len(params.ContactusTeam.Data.Contacts)))
+		params.TeamUpdates = append(params.TeamUpdates, updateTeamDtoWithNumberOfContact(len(params.TeamModuleEntry.Data.Contacts)))
 	}
 	if status == "active" {
-		params.ContactusTeam.Data.AddContact(contact.ID, &contact.Data.ContactBrief)
+		params.TeamModuleEntry.Data.AddContact(contact.ID, &contact.Data.ContactBrief)
 	}
-	if params.ContactusTeam.Record.Exists() {
-		if len(params.ContactusTeam.Data.Contacts) == 0 {
-			if err := tx.Delete(ctx, params.ContactusTeam.Key); err != nil {
+	if params.TeamModuleEntry.Record.Exists() {
+		if len(params.TeamModuleEntry.Data.Contacts) == 0 {
+			if err := tx.Delete(ctx, params.TeamModuleEntry.Key); err != nil {
 				return fmt.Errorf("failed to delete team contacts brief record: %w", err)
 			}
 		} else {
-			if err := tx.Update(ctx, params.ContactusTeam.Key, []dal.Update{
-				{Field: "contacts", Value: params.ContactusTeam.Data.Contacts},
+			if err := tx.Update(ctx, params.TeamModuleEntry.Key, []dal.Update{
+				{
+					Field: const4contactus.ContactsField,
+					Value: params.TeamModuleEntry.Data.Contacts,
+				},
 			}); err != nil {
 				return fmt.Errorf("failed to put team contacts brief: %w", err)
 			}
 		}
-	} else if len(params.ContactusTeam.Data.Contacts) > 0 {
-		if err := tx.Insert(ctx, params.ContactusTeam.Record); err != nil {
+	} else if len(params.TeamModuleEntry.Data.Contacts) > 0 {
+		if err := tx.Insert(ctx, params.TeamModuleEntry.Record); err != nil {
 			return fmt.Errorf("failed to insert team contacts brief record: %w", err)
 		}
 	}

@@ -69,8 +69,10 @@ func (v *ContactBase) Validate() error {
 		if err := dbmodels.ValidateGender(v.Gender, true); err != nil {
 			errs = append(errs, err)
 		}
-		if err := dbmodels.ValidateAgeGroup(v.AgeGroup, true); err != nil {
-			errs = append(errs, err)
+		if v.AgeGroup != "" || v.Type != ContactTypeAnimal {
+			if err := dbmodels.ValidateAgeGroup(v.AgeGroup, true); err != nil {
+				errs = append(errs, err)
+			}
 		}
 	case ContactTypeCompany:
 		if v.Gender != "" {

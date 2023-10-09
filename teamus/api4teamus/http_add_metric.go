@@ -23,8 +23,8 @@ func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
 	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
 		return
 	}
-	response, err := addMetric(ctx, userContext, request)
-	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, response)
+	err = addMetric(ctx, userContext, request)
+	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, nil)
 }
 
 var addMetric = facade4teamus.AddMetric

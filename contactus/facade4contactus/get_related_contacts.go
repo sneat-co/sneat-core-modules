@@ -10,7 +10,16 @@ import (
 const RelatedAsChild = "child"
 const RelatedAsParent = "parent"
 
-func GetRelatedContacts(ctx context.Context, tx dal.ReadTransaction, teamID, relatedAs string, deepness, maxDeepness int, contacts []dal4contactus.ContactEntry) (related []dal4contactus.ContactEntry, err error) {
+func GetRelatedContacts(
+	ctx context.Context,
+	tx dal.ReadTransaction,
+	teamID, relatedAs string,
+	deepness, maxDeepness int,
+	contacts []dal4contactus.ContactEntry,
+) (
+	related []dal4contactus.ContactEntry,
+	err error,
+) {
 	switch relatedAs {
 	case RelatedAsChild, RelatedAsParent: // OK
 	default:
@@ -28,6 +37,7 @@ func GetRelatedContacts(ctx context.Context, tx dal.ReadTransaction, teamID, rel
 			}
 		}
 	}
+
 	if len(directlyRelated) > 0 {
 		records := make([]dal.Record, len(directlyRelated))
 		for i, c := range directlyRelated {

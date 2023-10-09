@@ -13,6 +13,7 @@ type UpdateContactRequest struct {
 	AgeGroup  string                  `json:"ageGroup,omitempty"`
 	Roles     *SetContactRolesRequest `json:"roles,omitempty"`
 	VatNumber *string                 `json:"vatNumber,omitempty"`
+	RelatedTo *RelatedToRequest       `json:"relatedTo,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
@@ -41,6 +42,11 @@ func (v UpdateContactRequest) Validate() error {
 			return validation.NewErrBadRequestFieldValue("vatNumber", "must not have leading or trailing spaces")
 		}
 
+	}
+	if v.RelatedTo != nil {
+		if err := v.RelatedTo.Validate(); err != nil {
+			return validation.NewErrBadRequestFieldValue("relatedTo", err.Error())
+		}
 	}
 	return nil
 }

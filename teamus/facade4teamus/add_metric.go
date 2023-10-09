@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/gosimple/slug"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
@@ -31,7 +30,7 @@ func (v *AddTeamMetricRequest) Validate() error {
 }
 
 // AddMetric adds metric
-func AddMetric(ctx context.Context, user facade.User, request AddTeamMetricRequest) (response dal4contactus.CreateTeamMemberResponse, err error) {
+func AddMetric(ctx context.Context, user facade.User, request AddTeamMetricRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"time"
 )
@@ -21,7 +20,7 @@ func CreateMemberRecordFromBrief(
 	now time.Time,
 	byUserID string,
 ) (
-	member dal4memberus.MemberContext,
+	member dal4contactus.ContactEntry,
 	err error,
 ) {
 	if err = memberBrief.Validate(); err != nil {

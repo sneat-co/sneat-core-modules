@@ -1,6 +1,7 @@
 package briefs4contactus
 
 import (
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
@@ -12,6 +13,10 @@ import (
 // Status is not part of ContactBrief as we keep in briefs only active contacts
 type ContactBrief struct {
 	dbmodels.WithUserID
+	dbmodels.WithOptionalRelatedAs // This is used in `RelatedContacts` field of `ContactDto`
+	dbmodels.WithOptionalCountryID
+	dbmodels.WithRoles
+
 	Type       ContactType     `json:"type" firestore:"type"` // "person", "company", "location"
 	Gender     dbmodels.Gender `json:"gender,omitempty" firestore:"gender,omitempty"`
 	Name       *dbmodels.Name  `json:"name,omitempty" firestore:"name,omitempty"`
@@ -24,11 +29,10 @@ type ContactBrief struct {
 
 	// AgeGroup is deprecated?
 	AgeGroup string `json:"ageGroup,omitempty" firestore:"ageGroup,omitempty"` // TODO: Add validation
+	PetKind  string `json:"species,omitempty" firestore:"species,omitempty"`
+
 	// Avatar holds a photo of a member
-	Avatar                         *dbprofile.Avatar `json:"avatar,omitempty" firestore:"avatar,omitempty"`
-	dbmodels.WithOptionalRelatedAs                   // This is used in `RelatedContacts` field of `ContactDto`
-	dbmodels.WithOptionalCountryID
-	dbmodels.WithRoles
+	Avatar *dbprofile.Avatar `json:"avatar,omitempty" firestore:"avatar,omitempty"`
 }
 
 // GetUserID returns UserID field value
@@ -79,6 +83,11 @@ func (v *ContactBrief) Validate() error {
 	}
 	if err := v.WithUserID.Validate(); err != nil {
 		return err
+	}
+	if v.PetKind != "" {
+		if !const4contactus.IsKnownPetPetKind(v.PetKind) {
+			return validation.NewErrBadRecordFieldValue("species", "unknown value: "+v.PetKind)
+		}
 	}
 	return nil
 }

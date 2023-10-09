@@ -11,7 +11,15 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
+	"strings"
 )
+
+// UpdateContact sets contact fields
+func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
+	return RunContactWorker(ctx, user, request.ContactRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error) {
+		return UpdateContactTx(ctx, tx, user, request)
+	})
+}
 
 // UpdateContactTx sets contact fields
 func UpdateContactTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
@@ -27,17 +35,6 @@ func UpdateContactTx(ctx context.Context, tx dal.ReadwriteTransaction, user faca
 		return fmt.Errorf("failed to set contact status: %w", err)
 	}
 	return err
-}
-
-// UpdateContact sets contact fields
-func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
-	if err = request.Validate(); err != nil {
-		return
-	}
-	db := facade.GetDatabase(ctx)
-	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		return UpdateContactTx(ctx, tx, user, request)
-	})
 }
 
 func updateContactTxWorker(
@@ -101,6 +98,22 @@ func updateContactTxWorker(
 				Field: fmt.Sprintf("contacts.%s.roles", request.ContactID),
 				Value: contact.Data.Roles,
 			})
+	}
+
+	if request.RelatedTo != nil {
+		// Verify contactID belongs to the same team
+		if _, existingContact := params.TeamModuleEntry.Data.Contacts[request.RelatedTo.ItemID]; !existingContact {
+			if _, err = GetContactByID(ctx, tx, params.Team.ID, request.RelatedTo.ItemID); err != nil {
+				return fmt.Errorf("failed to get related contact: %w", err)
+			}
+		}
+
+		contact.Data.RelatedAsByContactID[request.RelatedTo.ItemID] = strings.TrimSpace(request.RelatedTo.RelatedAs)
+
+		contactUpdates = append(contactUpdates, dal.Update{
+			Field: "relatedAsByContactID." + request.RelatedTo.ItemID,
+			Value: request.RelatedTo.RelatedAs,
+		})
 	}
 
 	if len(contactUpdates) > 0 {

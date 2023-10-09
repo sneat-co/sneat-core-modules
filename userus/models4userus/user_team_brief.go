@@ -73,10 +73,10 @@ func (v UserTeamBrief) Validate() error {
 	//				return newItemErr(err.Error())
 	//			}
 	//			for _, itemID := range itemIDs {
-	//				if itemID == item.ContactID {
-	//					return newItemErr("duplicate item ContactID")
+	//				if itemID == item.ItemID {
+	//					return newItemErr("duplicate item ItemID")
 	//				}
-	//				itemIDs = append(itemIDs, item.ContactID)
+	//				itemIDs = append(itemIDs, item.ItemID)
 	//			}
 	//		}
 	//	}

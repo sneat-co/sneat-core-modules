@@ -3,7 +3,9 @@ package api4memberus
 import (
 	"context"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
@@ -24,8 +26,12 @@ func TestHttpAddMember(t *testing.T) {
 		TeamRequest: dto4teamus.TeamRequest{
 			TeamID: teamID,
 		},
-		Relationship: "spouse",
-		MemberBase: briefs4memberus.MemberBase{
+		RelatedTo: &dto4contactus.RelatedToRequest{
+			ModuleID:   const4contactus.ModuleID,
+			Collection: const4contactus.ContactsCollection,
+			RelatedAs:  "spouse",
+		},
+		CreatePersonRequest: dto4contactus.CreatePersonRequest{
 			ContactBase: briefs4contactus.ContactBase{
 				ContactBrief: briefs4contactus.ContactBrief{
 					Type:     briefs4contactus.ContactTypePerson,
@@ -44,7 +50,8 @@ func TestHttpAddMember(t *testing.T) {
 					{Type: "personal", Address: "someone@example.com"},
 				},
 			},
-		}}
+		},
+	}
 	request.CountryID = "IE"
 
 	defer func() {
@@ -60,12 +67,12 @@ func TestHttpAddMember(t *testing.T) {
 	req.Host = "localhost"
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMember = func(ctx context.Context, userCtx facade.User, request dal4contactus.CreateMemberRequest) (response dal4contactus.CreateTeamMemberResponse, err error) {
+	createMember = func(ctx context.Context, userCtx facade.User, request dal4contactus.CreateMemberRequest) (response dto4contactus.CreateContactResponse, err error) {
 		if request.TeamID != teamID {
 			t.Fatalf("Expected teamID=%v, got: %v", teamID, request.TeamID)
 		}
-		response.Member.ID = "abc1"
-		response.Member.Data = &models4contactus.ContactDto{
+		response.ID = "abc1"
+		response.Data = &models4contactus.ContactDto{
 			ContactBase: briefs4contactus.ContactBase{
 				ContactBrief: briefs4contactus.ContactBrief{
 					Type:  briefs4contactus.ContactTypeCompany,
@@ -83,8 +90,8 @@ func TestHttpAddMember(t *testing.T) {
 				//},
 			},
 		}
-		response.Member.Data = &models4contactus.ContactDto{
-			ContactBase: response.Member.Data.ContactBase,
+		response.Data = &models4contactus.ContactDto{
+			ContactBase: response.Data.ContactBase,
 		}
 		return
 	}

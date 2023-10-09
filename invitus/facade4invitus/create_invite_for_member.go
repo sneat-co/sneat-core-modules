@@ -6,7 +6,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
-	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -60,7 +59,7 @@ func CreateOrReuseInviteForMember(ctx context.Context, user facade.User, request
 	}
 	err = dal4contactus.RunContactusTeamWorker(ctx, user, request.TeamRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusTeamWorkerParams) (err error) {
-			fromContactID, fromContactBrief := params.ContactusTeam.Data.GetContactBriefByUserID(params.UserID)
+			fromContactID, fromContactBrief := params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
 
 			if fromContactBrief == nil {
 				// TODO: Should return specific error so we can return HTTP 401
@@ -123,12 +122,12 @@ func createPersonalInvite(
 	uid string,
 	request InviteMemberRequest,
 	param *dal4contactus.ContactusTeamWorkerParams,
-	fromMember dal4memberus.MemberContext,
+	fromMember dal4contactus.ContactEntry,
 ) (
 	inviteID string, personalInvite *models4invitus.PersonalInviteDto, err error,
 ) {
 
-	toMember := param.ContactusTeam.Data.Contacts[request.To.MemberID]
+	toMember := param.TeamModuleEntry.Data.Contacts[request.To.MemberID]
 	if toMember == nil {
 		err = fmt.Errorf("team has no 'to' member with id=" + request.To.MemberID)
 		return
@@ -175,7 +174,7 @@ func createPersonalInvite(
 			[]dal.Update{
 				{Field: "messageId", Value: personalInvite.MessageID},
 			}); err != nil {
-			err = fmt.Errorf("failed to update invite record with message ContactID: %v", err)
+			err = fmt.Errorf("failed to update invite record with message ItemID: %v", err)
 			return inviteID, personalInvite, err
 		}
 	}
@@ -184,7 +183,7 @@ func createPersonalInvite(
 		To:         *personalInvite.To,
 		CreateTime: personalInvite.Created.At,
 	})
-	memberKey := dal4memberus.NewMemberKey(request.TeamID, fromMember.ID)
+	memberKey := dal4contactus.NewContactKey(request.TeamID, fromMember.ID)
 	if err = tx.Update(ctx, memberKey, []dal.Update{
 		{Field: "invites", Value: fromMember.Data.Invites},
 	}); err != nil {

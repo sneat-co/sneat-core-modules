@@ -17,10 +17,13 @@ type CreateContactRequest struct {
 	ParentContactID string                       `json:"parentContactID,omitempty"`
 	Type            briefs4contactus.ContactType `json:"type"`
 	Status          string                       `json:"status"`
-	Person          *CreatePersonRequest         `json:"person,omitempty"`
-	Company         *CreateCompanyRequest        `json:"company,omitempty"`
-	Location        *CreateLocationRequest       `json:"location,omitempty"`
-	Basic           *CreateBasicContactRequest   `json:"basic,omitempty"`
+
+	Person   *CreatePersonRequest       `json:"person,omitempty"`
+	Company  *CreateCompanyRequest      `json:"company,omitempty"`
+	Location *CreateLocationRequest     `json:"location,omitempty"`
+	Basic    *CreateBasicContactRequest `json:"basic,omitempty"`
+
+	RelatedTo *RelatedToRequest `json:"relatedTo,omitempty"`
 
 	// Used for situation when we want a hard-coded contact number
 	// (e.g. a self-contact for a company team).
@@ -75,14 +78,25 @@ func (v CreateContactRequest) Validate() error {
 			return validation.NewErrBadRequestFieldValue("company", err.Error())
 		}
 	}
+	if v.Person != nil && v.Type != "person" {
+		return validation.NewErrBadRequestFieldValue("person", "the `person` field is not nil, but contact type is set to 'person'")
+	}
+	if v.Company != nil && v.Type != "company" {
+		return validation.NewErrBadRequestFieldValue("company", "the `company` field is not nil, but contact type is set to 'company'")
+	}
+	if v.Location != nil && v.Type != "location" {
+		return validation.NewErrBadRequestFieldValue("location", "the `location` field is not nil, but contact type is set to 'location'")
+	}
 	if err := v.WithRoles.Validate(); err != nil {
 		return fmt.Errorf("%w: %v", facade.ErrBadRequest, err.Error())
+	}
+	if v.RelatedTo != nil {
+		if err := v.RelatedTo.Validate(); err != nil {
+			return validation.NewErrBadRequestFieldValue("relatedTo", err.Error())
+		}
 	}
 	return nil
 }
 
 // CreateContactResponse DTO
-type CreateContactResponse struct {
-	ID  string                       `json:"id"`
-	Dto *models4contactus.ContactDto `json:"dto,omitempty"`
-}
+type CreateContactResponse = dbmodels.DtoWithID[*models4contactus.ContactDto]

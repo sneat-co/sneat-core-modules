@@ -19,7 +19,7 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 	return dal4contactus.RunContactusTeamWorker(ctx, userContext, request.TeamRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusTeamWorkerParams) (err error) {
 
-			if err := tx.GetMulti(ctx, []dal.Record{params.ContactusTeam.Record}); err != nil {
+			if err := tx.GetMulti(ctx, []dal.Record{params.TeamModuleEntry.Record}); err != nil {
 				return fmt.Errorf("failed to get team record: %w", err)
 			}
 
@@ -36,7 +36,7 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 				team := params.Team
 				var updates []dal.Update
 				var memberUserID string
-				memberUserID, updates, err = removeTeamMember(team, params.ContactusTeam,
+				memberUserID, updates, err = removeTeamMember(team, params.TeamModuleEntry,
 					func(_ string, m *briefs4memberus.MemberBrief) bool {
 						return m.UserID == uid
 					})
@@ -44,14 +44,14 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 					return
 				}
 				if memberUserID != uid {
-					err = fmt.Errorf("user ContactID does not match members record: memberUserID[%v] != ctx.UserID[%v]: %w",
+					err = fmt.Errorf("user ItemID does not match members record: memberUserID[%v] != ctx.UserID[%v]: %w",
 						memberUserID, uid, facade.ErrBadRequest)
 					return
 				}
 				if err = team.Data.Validate(); err != nil {
 					return fmt.Errorf("team reacord is not valid: %v", err)
 				}
-				if len(params.ContactusTeam.Data.Contacts) == 0 || len(team.Data.UserIDs) == 0 {
+				if len(params.TeamModuleEntry.Data.Contacts) == 0 || len(team.Data.UserIDs) == 0 {
 					if err = tx.Delete(ctx, team.Key); err != nil {
 						return err
 					}

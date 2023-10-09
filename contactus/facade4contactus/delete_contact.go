@@ -34,7 +34,7 @@ func deleteContactTxWorker(
 	if err = tx.Get(ctx, contact.Record); err != nil {
 		return fmt.Errorf("failed to get contact: %w", err)
 	}
-	if err = tx.Get(ctx, params.ContactusTeam.Record); err != nil && !dal.IsNotFound(err) {
+	if err = tx.Get(ctx, params.TeamModuleEntry.Record); err != nil && !dal.IsNotFound(err) {
 		return fmt.Errorf("failed to get team contacts brief: %w", err)
 	}
 
@@ -43,14 +43,14 @@ func deleteContactTxWorker(
 	if err != nil {
 		return fmt.Errorf("failed to get related contacts: %w", err)
 	}
-	params.ContactusTeamUpdates = append(params.ContactusTeamUpdates,
-		params.ContactusTeam.Data.RemoveContact(contactID))
+	params.TeamModuleUpdates = append(params.TeamModuleUpdates,
+		params.TeamModuleEntry.Data.RemoveContact(contactID))
 
 	if err := params.Team.Data.Validate(); err != nil {
 		return err
 	}
 
-	params.TeamUpdates = append(params.TeamUpdates, updateTeamDtoWithNumberOfContact(len(params.ContactusTeam.Data.Contacts)))
+	params.TeamUpdates = append(params.TeamUpdates, updateTeamDtoWithNumberOfContact(len(params.TeamModuleEntry.Data.Contacts)))
 
 	contactKeysToDelete := make([]*dal.Key, 0, len(relatedContacts)+1)
 	contactKeysToDelete = append(contactKeysToDelete, contact.Key)

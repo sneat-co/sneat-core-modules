@@ -3,6 +3,7 @@ package briefs4contactus
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/slice"
@@ -27,7 +28,7 @@ type WithSingleTeamContactsWithoutContactIDs[
 func (v *WithSingleTeamContactsWithoutContactIDs[T]) Validate() error {
 	for id, brief := range v.Contacts {
 		if err := validate.RecordID(id); err != nil {
-			return validation.NewErrBadRecordFieldValue("contacts",
+			return validation.NewErrBadRecordFieldValue(const4contactus.ContactsField,
 				fmt.Sprintf("invalid contact ID=%s: %v", id, err))
 		}
 		if err := brief.Validate(); err != nil {
@@ -86,7 +87,7 @@ func (v *WithMultiTeamContacts[T]) Validate() error {
 	if err := v.WithMultiTeamContactIDs.Validate(); err != nil {
 		return nil
 	}
-	return dbmodels.ValidateWithIdsAndBriefs("contactIDs", "contacts", v.ContactIDs, v.Contacts)
+	return dbmodels.ValidateWithIdsAndBriefs("contactIDs", const4contactus.ContactsField, v.ContactIDs, v.Contacts)
 }
 
 func (v *WithMultiTeamContacts[T]) Updates(contactIDs ...dbmodels.TeamItemID) (updates []dal.Update) {
@@ -98,13 +99,13 @@ func (v *WithMultiTeamContacts[T]) Updates(contactIDs ...dbmodels.TeamItemID) (u
 	)
 	if len(contactIDs) == 0 {
 		updates = append(updates, dal.Update{
-			Field: "contacts",
+			Field: const4contactus.ContactsField,
 			Value: v.Contacts,
 		})
 	} else {
 		for _, id := range contactIDs {
 			updates = append(updates, dal.Update{
-				Field: "contacts." + string(id),
+				Field: const4contactus.ContactsField + "." + string(id),
 				Value: v.Contacts[id],
 			})
 		}
@@ -125,7 +126,7 @@ func (v *WithMultiTeamContacts[T]) SetContactBrief(teamID, contactID string, con
 	if currentBrief, ok := v.Contacts[id]; !ok || !currentBrief.Equal(contactBrief) {
 		v.Contacts[id] = contactBrief
 		updates = append(updates, dal.Update{
-			Field: "contacts" + string(id),
+			Field: const4contactus.ContactsField + "." + string(id),
 			Value: contactBrief,
 		})
 	}

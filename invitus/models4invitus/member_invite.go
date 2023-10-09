@@ -15,7 +15,7 @@ type MemberInviteBrief struct {
 // Validate validates MemberInviteBrief record
 func (v *MemberInviteBrief) Validate() error {
 	if v.ID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("ContactID")
+		return validation.NewErrRecordIsMissingRequiredField("ItemID")
 	}
 	if v.CreateTime.IsZero() {
 		return validation.NewErrRecordIsMissingRequiredField("CreateTime")

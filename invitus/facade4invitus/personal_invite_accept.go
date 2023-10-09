@@ -7,7 +7,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/memberus/briefs4memberus"
-	"github.com/sneat-co/sneat-core-modules/memberus/dal4memberus"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -136,7 +135,7 @@ func updateMemberRecord(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	uid string,
-	member dal4memberus.MemberContext,
+	member dal4contactus.ContactEntry,
 	requestMember *briefs4contactus.ContactBase,
 	teamMember *briefs4contactus.ContactBase,
 ) (err error) {
@@ -160,30 +159,30 @@ func updateTeamRecord(
 	}
 
 	inviteToMemberID := memberID[strings.Index(memberID, ":")+1:]
-	for contactID, m := range params.ContactusTeam.Data.Contacts {
+	for contactID, m := range params.TeamModuleEntry.Data.Contacts {
 		if contactID == inviteToMemberID {
 			m.UserID = uid
-			params.ContactusTeam.Data.AddUserID(uid)
-			params.ContactusTeam.Data.AddContact(contactID, m)
-			//request.ContactID.Roles = m.Roles
-			//m = request.ContactID
+			params.TeamModuleEntry.Data.AddUserID(uid)
+			params.TeamModuleEntry.Data.AddContact(contactID, m)
+			//request.ItemID.Roles = m.Roles
+			//m = request.ItemID
 			m.UserID = uid
 			teamMember = &briefs4contactus.ContactBase{
 				ContactBrief: *m,
 			}
 			//team.Members[i] = m
 			updatePersonDetails(teamMember, requestMember.Data, teamMember, nil)
-			if u, ok := params.ContactusTeam.Data.AddUserID(uid); ok {
-				params.ContactusTeamUpdates = append(params.ContactusTeamUpdates, u)
+			if u, ok := params.TeamModuleEntry.Data.AddUserID(uid); ok {
+				params.TeamModuleUpdates = append(params.TeamModuleUpdates, u)
 			}
 			if m.AddRole(briefs4memberus.TeamMemberRoleTeamMember) {
-				params.ContactusTeamUpdates = append(params.ContactusTeamUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
+				params.TeamModuleUpdates = append(params.TeamModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
 			}
 			break
 		}
 	}
 	if teamMember == nil {
-		return teamMember, fmt.Errorf("team member is not found by ContactID=%v", inviteToMemberID)
+		return teamMember, fmt.Errorf("team member is not found by ItemID=%v", inviteToMemberID)
 	}
 
 	if params.Team.Data.HasUserID(uid) {
