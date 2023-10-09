@@ -49,12 +49,12 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 	}
 	invite = NewPersonalInviteContext(inviteID)
 
-	records := []dal.Record{params.TeamModuleEntry.Record, invite.Record}
+	records := []dal.Record{invite.Record}
 	if memberID != "" {
 		member = dal4contactus.NewContactEntry(params.Team.ID, memberID)
 		records = append(records, member.Record)
 	}
-	if err = getter.GetMulti(ctx, records); err != nil {
+	if err = params.GetRecords(ctx, getter, records...); err != nil {
 		return
 	}
 	if !params.TeamModuleEntry.Record.Exists() {

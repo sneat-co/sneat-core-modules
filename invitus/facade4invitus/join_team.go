@@ -58,9 +58,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 		inviteDto := new(models4invitus.InviteDto)
 		inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
-		records := []dal.Record{params.Team.Record, params.TeamModuleEntry.Record, userRecord, inviteRecord}
-
-		if err = tx.GetMulti(ctx, records); err != nil {
+		if err = params.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
 			return fmt.Errorf("failed to get some records from DB by ItemID: %w", err)
 		}
 

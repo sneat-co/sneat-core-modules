@@ -29,12 +29,15 @@ func TestRunModuleTeamWorker(t *testing.T) {
 	user := &facade.AuthUser{ID: "user1"}
 	request := dto4teamus.TeamRequest{TeamID: "team1"}
 	const moduleID = "test_module"
-	assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[*fooModuleTeamData]) (err error) {
-		assert.NotNil(t, teamWorkerParams)
-		assert.NotNil(t, teamWorkerParams.TeamModuleEntry)
-		assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Record)
-		assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Data)
-		assert.NotNil(t, teamWorkerParams.TeamModuleEntry.Record.Data())
+	assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleTeamWorkerParams[*fooModuleTeamData]) (err error) {
+		if err := params.GetRecords(ctx, tx); err != nil {
+			return err
+		}
+		assert.NotNil(t, params)
+		assert.NotNil(t, params.TeamModuleEntry)
+		assert.NotNil(t, params.TeamModuleEntry.Record)
+		assert.NotNil(t, params.TeamModuleEntry.Data)
+		assert.NotNil(t, params.TeamModuleEntry.Record.Data())
 		return nil
 	}
 	facade.GetDatabase = func(ctx context.Context) dal.DB {

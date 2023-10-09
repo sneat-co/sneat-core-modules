@@ -30,11 +30,21 @@ type TeamWorkerParams struct {
 	TeamUpdates []dal.Update
 }
 
+func (v TeamWorkerParams) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
+	records = append(records, v.Team.Record)
+	return tx.GetMulti(ctx, records)
+}
+
 // ModuleTeamWorkerParams passes data to a team worker
 type ModuleTeamWorkerParams[D TeamModuleData] struct {
 	TeamWorkerParams
 	TeamModuleEntry   record.DataWithID[string, D]
 	TeamModuleUpdates []dal.Update
+}
+
+func (v ModuleTeamWorkerParams[D]) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
+	records = append(records, v.TeamModuleEntry.Record)
+	return v.TeamWorkerParams.GetRecords(ctx, tx, records...)
 }
 
 type ModuleData interface {
@@ -80,9 +90,6 @@ func runModuleTeamWorkerReadonlyTx[D TeamModuleData](
 	params *ModuleTeamWorkerParams[D],
 	worker func(ctx context.Context, tx dal.ReadTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
 ) (err error) {
-	if err := tx.GetMulti(ctx, []dal.Record{params.Team.Record, params.TeamModuleEntry.Record}); err != nil && !dal.IsNotFound(err) {
-		return fmt.Errorf("failed to get team & team module records: %w", err)
-	}
 	if err = worker(ctx, tx, params); err != nil {
 		return fmt.Errorf("failed to execute module team worker: %w", err)
 	}
@@ -95,13 +102,6 @@ func runModuleTeamWorkerReadwriteTx[D TeamModuleData](
 	params *ModuleTeamWorkerParams[D],
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleTeamWorkerParams[D]) (err error),
 ) (err error) {
-	if err := tx.GetMulti(ctx, []dal.Record{
-		params.Team.Record,
-		params.TeamModuleEntry.Record,
-	}); err != nil /*&& !dal.IsNotFound(err)*/ {
-		return fmt.Errorf("failed to get team & team module records: %w", err)
-	}
-
 	if err = worker(ctx, tx, params); err != nil {
 		return fmt.Errorf("failed to execute module team worker: %w", err)
 	}

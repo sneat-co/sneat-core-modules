@@ -42,8 +42,9 @@ func updateContactTxWorker(
 	request dto4contactus.UpdateContactRequest,
 ) (err error) {
 	contact := dal4contactus.NewContactEntry(params.Team.ID, request.ContactID)
-	if err = tx.Get(ctx, contact.Record); err != nil {
-		return fmt.Errorf("failed to get contact record: %w", err)
+
+	if err = params.GetRecords(ctx, tx, contact.Record); err != nil {
+		return err
 	}
 
 	if err := contact.Data.Validate(); err != nil {
