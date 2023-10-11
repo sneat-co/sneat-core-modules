@@ -32,7 +32,7 @@ func CreateContact(
 	err = dal4teamus.CreateTeamItem(ctx, userContext, const4contactus.ContactsCollection, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			var contact dal4contactus.ContactEntry
-			if contact, err = CreateContactTx(ctx, tx, params.UserID, userCanBeNonTeamMember, request, params); err != nil {
+			if contact, err = CreateContactTx(ctx, tx, userCanBeNonTeamMember, request, params); err != nil {
 				return err
 			}
 			response = dto4contactus.CreateContactResponse{
@@ -52,7 +52,6 @@ func CreateContact(
 func CreateContactTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	userID string,
 	userCanBeNonTeamMember bool,
 	request dto4contactus.CreateContactRequest,
 	params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto],
@@ -60,13 +59,13 @@ func CreateContactTx(
 	contact dal4contactus.ContactEntry,
 	err error,
 ) {
-	if userID == "" {
-		return contact, errors.New("only authenticated users can create team contacts")
-	}
 	if err = request.Validate(); err != nil {
 		return
 	}
-	userContactID, userContactBrief := params.TeamModuleEntry.Data.GetContactBriefByUserID(userID)
+	if err = params.GetRecords(ctx, tx, params.UserID); err != nil {
+		return
+	}
+	userContactID, userContactBrief := params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
 	if !userCanBeNonTeamMember && (userContactBrief == nil || !userContactBrief.IsTeamMember()) {
 		err = errors.New("user is not a member of the team")
 		return
@@ -107,7 +106,7 @@ func CreateContactTx(
 	contactDto.WithRoles = request.WithRoles
 	if request.RelatedTo != nil {
 		if request.RelatedTo.ItemID == "" {
-			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(userID)
+			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
 			if request.RelatedTo.ItemID == "" {
 				err = errors.New("user does not have a contact brief in contactus team record")
 				return

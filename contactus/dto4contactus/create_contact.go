@@ -51,7 +51,7 @@ func (v CreateContactRequest) Validate() error {
 			return validation.NewErrRequestIsMissingRequiredField("person")
 		}
 		if err := v.Person.Validate(); err != nil {
-			return validation.NewErrBadRequestFieldValue("person", fmt.Sprintf("contact type is set to 'c', but the `company` person is invalid: %v", err))
+			return validation.NewErrBadRequestFieldValue("person", fmt.Sprintf("contact type is set to 'person', but the `person` field is invalid: %v", err))
 		}
 	case "company":
 		if v.Company == nil {
