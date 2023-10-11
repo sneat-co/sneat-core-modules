@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -26,10 +27,10 @@ func CreateUser(ctx context.Context, userID string, request dto4userus.CreateUse
 		}
 		user.Dto.Created.Client = request.RemoteClient
 		{ // Set user's names
-			user.Dto.Name.Full = models4userus.CleanTitle(request.Title)
+			user.Dto.Name.Full = briefs4contactus.CleanTitle(request.Title)
 			if strings.Contains(user.Dto.Name.Full, " ") {
 				user.Dto.Defaults = &models4userus.UserDefaults{
-					ShortNames: models4userus.GetShortNames(user.Dto.Name.Full),
+					ShortNames: briefs4contactus.GetShortNames(user.Dto.Name.Full),
 				}
 			}
 		}

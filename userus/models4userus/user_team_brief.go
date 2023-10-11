@@ -51,7 +51,7 @@ func (v UserTeamBrief) Validate() error {
 		}
 		if !const4contactus.IsKnownTeamMemberRole(role, nil) {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("roles[%v]", i), fmt.Sprintf("unknown role (expected one of this role: %+v): %v",
-				const4contactus.TeamMemberKnownRoles, role))
+				const4contactus.TeamMemberWellKnownRoles, role))
 		}
 	}
 	//if len(v.RetroItems) > 0 {

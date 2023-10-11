@@ -3,20 +3,19 @@ package const4contactus
 type TeamMemberRole = string
 
 const (
-	TeamMemberRoleTeamMember = "team_member"
+	TeamMemberRoleMember = "member"
 
 	TeamMemberRoleAdult = "adult"
 
 	TeamMemberRoleChild = "child"
-
-	// TeamMemberRoleScrumMaster role of a scrum master
-	TeamMemberRoleScrumMaster TeamMemberRole = "scrum_master"
 
 	// TeamMemberRoleCreator role of a creator
 	TeamMemberRoleCreator TeamMemberRole = "creator"
 
 	// TeamMemberRoleOwner role of an owner
 	TeamMemberRoleOwner TeamMemberRole = "owner"
+
+	TeamMemberRoleAdmin TeamMemberRole = "admin"
 
 	// TeamMemberRoleContributor role of a contributor
 	TeamMemberRoleContributor TeamMemberRole = "contributor"
@@ -28,18 +27,19 @@ const (
 	TeamMemberRoleExcluded TeamMemberRole = "excluded"
 )
 
-// TeamMemberKnownRoles defines known roles
-var TeamMemberKnownRoles = []TeamMemberRole{
-	TeamMemberRoleCreator,
+// TeamMemberWellKnownRoles defines known roles
+var TeamMemberWellKnownRoles = []TeamMemberRole{
+	TeamMemberRoleAdmin,
 	TeamMemberRoleContributor,
+	TeamMemberRoleCreator,
+	TeamMemberRoleMember,
 	TeamMemberRoleSpectator,
 	TeamMemberRoleExcluded,
-	TeamMemberRoleScrumMaster,
 }
 
 // IsKnownTeamMemberRole checks if role has valid value
 func IsKnownTeamMemberRole(role TeamMemberRole, teamRoles []TeamMemberRole) bool {
-	for _, r := range TeamMemberKnownRoles {
+	for _, r := range TeamMemberWellKnownRoles {
 		if r == role {
 			return true
 		}

@@ -50,7 +50,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	roles := []string{
-		const4contactus.TeamMemberRoleTeamMember,
+		const4contactus.TeamMemberRoleMember,
 		const4contactus.TeamMemberRoleCreator,
 		const4contactus.TeamMemberRoleOwner,
 		const4contactus.TeamMemberRoleContributor,

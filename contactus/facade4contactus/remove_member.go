@@ -91,7 +91,7 @@ func removeTeamMember(
 		}
 	}
 	//updates = append(updates, team.Data.SetNumberOf("contacts", len(contactusTeam.Data.Contacts)))
-	updates = append(updates, team.Data.SetNumberOf("members", len(contactusTeam.Data.GetContactBriefsByRoles(const4contactus.TeamMemberRoleTeamMember))))
+	updates = append(updates, team.Data.SetNumberOf("members", len(contactusTeam.Data.GetContactBriefsByRoles(const4contactus.TeamMemberRoleMember))))
 	return
 }
 

@@ -35,6 +35,10 @@ type ContactBrief struct {
 	Avatar *dbprofile.Avatar `json:"avatar,omitempty" firestore:"avatar,omitempty"`
 }
 
+func (v *ContactBrief) IsTeamMember() bool {
+	return v.HasRole(const4contactus.TeamMemberRoleMember)
+}
+
 // GetUserID returns UserID field value
 func (v *ContactBrief) GetUserID() string {
 	return v.UserID
@@ -116,4 +120,72 @@ func (v *ContactBrief) GetTitle() string {
 		return v.Name.Middle
 	}
 	return ""
+}
+
+func (v *ContactBrief) DetermineShortTitle(title string, contacts map[string]*ContactBrief) string {
+	if v.Name.First != "" && IsUniqueShortTitle(v.Name.First, contacts, const4contactus.TeamMemberRoleMember) {
+		v.ShortTitle = v.Name.First
+	} else if v.Name.Nick != "" && IsUniqueShortTitle(v.Name.First, contacts, const4contactus.TeamMemberRoleMember) {
+		return v.Name.Nick
+	} else if v.Name.Full != "" {
+		return getShortTitle(v.Name.Full, contacts)
+	} else if title != "" {
+		return getShortTitle(title, contacts)
+	}
+	return ""
+}
+
+func getShortTitle(title string, members map[string]*ContactBrief) string {
+	shortNames := GetShortNames(title)
+	for _, short := range shortNames {
+		isUnique := true
+		for _, m := range members {
+			if m.ShortTitle == short.Name {
+				isUnique = false
+				break
+			}
+		}
+		if isUnique {
+			return short.Name
+		}
+	}
+	return ""
+}
+
+type ShortName struct {
+	Name string `json:"name" firestore:"name"`
+	Type string `json:"type" firestore:"type"`
+}
+
+// GetShortNames returns short names from a title
+func GetShortNames(title string) (shortNames []ShortName) {
+	title = CleanTitle(title)
+	names := strings.Split(title, " ")
+	shortNames = make([]ShortName, 0, len(names))
+NAMES:
+	for _, s := range names {
+		name := strings.TrimSpace(s)
+		if name == "" {
+			continue
+		}
+		for _, sn := range shortNames {
+			if sn.Name == name {
+				continue NAMES
+			}
+		}
+		shortNames = append(shortNames, ShortName{
+			Name: name,
+			Type: "unknown",
+		})
+	}
+	return shortNames
+}
+
+// CleanTitle cleans title from spaces
+func CleanTitle(title string) string {
+	title = strings.TrimSpace(title)
+	for strings.Contains(title, "  ") {
+		title = strings.Replace(title, "  ", " ", -1)
+	}
+	return title
 }

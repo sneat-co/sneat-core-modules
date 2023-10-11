@@ -19,6 +19,7 @@ import (
 func CreateContact(
 	ctx context.Context,
 	userContext facade.User,
+	userCanBeNonTeamMember bool,
 	request dto4contactus.CreateContactRequest,
 ) (
 	response dto4contactus.CreateContactResponse,
@@ -31,7 +32,7 @@ func CreateContact(
 	err = dal4teamus.CreateTeamItem(ctx, userContext, const4contactus.ContactsCollection, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
 			var contact dal4contactus.ContactEntry
-			if contact, err = CreateContactTx(ctx, tx, params.UserID, request, params); err != nil {
+			if contact, err = CreateContactTx(ctx, tx, params.UserID, userCanBeNonTeamMember, request, params); err != nil {
 				return err
 			}
 			response = dto4contactus.CreateContactResponse{
@@ -52,6 +53,7 @@ func CreateContactTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	userID string,
+	userCanBeNonTeamMember bool,
 	request dto4contactus.CreateContactRequest,
 	params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto],
 ) (
@@ -63,6 +65,30 @@ func CreateContactTx(
 	}
 	if err = request.Validate(); err != nil {
 		return
+	}
+	userContactID, userContactBrief := params.TeamModuleEntry.Data.GetContactBriefByUserID(userID)
+	if !userCanBeNonTeamMember && (userContactBrief == nil || !userContactBrief.IsTeamMember()) {
+		err = errors.New("user is not a member of the team")
+		return
+	}
+	switch userContactBrief.AgeGroup {
+	case "", dbmodels.AgeGroupUnknown:
+		if request.RelatedTo != nil {
+			switch request.RelatedTo.RelatedAs {
+			case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
+				userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
+				userContactKey := dal4contactus.NewContactKey(request.TeamID, userContactID)
+				if err = tx.Update(ctx, userContactKey, []dal.Update{
+					{
+						Field: "ageGroup",
+						Value: userContactBrief.AgeGroup,
+					},
+				}); err != nil {
+					err = fmt.Errorf("failed to update member record: %w", err)
+					return
+				}
+			}
+		}
 	}
 
 	parentContactID := request.ParentContactID
@@ -118,6 +144,7 @@ func CreateContactTx(
 	if contactDto.Address != nil {
 		contactDto.CountryID = contactDto.Address.CountryID
 	}
+	contactDto.ShortTitle = contactDto.DetermineShortTitle(request.Person.Title, params.TeamModuleEntry.Data.Contacts)
 	var contactID string
 	contactBrief := contactDto.ContactBrief
 	if request.ContactID == "" {

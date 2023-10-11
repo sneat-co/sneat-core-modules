@@ -175,7 +175,7 @@ func updateTeamRecord(
 			if u, ok := params.TeamModuleEntry.Data.AddUserID(uid); ok {
 				params.TeamModuleUpdates = append(params.TeamModuleUpdates, u)
 			}
-			if m.AddRole(const4contactus.TeamMemberRoleTeamMember) {
+			if m.AddRole(const4contactus.TeamMemberRoleMember) {
 				params.TeamModuleUpdates = append(params.TeamModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
 			}
 			break
