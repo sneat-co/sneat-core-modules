@@ -102,7 +102,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 				team: dal4teamus.NewTeamContextWithDto("testteamid", &models4teamus.TeamDto{
 					TeamBrief: models4teamus.TeamBrief{
 						WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-							CountryID: "--",
+							CountryID: dbmodels.UnknownCountryID,
 						},
 						Type:  "family",
 						Title: "Family",
@@ -150,7 +150,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 							},
 							Status: "active",
 							//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-							//	CountryID: "--",
+							//	CountryID: dbmodels.UnknownCountryID,
 							//},
 						},
 					},

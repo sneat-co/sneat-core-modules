@@ -34,3 +34,13 @@ func RunContactusTeamWorker(
 ) error {
 	return dal4teamus.RunModuleTeamWorker(ctx, user, request, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto), worker)
 }
+
+func RunContactusTeamWorkerTx(
+	ctx context.Context,
+	tx dal.ReadwriteTransaction,
+	user facade.User,
+	request dto4teamus.TeamRequest,
+	worker func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactusTeamWorkerParams) (err error),
+) error {
+	return dal4teamus.RunModuleTeamWorkerTx(ctx, tx, user, request, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto), worker)
+}

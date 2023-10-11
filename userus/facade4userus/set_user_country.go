@@ -2,8 +2,12 @@ package facade4userus
 
 import (
 	"context"
+	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
 )
 
@@ -22,12 +26,49 @@ func (v SetUserCountryRequest) Validate() error {
 }
 
 func SetUserCountry(ctx context.Context, userContext facade.User, request SetUserCountryRequest) (err error) {
-	return RunUserWorker(ctx, userContext, func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) error {
-		if userWorkerParams.User.Data.CountryID != request.CountryID {
-			userWorkerParams.User.Data.CountryID = request.CountryID
-			userWorkerParams.UserUpdates = append(userWorkerParams.UserUpdates,
+	return RunUserWorker(ctx, userContext, func(ctx context.Context, tx dal.ReadwriteTransaction, params *UserWorkerParams) error {
+		if params.User.Data.CountryID != request.CountryID {
+			params.User.Data.CountryID = request.CountryID
+			params.UserUpdates = append(params.UserUpdates,
 				dal.Update{Field: "countryID", Value: request.CountryID})
+		}
+		for teamID, teamBrief := range params.User.Data.Teams {
+			if teamBrief.Type == "family" && IsUnknownCountryID(teamBrief.CountryID) {
+				teamBrief.CountryID = request.CountryID
+				params.UserUpdates = append(params.UserUpdates, dal.Update{Field: fmt.Sprintf("teams.%s.countryID", teamID), Value: request.CountryID})
+			}
+			teamRequest := dto4teamus.TeamRequest{TeamID: teamID}
+			err = dal4contactus.RunContactusTeamWorkerTx(ctx, tx, userContext, teamRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusTeamWorkerParams) error {
+				if err = params.GetRecords(ctx, tx); err != nil {
+					return err
+				}
+				if params.Team.Data.CountryID == "" || params.Team.Data.CountryID == dbmodels.UnknownCountryID {
+					params.Team.Data.CountryID = request.CountryID
+					params.TeamUpdates = append(params.TeamUpdates, dal.Update{Field: "countryID", Value: request.CountryID})
+				}
+				userContactID, userContactBrief := params.TeamModuleEntry.Data.GetContactBriefByUserID(userContext.GetID())
+				if userContactBrief != nil && IsUnknownCountryID(userContactBrief.CountryID) {
+					userContactBrief.CountryID = request.CountryID
+					params.TeamModuleUpdates = append(params.TeamModuleUpdates, dal.Update{Field: "contacts." + userContactID + ".countryID", Value: request.CountryID})
+					userContact := dal4contactus.NewContactEntry(teamID, userContactID)
+					if err = tx.Get(ctx, userContact.Record); err != nil {
+						return err
+					}
+					if IsUnknownCountryID(userContact.Data.CountryID) {
+						userContact.Data.CountryID = request.CountryID
+						if err = tx.Update(ctx, userContact.Key, []dal.Update{{Field: "countryID", Value: request.CountryID}}); err != nil {
+							return err
+						}
+					}
+				}
+				return nil
+			})
 		}
 		return nil
 	})
+}
+
+// IsUnknownCountryID checks if countryID is empty or "--" - TODO: move next to dbmodels.UnknownCountryID
+func IsUnknownCountryID(countryID string) bool {
+	return countryID == "" || countryID == dbmodels.UnknownCountryID
 }

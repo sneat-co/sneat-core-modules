@@ -250,7 +250,7 @@ func createOrUpdateUserRecord(
 			user.Dto.Gender = "unknown"
 		}
 		if user.Dto.CountryID == "" {
-			user.Dto.CountryID = "--"
+			user.Dto.CountryID = dbmodels.UnknownCountryID
 		}
 		if len(request.Member.Data.Emails) > 0 {
 			user.Dto.Emails = request.Member.Data.Emails

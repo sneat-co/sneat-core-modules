@@ -43,7 +43,7 @@ func TestHttpAddMember(t *testing.T) {
 				},
 				Status: "active",
 				//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-				//	CountryID: "--",
+				//	CountryID: dbmodels.UnknownCountryID,
 				//},
 				Emails: []dbmodels.PersonEmail{
 					{Type: "personal", Address: "someone@example.com"},
@@ -85,7 +85,7 @@ func TestHttpAddMember(t *testing.T) {
 				},
 				Status: "active",
 				//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-				//	CountryID: "--",
+				//	CountryID: const4contactus.UnknownCountryID,
 				//},
 			},
 		}

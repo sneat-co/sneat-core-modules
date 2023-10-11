@@ -29,7 +29,7 @@ func TestUserDto_Validate(t *testing.T) {
 			},
 		},
 	}
-	userDto.CountryID = "--"
+	userDto.CountryID = dbmodels.UnknownCountryID
 	t.Run("empty_record", func(t *testing.T) {
 		if err := userDto.Validate(); err != nil {
 			t.Fatalf("no error expected, got: %v", err)

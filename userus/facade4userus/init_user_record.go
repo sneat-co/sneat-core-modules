@@ -77,7 +77,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, ui
 func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext, userInfo *sneatauth.AuthUserInfo) error {
 	user.Dto.Status = "active"
 	user.Dto.Type = briefs4contactus.ContactTypePerson
-	user.Dto.CountryID = "--"
+	user.Dto.CountryID = dbmodels.UnknownCountryID
 	user.Dto.AgeGroup = "unknown"
 	user.Dto.Gender = "unknown"
 	if request.Name != nil {
