@@ -18,7 +18,7 @@ func UpdateContact(
 	request dto4contactus.UpdateContactRequest,
 ) (err error) {
 	return RunContactWorker(ctx, user, request.ContactRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error) {
-		return UpdateContactTx(ctx, tx, user, request, params)
+		return UpdateContactTx(ctx, tx, request, params)
 	})
 }
 
@@ -26,7 +26,6 @@ func UpdateContact(
 func UpdateContactTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	user facade.User,
 	request dto4contactus.UpdateContactRequest,
 	params *ContactWorkerParams,
 ) (err error) {
@@ -44,7 +43,7 @@ func updateContactTxWorker(
 ) (err error) {
 	contact := dal4contactus.NewContactEntry(params.Team.ID, request.ContactID)
 
-	if err = params.GetRecords(ctx, tx, contact.Record); err != nil {
+	if err = params.GetRecords(ctx, tx, params.UserID, contact.Record); err != nil {
 		return err
 	}
 

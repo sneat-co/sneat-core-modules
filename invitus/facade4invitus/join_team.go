@@ -57,7 +57,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 		inviteDto := new(models4invitus.InviteDto)
 		inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
-		if err = params.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
+		if err = params.GetRecords(ctx, tx, params.UserID, userRecord, inviteRecord); err != nil {
 			return fmt.Errorf("failed to get some records from DB by ItemID: %w", err)
 		}
 
@@ -232,8 +232,8 @@ func onJoinAddTeamToUser(
 }
 
 func onJoinUpdateMemberBriefInTeamOrAddIfMissing(
-	ctx context.Context,
-	tx dal.ReadwriteTransaction,
+	_ context.Context,
+	_ dal.ReadwriteTransaction,
 	params *dal4contactus.ContactusTeamWorkerParams,
 	inviterMemberID string,
 	member dal4contactus.ContactEntry,

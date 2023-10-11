@@ -7,6 +7,7 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/strongo/slice"
 	"log"
 	"time"
 )
@@ -30,9 +31,19 @@ type TeamWorkerParams struct {
 	TeamUpdates []dal.Update
 }
 
-func (v TeamWorkerParams) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
+// GetRecords loads records from DB. If userID is passed it will check for user permissions
+func (v TeamWorkerParams) GetRecords(ctx context.Context, tx dal.ReadSession, userID string, records ...dal.Record) error {
 	records = append(records, v.Team.Record)
-	return tx.GetMulti(ctx, records)
+	err := tx.GetMulti(ctx, records)
+	if err != nil {
+		return err
+	}
+	if userID != "" && v.Team.Record.Exists() {
+		if !slice.Contains(v.Team.Data.UserIDs, userID) {
+			return fmt.Errorf("%w: team record has no current user ID in UserIDs field: %s", facade.ErrUnauthorized, userID)
+		}
+	}
+	return nil
 }
 
 // ModuleTeamWorkerParams passes data to a team worker
@@ -42,9 +53,9 @@ type ModuleTeamWorkerParams[D TeamModuleData] struct {
 	TeamModuleUpdates []dal.Update
 }
 
-func (v ModuleTeamWorkerParams[D]) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
+func (v ModuleTeamWorkerParams[D]) GetRecords(ctx context.Context, tx dal.ReadSession, userID string, records ...dal.Record) error {
 	records = append(records, v.TeamModuleEntry.Record)
-	return v.TeamWorkerParams.GetRecords(ctx, tx, records...)
+	return v.TeamWorkerParams.GetRecords(ctx, tx, userID, records...)
 }
 
 type ModuleData interface {
