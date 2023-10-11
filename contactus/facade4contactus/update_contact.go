@@ -4,42 +4,43 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
 	"strings"
 )
 
 // UpdateContact sets contact fields
-func UpdateContact(ctx context.Context, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
+func UpdateContact(
+	ctx context.Context,
+	user facade.User,
+	request dto4contactus.UpdateContactRequest,
+) (err error) {
 	return RunContactWorker(ctx, user, request.ContactRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error) {
-		return UpdateContactTx(ctx, tx, user, request)
+		return UpdateContactTx(ctx, tx, user, request, params)
 	})
 }
 
 // UpdateContactTx sets contact fields
-func UpdateContactTx(ctx context.Context, tx dal.ReadwriteTransaction, user facade.User, request dto4contactus.UpdateContactRequest) (err error) {
+func UpdateContactTx(
+	ctx context.Context,
+	tx dal.ReadwriteTransaction,
+	user facade.User,
+	request dto4contactus.UpdateContactRequest,
+	params *ContactWorkerParams,
+) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
-	err = dal4teamus.RunModuleTeamWorkerTx(ctx, tx, user, request.TeamRequest, const4contactus.ModuleID, new(models4contactus.ContactusTeamDto),
-		func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto]) (err error) {
-			return updateContactTxWorker(ctx, tx, teamWorkerParams, request)
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to set contact status: %w", err)
-	}
-	return err
+	return updateContactTxWorker(ctx, tx, request, params)
 }
 
 func updateContactTxWorker(
-	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4teamus.ModuleTeamWorkerParams[*models4contactus.ContactusTeamDto],
+	ctx context.Context,
+	tx dal.ReadwriteTransaction,
 	request dto4contactus.UpdateContactRequest,
+	params *ContactWorkerParams,
 ) (err error) {
 	contact := dal4contactus.NewContactEntry(params.Team.ID, request.ContactID)
 
