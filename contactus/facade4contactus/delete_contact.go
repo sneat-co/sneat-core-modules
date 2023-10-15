@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
 )
 
@@ -31,18 +32,16 @@ func deleteContactTxWorker(
 		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents team/company itself")
 	}
 	contact := dal4contactus.NewContactEntry(params.Team.ID, contactID)
-	if err = tx.Get(ctx, contact.Record); err != nil {
-		return fmt.Errorf("failed to get contact: %w", err)
-	}
-	if err = tx.Get(ctx, params.TeamModuleEntry.Record); err != nil && !dal.IsNotFound(err) {
-		return fmt.Errorf("failed to get team contacts brief: %w", err)
+	if err = params.GetRecords(ctx, tx, params.UserID, params.Team.Record); err != nil {
+		return err
 	}
 
-	var relatedContacts []dal4contactus.ContactEntry
-	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, RelatedAsChild, 0, -1, []dal4contactus.ContactEntry{contact})
+	var subContacts []dal4contactus.ContactEntry
+	subContacts, err = GetRelatedContacts(ctx, tx, params.Team.ID, RelatedAsChild, 0, -1, []dal4contactus.ContactEntry{contact})
 	if err != nil {
 		return fmt.Errorf("failed to get related contacts: %w", err)
 	}
+
 	params.TeamModuleUpdates = append(params.TeamModuleUpdates,
 		params.TeamModuleEntry.Data.RemoveContact(contactID))
 
@@ -52,13 +51,23 @@ func deleteContactTxWorker(
 
 	params.TeamUpdates = append(params.TeamUpdates, updateTeamDtoWithNumberOfContact(len(params.TeamModuleEntry.Data.Contacts)))
 
-	contactKeysToDelete := make([]*dal.Key, 0, len(relatedContacts)+1)
+	contactKeysToDelete := make([]*dal.Key, 0, len(subContacts)+1)
 	contactKeysToDelete = append(contactKeysToDelete, contact.Key)
-	for _, relatedContact := range relatedContacts {
-		contactKeysToDelete = append(contactKeysToDelete, relatedContact.Key)
+	for _, subContact := range subContacts {
+		subContact.Data.Status = dbmodels.StatusDeleted
+		contactKeysToDelete = append(contactKeysToDelete, subContact.Key)
 	}
-	if err = tx.DeleteMulti(ctx, contactKeysToDelete); err != nil {
-		return fmt.Errorf("failed to delete contacts: %w", err)
+	contactsUpdates := []dal.Update{
+		{
+			Field: "status",
+			Value: dbmodels.StatusDeleted,
+		},
 	}
+	if err = tx.UpdateMulti(ctx, contactKeysToDelete, contactsUpdates); err != nil {
+		return fmt.Errorf("failed to set contacts status to %v: %w", contactsUpdates[0].Value, err)
+	}
+	//if err = tx.DeleteMulti(ctx, contactKeysToDelete); err != nil {
+	//	return fmt.Errorf("failed to delete contacts: %w", err)
+	//}
 	return nil
 }

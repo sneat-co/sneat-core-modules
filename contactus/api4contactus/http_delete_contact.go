@@ -10,13 +10,11 @@ import (
 	"net/http"
 )
 
-var deleteContact = facade4contactus.DeleteContact
-
 // httpDeleteContact deletes contact
 func httpDeleteContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.ContactRequest
 	handler := func(ctx context.Context, userCtx facade.User) (interface{}, error) {
-		return nil, deleteContact(ctx, userCtx, request)
+		return nil, facade4contactus.DeleteContact(ctx, userCtx, request)
 	}
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }

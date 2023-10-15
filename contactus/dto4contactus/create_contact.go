@@ -16,7 +16,10 @@ type CreateContactRequest struct {
 	dbmodels.WithRoles
 	ParentContactID string                       `json:"parentContactID,omitempty"`
 	Type            briefs4contactus.ContactType `json:"type"`
-	Status          string                       `json:"status"`
+
+	// Duplicate also in CreatePersonRequest throw briefs4contactus.ContactBase,
+	// but not in CreateCompanyRequest & CreateLocationRequest
+	Status string `json:"status"`
 
 	Person   *CreatePersonRequest       `json:"person,omitempty"`
 	Company  *CreateCompanyRequest      `json:"company,omitempty"`
@@ -94,6 +97,10 @@ func (v CreateContactRequest) Validate() error {
 		if err := v.RelatedTo.Validate(); err != nil {
 			return validation.NewErrBadRequestFieldValue("relatedTo", err.Error())
 		}
+	}
+	if v.Person != nil && v.Person.Status != v.Status {
+		return validation.NewErrBadRecordFieldValue("status",
+			fmt.Sprintf("does not match to person.status: %s != %s", v.Status, v.Person.Status))
 	}
 	return nil
 }
