@@ -299,8 +299,8 @@ func Test_updateTeamRecord(t *testing.T) {
 				}),
 				contactusTeam: dal4contactus.NewContactusTeamModuleEntryWithData("testteamid", &models4contactus.ContactusTeamDto{
 					WithSingleTeamContactsWithoutContactIDs: briefs4contactus.WithSingleTeamContactsWithoutContactIDs[*briefs4contactus.ContactBrief]{
-						WithContactsBase: briefs4contactus.WithContactsBase[string, *briefs4contactus.ContactBrief]{
-							WithContactBriefs: briefs4contactus.WithContactBriefs[string, *briefs4contactus.ContactBrief]{
+						WithContactsBase: briefs4contactus.WithContactsBase[*briefs4contactus.ContactBrief]{
+							WithContactBriefs: briefs4contactus.WithContactBriefs[*briefs4contactus.ContactBrief]{
 								Contacts: map[string]*briefs4contactus.ContactBrief{
 									testMember.ID: &testMember.Data.ContactBrief,
 								},

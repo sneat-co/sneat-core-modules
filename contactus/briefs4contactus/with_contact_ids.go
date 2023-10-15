@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-type WithContactIDs[T string | dbmodels.TeamItemID] struct {
-	ContactIDs []T `json:"contactIDs,omitempty" firestore:"contactIDs,omitempty"`
+type WithContactIDs struct {
+	ContactIDs []string `json:"contactIDs,omitempty" firestore:"contactIDs,omitempty"`
 }
 
-func (v *WithContactIDs[T]) Validate() error {
+func (v *WithContactIDs) Validate() error {
 	if len(v.ContactIDs) == 0 {
 		return validation.NewErrRecordIsMissingRequiredField("contactIDs")
 	}
@@ -23,10 +23,14 @@ func (v *WithContactIDs[T]) Validate() error {
 }
 
 type WithSingleTeamContactIDs struct {
-	WithContactIDs[string]
+	WithContactIDs
 }
 
 func (v *WithSingleTeamContactIDs) AddContactID(contactID string) {
+	if len(v.ContactIDs) == 0 {
+		v.ContactIDs = make([]string, 1, 2)
+		v.ContactIDs[0] = "*"
+	}
 	v.ContactIDs = append(v.ContactIDs, contactID)
 }
 
@@ -41,11 +45,11 @@ func (v *WithSingleTeamContactIDs) Validate() error {
 
 // WithMultiTeamContactIDs mixin that adds ContactIDs field
 type WithMultiTeamContactIDs struct {
-	WithContactIDs[dbmodels.TeamItemID]
+	WithContactIDs
 }
 
 func (v *WithMultiTeamContactIDs) AddTeamContactID(teamContactID dbmodels.TeamItemID) {
-	v.ContactIDs = append(v.ContactIDs, teamContactID)
+	v.ContactIDs = append(v.ContactIDs, string(teamContactID))
 }
 
 // Validate  returns error if not valid
@@ -61,10 +65,10 @@ func (v *WithMultiTeamContactIDs) Validate() error {
 		default:
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("contactIDs[%v]", i), "leading or trailing whitespaces")
 		}
-		ids := strings.Split(string(id), ":")
+		ids := strings.Split(string(id), dbmodels.TeamItemIDSeparator)
 		if len(ids) != 2 {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("contactIDs[%v]", i),
-				"should be in format 'teamID:contactID', got: "+string(id))
+				fmt.Sprintf("should be in format '%s', got: %s", dbmodels.NewTeamItemID("teamID", "contactID"), id))
 		}
 		if ids[0] == "" {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("contactIDs[%v]", i), "teamID can not be empty string")
@@ -77,6 +81,6 @@ func (v *WithMultiTeamContactIDs) Validate() error {
 }
 
 // HasTeamContactID check if a record has a specific contactBrief ItemID
-func (v *WithMultiTeamContactIDs) HasTeamContactID(id dbmodels.TeamItemID) bool {
-	return slice.Contains(v.ContactIDs, id)
+func (v *WithMultiTeamContactIDs) HasTeamContactID(teamItemID dbmodels.TeamItemID) bool {
+	return slice.Contains(v.ContactIDs, string(teamItemID))
 }

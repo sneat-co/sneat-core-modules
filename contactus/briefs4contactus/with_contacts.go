@@ -22,7 +22,7 @@ type WithSingleTeamContactsWithoutContactIDs[
 		Equal(v T) bool
 	},
 ] struct {
-	WithContactsBase[string, T]
+	WithContactsBase[T]
 }
 
 func (v *WithSingleTeamContactsWithoutContactIDs[T]) Validate() error {
@@ -79,7 +79,7 @@ type WithMultiTeamContacts[
 	},
 ] struct {
 	WithMultiTeamContactIDs
-	WithContactsBase[dbmodels.TeamItemID, T]
+	WithContactsBase[T]
 }
 
 // Validate returns error if not valid
@@ -106,7 +106,7 @@ func (v *WithMultiTeamContacts[T]) Updates(contactIDs ...dbmodels.TeamItemID) (u
 		for _, id := range contactIDs {
 			updates = append(updates, dal.Update{
 				Field: const4contactus.ContactsField + "." + string(id),
-				Value: v.Contacts[id],
+				Value: v.Contacts[string(id)],
 			})
 		}
 	}
@@ -115,7 +115,7 @@ func (v *WithMultiTeamContacts[T]) Updates(contactIDs ...dbmodels.TeamItemID) (u
 
 // SetContactBrief sets contactBrief brief by ID
 func (v *WithMultiTeamContacts[T]) SetContactBrief(teamID, contactID string, contactBrief T) (updates []dal.Update) {
-	id := dbmodels.NewTeamItemID(teamID, contactID)
+	id := string(dbmodels.NewTeamItemID(teamID, contactID))
 	if !slice.Contains(v.ContactIDs, id) {
 		v.ContactIDs = append(v.ContactIDs, id)
 		updates = append(updates, dal.Update{
@@ -138,7 +138,7 @@ func (v *WithMultiTeamContacts[T]) ParentContactBrief() (i int, id dbmodels.Team
 	for i, id := range v.ContactIDs {
 		brief := v.Contacts[id]
 		if brief.GetRelatedAs() == "parent" {
-			return i, id, brief
+			return i, dbmodels.TeamItemID(id), brief
 		}
 	}
 	return -1, "", brief
@@ -147,17 +147,17 @@ func (v *WithMultiTeamContacts[T]) ParentContactBrief() (i int, id dbmodels.Team
 // GetContactBriefByID returns contactBrief brief by ID
 func (v *WithMultiTeamContacts[T]) GetContactBriefByID(teamID, contactID string) (i int, brief T) {
 	id := dbmodels.NewTeamItemID(teamID, contactID)
-	if brief, ok := v.Contacts[id]; !ok {
+	if brief, ok := v.Contacts[string(id)]; !ok {
 		return -1, brief
 	}
-	return slice.Index(v.ContactIDs, id), brief
+	return slice.Index(v.ContactIDs, string(id)), brief
 }
 
 // GetContactBriefByUserID returns contactBrief brief by user ID
 func (v *WithMultiTeamContacts[T]) GetContactBriefByUserID(userID string) (id dbmodels.TeamItemID, t T) {
 	for cID, c := range v.Contacts {
 		if c.GetUserID() == userID {
-			return cID, c
+			return dbmodels.TeamItemID(cID), c
 		}
 	}
 	return
@@ -165,22 +165,26 @@ func (v *WithMultiTeamContacts[T]) GetContactBriefByUserID(userID string) (id db
 
 func (v *WithMultiTeamContacts[T]) AddContact(teamID, contactID string, c T) (updates []dal.Update) {
 	id := dbmodels.NewTeamItemID(teamID, contactID)
-	if !slice.Contains(v.ContactIDs, id) {
-		v.ContactIDs = append(v.ContactIDs, id)
+	if !slice.Contains(v.ContactIDs, string(id)) {
+		if len(v.ContactIDs) == 0 {
+			v.ContactIDs = make([]string, 1, 2)
+			v.ContactIDs[0] = "*"
+		}
+		v.ContactIDs = append(v.ContactIDs, string(id))
 		updates = append(updates, dal.Update{
 			Field: "contactIDs",
 			Value: v.ContactIDs,
 		})
 	}
-	if _, ok := v.Contacts[id]; !ok {
+	if _, ok := v.Contacts[string(id)]; !ok {
 		updates = append(updates, dal.Update{
 			Field: "contacts." + string(id),
 			Value: c,
 		})
 	}
 	if v.Contacts == nil {
-		v.Contacts = make(map[dbmodels.TeamItemID]T)
+		v.Contacts = make(map[string]T)
 	}
-	v.Contacts[id] = c
+	v.Contacts[string(id)] = c
 	return
 }

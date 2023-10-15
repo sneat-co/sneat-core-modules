@@ -10,30 +10,28 @@ import (
 // WithContactBriefs is a base struct for DTOs that have contacts
 // TODO: Document how it is different from WithContactsBase or merge them
 type WithContactBriefs[
-	K string | dbmodels.TeamItemID,
 	T interface {
 		core.Validatable
 		Equal(v T) bool
 	},
 ] struct {
-	Contacts map[K]T `json:"contacts,omitempty" firestore:"contacts,omitempty"`
+	Contacts map[string]T `json:"contacts,omitempty" firestore:"contacts,omitempty"`
 }
 
 // WithContactsBase is a base struct for DTOs that represent a short version of a contact
 // TODO: Document how it is different from WithContactBriefs or merge them
 type WithContactsBase[
-	K string | dbmodels.TeamItemID,
 	T interface {
 		dbmodels.UserIDGetter
 		dbmodels.RelatedAs
 		HasRole(role string) bool
 		Equal(v T) bool
 	}] struct {
-	WithContactBriefs[K, T]
+	WithContactBriefs[T]
 	dbmodels.WithUserIDs
 }
 
-func (v WithContactsBase[K, T]) Validate() error {
+func (v WithContactsBase[T]) Validate() error {
 	for id, contact := range v.Contacts {
 		if err := contact.Validate(); err != nil {
 			return validation.NewErrBadRecordFieldValue("contacts."+string(id), err.Error())
@@ -49,7 +47,7 @@ func (v WithContactsBase[K, T]) Validate() error {
 	return nil
 }
 
-func (v WithContactsBase[K, T]) GetContactBriefByUserID(userID string) (id K, contactBrief T) {
+func (v WithContactsBase[T]) GetContactBriefByUserID(userID string) (id string, contactBrief T) {
 	for k, c := range v.Contacts {
 		if c.GetUserID() == userID {
 			return k, c
@@ -58,8 +56,8 @@ func (v WithContactsBase[K, T]) GetContactBriefByUserID(userID string) (id K, co
 	return id, contactBrief
 }
 
-func (v WithContactsBase[K, T]) GetContactBriefsByRoles(roles ...string) map[K]T {
-	result := make(map[K]T)
+func (v WithContactsBase[T]) GetContactBriefsByRoles(roles ...string) map[string]T {
+	result := make(map[string]T)
 	for id, c := range v.Contacts {
 		for _, role := range roles {
 			if c.HasRole(role) {

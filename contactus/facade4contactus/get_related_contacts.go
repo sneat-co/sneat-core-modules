@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
 const RelatedAsChild = "child"
@@ -29,9 +30,10 @@ func GetRelatedContacts(
 	for _, contact := range contacts {
 		for relatedContactID, relatedContact := range contact.Data.Contacts {
 			if relatedContact.RelatedAs == relatedAs {
-				if _, found := dal4contactus.FindContactEntryByContactID(related, relatedContactID.ItemID()); !found {
-					if _, found = dal4contactus.FindContactEntryByContactID(directlyRelated, relatedContactID.ItemID()); !found {
-						directlyRelated = append(related, dal4contactus.NewContactEntry(teamID, relatedContactID.ItemID()))
+				itemID := dbmodels.TeamItemID(relatedContactID).ItemID()
+				if _, found := dal4contactus.FindContactEntryByContactID(related, itemID); !found {
+					if _, found = dal4contactus.FindContactEntryByContactID(directlyRelated, itemID); !found {
+						directlyRelated = append(related, dal4contactus.NewContactEntry(teamID, itemID))
 					}
 				}
 			}
