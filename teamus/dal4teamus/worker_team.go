@@ -205,8 +205,17 @@ func applyTeamUpdates(ctx context.Context, tx dal.ReadwriteTransaction, params T
 
 func applyTeamModuleUpdates[D TeamModuleData](ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleTeamWorkerParams[D]) (err error) {
 	if len(params.TeamModuleUpdates) > 0 {
-		if err = txUpdateTeamModule(ctx, tx, params.Started, params.TeamModuleEntry, params.TeamModuleUpdates); err != nil {
-			return fmt.Errorf("failed to update team record: %w", err)
+		if err = params.TeamModuleEntry.Data.Validate(); err != nil {
+			return fmt.Errorf("team module record is not valid before applying team module updates: %w", err)
+		}
+		if params.TeamModuleEntry.Record.Exists() {
+			if err = txUpdateTeamModule(ctx, tx, params.Started, params.TeamModuleEntry, params.TeamModuleUpdates); err != nil {
+				return fmt.Errorf("failed to update team module record: %w", err)
+			}
+		} else {
+			if err = tx.Insert(ctx, params.TeamModuleEntry.Record); err != nil {
+				return fmt.Errorf("failed to insert team module record: %w", err)
+			}
 		}
 	}
 	return err
