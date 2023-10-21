@@ -2,7 +2,7 @@ module github.com/sneat-co/sneat-core-modules
 
 go 1.21.0
 
-//replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
+replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
 
 require (
 	github.com/dal-go/dalgo v0.12.0

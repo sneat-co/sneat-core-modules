@@ -39,6 +39,11 @@ func CreateHappening(
 			},
 		},
 	}
+	happeningDto.ContactIDs = append(happeningDto.ContactIDs, "*")
+	if len(happeningDto.AssetIDs) == 0 {
+		happeningDto.AssetIDs = []string{"*"}
+	}
+
 	if happeningDto.Type == models4schedulus.HappeningTypeSingle {
 		for _, slot := range happeningDto.Slots {
 			date := slot.Start.Date
@@ -65,9 +70,43 @@ func CreateHappening(
 				happeningDto.DateMax = date
 			}
 
-			for contactID := range happeningDto.Participants {
-				contactBrief := contactusTeam.Data.Contacts[contactID]
-				happeningDto.AddContact(params.Team.ID, contactID, contactBrief)
+			contactsByTeamID := make(map[string][]dal4contactus.ContactEntry)
+
+			for participantID := range happeningDto.Participants {
+				participantKey := dbmodels.TeamItemID(participantID)
+				teamID := participantKey.TeamID()
+				if teamID == params.Team.ID {
+					contactBrief := contactusTeam.Data.Contacts[participantKey.ItemID()]
+					if contactBrief == nil {
+						teamContacts := contactsByTeamID[teamID]
+						if teamContacts == nil {
+							teamContacts = make([]dal4contactus.ContactEntry, 0, 1)
+							contactsByTeamID[teamID] = teamContacts
+						}
+						teamContacts = append(teamContacts, dal4contactus.NewContactEntry(teamID, participantKey.ItemID()))
+					} else {
+						happeningDto.AddContact(teamID, participantKey.ItemID(), contactBrief)
+					}
+				} else {
+					return errors.New("not implemented yet: adding participants from other teams at happening creation")
+				}
+			}
+
+			if len(contactsByTeamID) > 0 {
+				contactRecords := make([]dal.Record, 0)
+				for _, teamContacts := range contactsByTeamID {
+					for _, contact := range teamContacts {
+						contactRecords = append(contactRecords, contact.Record)
+					}
+				}
+				if err = tx.GetMulti(ctx, contactRecords); err != nil {
+					return err
+				}
+				for teamID, teamContacts := range contactsByTeamID {
+					for _, contact := range teamContacts {
+						happeningDto.AddContact(teamID, contact.ID, &contact.Data.ContactBrief)
+					}
+				}
 			}
 
 			var happeningID string

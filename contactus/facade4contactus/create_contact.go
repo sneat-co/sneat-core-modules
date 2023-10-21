@@ -10,6 +10,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -162,6 +163,9 @@ func CreateContactTx(
 		}
 	} else {
 		contactID = request.ContactID
+	}
+	if contactDto.CountryID == "" && params.Team.Data.CountryID != "" && params.Team.Data.Type == core4teamus.TeamTypeFamily {
+		contactDto.CountryID = params.Team.Data.CountryID
 	}
 	params.TeamModuleEntry.Data.AddContact(contactID, &contactBrief)
 	if params.TeamModuleEntry.Record.Exists() {

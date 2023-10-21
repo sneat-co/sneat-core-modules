@@ -15,8 +15,13 @@ type HappeningBrief struct {
 	Levels   []string         `json:"levels,omitempty" firestore:"levels,omitempty"`
 	Slots    []*HappeningSlot `json:"slots,omitempty" firestore:"slots,omitempty"`
 
+	// Participants keeps contact info specific to the happening.
+	// Map key is expected to be valid dbmodels.TeamItemID to support contacts from multiple teams.
 	Participants map[string]*HappeningParticipant `json:"participants,omitempty" firestore:"participants,omitempty"`
-	Assets       map[string]*HappeningAsset       `json:"places,omitempty" firestore:"places,omitempty"`
+
+	// HappeningAssets keeps briefs for assets related to the happening.
+	// Map key is expected to be valid dbmodels.TeamItemID to support contacts from multiple teams.
+	HappeningAssets map[string]*HappeningAsset `json:"places,omitempty" firestore:"places,omitempty"`
 }
 
 func (v HappeningBrief) GetSlot(id string) (i int, slot *HappeningSlot) {
@@ -69,22 +74,47 @@ func (v HappeningBrief) Validate() error {
 			// TODO: Add more validations?
 		}
 	}
+	if err := validateHappeningParticipants(v.Participants); err != nil {
+		return err
+	}
+	if err := validateHappeningAssetBriefs(v.HappeningAssets); err != nil {
+		return err
+	}
 
-	for contactID, participant := range v.Participants {
+	return nil
+}
+
+func validateHappeningParticipants(participants map[string]*HappeningParticipant) error {
+	for contactID, participant := range participants {
 		if contactID == "" {
 			return validation.NewErrBadRecordFieldValue("participants", "contactID is empty")
 		}
+		field := func() string {
+			return fmt.Sprintf("participants[%s]", contactID)
+		}
+		if err := dbmodels.TeamItemID(contactID).Validate(); err != nil {
+			return validation.NewErrBadRecordFieldValue(field(), err.Error())
+		}
 		if err := participant.Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue("participants."+contactID, err.Error())
+			return validation.NewErrBadRecordFieldValue(field(), err.Error())
 		}
 	}
+	return nil
+}
 
-	for assetID, assetBrief := range v.Assets {
+func validateHappeningAssetBriefs(assets map[string]*HappeningAsset) error {
+	for assetID, assetBrief := range assets {
 		if assetID == "" {
-			return validation.NewErrBadRecordFieldValue("assets", "assetID is empty")
+			return validation.NewErrBadRecordFieldValue("happeningAssets", "assetID is empty")
+		}
+		field := func() string {
+			return fmt.Sprintf("happeningAssets[%s]", assetID)
+		}
+		if err := dbmodels.TeamItemID(assetID).Validate(); err != nil {
+			return validation.NewErrBadRecordFieldValue(field(), err.Error())
 		}
 		if err := assetBrief.Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue("assets."+assetID, err.Error())
+			return validation.NewErrBadRecordFieldValue(field(), err.Error())
 		}
 	}
 	return nil
