@@ -2,8 +2,10 @@ package facade4userus
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"log"
@@ -40,8 +42,8 @@ var GetUserByID = func(ctx context.Context, getter dal.ReadSession, user dal.Rec
 // TxGetUserByID load user record by ItemID within transaction
 var TxGetUserByID = func(ctx context.Context, transaction dal.ReadwriteTransaction, user dal.Record) (
 	err error,
-) {
-	return transaction.Get(ctx, user)
+) { // TODO: Why we need this wrapper? Consider removing.
+	return GetUserByID(ctx, transaction, user)
 }
 
 // TxUpdateUser update user record
@@ -114,4 +116,33 @@ var RunUserWorker = func(ctx context.Context, user facade.User, worker userWorke
 		}
 		return err
 	})
+}
+
+func GetUserTeamContactID(ctx context.Context, tx dal.ReadSession, userID string, contactusTeamEntry dal4contactus.ContactusTeamModuleEntry) (userContactID string, err error) {
+
+	userContactID, _ = contactusTeamEntry.Data.GetContactBriefByUserID(userID)
+
+	if userContactID != "" {
+		return userContactID, nil
+	}
+
+	user := models4userus.NewUserContext(userID)
+
+	if err = GetUserByID(ctx, tx, user.Record); err != nil || !user.Record.Exists() {
+		return "", err
+	}
+
+	teamID := contactusTeamEntry.Key.Parent().ID.(string)
+
+	userTeamBrief := user.Dto.Teams[teamID]
+
+	if userTeamBrief == nil {
+		return "", errors.New("user's team brief is not found in user record")
+	}
+
+	if userTeamBrief.UserContactID == "" {
+		return "", errors.New("user's team brief has no value in 'userContactID' field")
+	}
+
+	return userTeamBrief.UserContactID, nil
 }

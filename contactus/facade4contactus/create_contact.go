@@ -106,20 +106,6 @@ func CreateContactTx(
 	contactDto.Status = "active"
 	contactDto.ParentID = parentContactID
 	contactDto.WithRoles = request.WithRoles
-	if request.RelatedTo != nil {
-		if request.RelatedTo.ItemID == "" {
-			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
-			if request.RelatedTo.ItemID == "" {
-				err = errors.New("user does not have a contact brief in contactus team record")
-				return
-			}
-		}
-		if contactDto.RelatedAsByContactID == nil {
-			contactDto.RelatedAsByContactID = make(map[string]string, 1)
-		}
-		contactDto.RelatedAsByContactID[request.RelatedTo.ItemID] = request.RelatedTo.RelatedAs
-		// TODO: Update users contact & brief with relationship info
-	}
 	if request.Person != nil {
 		contactDto.ContactBase = request.Person.ContactBase
 		contactDto.Type = briefs4contactus.ContactTypePerson
@@ -155,7 +141,6 @@ func CreateContactTx(
 	}
 	contactDto.ShortTitle = contactDto.DetermineShortTitle(request.Person.Title, params.TeamModuleEntry.Data.Contacts)
 	var contactID string
-	contactBrief := contactDto.ContactBrief
 	if request.ContactID == "" {
 		contactID, err = dbmodels.NewUniqueRandomID(params.TeamModuleEntry.Data.ContactIDs(), 3)
 		if err != nil {
@@ -167,7 +152,7 @@ func CreateContactTx(
 	if contactDto.CountryID == "" && params.Team.Data.CountryID != "" && params.Team.Data.Type == core4teamus.TeamTypeFamily {
 		contactDto.CountryID = params.Team.Data.CountryID
 	}
-	params.TeamModuleEntry.Data.AddContact(contactID, &contactBrief)
+	params.TeamModuleEntry.Data.AddContact(contactID, &contactDto.ContactBrief)
 	if params.TeamModuleEntry.Record.Exists() {
 		if err = tx.Update(ctx, params.TeamModuleEntry.Key, []dal.Update{
 			{
@@ -184,6 +169,22 @@ func CreateContactTx(
 	}
 
 	params.TeamUpdates = append(params.TeamUpdates, params.Team.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.TeamModuleEntry.Data.Contacts)))
+
+	if request.RelatedTo != nil {
+		if request.RelatedTo.ItemID == "" {
+			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
+			if request.RelatedTo.ItemID == "" {
+				err = errors.New("user does not have a contact brief in contactus team record")
+				return
+			}
+		}
+		if _, err = contactDto.SetSingleRelationshipToContact(
+			params.UserID, request.RelatedTo.ItemID, contactID, request.RelatedTo.RelatedAs, params.Started,
+		); err != nil {
+			return contact, err
+		}
+	}
+
 	contact = dal4contactus.NewContactEntryWithData(request.TeamID, contactID, &contactDto)
 
 	//contact.Data.UserIDs = params.Team.Data.UserIDs

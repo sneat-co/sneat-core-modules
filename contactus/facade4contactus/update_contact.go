@@ -6,9 +6,10 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
-	"strings"
 )
 
 // UpdateContact sets contact fields
@@ -109,12 +110,18 @@ func updateContactTxWorker(
 			}
 		}
 
-		contact.Data.RelatedAsByContactID[request.RelatedTo.ItemID] = strings.TrimSpace(request.RelatedTo.RelatedAs)
+		if contact.Data.RelatedContacts == nil {
+			contact.Data.RelatedContacts = make(models4contactus.RelatedContacts, 1)
+		}
 
-		contactUpdates = append(contactUpdates, dal.Update{
-			Field: "relatedAsByContactID." + request.RelatedTo.ItemID,
-			Value: request.RelatedTo.RelatedAs,
-		})
+		var userContactID string
+		userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.ContactusTeamWorkerParams.TeamModuleEntry)
+
+		var relUpdates []dal.Update
+		if relUpdates, err = contact.Data.SetSingleRelationshipToContact(params.UserID, userContactID, request.RelatedTo.ItemID, request.RelatedTo.RelatedAs, params.Started); err != nil {
+			return err
+		}
+		contactUpdates = append(contactUpdates, relUpdates...)
 	}
 
 	if len(contactUpdates) > 0 {

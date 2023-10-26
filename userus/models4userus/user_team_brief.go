@@ -11,8 +11,14 @@ import (
 // UserTeamBrief hold info on a team in the UserDto record
 type UserTeamBrief struct {
 	models4teamus.TeamBrief
-	MemberType string   `json:"memberType" firestore:"memberType"` // TODO: document what it is
-	Roles      []string `json:"roles" firestore:"roles"`
+
+	// UserContactID is a contact ID of a user in the team
+	UserContactID string `json:"userContactID" firestore:"userContactID"`
+
+	// User roles in the team
+	Roles []string `json:"roles" firestore:"roles"`
+
+	//MemberType    string   `json:"memberType" firestore:"memberType"` // TODO: document what it is
 
 	// TODO: RetroItems should be moved into members
 	//RetroItems dbretro.RetroItemsByType `json:"retroItem,omitempty" firestore:"retroItems,omitempty"`
@@ -33,6 +39,9 @@ func (v UserTeamBrief) Validate() error {
 	//if err := models.ValidateTitle(v.Title); err != nil {
 	//	return err
 	//}
+	if v.UserContactID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("userContactID")
+	}
 	if v.Type == "" {
 		return validation.NewErrRecordIsMissingRequiredField("type")
 	}

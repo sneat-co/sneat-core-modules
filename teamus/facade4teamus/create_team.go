@@ -38,13 +38,13 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	if strings.TrimSpace(userID) == "" {
 		return response, facade.ErrUnauthenticated
 	}
-	var memberID string
+	var userTeamContactID string
 	user := models4userus.NewUserContext(userID)
 	if err = tx.Get(ctx, user.Record); err != nil {
 		return
 	}
 
-	memberID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
+	userTeamContactID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
 	if err != nil {
 		return response, fmt.Errorf("failed to generate  member ItemID: %w", err)
 	}
@@ -137,21 +137,22 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	//if len(teamMember.Phones) == 0 && len(user.Dto.Phones) > 0 {
 	//	teamMember.Phones = user.Dto.Phones
 	//}
-	teamContactus.Data.AddContact(memberID, &teamMember)
+	teamContactus.Data.AddContact(userTeamContactID, &teamMember)
 
 	if err := tx.Insert(ctx, teamContactus.Record); err != nil {
 		return response, fmt.Errorf("failed to insert a new teamDto contactus record: %w", err)
 	}
 
-	teamInfo := models4userus.UserTeamBrief{
-		TeamBrief: teamDto.TeamBrief,
-		Roles:     roles,
+	userTeamBrief := models4userus.UserTeamBrief{
+		TeamBrief:     teamDto.TeamBrief,
+		UserContactID: userTeamContactID,
+		Roles:         roles,
 	}
 
 	if user.Dto.Teams == nil {
 		user.Dto.Teams = make(map[string]*models4userus.UserTeamBrief, 1)
 	}
-	updates := user.Dto.SetTeamBrief(teamID, &teamInfo)
+	updates := user.Dto.SetTeamBrief(teamID, &userTeamBrief)
 	if err = user.Dto.Validate(); err != nil {
 		return response, fmt.Errorf("user record is not valid after adding new team info: %v", err)
 	}
@@ -166,13 +167,13 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	teamMember.Roles = roles
-	if _, err = CreateMemberRecordFromBrief(ctx, tx, teamID, memberID, teamMember, now, userID); err != nil {
+	if _, err = CreateMemberRecordFromBrief(ctx, tx, teamID, userTeamContactID, teamMember, now, userID); err != nil {
 		return response, fmt.Errorf("failed to create member's record: %w", err)
 	}
 
 	response.Team.ID = teamID
-	response.Team.Dto.Type = teamInfo.Type
-	response.Team.Dto.Title = teamInfo.Title
+	response.Team.Dto.Type = userTeamBrief.Type
+	response.Team.Dto.Title = userTeamBrief.Title
 	return
 }
 

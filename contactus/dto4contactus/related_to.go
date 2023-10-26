@@ -2,15 +2,16 @@ package dto4contactus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/validation"
 )
 
 type RelatedToRequest struct {
-	ModuleID   string `json:"moduleID"`
-	Collection string `json:"collection"`
-	ItemID     string `json:"itemID,omitempty"` // if empty use current user ID
-	RelatedAs  string `json:"relatedAs"`
+	ModuleID   string                                 `json:"moduleID"`
+	Collection string                                 `json:"collection"`
+	ItemID     string                                 `json:"itemID,omitempty"` // if empty use current user ID
+	RelatedAs  models4contactus.ContactRelationshipID `json:"relatedAs"`
 }
 
 func (v RelatedToRequest) Validate() error {
