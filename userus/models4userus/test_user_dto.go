@@ -10,11 +10,11 @@ import (
 func TestUserDtoValidate(t *testing.T) {
 	now := time.Now()
 	userDto := UserDto{
+		WithCreated: dbmodels.WithCreated{
+			CreatedAt: now,
+			CreatedBy: "user",
+		},
 		ContactBase: briefs4contactus.ContactBase{
-			WithCreated: dbmodels.WithCreated{
-				CreatedAt: now,
-				CreatedBy: "user",
-			},
 			ContactBrief: briefs4contactus.ContactBrief{
 				Type:   briefs4contactus.ContactTypePerson,
 				Gender: "unknown",

@@ -11,6 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
+	"strings"
 	"time"
 )
 
@@ -63,7 +64,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, ui
 		}
 	}
 	if isNewUser {
-		if err = createUserRecord(ctx, tx, request, user, userInfo); err != nil {
+		if err = createUserRecordTx(ctx, tx, request, user, userInfo); err != nil {
 			err = fmt.Errorf("faield to create user record: %w", err)
 			return
 		}
@@ -74,7 +75,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, ui
 	return
 }
 
-func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext, userInfo *sneatauth.AuthUserInfo) error {
+func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext, userInfo *sneatauth.AuthUserInfo) error {
 	user.Dto.Status = "active"
 	user.Dto.Type = briefs4contactus.ContactTypePerson
 	user.Dto.CountryID = dbmodels.UnknownCountryID
@@ -84,6 +85,10 @@ func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request 
 		user.Dto.Name = request.Name
 	}
 	user.Dto.CreatedAt = time.Now()
+	user.Dto.CreatedBy = request.RemoteClient.HostOrApp
+	if i := strings.Index(user.Dto.CreatedBy, ":"); i > 0 {
+		user.Dto.CreatedBy = user.Dto.CreatedBy[:i]
+	}
 	user.Dto.Created.Client = request.RemoteClient
 	if request.Email != "" {
 		user.Dto.Email = request.Email

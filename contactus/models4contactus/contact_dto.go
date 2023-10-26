@@ -19,6 +19,7 @@ type ContactDto struct {
 
 	WithRelatedContacts
 	briefs4contactus.ContactBase
+	dbmodels.WithCreated
 	dbmodels.WithTags
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
 	models4invitus.WithInvites // Invites to become a team member
@@ -28,6 +29,9 @@ type ContactDto struct {
 func (v ContactDto) Validate() error {
 	if err := v.ContactBase.Validate(); err != nil {
 		return fmt.Errorf("ContactRecordBase is not valid: %w", err)
+	}
+	if err := v.WithCreated.Validate(); err != nil {
+		return err
 	}
 	if err := v.WithRoles.Validate(); err != nil {
 		return err

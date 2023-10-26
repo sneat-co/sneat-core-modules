@@ -11,7 +11,6 @@ import (
 // ContactBase is used in models4contactus.ContactDto and in requests to create a contactBrief
 type ContactBase struct {
 	ContactBrief
-	dbmodels.WithCreated
 	dbmodels.WithUpdatedAndVersion
 
 	// Status belong to ContactBase and is not part of ContactBrief as we keep in briefs only active contacts

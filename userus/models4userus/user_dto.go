@@ -15,6 +15,7 @@ import (
 // UserDto is a record that hold information about user
 type UserDto struct {
 	briefs4contactus.ContactBase
+	dbmodels.WithCreated
 	IsAnonymous bool `json:"isAnonymous" firestore:"isAnonymous"`
 	//Title       string `json:"title,omitempty" firestore:"title,omitempty"`
 
