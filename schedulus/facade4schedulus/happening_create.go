@@ -81,9 +81,8 @@ func CreateHappening(
 						teamContacts := contactsByTeamID[teamID]
 						if teamContacts == nil {
 							teamContacts = make([]dal4contactus.ContactEntry, 0, 1)
-							contactsByTeamID[teamID] = teamContacts
 						}
-						teamContacts = append(teamContacts, dal4contactus.NewContactEntry(teamID, participantKey.ItemID()))
+						contactsByTeamID[teamID] = append(teamContacts, dal4contactus.NewContactEntry(teamID, participantKey.ItemID()))
 					} else {
 						happeningDto.AddContact(teamID, participantKey.ItemID(), contactBrief)
 					}
