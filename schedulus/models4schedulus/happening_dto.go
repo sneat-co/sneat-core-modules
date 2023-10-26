@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/slice"
 	"github.com/strongo/validation"
-	"slices"
 	"strings"
 )
 
@@ -96,7 +96,7 @@ func validateHappeningAssets(assetIDs []string, assets map[string]*HappeningAsse
 		return err
 	}
 	for assetID := range assets {
-		if !slices.Contains(assetIDs, assetID) {
+		if !slice.Contains(assetIDs, assetID) {
 			return validation.NewErrBadRecordFieldValue(
 				fmt.Sprintf("happeningAssets[%s]", assetID),
 				"asset ID is missing from assetIDs")
@@ -119,7 +119,7 @@ func validateHappeningAssetIDs(assetIDs []string, assets map[string]*HappeningAs
 		field := func() string {
 			return fmt.Sprintf("assetIDs[%d]", i)
 		}
-		if slices.Contains(assetIDs[:i], assetID) {
+		if slice.Contains(assetIDs[:i], assetID) {
 			return validation.NewErrBadRecordFieldValue(field(), "assetID is empty")
 		}
 		if err := dbmodels.TeamItemID(assetID).Validate(); err != nil {
