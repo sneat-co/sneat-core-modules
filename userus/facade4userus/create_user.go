@@ -21,7 +21,7 @@ func CreateUser(ctx context.Context, userID string, request dto4userus.CreateUse
 		if err := TxGetUserByID(ctx, tx, user.Record); !dal.IsNotFound(err) {
 			return err // Might be nil or not related to "record not found"
 		}
-		user.Dto.Created.At = time.Now()
+		user.Dto.CreatedAt = time.Now()
 		if request.Creator != "" {
 			request.RemoteClient.HostOrApp = request.Creator
 		}

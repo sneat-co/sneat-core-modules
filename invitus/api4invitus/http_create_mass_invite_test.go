@@ -42,7 +42,7 @@ func TestCreateMassInvite(t *testing.T) {
 	invite.Team.Title = "Unit Test"
 	invite.Created.Client.HostOrApp = "unit-test"
 	invite.Created.Client.RemoteAddr = "127.0.0.1"
-	invite.Created.At = time.Now()
+	invite.CreatedAt = time.Now()
 	invite.From.UserID = "u1"
 	invite.Status = "active"
 

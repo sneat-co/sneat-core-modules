@@ -7,9 +7,14 @@ import (
 	"time"
 )
 
-func TestUserDto_Validate(t *testing.T) {
+func TestUserDtoValidate(t *testing.T) {
+	now := time.Now()
 	userDto := UserDto{
 		ContactBase: briefs4contactus.ContactBase{
+			WithCreated: dbmodels.WithCreated{
+				CreatedAt: now,
+				CreatedBy: "user",
+			},
 			ContactBrief: briefs4contactus.ContactBrief{
 				Type:   briefs4contactus.ContactTypePerson,
 				Gender: "unknown",
@@ -22,7 +27,6 @@ func TestUserDto_Validate(t *testing.T) {
 			Status: "active",
 		},
 		Created: dbmodels.CreatedInfo{
-			At: time.Now(),
 			Client: dbmodels.RemoteClientInfo{
 				HostOrApp:  "unit-test",
 				RemoteAddr: "127.0.0.1",

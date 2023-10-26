@@ -115,7 +115,9 @@ func updateContactTxWorker(
 		}
 
 		var userContactID string
-		userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.ContactusTeamWorkerParams.TeamModuleEntry)
+		if userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.ContactusTeamWorkerParams.TeamModuleEntry); err != nil {
+			return fmt.Errorf("failed to get user's contact ID: %w", err)
+		}
 
 		var relUpdates []dal.Update
 		if relUpdates, err = contact.Data.SetSingleRelationshipToContact(params.UserID, userContactID, request.RelatedTo.ItemID, request.RelatedTo.RelatedAs, params.Started); err != nil {

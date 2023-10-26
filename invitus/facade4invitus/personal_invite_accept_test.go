@@ -180,7 +180,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 				return
 			}
 			userDto := tt.args.user.Dto
-			assert.Equal(t, now, userDto.Created.At, "Created.At")
+			assert.Equal(t, now, userDto.CreatedAt, "CreatedAt")
 			assert.Equal(t, tt.args.request.Member.Data.Gender, userDto.Gender, "Gender")
 			assert.Equal(t, 1, len(userDto.Teams), "len(Teams)")
 			assert.Equal(t, 1, len(userDto.TeamIDs), "len(TeamIDs)")
@@ -219,8 +219,8 @@ func Test_updateInviteRecord(t *testing.T) {
 							Type:  "family",
 							Title: "Family",
 						},
+						CreatedAt: time.Now(),
 						Created: dbmodels.CreatedInfo{
-							At: time.Now(),
 							Client: dbmodels.RemoteClientInfo{
 								HostOrApp:  "unit-test",
 								RemoteAddr: "127.0.0.1",

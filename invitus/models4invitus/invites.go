@@ -231,6 +231,7 @@ type InviteDto struct {
 	Pin       string               `json:"pin,omitempty" firestore:"pin,omitempty"`
 	TeamID    string               `json:"teamID" firestore:"teamID"`
 	MessageID string               `json:"messageId" firestore:"messageId"` // e.g. email message ItemID from AWS SES
+	CreatedAt time.Time            `json:"createdAt" firestore:"createdAt"`
 	Created   dbmodels.CreatedInfo `json:"created" firestore:"created"`
 	Claimed   *time.Time           `json:"claimed,omitempty" firestore:"claimed,omitempty"`
 	Revoked   *time.Time           `json:"revoked" firestore:"revoked,omitempty"`

@@ -238,7 +238,7 @@ func createOrUpdateUserRecord(
 			return fmt.Errorf("failed to update user record: %w", err)
 		}
 	} else { // New user record
-		user.Dto.Created.At = now
+		user.Dto.CreatedAt = now
 		user.Dto.Created.Client = request.RemoteClient
 		user.Dto.Type = briefs4contactus.ContactTypePerson
 		user.Dto.Name = request.Member.Data.Name

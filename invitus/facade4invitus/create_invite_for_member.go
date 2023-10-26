@@ -181,7 +181,7 @@ func createPersonalInvite(
 	fromMember.Data.Invites = append(fromMember.Data.Invites, &models4invitus.MemberInviteBrief{
 		ID:         inviteID,
 		To:         *personalInvite.To,
-		CreateTime: personalInvite.Created.At,
+		CreateTime: personalInvite.CreatedAt,
 	})
 	memberKey := dal4contactus.NewContactKey(request.TeamID, fromMember.ID)
 	if err = tx.Update(ctx, memberKey, []dal.Update{

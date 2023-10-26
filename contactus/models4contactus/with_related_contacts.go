@@ -170,7 +170,7 @@ func (v *WithRelatedContacts) AddRelationshipToContact(userID, userContactID str
 		if relationships == nil {
 			relationships = make(Relationships, 1)
 		}
-		if relationship, ok := relationships[relatedAs]; !ok {
+		if relationship := relationships[relatedAs]; relationship == nil {
 			relationship = &ContactRelationship{
 				WithCreated: dbmodels.WithCreated{
 					CreatedBy: userID,

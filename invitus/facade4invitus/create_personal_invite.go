@@ -91,8 +91,8 @@ func createInviteForMember(
 				},
 				ComposeOnly: composeOnly,
 			},
+			CreatedAt: time.Now(),
 			Created: dbmodels.CreatedInfo{
-				At:     time.Now(),
 				Client: remoteClient,
 			},
 			Team:    team,

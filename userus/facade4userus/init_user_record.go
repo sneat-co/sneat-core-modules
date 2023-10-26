@@ -83,7 +83,7 @@ func createUserRecord(ctx context.Context, tx dal.ReadwriteTransaction, request 
 	if request.Name != nil {
 		user.Dto.Name = request.Name
 	}
-	user.Dto.Created.At = time.Now()
+	user.Dto.CreatedAt = time.Now()
 	user.Dto.Created.Client = request.RemoteClient
 	if request.Email != "" {
 		user.Dto.Email = request.Email

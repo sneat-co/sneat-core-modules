@@ -118,7 +118,7 @@ func GetTeamJoinInfo(ctx context.Context, request JoinInfoRequest) (response Joi
 	response.Team = inviteDto.Team
 	response.Team.ID = inviteDto.TeamID
 	response.Invite.Status = inviteDto.Status
-	response.Invite.Created = inviteDto.Created.At
+	response.Invite.Created = inviteDto.CreatedAt
 	response.Invite.From = inviteDto.From
 	response.Invite.To = inviteDto.To
 	response.Invite.Message = inviteDto.Message
