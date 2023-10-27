@@ -38,8 +38,8 @@ func TestWithRelatedContacts_SetSingleRelationshipToContact(t *testing.T) {
 				now:              now,
 			},
 			wantUpdates: []dal.Update{
-				{Field: "relatedContacts.c2.relatedAs.parent", Value: &ContactRelationship{WithCreated: dbmodels.WithCreated{CreatedBy: "u1", CreatedAt: now}}},
-				{Field: "relatedContacts.c2.relatesAs.child", Value: &ContactRelationship{WithCreated: dbmodels.WithCreated{CreatedBy: "u1", CreatedAt: now}}},
+				{Field: "relatedContacts.c2.relatedAs.parent", Value: &ContactRelationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
+				{Field: "relatedContacts.c2.relatesAs.child", Value: &ContactRelationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
 				{Field: "relatedContactIDs", Value: []string{"c2"}},
 			},
 		},
@@ -54,7 +54,7 @@ func TestWithRelatedContacts_SetSingleRelationshipToContact(t *testing.T) {
 				now:              now,
 			},
 			wantUpdates: []dal.Update{
-				{Field: "relatedContacts.c2.relatedAs.child", Value: &ContactRelationship{WithCreated: dbmodels.WithCreated{CreatedBy: "u1", CreatedAt: now}}},
+				{Field: "relatedContacts.c2.relatedAs.child", Value: &ContactRelationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
 				{Field: "relatedContactIDs", Value: []string{"c2"}},
 			},
 		},

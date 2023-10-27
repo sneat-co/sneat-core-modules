@@ -103,6 +103,8 @@ func CreateContactTx(
 	}
 
 	var contactDto models4contactus.ContactDto
+	contactDto.CreatedAt = params.Started
+	contactDto.CreatedBy = params.UserID
 	contactDto.Status = "active"
 	contactDto.ParentID = parentContactID
 	contactDto.WithRoles = request.WithRoles

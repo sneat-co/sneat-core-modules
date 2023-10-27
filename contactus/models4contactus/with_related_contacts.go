@@ -14,14 +14,11 @@ import (
 type ContactRelationshipID = string
 
 type ContactRelationship struct {
-	dbmodels.WithCreated
+	dbmodels.WithCreatedField
 }
 
 func (v ContactRelationship) Validate() error {
-	if err := v.WithCreated.Validate(); err != nil {
-		return err
-	}
-	return nil
+	return v.WithCreatedField.Validate()
 }
 
 type Relationships = map[ContactRelationshipID]*ContactRelationship
@@ -29,10 +26,10 @@ type Relationships = map[ContactRelationshipID]*ContactRelationship
 type RelatedContact struct {
 
 	// RelatedAs - if related contact is a child of the current contact, then relatedAs = {"child": ...}
-	RelatedAs Relationships
+	RelatedAs Relationships `json:"relatedAs,omitempty" firestore:"relatedAs,omitempty"`
 
 	// RelatesAs - if related contact is a child of the current contact, then relatesAs = {"parent": ...}
-	RelatesAs Relationships
+	RelatesAs Relationships `json:"relatesAs,omitempty" firestore:"relatesAs,omitempty"`
 }
 
 func NewRelatedContact() *RelatedContact {
@@ -151,6 +148,13 @@ func (v *WithRelatedContacts) SetSingleRelationshipToContact(
 		return updates, nil
 	}
 
+	if len(relatedContact.RelatedAs) == 0 {
+		relatedContact.RelatedAs = nil
+	}
+	if len(relatedContact.RelatesAs) == 0 {
+		relatedContact.RelatesAs = nil
+	}
+
 	updates = append(updates, v.AddRelationshipToContact(userID, currentContactID, relatedContactID, relatedAs, relatesAs, now)...)
 
 	return updates, nil
@@ -172,9 +176,11 @@ func (v *WithRelatedContacts) AddRelationshipToContact(userID, userContactID str
 		}
 		if relationship := relationships[relatedAs]; relationship == nil {
 			relationship = &ContactRelationship{
-				WithCreated: dbmodels.WithCreated{
-					CreatedBy: userID,
-					CreatedAt: now,
+				WithCreatedField: dbmodels.WithCreatedField{
+					Created: dbmodels.Created{
+						By: userID,
+						On: now.Format(time.DateOnly),
+					},
 				},
 			}
 			relationships[relatedAs] = relationship
