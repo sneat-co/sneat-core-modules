@@ -2,16 +2,17 @@ package dto4contactus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/validation"
+	"strings"
 )
 
 type RelatedToRequest struct {
-	ModuleID   string                                 `json:"moduleID"`
-	Collection string                                 `json:"collection"`
-	ItemID     string                                 `json:"itemID,omitempty"` // if empty use current user ID
-	RelatedAs  models4contactus.ContactRelationshipID `json:"relatedAs"`
+	ModuleID   string `json:"moduleID"`
+	Collection string `json:"collection"`
+	ItemID     string `json:"itemID,omitempty"` // if empty use current user ID
+	RelatedAs  string `json:"relatedAs"`
+	RelatesAs  string `json:"relatesAs,omitempty"`
 }
 
 func (v RelatedToRequest) Validate() error {
@@ -31,6 +32,12 @@ func (v RelatedToRequest) Validate() error {
 	}
 	if v.RelatedAs == "" {
 		return validation.NewErrRequestIsMissingRequiredField("relatedAs")
+	}
+	if strings.TrimSpace(v.RelatedAs) != v.RelatedAs {
+		return validation.NewErrBadRecordFieldValue("relatedAs", "must not have leading or trailing spaces")
+	}
+	if strings.TrimSpace(v.RelatesAs) != v.RelatesAs {
+		return validation.NewErrBadRecordFieldValue("relatesAs", "must not have leading or trailing spaces")
 	}
 	return nil
 }
