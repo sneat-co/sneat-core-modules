@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
+	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
@@ -17,7 +18,7 @@ type ContactDto struct {
 	//dbmodels.WithTeamID -- not needed as it's in record key
 	//dbmodels.WithUserIDs
 
-	WithRelatedContacts
+	linkage.WithRelatedItems
 	briefs4contactus.ContactBase
 	dbmodels.WithCreated
 	dbmodels.WithTags
@@ -42,7 +43,7 @@ func (v ContactDto) Validate() error {
 	if err := v.WithInvites.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithRelatedContacts.Validate(); err != nil {
+	if err := v.WithRelatedItems.Validate(); err != nil {
 		return err
 	}
 

@@ -3,7 +3,9 @@ package dto4contactus
 import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -26,7 +28,7 @@ type CreateContactRequest struct {
 	Location *CreateLocationRequest     `json:"location,omitempty"`
 	Basic    *CreateBasicContactRequest `json:"basic,omitempty"`
 
-	RelatedTo *RelatedToRequest `json:"relatedTo,omitempty"`
+	RelatedTo *linkage.Link `json:"relatedTo,omitempty"`
 
 	// Used for situation when we want a hard-coded contact number
 	// (e.g. a self-contact for a company team).
@@ -101,6 +103,10 @@ func (v CreateContactRequest) Validate() error {
 	if v.Person != nil && v.Person.Status != v.Status {
 		return validation.NewErrBadRecordFieldValue("status",
 			fmt.Sprintf("does not match to person.status: %s != %s", v.Status, v.Person.Status))
+	}
+	if v.RelatedTo != nil && v.RelatedTo.ModuleID == const4contactus.ModuleID && v.ContactID != "" && v.ContactID == v.RelatedTo.ItemID {
+		return validation.NewErrBadRequestFieldValue("relatedTo",
+			fmt.Sprintf("can not be related to itself: %s", v.ContactID))
 	}
 	return nil
 }

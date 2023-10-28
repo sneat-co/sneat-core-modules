@@ -2,6 +2,7 @@ package dto4contactus
 
 import (
 	"errors"
+	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
 	"strings"
@@ -13,7 +14,7 @@ type UpdateContactRequest struct {
 	AgeGroup  string                  `json:"ageGroup,omitempty"`
 	Roles     *SetContactRolesRequest `json:"roles,omitempty"`
 	VatNumber *string                 `json:"vatNumber,omitempty"`
-	RelatedTo *RelatedToRequest       `json:"relatedTo,omitempty"`
+	RelatedTo *linkage.Link           `json:"relatedTo,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {

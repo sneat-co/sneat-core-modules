@@ -10,6 +10,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -75,18 +76,20 @@ func CreateContactTx(
 	switch userContactBrief.AgeGroup {
 	case "", dbmodels.AgeGroupUnknown:
 		if request.RelatedTo != nil {
-			switch request.RelatedTo.RelatedAs {
-			case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
-				userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
-				userContactKey := dal4contactus.NewContactKey(request.TeamID, userContactID)
-				if err = tx.Update(ctx, userContactKey, []dal.Update{
-					{
-						Field: "ageGroup",
-						Value: userContactBrief.AgeGroup,
-					},
-				}); err != nil {
-					err = fmt.Errorf("failed to update member record: %w", err)
-					return
+			for _, relatedAs := range request.RelatedTo.RelatedAs {
+				switch relatedAs {
+				case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
+					userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
+					userContactKey := dal4contactus.NewContactKey(request.TeamID, userContactID)
+					if err = tx.Update(ctx, userContactKey, []dal.Update{
+						{
+							Field: "ageGroup",
+							Value: userContactBrief.AgeGroup,
+						},
+					}); err != nil {
+						err = fmt.Errorf("failed to update member record: %w", err)
+						return
+					}
 				}
 			}
 		}
@@ -180,8 +183,14 @@ func CreateContactTx(
 				return
 			}
 		}
-		if _, err = contactDto.SetSingleRelationshipToContact(
-			params.UserID, request.RelatedTo.ItemID, contactID, request.RelatedTo.RelatedAs, params.Started,
+		if _, err = contactDto.SetRelationshipToItem(
+			params.UserID,
+			linkage.TeamModuleDocRef{
+				TeamID:     request.TeamID,
+				ModuleID:   const4contactus.ModuleID,
+				Collection: const4contactus.ContactsCollection,
+				ItemID:     contactID,
+			}, *request.RelatedTo, params.Started,
 		); err != nil {
 			return contact, err
 		}

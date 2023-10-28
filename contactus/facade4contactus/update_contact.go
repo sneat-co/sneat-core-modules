@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
@@ -43,6 +44,8 @@ func updateContactTxWorker(
 	params *ContactWorkerParams,
 ) (err error) {
 	contact := dal4contactus.NewContactEntry(params.Team.ID, request.ContactID)
+	//contactData := contact.Data
+	//contactData.Validate()
 
 	if err = params.GetRecords(ctx, tx, params.UserID, contact.Record); err != nil {
 		return err
@@ -110,8 +113,8 @@ func updateContactTxWorker(
 			}
 		}
 
-		if contact.Data.RelatedContacts == nil {
-			contact.Data.RelatedContacts = make(models4contactus.RelatedContacts, 1)
+		if contact.Data.RelatedItems == nil {
+			contact.Data.RelatedItems = make(linkage.RelatedItemsByTeam, 1)
 		}
 
 		var userContactID string
@@ -120,7 +123,17 @@ func updateContactTxWorker(
 		}
 
 		var relUpdates []dal.Update
-		if relUpdates, err = contact.Data.SetSingleRelationshipToContact(params.UserID, userContactID, request.RelatedTo.ItemID, request.RelatedTo.RelatedAs, params.Started); err != nil {
+		if relUpdates, err = contact.Data.SetRelationshipToItem(
+			params.UserID,
+			linkage.TeamModuleDocRef{
+				TeamID:     request.TeamID,
+				ModuleID:   const4contactus.ModuleID,
+				Collection: const4contactus.ContactsCollection,
+				ItemID:     userContactID,
+			},
+			*request.RelatedTo,
+			params.Started,
+		); err != nil {
 			return err
 		}
 		contactUpdates = append(contactUpdates, relUpdates...)
