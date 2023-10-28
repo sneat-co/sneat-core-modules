@@ -14,6 +14,16 @@ type TeamModuleDocRef struct { // TODO: Move to sneat-go-core or document why no
 	ItemID     string `json:"itemID" firestore:"itemID"`
 }
 
+func NewTeamModuleDocRef(id string) TeamModuleDocRef {
+	ids := strings.Split(id, ".")
+	return TeamModuleDocRef{
+		TeamID:     ids[0],
+		ModuleID:   ids[1],
+		Collection: ids[2],
+		ItemID:     ids[3],
+	}
+}
+
 func (v *TeamModuleDocRef) ID() string {
 	return fmt.Sprintf("%s.%s.%s.%s", v.TeamID, v.ModuleID, v.Collection, v.ItemID)
 }

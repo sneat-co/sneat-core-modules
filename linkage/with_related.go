@@ -34,6 +34,13 @@ type RelatedItem struct {
 	RelatesAs Relationships `json:"relatesAs,omitempty" firestore:"relatesAs,omitempty"`
 }
 
+func (v *RelatedItem) String() string {
+	if v == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("RelatedItem{RelatedAs=%+v, RelatesAs=%+v}", v.RelatedAs, v.RelatesAs)
+}
+
 func NewRelatedItem() *RelatedItem {
 	return &RelatedItem{
 		RelatedAs: make(Relationships, 1),
@@ -63,20 +70,20 @@ func (*RelatedItem) validateRelationships(related Relationships) error {
 	return nil
 }
 
-type RelatedItemsByID = map[string]*RelatedItem
-type RelatedItemsByCollection = map[string]RelatedItemsByID
-type RelatedItemsByModule = map[string]RelatedItemsByCollection
-type RelatedItemsByTeam = map[string]RelatedItemsByModule
+type RelatedByItemID = map[string]*RelatedItem
+type RelatedByCollectionID = map[string]RelatedByItemID
+type RelatedByModuleID = map[string]RelatedByCollectionID
+type RelatedByTeamID = map[string]RelatedByModuleID
 
-const relatedItemsField = "relatedItems"
+const relatedField = "related"
 
-// WithRelatedItems defines relationship of the current contact record to other contacts.
-type WithRelatedItems struct {
-	/* Example of relatedItems field as a JSON:
+// WithRelated defines relationship of the current contact record to other contacts.
+type WithRelated struct {
+	/* Example of related field as a JSON:
 
 	Contact(id="child1") {
-		relatedItemIDs: ["team1:parent1:contactus:contacts:parent"],
-		relatedItems: {
+		relatedIDs: ["team1:parent1:contactus:contacts:parent"],
+		related: {
 			"team1": { // Team ID
 				"contactus": { // Module ID
 					"contacts": { // Collection
@@ -95,41 +102,41 @@ type WithRelatedItems struct {
 	}
 	*/
 
-	// RelatedItems defines relationship of the current contact to other contacts. Key is contact ID.
-	RelatedItems RelatedItemsByTeam `json:"relatedItems,omitempty" firestore:"relatedItems,omitempty"`
+	// Related defines relationship of the current contact to other contacts. Key is contact ID.
+	Related RelatedByTeamID `json:"related,omitempty" firestore:"related,omitempty"`
 
-	// RelatedItemIDs is a list of contact IDs that are related to the current contact - needed for indexed search.
-	RelatedItemIDs []string `json:"relatedItemIDs,omitempty" firestore:"relatedItemIDs,omitempty"`
+	// RelatedIDs is a list of IDs of records that are related to the current record - this is needed for indexed search.
+	RelatedIDs []string `json:"relatedIDs,omitempty" firestore:"relatedIDs,omitempty"`
 }
 
 // Validate returns error if not valid
-func (v *WithRelatedItems) Validate() error {
-	for teamID, relatedItemsByModule := range v.RelatedItems {
+func (v *WithRelated) Validate() error {
+	for teamID, relatedByModuleID := range v.Related {
 		if teamID == "" {
-			return validation.NewErrBadRecordFieldValue(relatedItemsField, "has empty team ID")
+			return validation.NewErrBadRecordFieldValue(relatedField, "has empty team ID")
 		}
-		for moduleID, relatedItemsByCollectionID := range relatedItemsByModule {
+		for moduleID, relatedByCollectionID := range relatedByModuleID {
 			if moduleID == "" {
 				return validation.NewErrBadRecordFieldValue(
-					relatedItemsField+"."+teamID,
+					relatedField+"."+teamID,
 					"has empty module ID")
 			}
-			for collectionID, relatedItemsByID := range relatedItemsByCollectionID {
+			for collectionID, relatedByItemID := range relatedByCollectionID {
 				if collectionID == "" {
 					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("%s.%s.%s", relatedItemsField, teamID, moduleID),
+						fmt.Sprintf("%s.%s.%s", relatedField, teamID, moduleID),
 						"has empty collection ID",
 					)
 				}
-				for itemID, relatedItem := range relatedItemsByID {
+				for itemID, relatedItem := range relatedByItemID {
 					if itemID == "" {
 						return validation.NewErrBadRecordFieldValue(
-							fmt.Sprintf("%s.%s.%s.%s", relatedItemsField, teamID, moduleID, collectionID),
+							fmt.Sprintf("%s.%s.%s.%s", relatedField, teamID, moduleID, collectionID),
 							"has empty item ID")
 					}
 
 					key := fmt.Sprintf("%s.%s.%s.%s", teamID, moduleID, collectionID, itemID)
-					field := relatedItemsField + "." + key
+					field := relatedField + "." + key
 
 					if relatedItem == nil {
 						return validation.NewErrRecordIsMissingRequiredField(field)
@@ -139,20 +146,35 @@ func (v *WithRelatedItems) Validate() error {
 						return validation.NewErrBadRecordFieldValue(field, err.Error())
 					}
 
-					if !slice.Contains(v.RelatedItemIDs, key) {
-						return validation.NewErrBadRecordFieldValue("relatedItemIDs",
-							"does not have relevant value in 'relatedItemIDs' field: "+key)
+					if !slice.Contains(v.RelatedIDs, key) {
+						return validation.NewErrBadRecordFieldValue("relatedIDs",
+							"does not have relevant value in 'relatedIDs' field: "+key)
 					}
 				}
 			}
 		}
 	}
-	for i, contactID := range v.RelatedItemIDs {
-		if strings.TrimSpace(contactID) == "" {
-			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedItemIDs[%d]", i), "empty contact ID")
+	for i, relatedID := range v.RelatedIDs {
+		if strings.TrimSpace(relatedID) == "" {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "empty contact ID")
 		}
-		if _, ok := v.RelatedItems[contactID]; !ok {
-			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedItemIDs[%d]", i), "does not have relevant value in 'relatedItems' field")
+		relatedRef := NewTeamModuleDocRef(relatedID)
+
+		relatedByModuleID := v.Related[relatedRef.TeamID]
+		if relatedByModuleID == nil {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related'  does not have value for team ID=%s", relatedRef.TeamID))
+		}
+		relatedByCollectionID := relatedByModuleID[relatedRef.ModuleID]
+		if relatedByCollectionID == nil {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s]' does not have value for module ID=%s", relatedRef.TeamID, relatedRef.ModuleID))
+		}
+		relatedByItemID := relatedByCollectionID[relatedRef.Collection]
+		if relatedByItemID == nil {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s][%s]' does not have value for collection ID=%s", relatedRef.TeamID, relatedRef.ModuleID, relatedRef.Collection))
+		}
+		_, ok := relatedByItemID[relatedRef.ItemID]
+		if !ok {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s][%s][%s]' does not have value for item ID=%s", relatedRef.TeamID, relatedRef.ModuleID, relatedRef.Collection, relatedRef.ItemID))
 		}
 	}
 	return nil
@@ -168,7 +190,7 @@ func GetRelatesAsFromRelated(relatedAs RelationshipID) RelationshipID {
 	return ""
 }
 
-func (v *WithRelatedItems) SetRelationshipToItem(
+func (v *WithRelated) SetRelationshipToItem(
 	userID string,
 	recordRef TeamModuleDocRef,
 	link Link,
@@ -180,13 +202,13 @@ func (v *WithRelatedItems) SetRelationshipToItem(
 
 	var alreadyHasRelatedAs, alreadyHasRelatesAs bool
 
-	if relatedItemsByModule := v.RelatedItems[link.TeamID]; relatedItemsByModule != nil {
-		if relatedItemsByCollection := relatedItemsByModule[link.ModuleID]; relatedItemsByCollection != nil {
-			if relatedItemsByID := relatedItemsByCollection[const4contactus.ContactsCollection]; relatedItemsByID != nil {
-				if relatedItem := relatedItemsByID[link.ItemID]; relatedItem != nil {
+	if relatedByModuleID := v.Related[link.TeamID]; relatedByModuleID != nil {
+		if relatedByCollectionID := relatedByModuleID[link.ModuleID]; relatedByCollectionID != nil {
+			if relatedByItemID := relatedByCollectionID[const4contactus.ContactsCollection]; relatedByItemID != nil {
+				if related := relatedByItemID[link.ItemID]; related != nil {
 					addIfNeeded := func(f string, itemRelationships Relationships, linkRelationshipIDs []RelationshipID) {
 						field := func() string {
-							return fmt.Sprintf("%s.%s.%s", relatedItemsField, link.ID(), f)
+							return fmt.Sprintf("%s.%s.%s", relatedField, link.ID(), f)
 						}
 						for _, linkRelationshipID := range linkRelationshipIDs {
 							for itemRelationshipID := range itemRelationships {
@@ -198,16 +220,16 @@ func (v *WithRelatedItems) SetRelationshipToItem(
 							}
 						}
 					}
-					addIfNeeded("relatedAs", relatedItem.RelatedAs, link.RelatedAs)
-					addIfNeeded("relatesAs", relatedItem.RelatesAs, link.RelatesAs)
+					addIfNeeded("relatedAs", related.RelatedAs, link.RelatedAs)
+					addIfNeeded("relatesAs", related.RelatesAs, link.RelatesAs)
 				}
 			}
 		}
 	}
 
 	if alreadyHasRelatedAs && alreadyHasRelatesAs {
-		if len(v.RelatedItems) == 0 {
-			v.RelatedItems = nil
+		if len(v.Related) == 0 {
+			v.Related = nil
 		}
 		return updates, nil
 	}
@@ -217,12 +239,12 @@ func (v *WithRelatedItems) SetRelationshipToItem(
 		return updates, err
 	}
 	updates = append(updates, relationshipUpdate...)
-	updates = append(updates, dal.Update{Field: "relatedItemIDs", Value: v.RelatedItemIDs})
+	updates = append(updates, dal.Update{Field: "relatedIDs", Value: v.RelatedIDs})
 
 	return updates, err
 }
 
-func (v *WithRelatedItems) AddRelationship(
+func (v *WithRelated) AddRelationship(
 	userID string,
 	recordRef TeamModuleDocRef,
 	link Link,
@@ -231,8 +253,8 @@ func (v *WithRelatedItems) AddRelationship(
 	if err := recordRef.Validate(); err != nil {
 		return nil, err
 	}
-	if v.RelatedItems == nil {
-		v.RelatedItems = make(RelatedItemsByTeam, 1)
+	if v.Related == nil {
+		v.Related = make(RelatedByTeamID, 1)
 	}
 
 	for _, linkRelatedAs := range link.RelatesAs {
@@ -241,33 +263,33 @@ func (v *WithRelatedItems) AddRelationship(
 		}
 	}
 
-	relatedItemsByModule := v.RelatedItems[link.TeamID]
-	if relatedItemsByModule == nil {
-		relatedItemsByModule = make(RelatedItemsByModule, 1)
-		v.RelatedItems[link.TeamID] = relatedItemsByModule
+	relatedByModuleID := v.Related[link.TeamID]
+	if relatedByModuleID == nil {
+		relatedByModuleID = make(RelatedByModuleID, 1)
+		v.Related[link.TeamID] = relatedByModuleID
 	}
 
-	relatedItemsByCollection := relatedItemsByModule[link.ModuleID]
-	if relatedItemsByCollection == nil {
-		relatedItemsByCollection = make(RelatedItemsByCollection, 1)
-		relatedItemsByModule[const4contactus.ModuleID] = relatedItemsByCollection
+	relatedByCollectionID := relatedByModuleID[link.ModuleID]
+	if relatedByCollectionID == nil {
+		relatedByCollectionID = make(RelatedByCollectionID, 1)
+		relatedByModuleID[const4contactus.ModuleID] = relatedByCollectionID
 	}
 
-	relatedItemsByID := relatedItemsByCollection[const4contactus.ContactsCollection]
-	if relatedItemsByID == nil {
-		relatedItemsByID = make(RelatedItemsByID, 1)
-		relatedItemsByCollection[const4contactus.ContactsCollection] = relatedItemsByID
+	relatedByItemID := relatedByCollectionID[const4contactus.ContactsCollection]
+	if relatedByItemID == nil {
+		relatedByItemID = make(RelatedByItemID, 1)
+		relatedByCollectionID[const4contactus.ContactsCollection] = relatedByItemID
 	}
 
-	relatedItem := relatedItemsByID[link.ItemID]
+	relatedItem := relatedByItemID[link.ItemID]
 	if relatedItem == nil {
 		relatedItem = NewRelatedItem()
-		relatedItemsByID[link.ItemID] = relatedItem
+		relatedByItemID[link.ItemID] = relatedItem
 	}
 
 	relatedItemID := link.TeamModuleDocRef.ID()
-	if !slice.Contains(v.RelatedItemIDs, relatedItemID) {
-		v.RelatedItemIDs = append(v.RelatedItemIDs, relatedItemID)
+	if !slice.Contains(v.RelatedIDs, relatedItemID) {
+		v.RelatedIDs = append(v.RelatedIDs, relatedItemID)
 	}
 
 	addRelationship := func(field string, relationshipIDs []RelationshipID, relationships Relationships) Relationships {
@@ -286,7 +308,7 @@ func (v *WithRelatedItems) AddRelationship(
 				}
 				relationships[relationshipID] = relationship
 				updates = append(updates, dal.Update{
-					Field: fmt.Sprintf("relatedItems.%s.%s.%s", link.ID(), field, relationshipID),
+					Field: fmt.Sprintf("related.%s.%s.%s", link.ID(), field, relationshipID),
 					Value: relationship,
 				})
 			}
@@ -301,20 +323,20 @@ func (v *WithRelatedItems) AddRelationship(
 }
 
 // RemoveRelationshipToContact removes all relationships to a given contact
-func (v *WithRelatedItems) RemoveRelationshipToContact(contactID string) (updates []dal.Update) {
-	if _, ok := v.RelatedItems[contactID]; ok {
-		delete(v.RelatedItems, contactID)
+func (v *WithRelated) RemoveRelationshipToContact(contactID string) (updates []dal.Update) {
+	if _, ok := v.Related[contactID]; ok {
+		delete(v.Related, contactID)
 		updates = append(updates, dal.Update{
-			Field: relatedItemsField + "." + contactID,
+			Field: relatedField + "." + contactID,
 			Value: dal.DeleteField,
 		})
-		v.RelatedItemIDs = slice.RemoveInPlace(contactID, v.RelatedItemIDs)
+		v.RelatedIDs = slice.RemoveInPlace(contactID, v.RelatedIDs)
 	}
-	if slice.Contains(v.RelatedItemIDs, contactID) {
-		v.RelatedItemIDs = slice.RemoveInPlace(contactID, v.RelatedItemIDs)
+	if slice.Contains(v.RelatedIDs, contactID) {
+		v.RelatedIDs = slice.RemoveInPlace(contactID, v.RelatedIDs)
 		updates = append(updates, dal.Update{
-			Field: "relatedItemIDs",
-			Value: v.RelatedItemIDs,
+			Field: "relatedIDs",
+			Value: v.RelatedIDs,
 		})
 	}
 	return updates

@@ -13,7 +13,7 @@ import (
 // Status is not part of ContactBrief as we keep in briefs only active contacts
 type ContactBrief struct {
 	dbmodels.WithUserID
-	dbmodels.WithOptionalRelatedAs // This is used in `RelatedItems` field of `ContactDto`
+	dbmodels.WithOptionalRelatedAs // This is used in `Related` field of `ContactDto`
 	dbmodels.WithOptionalCountryID
 	dbmodels.WithRoles
 

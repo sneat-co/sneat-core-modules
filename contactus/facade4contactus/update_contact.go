@@ -113,8 +113,8 @@ func updateContactTxWorker(
 			}
 		}
 
-		if contact.Data.RelatedItems == nil {
-			contact.Data.RelatedItems = make(linkage.RelatedItemsByTeam, 1)
+		if contact.Data.Related == nil {
+			contact.Data.Related = make(linkage.RelatedByTeamID, 1)
 		}
 
 		var userContactID string
@@ -137,13 +137,19 @@ func updateContactTxWorker(
 			return err
 		}
 		contactUpdates = append(contactUpdates, relUpdates...)
+		for _, update := range relUpdates {
+			if !slice.Contains(updatedContactFields, update.Field) {
+				updatedContactFields = append(updatedContactFields, update.Field)
+			}
+		}
 	}
 
 	if len(contactUpdates) > 0 {
 		contact.Data.IncreaseVersion(params.Started, params.UserID)
 		contactUpdates = append(contactUpdates, contact.Data.WithUpdatedAndVersion.GetUpdates()...)
 		if err := contact.Data.Validate(); err != nil {
-			return fmt.Errorf("contact DTO is not valid after update %+v fields and before storing changes DB: %w", updatedContactFields, err)
+			return fmt.Errorf("contact DTO is not valid after updating %d fields (%+v) and before storing changes DB: %w",
+				len(updatedContactFields), updatedContactFields, err)
 		}
 		if err := tx.Update(ctx, contact.Key, contactUpdates); err != nil {
 			return err

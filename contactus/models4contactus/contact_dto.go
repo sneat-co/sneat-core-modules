@@ -18,7 +18,7 @@ type ContactDto struct {
 	//dbmodels.WithTeamID -- not needed as it's in record key
 	//dbmodels.WithUserIDs
 
-	linkage.WithRelatedItems
+	linkage.WithRelated
 	briefs4contactus.ContactBase
 	dbmodels.WithCreated
 	dbmodels.WithTags
@@ -43,7 +43,7 @@ func (v ContactDto) Validate() error {
 	if err := v.WithInvites.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithRelatedItems.Validate(); err != nil {
+	if err := v.WithRelated.Validate(); err != nil {
 		return err
 	}
 

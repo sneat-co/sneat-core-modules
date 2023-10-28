@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func TestWithRelatedItems_SetRelationshipToItem(t *testing.T) {
+func TestWithRelated_SetRelationshipToItem(t *testing.T) {
 	type fields struct {
-		RelatedItems   RelatedItemsByTeam
-		RelatedItemIDs []string
+		Related    RelatedByTeamID
+		relatedIDs []string
 	}
 	type args struct {
 		userID    string
@@ -50,9 +50,9 @@ func TestWithRelatedItems_SetRelationshipToItem(t *testing.T) {
 				now: now,
 			},
 			wantUpdates: []dal.Update{
-				{Field: "relatedItems.team1.contactus.contacts.c2.relatedAs.parent", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
-				//{Field: "relatedItems.team1.contactus.contacts.c2.relatesAs.child", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
-				{Field: "relatedItemIDs", Value: []string{"team1.contactus.contacts.c2"}},
+				{Field: "related.team1.contactus.contacts.c2.relatedAs.parent", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
+				//{Field: "related.team1.contactus.contacts.c2.relatesAs.child", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
+				{Field: "relatedIDs", Value: []string{"team1.contactus.contacts.c2"}},
 			},
 		},
 		{
@@ -78,7 +78,7 @@ func TestWithRelatedItems_SetRelationshipToItem(t *testing.T) {
 				now: now,
 			},
 			wantUpdates: []dal.Update{
-				{Field: "relatedItems.team1.contactus.contacts.c2.relatedAs.child",
+				{Field: "related.team1.contactus.contacts.c2.relatedAs.child",
 					Value: &Relationship{
 						WithCreatedField: dbmodels.WithCreatedField{
 							Created: dbmodels.Created{By: "u1",
@@ -87,15 +87,15 @@ func TestWithRelatedItems_SetRelationshipToItem(t *testing.T) {
 						},
 					},
 				},
-				{Field: "relatedItemIDs", Value: []string{"team1.contactus.contacts.c2"}},
+				{Field: "relatedIDs", Value: []string{"team1.contactus.contacts.c2"}},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &WithRelatedItems{
-				RelatedItems:   tt.fields.RelatedItems,
-				RelatedItemIDs: tt.fields.RelatedItemIDs,
+			v := &WithRelated{
+				Related:    tt.fields.Related,
+				RelatedIDs: tt.fields.relatedIDs,
 			}
 			gotUpdates, gotErr := v.SetRelationshipToItem(
 				tt.args.userID,
