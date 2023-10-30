@@ -26,14 +26,27 @@ func TestHttpAddMember(t *testing.T) {
 		TeamRequest: dto4teamus.TeamRequest{
 			TeamID: teamID,
 		},
-		RelatedTo: &models4linkage.Link{
-			TeamModuleDocRef: models4linkage.TeamModuleDocRef{
-				TeamID:     "team1",
-				ModuleID:   const4contactus.ModuleID,
-				Collection: const4contactus.ContactsCollection,
-				ItemID:     "c1",
+		WithRelated: models4linkage.WithRelated{
+			Related: models4linkage.RelatedByTeamID{
+				"team1": models4linkage.RelatedByModuleID{
+					const4contactus.ModuleID: models4linkage.RelatedByCollectionID{
+						const4contactus.ContactsCollection: models4linkage.RelatedByItemID{
+							"c1": &models4linkage.RelatedItem{
+								RelatedAs: map[models4linkage.RelationshipID]*models4linkage.Relationship{
+									"spouse": {
+										WithCreatedField: dbmodels.WithCreatedField{
+											Created: dbmodels.Created{
+												By: "u1",
+												On: "2020-01-01",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
-			RelatedAs: []models4linkage.RelationshipID{"spouse"},
 		},
 		CreatePersonRequest: dto4contactus.CreatePersonRequest{
 			ContactBase: briefs4contactus.ContactBase{

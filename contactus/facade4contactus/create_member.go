@@ -25,7 +25,7 @@ func CreateMember(
 	}
 	createContactRequest := dto4contactus.CreateContactRequest{
 		TeamRequest: request.TeamRequest,
-		RelatedTo:   request.RelatedTo,
+		WithRelated: request.WithRelated,
 		Status:      request.Status,
 		Type:        briefs4contactus.ContactTypePerson,
 		Person:      &request.CreatePersonRequest,

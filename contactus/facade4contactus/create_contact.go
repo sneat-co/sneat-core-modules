@@ -13,6 +13,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
+	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
@@ -75,20 +76,32 @@ func CreateContactTx(
 	}
 	switch userContactBrief.AgeGroup {
 	case "", dbmodels.AgeGroupUnknown:
-		if request.RelatedTo != nil {
-			for _, relatedAs := range request.RelatedTo.RelatedAs {
-				switch relatedAs {
-				case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
-					userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
-					userContactKey := dal4contactus.NewContactKey(request.TeamID, userContactID)
-					if err = tx.Update(ctx, userContactKey, []dal.Update{
-						{
-							Field: "ageGroup",
-							Value: userContactBrief.AgeGroup,
-						},
-					}); err != nil {
-						err = fmt.Errorf("failed to update member record: %w", err)
-						return
+		if request.Related != nil {
+			for _, relatedByModuleID := range request.Related {
+				relatedByCollection := relatedByModuleID[const4contactus.ModuleID]
+				if relatedByCollection == nil {
+					continue
+				}
+				relatedByItemID := relatedByCollection[const4contactus.ContactsCollection]
+				if relatedByItemID == nil {
+					continue
+				}
+				for _, relatedItem := range relatedByItemID {
+					for relatedAs := range relatedItem.RelatedAs {
+						switch relatedAs {
+						case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
+							userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
+							userContactKey := dal4contactus.NewContactKey(request.TeamID, userContactID)
+							if err = tx.Update(ctx, userContactKey, []dal.Update{
+								{
+									Field: "ageGroup",
+									Value: userContactBrief.AgeGroup,
+								},
+							}); err != nil {
+								err = fmt.Errorf("failed to update member record: %w", err)
+								return
+							}
+						}
 					}
 				}
 			}
@@ -175,24 +188,51 @@ func CreateContactTx(
 
 	params.TeamUpdates = append(params.TeamUpdates, params.Team.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.TeamModuleEntry.Data.Contacts)))
 
-	if request.RelatedTo != nil {
-		if request.RelatedTo.ItemID == "" {
-			request.RelatedTo.ItemID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID)
-			if request.RelatedTo.ItemID == "" {
-				err = errors.New("user does not have a contact brief in contactus team record")
+	if request.Related != nil {
+		if userContactID, _ = params.TeamModuleEntry.Data.GetContactBriefByUserID(params.UserID); userContactID == "" {
+			if userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.TeamModuleEntry); err != nil {
+				return
+			}
+			if userContactID == "" {
+				err = errors.New("user is not associated with the teamID=" + params.Team.ID)
 				return
 			}
 		}
-		if _, err = contactDto.SetRelationshipToItem(
-			params.UserID,
-			models4linkage.TeamModuleDocRef{
-				TeamID:     request.TeamID,
-				ModuleID:   const4contactus.ModuleID,
-				Collection: const4contactus.ContactsCollection,
-				ItemID:     contactID,
-			}, *request.RelatedTo, params.Started,
-		); err != nil {
-			return contact, err
+		contactDocRef := models4linkage.TeamModuleDocRef{
+			TeamID:     request.TeamID,
+			ModuleID:   const4contactus.ModuleID,
+			Collection: const4contactus.ContactsCollection,
+			ItemID:     contactID,
+		}
+		//relatableAdapter := facade4linkage.NewRelatableAdapter[*models4contactus.ContactDto](
+		//	func(ctx context.Context, tx dal.ReadTransaction, recordRef models4linkage.TeamModuleDocRef) (err error) {
+		//		return err
+		//	},
+		//)
+		for teamID, relatedByModuleID := range request.Related {
+			for moduleID, relatedByCollection := range relatedByModuleID {
+				for collection, relatedByItemID := range relatedByCollection {
+					for itemID, relatedItem := range relatedByItemID {
+						itemRef := models4linkage.TeamModuleDocRef{
+							TeamID:     teamID,
+							ModuleID:   moduleID,
+							Collection: collection,
+							ItemID:     itemID,
+						}
+
+						if _, err = contactDto.SetRelationshipsToItem(
+							params.UserID,
+							contactDocRef,
+							itemRef,
+							relatedItem.RelatedAs,
+							relatedItem.RelatesAs,
+							params.Started,
+						); err != nil {
+							return contact, err
+						}
+					}
+				}
+			}
 		}
 	}
 

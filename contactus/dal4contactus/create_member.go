@@ -14,9 +14,9 @@ var _ facade.Request = (*CreateMemberRequest)(nil)
 type CreateMemberRequest struct {
 	dto4teamus.TeamRequest
 	dto4contactus.CreatePersonRequest
-
-	RelatedTo *models4linkage.Link `json:"relatedTo,omitempty"`
-	Message   string               `json:"message"`
+	models4linkage.WithRelated
+	Message string `json:"message"`
+	//RelatedTo *models4linkage.Link `json:"relatedTo,omitempty"`
 }
 
 // Validate validates request
@@ -27,10 +27,8 @@ func (v *CreateMemberRequest) Validate() error {
 	if err := v.CreatePersonRequest.Validate(); err != nil {
 		return err
 	}
-	if v.RelatedTo != nil {
-		if err := v.RelatedTo.Validate(); err != nil {
-			return validation.NewErrBadRequestFieldValue("relatedTo", err.Error())
-		}
+	if err := v.WithRelated.Validate(); err != nil {
+		return validation.NewBadRequestError(err)
 	}
 	return nil
 }
