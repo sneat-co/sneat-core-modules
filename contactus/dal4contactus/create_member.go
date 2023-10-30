@@ -2,7 +2,7 @@ package dal4contactus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -15,8 +15,8 @@ type CreateMemberRequest struct {
 	dto4teamus.TeamRequest
 	dto4contactus.CreatePersonRequest
 
-	RelatedTo *linkage.Link `json:"relatedTo,omitempty"`
-	Message   string        `json:"message"`
+	RelatedTo *models4linkage.Link `json:"relatedTo,omitempty"`
+	Message   string               `json:"message"`
 }
 
 // Validate validates request

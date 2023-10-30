@@ -1,4 +1,4 @@
-package linkage
+package models4linkage
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func (v *TeamModuleDocRef) ID() string {
 	return fmt.Sprintf("%s.%s.%s.%s", v.TeamID, v.ModuleID, v.Collection, v.ItemID)
 }
 
-func (v TeamModuleDocRef) Validate() error {
+func (v *TeamModuleDocRef) Validate() error {
 	// TeamID can be empty for global collections like Happening
 	if v.ModuleID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("moduleID")

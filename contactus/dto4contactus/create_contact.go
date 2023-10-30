@@ -5,7 +5,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -28,7 +28,8 @@ type CreateContactRequest struct {
 	Location *CreateLocationRequest     `json:"location,omitempty"`
 	Basic    *CreateBasicContactRequest `json:"basic,omitempty"`
 
-	RelatedTo *linkage.Link `json:"relatedTo,omitempty"`
+	Related   models4linkage.RelatedByTeamID `json:"related,omitempty" firestore:"related,omitempty"`
+	RelatedTo *models4linkage.Link           `json:"relatedTo,omitempty"`
 
 	// Used for situation when we want a hard-coded contact number
 	// (e.g. a self-contact for a company team).

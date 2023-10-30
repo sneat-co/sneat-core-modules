@@ -1,4 +1,4 @@
-package linkage
+package models4linkage
 
 import (
 	"github.com/dal-go/dalgo/dal"
@@ -93,8 +93,10 @@ func TestWithRelated_SetRelationshipToItem(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &WithRelated{
-				Related:    tt.fields.Related,
+			v := &WithRelatedAndIDs{
+				WithRelated: WithRelated{
+					Related: tt.fields.Related,
+				},
 				RelatedIDs: tt.fields.relatedIDs,
 			}
 			gotUpdates, gotErr := v.SetRelationshipToItem(

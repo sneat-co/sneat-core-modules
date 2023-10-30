@@ -1,4 +1,4 @@
-package linkage
+package models4linkage
 
 import (
 	"errors"
@@ -77,8 +77,10 @@ type RelatedByTeamID = map[string]RelatedByModuleID
 
 const relatedField = "related"
 
-// WithRelated defines relationship of the current contact record to other contacts.
-type WithRelated struct {
+var _ Relatable = (*WithRelatedAndIDs)(nil)
+
+// WithRelatedAndIDs defines relationship of the current contact record to other contacts.
+type WithRelatedAndIDs struct {
 	/* Example of related field as a JSON:
 
 	Contact(id="child1") {
@@ -102,15 +104,26 @@ type WithRelated struct {
 	}
 	*/
 
-	// Related defines relationship of the current contact to other contacts. Key is contact ID.
-	Related RelatedByTeamID `json:"related,omitempty" firestore:"related,omitempty"`
+	WithRelated
 
 	// RelatedIDs is a list of IDs of records that are related to the current record - this is needed for indexed search.
 	RelatedIDs []string `json:"relatedIDs,omitempty" firestore:"relatedIDs,omitempty"`
 }
 
-// Validate returns error if not valid
+func (v *WithRelatedAndIDs) GetRelated() *WithRelatedAndIDs {
+	return v
+}
+
+type WithRelated struct {
+	// Related defines relationship of the current contact to other contacts. Key is contact ID.
+	Related RelatedByTeamID `json:"related,omitempty" firestore:"related,omitempty"`
+}
+
 func (v *WithRelated) Validate() error {
+	return v.ValidateRelated(nil)
+}
+
+func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) error {
 	for teamID, relatedByModuleID := range v.Related {
 		if teamID == "" {
 			return validation.NewErrBadRecordFieldValue(relatedField, "has empty team ID")
@@ -146,13 +159,28 @@ func (v *WithRelated) Validate() error {
 						return validation.NewErrBadRecordFieldValue(field, err.Error())
 					}
 
-					if !slice.Contains(v.RelatedIDs, key) {
-						return validation.NewErrBadRecordFieldValue("relatedIDs",
-							"does not have relevant value in 'relatedIDs' field: "+key)
+					if validateID != nil {
+						if err := validateID(key); err != nil {
+							return validation.NewErrBadRecordFieldValue(field, err.Error())
+						}
 					}
 				}
 			}
 		}
+	}
+	return nil
+}
+
+// Validate returns error if not valid
+func (v *WithRelatedAndIDs) Validate() error {
+	if err := v.ValidateRelated(func(relatedID string) error {
+		if !slice.Contains(v.RelatedIDs, relatedID) {
+			return validation.NewErrBadRecordFieldValue("relatedIDs",
+				"does not have relevant value in 'relatedIDs' field: "+relatedID)
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	for i, relatedID := range v.RelatedIDs {
 		if strings.TrimSpace(relatedID) == "" {
@@ -190,7 +218,18 @@ func GetRelatesAsFromRelated(relatedAs RelationshipID) RelationshipID {
 	return ""
 }
 
-func (v *WithRelated) SetRelationshipToItem(
+func (v *WithRelatedAndIDs) SetRelationshipsToItem(
+	userID string,
+	recordRef TeamModuleDocRef,
+	relatedTo TeamModuleDocRef,
+	relatedAs Relationships,
+	relatesAs Relationships,
+	now time.Time,
+) (updates []dal.Update, err error) {
+	return nil, errors.New("not implemented yet")
+}
+
+func (v *WithRelatedAndIDs) SetRelationshipToItem(
 	userID string,
 	recordRef TeamModuleDocRef,
 	link Link,
@@ -244,7 +283,7 @@ func (v *WithRelated) SetRelationshipToItem(
 	return updates, err
 }
 
-func (v *WithRelated) AddRelationship(
+func (v *WithRelatedAndIDs) AddRelationship(
 	userID string,
 	recordRef TeamModuleDocRef,
 	link Link,
@@ -323,7 +362,7 @@ func (v *WithRelated) AddRelationship(
 }
 
 // RemoveRelationshipToContact removes all relationships to a given contact
-func (v *WithRelated) RemoveRelationshipToContact(contactID string) (updates []dal.Update) {
+func (v *WithRelatedAndIDs) RemoveRelationshipToContact(contactID string) (updates []dal.Update) {
 	if _, ok := v.Related[contactID]; ok {
 		delete(v.Related, contactID)
 		updates = append(updates, dal.Update{

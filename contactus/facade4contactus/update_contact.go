@@ -7,8 +7,9 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage"
-	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
+	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
 )
@@ -105,43 +106,28 @@ func updateContactTxWorker(
 			})
 	}
 
-	if request.RelatedTo != nil {
-		// Verify contactID belongs to the same team
-		if _, existingContact := params.TeamModuleEntry.Data.Contacts[request.RelatedTo.ItemID]; !existingContact {
-			if _, err = GetContactByID(ctx, tx, params.Team.ID, request.RelatedTo.ItemID); err != nil {
-				return fmt.Errorf("failed to get related contact: %w", err)
+	if request.Related != nil {
+		recordRef := models4linkage.TeamModuleDocRef{
+			ModuleID:   const4contactus.ModuleID,
+			Collection: const4contactus.ContactsCollection,
+			TeamID:     request.TeamID,
+			ItemID:     request.ContactID,
+		}
+		relatableAdapted := facade4linkage.NewRelatableAdapter[*models4contactus.ContactDto](func(ctx context.Context, tx dal.ReadTransaction, recordRef models4linkage.TeamModuleDocRef) (err error) {
+			// Verify contactID belongs to the same team
+			teamContactBriefID := recordRef.ItemID
+			if _, existingContact := params.TeamModuleEntry.Data.Contacts[teamContactBriefID]; !existingContact {
+				if _, err = GetContactByID(ctx, tx, params.Team.ID, recordRef.ItemID); err != nil {
+					return fmt.Errorf("failed to get related contact: %w", err)
+				}
 			}
-		}
-
-		if contact.Data.Related == nil {
-			contact.Data.Related = make(linkage.RelatedByTeamID, 1)
-		}
-
-		var userContactID string
-		if userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.ContactusTeamWorkerParams.TeamModuleEntry); err != nil {
-			return fmt.Errorf("failed to get user's contact ID: %w", err)
-		}
-
-		var relUpdates []dal.Update
-		if relUpdates, err = contact.Data.SetRelationshipToItem(
-			params.UserID,
-			linkage.TeamModuleDocRef{
-				TeamID:     request.TeamID,
-				ModuleID:   const4contactus.ModuleID,
-				Collection: const4contactus.ContactsCollection,
-				ItemID:     userContactID,
-			},
-			*request.RelatedTo,
-			params.Started,
-		); err != nil {
+			return nil
+		})
+		var relUpdate []dal.Update
+		if relUpdate, err = facade4linkage.SetRelated(ctx, tx, params.UserID, params.Started, relatableAdapted, params.Contact, recordRef, request.Related); err != nil {
 			return err
 		}
-		contactUpdates = append(contactUpdates, relUpdates...)
-		for _, update := range relUpdates {
-			if !slice.Contains(updatedContactFields, update.Field) {
-				updatedContactFields = append(updatedContactFields, update.Field)
-			}
-		}
+		contactUpdates = append(contactUpdates, relUpdate...)
 	}
 
 	if len(contactUpdates) > 0 {

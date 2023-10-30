@@ -7,7 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/httpmock"
@@ -26,14 +26,14 @@ func TestHttpAddMember(t *testing.T) {
 		TeamRequest: dto4teamus.TeamRequest{
 			TeamID: teamID,
 		},
-		RelatedTo: &linkage.Link{
-			TeamModuleDocRef: linkage.TeamModuleDocRef{
+		RelatedTo: &models4linkage.Link{
+			TeamModuleDocRef: models4linkage.TeamModuleDocRef{
 				TeamID:     "team1",
 				ModuleID:   const4contactus.ModuleID,
 				Collection: const4contactus.ContactsCollection,
 				ItemID:     "c1",
 			},
-			RelatedAs: []linkage.RelationshipID{"spouse"},
+			RelatedAs: []models4linkage.RelationshipID{"spouse"},
 		},
 		CreatePersonRequest: dto4contactus.CreatePersonRequest{
 			ContactBase: briefs4contactus.ContactBase{

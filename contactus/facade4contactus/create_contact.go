@@ -10,7 +10,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -185,7 +185,7 @@ func CreateContactTx(
 		}
 		if _, err = contactDto.SetRelationshipToItem(
 			params.UserID,
-			linkage.TeamModuleDocRef{
+			models4linkage.TeamModuleDocRef{
 				TeamID:     request.TeamID,
 				ModuleID:   const4contactus.ModuleID,
 				Collection: const4contactus.ContactsCollection,

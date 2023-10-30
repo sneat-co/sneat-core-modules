@@ -10,12 +10,10 @@ import (
 	"net/http"
 )
 
-var updateContact = facade4contactus.UpdateContact
-
 func httpUpdateContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.UpdateContactRequest
 	handler := func(ctx context.Context, userCtx facade.User) (interface{}, error) {
-		return nil, updateContact(ctx, userCtx, request)
+		return nil, facade4contactus.UpdateContact(ctx, userCtx, request)
 	}
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }
