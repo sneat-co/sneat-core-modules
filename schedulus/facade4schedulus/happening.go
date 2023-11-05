@@ -37,7 +37,7 @@ func modifyHappening(ctx context.Context, userID string, request dto4schedulus.H
 		params := happeningWorkerParams{
 			ContactusTeamWorkerParams: dal4contactus.NewContactusTeamWorkerParams(userID, request.TeamID),
 			SchedulusTeam:             dal4schedulus.NewSchedulusTeamContext(request.TeamID),
-			Happening:                 models4schedulus.NewHappeningContext(request.HappeningID),
+			Happening:                 models4schedulus.NewHappeningContext(request.TeamID, request.HappeningID),
 		}
 		if err = tx.Get(ctx, params.Happening.Record); err != nil {
 			return fmt.Errorf("failed to get happening by ContactID=%v: %w", params.Happening.ID, err)

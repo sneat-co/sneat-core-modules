@@ -20,7 +20,7 @@ func RevokeHappeningCancellation(ctx context.Context, user facade.User, request 
 		return err
 	}
 
-	happening := models4schedulus.NewHappeningContext(request.HappeningID)
+	happening := models4schedulus.NewHappeningContext(request.TeamID, request.HappeningID)
 	err = dal4teamus.RunModuleTeamWorker(ctx, user, request.TeamRequest,
 		const4schedulus.ModuleID,
 		new(models4schedulus.SchedulusTeamDto),

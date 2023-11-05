@@ -7,12 +7,12 @@ import (
 )
 
 // GetByID returns RecurringHappeningDto record
-func GetByID(ctx context.Context, getter dal.ReadSession, id string, dto models4schedulus.HappeningDto) (record dal.Record, err error) {
-	record = dal.NewRecordWithData(models4schedulus.NewHappeningKey(id), dto)
+func GetByID(ctx context.Context, getter dal.ReadSession, teamID, happeningID string, dto models4schedulus.HappeningDto) (record dal.Record, err error) {
+	record = dal.NewRecordWithData(models4schedulus.NewHappeningKey(teamID, happeningID), dto)
 	return record, getter.Get(ctx, record)
 }
 
 // GetForUpdate returns TeamIDs record in transaction
-func GetForUpdate(ctx context.Context, tx dal.ReadwriteTransaction, id string, dto models4schedulus.HappeningDto) (record dal.Record, err error) {
-	return GetByID(ctx, tx, id, dto)
+func GetForUpdate(ctx context.Context, tx dal.ReadwriteTransaction, teamID, happeningID string, dto models4schedulus.HappeningDto) (record dal.Record, err error) {
+	return GetByID(ctx, tx, teamID, happeningID, dto)
 }

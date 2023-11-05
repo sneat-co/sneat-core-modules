@@ -2,6 +2,8 @@ package models4schedulus
 
 import (
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/schedulus/const4schedulus"
+	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 )
 
 // HappeningsCollection defines recurring happening's collection name
@@ -10,8 +12,8 @@ const HappeningsCollection = "happenings"
 //const SingleHappeningsCollection = "single_happenings"
 
 // NewHappeningKey creates a new happening key
-func NewHappeningKey(id string) *dal.Key {
-	return dal.NewKeyWithID(HappeningsCollection, id)
+func NewHappeningKey(teamID, happeningID string) *dal.Key {
+	return dal4teamus.NewTeamModuleItemKey(teamID, const4schedulus.ModuleID, const4schedulus.HappeningsCollection, happeningID)
 }
 
 // HappeningType is either "recurring" or "single"
@@ -41,13 +43,13 @@ func IsKnownHappeningStatus(status string) bool {
 	return false
 }
 
-func NewHappeningContext(id string) (v HappeningContext) {
-	return NewHappeningContextWithDto(id, new(HappeningDto))
+func NewHappeningContext(teamID, happeningID string) (v HappeningContext) {
+	return NewHappeningContextWithDto(teamID, happeningID, new(HappeningDto))
 }
 
-func NewHappeningContextWithDto(id string, dto *HappeningDto) (v HappeningContext) {
-	v.ID = id
-	v.Key = NewHappeningKey(id)
+func NewHappeningContextWithDto(teamID, happeningID string, dto *HappeningDto) (v HappeningContext) {
+	v.ID = happeningID
+	v.Key = NewHappeningKey(teamID, happeningID)
 	v.Dto = dto
 	v.Record = dal.NewRecordWithData(v.Key, dto)
 	return

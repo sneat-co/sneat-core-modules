@@ -12,7 +12,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/strongo/random"
 	"github.com/strongo/slice"
 	"strings"
 )
@@ -110,7 +109,8 @@ func CreateHappening(
 
 			var happeningID string
 			var happeningKey *dal.Key
-			if happeningID, happeningKey, err = newHappeningKey(ctx, models4schedulus.HappeningsCollection, tx); err != nil {
+			if happeningID, happeningKey, err = dal4teamus.GenerateNewTeamModuleItemKey(
+				ctx, tx, params.Team.ID, moduleID, happeningsCollection, 5, 10); err != nil {
 				return err
 			}
 			response.ID = happeningID
@@ -138,21 +138,4 @@ func CreateHappening(
 	)
 	response.Dto = *happeningDto
 	return
-}
-
-// TODO: Implement & reuse a generic function?
-func newHappeningKey(ctx context.Context, collection string, tx dal.ReadwriteTransaction) (id string, key *dal.Key, err error) {
-	const maxAttemptsCount = 10
-	for i := 0; i < maxAttemptsCount; i++ {
-		id = random.ID(7)
-		key = dal.NewKeyWithID(collection, id)
-		record := dal.NewRecordWithData(key, make(map[string]interface{}))
-		if err := tx.Get(ctx, record); err != nil { // TODO: use tx.Exists()
-			if dal.IsNotFound(err) {
-				return id, key, nil
-			}
-			return "", nil, err
-		}
-	}
-	return "", nil, errors.New("too many attempts  to generate a random happening ContactID")
 }
