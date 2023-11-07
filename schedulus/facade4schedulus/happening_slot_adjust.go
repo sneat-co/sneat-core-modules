@@ -35,11 +35,11 @@ func AdjustSlot(ctx context.Context, userID string, request dto4schedulus.Happen
 }
 
 func adjustRecurringSlot(ctx context.Context, tx dal.ReadwriteTransaction, happening models4schedulus.HappeningContext, request dto4schedulus.HappeningSlotDateRequest) (err error) {
-	for _, teamID := range happening.Dto.TeamIDs { // TODO: run in parallel in go routine if > 1
-		if err := adjustSlotInScheduleDay(ctx, tx, teamID, happening.ID, request); err != nil {
-			return fmt.Errorf("failed to adjust slot in schedule day record for teamID=%v: %w", teamID, err)
-		}
+	//for _, teamID := range happening.Dto.TeamIDs { // TODO: run in parallel in go routine if > 1
+	if err := adjustSlotInScheduleDay(ctx, tx, request.TeamID, happening.ID, request); err != nil {
+		return fmt.Errorf("failed to adjust slot in schedule day record for teamID=%v: %w", request.TeamID, err)
 	}
+	//}
 	return nil
 }
 

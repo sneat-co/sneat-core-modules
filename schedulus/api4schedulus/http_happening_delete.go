@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-var deleteHappening = facade4schedulus.DeleteHappening
-
 // httpDeleteHappening deletes happening
 func httpDeleteHappening(w http.ResponseWriter, r *http.Request) {
 	var request = getHappeningRequestParamsFromURL(r)
@@ -16,6 +14,6 @@ func httpDeleteHappening(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = deleteHappening(ctx, userContext, request)
+	err = facade4schedulus.DeleteHappening(ctx, userContext, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, nil)
 }

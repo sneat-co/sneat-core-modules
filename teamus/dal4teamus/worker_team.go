@@ -192,10 +192,10 @@ var RunTeamWorker = func(ctx context.Context, user facade.User, request dto4team
 }
 
 func applyTeamUpdates(ctx context.Context, tx dal.ReadwriteTransaction, params TeamWorkerParams) (err error) {
-	if err = params.Team.Data.Validate(); err != nil {
-		return fmt.Errorf("team record is not valid before applying team updates: %w", err)
-	}
 	if len(params.TeamUpdates) > 0 {
+		if err = params.Team.Data.Validate(); err != nil {
+			return fmt.Errorf("team record is not valid before applying %d team updates: %w", len(params.TeamUpdates), err)
+		}
 		if err = TxUpdateTeam(ctx, tx, params.Started, params.Team, params.TeamUpdates); err != nil {
 			return fmt.Errorf("failed to update team record: %w", err)
 		}

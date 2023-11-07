@@ -12,9 +12,11 @@ import (
 // HappeningDto DTO
 type HappeningDto struct {
 	HappeningBrief
+	dbmodels.WithCreated
 	dbmodels.WithTags
 	dbmodels.WithUserIDs
-	dbmodels.WithTeamDates
+	dbmodels.WithDates
+	//dbmodels.WithTeamDates
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
 	AssetIDs []string `json:"assetIDs,omitempty" firestore:"assetIDs,omitempty"` // TODO: should be part of WithAssets
 }
@@ -27,15 +29,18 @@ func (v *HappeningDto) Validate() error {
 	if err := v.WithUserIDs.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithTeamDates.Validate(); err != nil {
-		return err
-	}
 	if err := v.WithTags.Validate(); err != nil {
 		return err
 	}
-	if len(v.TeamIDs) == 0 {
-		return validation.NewErrRecordIsMissingRequiredField("teamIDs")
+	if err := v.WithDates.Validate(); err != nil {
+		return err
 	}
+	//if err := v.WithTeamDates.Validate(); err != nil {
+	//	return err
+	//}
+	//if len(v.TeamIDs) == 0 {
+	//	return validation.NewErrRecordIsMissingRequiredField("teamIDs")
+	//}
 	for i, level := range v.Levels {
 		if l := strings.TrimSpace(level); l == "" {
 			return validation.NewErrRecordIsMissingRequiredField(
@@ -61,9 +66,9 @@ func (v *HappeningDto) Validate() error {
 		if len(v.Dates) == 0 {
 			return validation.NewErrRecordIsMissingRequiredField("dates")
 		}
-		if len(v.TeamDates) == 0 {
-			return validation.NewErrRecordIsMissingRequiredField("teamDates")
-		}
+		//if len(v.TeamDates) == 0 {
+		//	return validation.NewErrRecordIsMissingRequiredField("teamDates")
+		//}
 	case HappeningTypeRecurring:
 		if len(v.Dates) > 0 {
 			return validation.NewErrBadRequestFieldValue("dates", "should be empty for 'recurring' happening")
