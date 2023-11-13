@@ -35,6 +35,12 @@ type ContactBrief struct {
 	Avatar *dbprofile.Avatar `json:"avatar,omitempty" firestore:"avatar,omitempty"`
 }
 
+func (v *ContactBrief) SetNames(first, last string) {
+	v.Name.First = first
+	v.Name.Last = last
+	//v.User = user
+}
+
 func (v *ContactBrief) IsTeamMember() bool {
 	return v.HasRole(const4contactus.TeamMemberRoleMember)
 }

@@ -3,8 +3,10 @@ module github.com/sneat-co/sneat-core-modules
 go 1.21.4
 
 //replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
+//replace github.com/bots-go-framework/bots-fw-store => ../../bots-go-framework/bots-fw-store
 
 require (
+	github.com/bots-go-framework/bots-fw-store v0.1.2
 	github.com/crediterra/money v0.2.1
 	github.com/dal-go/dalgo v0.12.0
 	github.com/dal-go/mocks4dalgo v0.1.17

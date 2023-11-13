@@ -2,6 +2,7 @@ package models4userus
 
 import (
 	"fmt"
+	"github.com/bots-go-framework/bots-fw-store/botsfwmodels"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
@@ -12,10 +13,25 @@ import (
 	"strings"
 )
 
+type WithUserIDs struct {
+	UserIDs map[string]string `json:"userIDs,omitempty" firestore:"userIDs,omitempty"`
+}
+
+func (v *WithUserIDs) SetUserID(teamID string, userID string) {
+	if v.UserIDs == nil {
+		v.UserIDs = map[string]string{teamID: userID}
+	} else {
+		v.UserIDs[teamID] = userID
+	}
+}
+
 // UserDto is a record that hold information about user
 type UserDto struct {
 	briefs4contactus.ContactBase
 	dbmodels.WithCreated
+	dbmodels.WithPreferredLocale
+	botsfwmodels.WithBotUserIDs
+
 	IsAnonymous bool `json:"isAnonymous" firestore:"isAnonymous"`
 	//Title       string `json:"title,omitempty" firestore:"title,omitempty"`
 
@@ -33,6 +49,10 @@ type UserDto struct {
 	Created dbmodels.CreatedInfo `json:"created" firestore:"created"`
 	// TODO: Should this be moved to company members?
 	//models.DatatugUser
+}
+
+func (v *UserDto) GetFullName() string {
+	return v.Name.GetFullName()
 }
 
 // SetTeamBrief sets team brief and adds teamID to the list of team IDs if needed
