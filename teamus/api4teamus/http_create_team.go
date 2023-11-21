@@ -10,13 +10,11 @@ import (
 	"net/http"
 )
 
-var createTeam = facade4teamus.CreateTeam
-
 // httpPostCreateTeam is an API endpoint that creates a new team
 func httpPostCreateTeam(w http.ResponseWriter, r *http.Request) {
 	var request dto4teamus.CreateTeamRequest
 	handler := func(ctx context.Context, userCtx facade.User) (interface{}, error) {
-		return createTeam(ctx, userCtx, request)
+		return facade4teamus.CreateTeam(ctx, userCtx, request)
 	}
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }

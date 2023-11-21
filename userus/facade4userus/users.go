@@ -68,7 +68,7 @@ var TxUpdateUser = func(
 }
 
 // TxGetUsers load user records
-var TxGetUsers = func(ctx context.Context, tx dal.ReadwriteTransaction, users []dal.Record) (err error) {
+func TxGetUsers(ctx context.Context, tx dal.ReadwriteTransaction, users []dal.Record) (err error) {
 	if users == nil {
 		panic("api4meetingus == nil")
 	}
@@ -87,7 +87,7 @@ type UserWorkerParams struct {
 
 type userWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) (err error)
 
-var RunUserWorker = func(ctx context.Context, user facade.User, worker userWorker) (err error) {
+var RunUserWorker = func(ctx context.Context, db dal.DB, user facade.User, worker userWorker) (err error) {
 	if user == nil {
 		panic("user == nil")
 	}
@@ -95,7 +95,6 @@ var RunUserWorker = func(ctx context.Context, user facade.User, worker userWorke
 		User:    models4userus.NewUser(user.GetID()),
 		Started: time.Now(),
 	}
-	db := facade.GetDatabase(ctx)
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 		if err = tx.Get(ctx, params.User.Record); err != nil {
 			return fmt.Errorf("failed to load user record: %w", err)

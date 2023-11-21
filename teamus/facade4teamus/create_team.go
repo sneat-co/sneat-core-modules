@@ -19,29 +19,52 @@ import (
 	"time"
 )
 
-// CreateTeam creates TeamIDs record
-func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus.CreateTeamRequest) (response dto4teamus.CreateTeamResponse, err error) {
-	//var TeamKey *firestore.DocumentRef
-	db := facade.GetDatabase(ctx)
-	err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		response, err = createTeamTxWorker(ctx, userContext.GetID(), tx, request)
-		return err
-	})
-	if err != nil {
-		return response, fmt.Errorf("failed to create a new team of type [%v]: %w", request.Type, err)
-	}
-	return response, nil
+type CreateTeamResponse struct {
+	Team dal4teamus.TeamContext
+	User models4userus.UserContext
 }
 
-func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTransaction, request dto4teamus.CreateTeamRequest) (response dto4teamus.CreateTeamResponse, err error) {
+// CreateTeam creates TeamIDs record
+func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus.CreateTeamRequest) (response CreateTeamResponse, err error) {
+	if err = request.Validate(); err != nil {
+		return
+	}
+	db := getDatabase(ctx)
+
+	// We do not use facade4userus.RunUserWorker dues to cycle dependency
+	err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
+		response, err = createTeamTxWorker(ctx, userContext, tx, request)
+		return err
+	})
+	return response, err
+}
+
+func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.ReadwriteTransaction, request dto4teamus.CreateTeamRequest) (response CreateTeamResponse, err error) {
 	now := time.Now()
+	userID := userContext.GetID()
 	if strings.TrimSpace(userID) == "" {
 		return response, facade.ErrUnauthenticated
 	}
 	var userTeamContactID string
+
 	user := models4userus.NewUserContext(userID)
+	response.User = user
+
 	if err = tx.Get(ctx, user.Record); err != nil {
 		return
+	}
+
+	if request.Title == "" {
+		teamID, _ := user.Dto.GetTeamBriefByType(request.Type)
+		if teamID != "" {
+			response.Team.ID = teamID
+			if team, err := GetTeamByID(ctx, tx, teamID); err != nil {
+				return response, err
+			} else {
+				response.Team = team
+				return response, nil
+			}
+		}
 	}
 
 	userTeamContactID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
@@ -172,8 +195,7 @@ func createTeamTxWorker(ctx context.Context, userID string, tx dal.ReadwriteTran
 	}
 
 	response.Team.ID = teamID
-	response.Team.Dto.Type = userTeamBrief.Type
-	response.Team.Dto.Title = userTeamBrief.Title
+	response.Team.Data = teamDto
 	return
 }
 
