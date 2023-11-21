@@ -10,6 +10,7 @@ import (
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
 	"net/mail"
+	"slices"
 	"strings"
 )
 
@@ -163,14 +164,14 @@ func (v *UserDto) validateTeams() error {
 			if err := t.Validate(); err != nil {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("teams[%s]{title=%v}", teamID, t.Title), err.Error())
 			}
-			for i, title := range teamTitles {
-				if t.Title == title {
+			if t.Title != "" {
+				if i := slices.Index(teamTitles, t.Title); i >= 0 {
 					return validation.NewErrBadRecordFieldValue("teams",
-						fmt.Sprintf("at least 2 teams (%s & %s) with same title: %s", teamID, teamIDs[i], title))
+						fmt.Sprintf("at least 2 teams (%s & %s) with same title: '%s'", teamID, teamIDs[i], t.Title))
 				}
 			}
 			teamIDs = append(teamIDs, teamID)
-			teamTitles = append(teamIDs, t.Title)
+			teamTitles = append(teamTitles, t.Title)
 		}
 	}
 	return nil
