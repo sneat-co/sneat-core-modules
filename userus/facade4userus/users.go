@@ -69,9 +69,6 @@ var TxUpdateUser = func(
 
 // TxGetUsers load user records
 func TxGetUsers(ctx context.Context, tx dal.ReadwriteTransaction, users []dal.Record) (err error) {
-	if users == nil {
-		panic("api4meetingus == nil")
-	}
 	if len(users) == 0 {
 		return nil
 	}
