@@ -2,13 +2,12 @@ package facade4linkage
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
-	"github.com/strongo/validation"
 	"time"
 )
 
@@ -45,68 +44,60 @@ func SetRelated[D models4linkage.Relatable](
 	adapter RelatableAdapter[D],
 	object record.DataWithID[string, D],
 	objectRef models4linkage.TeamModuleDocRef,
-	related models4linkage.RelatedByTeamID,
-
+	relatedTo models4linkage.Link,
 ) (updates []dal.Update, err error) {
 
-	if err = objectRef.Validate(); err != nil {
-		return nil, fmt.Errorf("facade4linkage.SetRelated got invalid argument `objectRef models4linkage.TeamModuleDocRef`: %w", err)
+	{
+		const invalidArgPrefix = "facade4linkage.SetRelated got invalid argument"
+		if err = objectRef.Validate(); err != nil {
+			return nil, fmt.Errorf("%s `objectRef models4linkage.TeamModuleDocRef`: %w", invalidArgPrefix, err)
+		}
+		if err = relatedTo.Validate(); err != nil {
+			return nil, fmt.Errorf("%s 'relatedTo models4linkage.Link': %w", invalidArgPrefix, err)
+		}
 	}
 
 	var updatedFields []string
 
 	var relUpdates []dal.Update
 
-	//var userContactID string
-	//if userContactID, err = facade4userus.GetUserTeamContactID(ctx, tx, params.UserID, params.ContactusTeamWorkerParams.TeamModuleEntry); err != nil {
-	//	return fmt.Errorf("failed to get user's contact ID: %w", err)
-	//}
-
-	for teamID, relatedByModuleID := range related {
-		if teamID != objectRef.TeamID {
-			return nil, validation.NewBadRequestError(errors.New("adding related item from other team is not supported yet"))
-		}
-		for moduleID, relatedByCollection := range relatedByModuleID {
-			for collection, relatedByItemID := range relatedByCollection {
-				for itemID, relatedItem := range relatedByItemID {
-					itemRef := models4linkage.TeamModuleDocRef{
-						TeamID:     teamID,
-						ModuleID:   moduleID,
-						Collection: collection,
-						ItemID:     itemID,
-					}
-					if err := adapter.VerifyItem(ctx, tx, itemRef); err != nil {
-						return nil, fmt.Errorf("failed to verify related item: %w", err)
-					}
-					objectWithRelated := object.Data.GetRelated()
-					if objectWithRelated.Related == nil {
-						objectWithRelated.Related = make(models4linkage.RelatedByTeamID, 1)
-					}
-
-					if relUpdates, err = objectWithRelated.SetRelationshipsToItem(
-						userID,
-						objectRef,
-						models4linkage.TeamModuleDocRef{
-							ModuleID:   moduleID,
-							TeamID:     teamID,
-							Collection: collection,
-							ItemID:     itemID,
-						},
-						relatedItem.RelatedAs,
-						relatedItem.RelatesAs,
-						now,
-					); err != nil {
-						return updates, err
-					}
-					updates = append(updates, relUpdates...)
-					for _, update := range relUpdates {
-						if !slice.Contains(updatedFields, update.Field) {
-							updatedFields = append(updatedFields, update.Field)
-						}
-					}
-				}
+	objectWithRelated := object.Data.GetRelated()
+	if objectWithRelated.Related == nil {
+		objectWithRelated.Related = make(models4linkage.RelatedByTeamID, 1)
+	}
+	getRelationships := func(ids []string) (relationships models4linkage.Relationships) {
+		relationships = make(models4linkage.Relationships, len(ids))
+		for _, r := range ids {
+			relationships[r] = &models4linkage.Relationship{
+				WithCreatedField: dbmodels.WithCreatedField{
+					Created: dbmodels.Created{
+						On: now.Format(time.DateOnly),
+						By: userID,
+					},
+				},
 			}
 		}
+		return
 	}
+	relatedAs := getRelationships(relatedTo.RelatedAs)
+	relatesAs := getRelationships(relatedTo.RelatesAs)
+
+	if relUpdates, err = objectWithRelated.SetRelationshipsToItem(
+		userID,
+		objectRef,
+		relatedTo.TeamModuleDocRef,
+		relatedAs,
+		relatesAs,
+		now,
+	); err != nil {
+		return updates, err
+	}
+	updates = append(updates, relUpdates...)
+	for _, update := range relUpdates {
+		if !slice.Contains(updatedFields, update.Field) {
+			updatedFields = append(updatedFields, update.Field)
+		}
+	}
+
 	return updates, err
 }

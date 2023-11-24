@@ -19,17 +19,17 @@ import (
 	"time"
 )
 
-type CreateTeamResponse struct {
-	Team dal4teamus.TeamContext
-	User models4userus.UserContext
+type CreateTeamResult struct {
+	Team dal4teamus.TeamContext    `json:"-"`
+	User models4userus.UserContext `json:"-"`
 }
 
 // CreateTeam creates TeamIDs record
-func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus.CreateTeamRequest) (response CreateTeamResponse, err error) {
+func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus.CreateTeamRequest) (response CreateTeamResult, err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
-	db := getDatabase(ctx)
+	db := facade.GetDatabase(ctx)
 
 	// We do not use facade4userus.RunUserWorker dues to cycle dependency
 	err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
@@ -39,7 +39,7 @@ func CreateTeam(ctx context.Context, userContext facade.User, request dto4teamus
 	return response, err
 }
 
-func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.ReadwriteTransaction, request dto4teamus.CreateTeamRequest) (response CreateTeamResponse, err error) {
+func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.ReadwriteTransaction, request dto4teamus.CreateTeamRequest) (response CreateTeamResult, err error) {
 	now := time.Now()
 	userID := userContext.GetID()
 	if strings.TrimSpace(userID) == "" {

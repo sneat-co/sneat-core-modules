@@ -14,7 +14,11 @@ import (
 func httpPostCreateTeam(w http.ResponseWriter, r *http.Request) {
 	var request dto4teamus.CreateTeamRequest
 	handler := func(ctx context.Context, userCtx facade.User) (interface{}, error) {
-		return facade4teamus.CreateTeam(ctx, userCtx, request)
+		facadeResponse, err := facade4teamus.CreateTeam(ctx, userCtx, request)
+		var apiResponse dto4teamus.CreateTeamResponse
+		apiResponse.Team.ID = facadeResponse.Team.ID
+		apiResponse.Team.Dto = *facadeResponse.Team.Data
+		return apiResponse, err
 	}
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, handler, http.StatusCreated, verify.DefaultJsonWithAuthRequired)
 }

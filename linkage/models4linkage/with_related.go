@@ -226,7 +226,14 @@ func (v *WithRelatedAndIDs) SetRelationshipsToItem(
 	relatesAs Relationships,
 	now time.Time,
 ) (updates []dal.Update, err error) {
-	return nil, errors.New("not implemented yet")
+	link := Link{
+		TeamModuleDocRef: relatedTo,
+	}
+	for relatedAsID := range relatedAs {
+		link.RelatesAs = append(link.RelatesAs, relatedAsID)
+	}
+	return v.SetRelationshipToItem(userID, recordRef, link, now)
+	//return nil, errors.New("not implemented yet - SetRelationshipsToItem")
 }
 
 func (v *WithRelatedAndIDs) SetRelationshipToItem(

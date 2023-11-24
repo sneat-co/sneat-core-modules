@@ -68,7 +68,7 @@ func TestCreateTeam(t *testing.T) { // TODO: Implement unit tests
 			return worker(ctx, tx)
 		}).AnyTimes()
 
-		getDatabase = func(ctx context.Context) dal.DB {
+		facade.GetDatabase = func(ctx context.Context) dal.DB {
 			return db
 		}
 		response, err := CreateTeam(ctx, user, dto4teamus.CreateTeamRequest{Type: core4teamus.TeamTypeFamily})

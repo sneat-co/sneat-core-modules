@@ -14,14 +14,14 @@ type UpdateContactRequest struct {
 	AgeGroup  string                  `json:"ageGroup,omitempty"`
 	Roles     *SetContactRolesRequest `json:"roles,omitempty"`
 	VatNumber *string                 `json:"vatNumber,omitempty"`
-	models4linkage.WithRelated
+	RelatedTo *models4linkage.Link    `json:"relatedTo,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
 	if err := v.ContactRequest.Validate(); err != nil {
 		return err
 	}
-	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.Related == nil && v.VatNumber == nil {
+	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.RelatedTo == nil && v.VatNumber == nil {
 		return validation.NewBadRequestError(errors.New("at least one of contact fields must be provided for an update"))
 	}
 	if v.Address != nil {
@@ -44,8 +44,10 @@ func (v UpdateContactRequest) Validate() error {
 		}
 
 	}
-	if err := v.WithRelated.Validate(); err != nil {
-		return validation.NewBadRequestError(err)
+	if v.RelatedTo != nil {
+		if err := v.RelatedTo.Validate(); err != nil {
+			return validation.NewBadRequestError(err)
+		}
 	}
 	return nil
 }

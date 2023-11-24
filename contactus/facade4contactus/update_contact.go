@@ -106,7 +106,7 @@ func updateContactTxWorker(
 			})
 	}
 
-	if request.Related != nil {
+	if request.RelatedTo != nil {
 		recordRef := models4linkage.TeamModuleDocRef{
 			ModuleID:   const4contactus.ModuleID,
 			Collection: const4contactus.ContactsCollection,
@@ -124,7 +124,7 @@ func updateContactTxWorker(
 			return nil
 		})
 		var relUpdate []dal.Update
-		if relUpdate, err = facade4linkage.SetRelated(ctx, tx, params.UserID, params.Started, relatableAdapted, params.Contact, recordRef, request.Related); err != nil {
+		if relUpdate, err = facade4linkage.SetRelated(ctx, tx, params.UserID, params.Started, relatableAdapted, params.Contact, recordRef, *request.RelatedTo); err != nil {
 			return err
 		}
 		contactUpdates = append(contactUpdates, relUpdate...)
