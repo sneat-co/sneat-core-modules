@@ -26,6 +26,9 @@ func (v *WithUserIDs) SetUserID(teamID string, userID string) {
 	}
 }
 
+var _ botsfwmodels.AppUserData = (*UserDto)(nil)
+var _ botsfwmodels.AppUserData = (*userBotsFwAdapter)(nil)
+
 // UserDto is a record that hold information about user
 type UserDto struct {
 	briefs4contactus.ContactBase

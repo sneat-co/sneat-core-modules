@@ -35,10 +35,24 @@ type ContactBrief struct {
 	Avatar *dbprofile.Avatar `json:"avatar,omitempty" firestore:"avatar,omitempty"`
 }
 
-func (v *ContactBrief) SetNames(first, last string) {
-	v.Name.First = first
-	v.Name.Last = last
-	//v.User = user
+func (v *ContactBrief) SetName(field, value string) {
+	if v.Name == nil {
+		v.Name = &dbmodels.Name{}
+	}
+	switch field {
+	case "first":
+		v.Name.First = value
+	case "last":
+		v.Name.Last = value
+	case "middle":
+		v.Name.Middle = value
+	case "full":
+		v.Name.Full = value
+	case "nick":
+		v.Name.Nick = value
+	default:
+		panic("unsupported field: " + field)
+	}
 }
 
 func (v *ContactBrief) IsTeamMember() bool {
