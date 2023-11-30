@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/dal4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/dto4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/models4schedulus"
@@ -13,30 +12,15 @@ import (
 	"github.com/strongo/validation"
 )
 
-func AddParticipantToHappening(ctx context.Context, userID string, request dto4schedulus.HappeningContactRequest) (err error) {
+func AddParticipantToHappening(ctx context.Context, user facade.User, request dto4schedulus.HappeningContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
 
-	if userID == "" {
-		return fmt.Errorf("%w: user ContactID is missing", facade.ErrUnauthorized)
-	}
-
-	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *happeningWorkerParams) (err error) {
-		if request.Contact.TeamID == "" {
-			request.Contact.TeamID = request.TeamID
-		}
-		contact := dal4contactus.NewContactEntry(request.Contact.TeamID, request.Contact.ID)
-
-		if err = tx.GetMulti(ctx, []dal.Record{params.Happening.Record, params.TeamModuleEntry.Record, contact.Record}); err != nil {
-			return fmt.Errorf("failed to get records: %w", err)
-		}
-
-		if !params.TeamModuleEntry.Record.Exists() {
-			return fmt.Errorf("happening not found: %w", params.TeamModuleEntry.Record.Error())
-		}
-		if !contact.Record.Exists() {
-			return fmt.Errorf("contact not found: %w", contact.Record.Error())
+	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *happeningWorkerParams) error {
+		contact, err := getHappeningContactRecords(ctx, tx, &request, params)
+		if err != nil {
+			return err
 		}
 
 		switch params.Happening.Dto.Type {
@@ -53,10 +37,10 @@ func AddParticipantToHappening(ctx context.Context, userID string, request dto4s
 		}
 		params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.AddContact(request.Contact.TeamID, contact.ID, &contact.Data.ContactBrief)...)
 		params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.AddParticipant(request.Contact.TeamID, contact.ID, nil)...)
-		return
+		return err
 	}
 
-	if err = modifyHappening(ctx, userID, request.HappeningRequest, worker); err != nil {
+	if err = modifyHappening(ctx, user, request.HappeningRequest, worker); err != nil {
 		return fmt.Errorf("failed to add member to happening: %w", err)
 	}
 	return nil

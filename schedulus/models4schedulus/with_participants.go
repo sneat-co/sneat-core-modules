@@ -30,6 +30,23 @@ func (v *WithParticipants) AddParticipant(teamID, contactID string, participant 
 	}
 }
 
+func (v *WithParticipants) RemoveParticipant(teamID, contactID string) []dal.Update {
+	id := dbmodels.NewTeamItemID(teamID, contactID)
+	if v.Participants == nil {
+		return []dal.Update{}
+	}
+	if _, ok := v.Participants[string(id)]; !ok {
+		return []dal.Update{}
+	}
+	delete(v.Participants, string(id))
+	return []dal.Update{
+		{
+			Field: "participants." + string(id),
+			Value: dal.DeleteField,
+		},
+	}
+}
+
 func (v *WithParticipants) Validate() error {
 	for contactID, participant := range v.Participants {
 		if contactID == "" {

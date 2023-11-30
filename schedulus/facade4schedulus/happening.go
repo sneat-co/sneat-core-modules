@@ -23,28 +23,24 @@ type happeningWorker = func(
 	param *happeningWorkerParams,
 ) (err error)
 
-func modifyHappening(ctx context.Context, userID string, request dto4schedulus.HappeningRequest, worker happeningWorker) (err error) {
-	if userID == "" {
-		return fmt.Errorf("not allowed to call without userID: %w", facade.ErrUnauthorized)
-	}
+func modifyHappening(ctx context.Context, user facade.User, request dto4schedulus.HappeningRequest, worker happeningWorker) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
-	db := facade.GetDatabase(ctx)
-	err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		params := happeningWorkerParams{
-			SchedulusTeamWorkerParams: dal4schedulus.NewSchedulusTeamWorkerParams(userID, request.TeamID),
+	err = dal4schedulus.RunSchedulusTeamWorker(ctx, user, request.TeamRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4schedulus.SchedulusTeamWorkerParams) error {
+		happeningParams := happeningWorkerParams{
+			SchedulusTeamWorkerParams: params,
 			Happening:                 models4schedulus.NewHappeningContext(request.TeamID, request.HappeningID),
 		}
-		if err = worker(ctx, tx, &params); err != nil {
+		if err = worker(ctx, tx, &happeningParams); err != nil {
 			return fmt.Errorf("failed in happening worker: %w", err)
 		}
-		if len(params.HappeningUpdates) > 0 {
-			if err = params.Happening.Dto.Validate(); err != nil {
+		if len(happeningParams.HappeningUpdates) > 0 {
+			if err = happeningParams.Happening.Dto.Validate(); err != nil {
 				return fmt.Errorf("happening record is not valid after running worker: %w", err)
 			}
-			log.Printf("updating happening: %s", params.Happening.Key)
-			if err = tx.Update(ctx, params.Happening.Key, params.HappeningUpdates); err != nil {
+			log.Printf("updating happening: %s", happeningParams.Happening.Key)
+			if err = tx.Update(ctx, happeningParams.Happening.Key, happeningParams.HappeningUpdates); err != nil {
 				return fmt.Errorf("failed to update happening record: %w", err)
 			}
 		}

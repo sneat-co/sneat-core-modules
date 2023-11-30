@@ -188,3 +188,23 @@ func (v *WithMultiTeamContacts[T]) AddContact(teamID, contactID string, c T) (up
 	v.Contacts[string(id)] = c
 	return
 }
+
+func (v *WithMultiTeamContacts[T]) RemoveContact(teamID, contactID string) (updates []dal.Update) {
+	id := dbmodels.NewTeamItemID(teamID, contactID)
+	contactIDs := slice.RemoveInPlace(string(id), v.ContactIDs)
+	if len(contactIDs) != len(v.ContactIDs) {
+		v.ContactIDs = contactIDs
+		updates = append(updates, dal.Update{
+			Field: "contactIDs",
+			Value: v.ContactIDs,
+		})
+	}
+	if _, ok := v.Contacts[string(id)]; ok {
+		delete(v.Contacts, string(id))
+		updates = append(updates, dal.Update{
+			Field: "contacts." + string(id),
+			Value: dal.DeleteField,
+		})
+	}
+	return
+}

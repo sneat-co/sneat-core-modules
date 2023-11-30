@@ -15,6 +15,6 @@ func httpRemoveParticipantFromHappening(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		return
 	}
-	err = facade4schedulus.RemoveParticipantFromHappening(ctx, userContext.GetID(), request)
-	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, nil)
+	err = facade4schedulus.RemoveParticipantFromHappening(ctx, userContext, request)
+	apicore.ReturnJSON(ctx, w, r, http.StatusNoContent, err, nil)
 }

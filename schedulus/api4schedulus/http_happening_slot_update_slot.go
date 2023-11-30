@@ -17,6 +17,6 @@ func httpUpdateSlot(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = updateSlot(ctx, userContext.GetID(), request)
+	err = updateSlot(ctx, userContext, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, nil)
 }

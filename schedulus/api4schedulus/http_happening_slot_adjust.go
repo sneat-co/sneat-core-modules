@@ -17,6 +17,6 @@ func httpAdjustSlot(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = adjustSlot(ctx, userContext.GetID(), request)
+	err = adjustSlot(ctx, userContext, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, nil)
 }

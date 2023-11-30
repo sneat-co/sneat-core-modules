@@ -7,10 +7,11 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/schedulus/dto4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/models4schedulus"
+	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
 )
 
-func AdjustSlot(ctx context.Context, userID string, request dto4schedulus.HappeningSlotDateRequest) (err error) {
+func AdjustSlot(ctx context.Context, user facade.User, request dto4schedulus.HappeningSlotDateRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}
@@ -28,7 +29,7 @@ func AdjustSlot(ctx context.Context, userID string, request dto4schedulus.Happen
 		return
 	}
 
-	if err = modifyHappening(ctx, userID, request.HappeningRequest, worker); err != nil {
+	if err = modifyHappening(ctx, user, request.HappeningRequest, worker); err != nil {
 		return err
 	}
 	return nil

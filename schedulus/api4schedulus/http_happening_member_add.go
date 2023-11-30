@@ -15,6 +15,6 @@ func httpAddParticipantToHappening(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	err = facade4schedulus.AddParticipantToHappening(ctx, userContext.GetID(), request)
+	err = facade4schedulus.AddParticipantToHappening(ctx, userContext, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusNoContent, err, nil)
 }
