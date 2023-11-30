@@ -7,6 +7,6 @@
 
 - [contactus](./contactus) - contacts management
 - [invitus](./invitus) - invites and referrals
-- [schedulus](./schedulus) - calendar management
+- [calendarium](./calendarium) - calendar management
 - [teamus](./teamus) - teams management
 - [userus](./userus) - users management
