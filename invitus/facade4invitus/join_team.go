@@ -58,7 +58,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 		inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
 		if err = params.GetRecords(ctx, tx, params.UserID, userRecord, inviteRecord); err != nil {
-			return fmt.Errorf("failed to get some records from DB by ItemID: %w", err)
+			return fmt.Errorf("failed to get some records from DB by ID: %w", err)
 		}
 
 		if inviteDto.From.UserID == uid {
@@ -122,7 +122,7 @@ func JoinTeam(ctx context.Context, userContext facade.User, request JoinTeamRequ
 }
 
 //func joinAddUserToLastScrum(ctx context.Context, tx dal.ReadwriteTransaction, teamKey *dal.Key, team models4teamus.TeamDto, uID string) (err error) {
-//	scrumKey := dal.NewKeyWithID("scrums", team.Last.Scrum.ItemID, dal.WithParentKey(teamKey))
+//	scrumKey := dal.NewKeyWithID("scrums", team.Last.Scrum.ID, dal.WithParentKey(teamKey))
 //	scrum := new(dbscrum.Scrum)
 //	scrumRecord := dal.NewRecordWithData(scrumKey, scrum)
 //	if err = tx.Get(ctx, scrumRecord); err != nil {
@@ -248,7 +248,7 @@ func onJoinUpdateMemberBriefInTeamOrAddIfMissing(
 		return validation.NewErrBadRecordFieldValue("userID", "joining member should have populated field 'userID'")
 	}
 	if member.Data.UserID != uid {
-		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ItemID as current user, got: {uid=%v, member.Data.UserID=%v}", uid, member.Data.UserID))
+		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ID as current user, got: {uid=%v, member.Data.UserID=%v}", uid, member.Data.UserID))
 	}
 	//updates = make([]dal.Update, 0, 2)
 	for _, userID := range params.TeamModuleEntry.Data.UserIDs {

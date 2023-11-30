@@ -8,19 +8,20 @@ import (
 
 // TeamsCollection table name
 const TeamsCollection = "teams"
-const TeamBriefsCollection = "briefs"
+
+//const TeamBriefsCollection = "briefs"
 
 // NewTeamKey create new doc ref
 func NewTeamKey(id string) *dal.Key {
-	const max = 30
+	const maxLen = 30
 	if id == "" {
-		panic("empty team ItemID")
+		panic("empty team ID")
 	}
-	if l := len(id); l > max {
-		panic(fmt.Sprintf("team ItemID is %v characters long exceded what is %v more then max %v", l, max-l, max))
+	if l := len(id); l > maxLen {
+		panic(fmt.Sprintf("team ID is %v characters long exceded what is %v more then maxLen %v", l, maxLen-l, maxLen))
 	}
 	if !core.IsAlphanumericOrUnderscore(id) {
-		panic(fmt.Sprintf("team ItemID has non alphanumeric characters or letters in upper case: [%v]", id))
+		panic(fmt.Sprintf("team ID has non alphanumeric characters or letters in upper case: [%v]", id))
 	}
 	return dal.NewKeyWithID(TeamsCollection, id)
 }

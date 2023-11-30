@@ -7,6 +7,21 @@ import (
 	"strings"
 )
 
+type ShortTeamModuleDocRef struct {
+	ID     string `json:"id" firestore:"id"`
+	TeamID string `json:"teamID,omitempty" firestore:"teamID,omitempty"`
+}
+
+func (v *ShortTeamModuleDocRef) Validate() error {
+	// TeamID can be empty for global collections like Happening
+	if v.ID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("itemID")
+	} else if err := validate.RecordID(v.ID); err != nil {
+		return validation.NewErrBadRecordFieldValue("itemID", err.Error())
+	}
+	return nil
+}
+
 type TeamModuleDocRef struct { // TODO: Move to sneat-go-core or document why not
 	TeamID     string `json:"teamID" firestore:"teamID"`
 	ModuleID   string `json:"moduleID" firestore:"moduleID"`

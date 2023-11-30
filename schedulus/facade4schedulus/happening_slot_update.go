@@ -11,7 +11,7 @@ func UpdateSlot(ctx context.Context, userID string, request dto4schedulus.Happen
 		return
 	}
 
-	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params happeningWorkerParams) (err error) {
+	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *happeningWorkerParams) (err error) {
 		//teamKey := models4teamus.NewTeamKey(request.TeamID)
 		//teamDto := new(models4teamus.TeamDto)
 		//teamRecord := dal.NewRecordWithData(teamKey, teamDto)

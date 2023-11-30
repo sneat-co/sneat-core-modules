@@ -88,7 +88,7 @@ func NewTeamModuleWorkerParams[D TeamModuleData](
 ) *ModuleTeamWorkerParams[D] {
 	return &ModuleTeamWorkerParams[D]{
 		TeamWorkerParams: teamWorkerParams,
-		TeamModuleEntry: record.NewDataWithID("",
+		TeamModuleEntry: record.NewDataWithID(moduleID,
 			dal.NewKeyWithParentAndID(teamWorkerParams.Team.Key, TeamModulesCollection, moduleID),
 			data,
 		),

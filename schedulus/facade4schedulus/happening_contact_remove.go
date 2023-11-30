@@ -17,8 +17,8 @@ func RemoveParticipantFromHappening(ctx context.Context, userID string, request 
 		return
 	}
 
-	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params happeningWorkerParams) (err error) {
-		teamContactID := dbmodels.NewTeamItemID(request.TeamID, request.ContactID)
+	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *happeningWorkerParams) (err error) {
+		teamContactID := dbmodels.NewTeamItemID(request.TeamID, request.Contact.ID)
 		contactIDs := make([]string, 0, len(params.Happening.Dto.ContactIDs))
 		for _, id := range params.Happening.Dto.ContactIDs {
 			if id != string(teamContactID) {
@@ -41,7 +41,7 @@ func RemoveParticipantFromHappening(ctx context.Context, userID string, request 
 			if err = tx.Get(ctx, team.Record); err != nil {
 				return fmt.Errorf("failed to get team record: %w", err)
 			}
-			if err = removeContactFromHappeningBriefInTeamDto(ctx, tx, params.SchedulusTeam, params.Happening.Dto, request.HappeningID, teamContactID); err != nil {
+			if err = removeContactFromHappeningBriefInTeamDto(ctx, tx, params.TeamModuleEntry, params.Happening.Dto, request.HappeningID, teamContactID); err != nil {
 				return fmt.Errorf("failed to remove member from happening brief in team DTO: %w", err)
 			}
 		default:

@@ -44,7 +44,7 @@ func LeaveTeam(ctx context.Context, userContext facade.User, request dto4teamus.
 					return
 				}
 				if memberUserID != uid {
-					err = fmt.Errorf("user ItemID does not match members record: memberUserID[%v] != ctx.UserID[%v]: %w",
+					err = fmt.Errorf("user ID does not match members record: memberUserID[%v] != ctx.UserID[%v]: %w",
 						memberUserID, uid, facade.ErrBadRequest)
 					return
 				}

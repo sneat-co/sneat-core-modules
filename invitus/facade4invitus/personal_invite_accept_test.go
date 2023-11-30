@@ -233,12 +233,12 @@ func Test_updateInviteRecord(t *testing.T) {
 								InviteContact: models4invitus.InviteContact{
 									UserID:   "from_user_id1",
 									MemberID: "from_member_id1",
-									Title:    "From ItemID 1",
+									Title:    "From ID 1",
 								},
 							},
 							To: &models4invitus.InviteTo{
 								InviteContact: models4invitus.InviteContact{
-									Title:    "To ItemID 2",
+									Title:    "To ID 2",
 									MemberID: "to_member_id2",
 									Channel:  "email",
 									Address:  "to.test.user@example.com",

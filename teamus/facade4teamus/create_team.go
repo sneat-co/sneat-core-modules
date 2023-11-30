@@ -69,7 +69,7 @@ func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.Rea
 
 	userTeamContactID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
 	if err != nil {
-		return response, fmt.Errorf("failed to generate  member ItemID: %w", err)
+		return response, fmt.Errorf("failed to generate  member ID: %w", err)
 	}
 
 	roles := []string{
@@ -133,7 +133,7 @@ func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.Rea
 	}
 	teamID, err = getUniqueTeamID(ctx, tx, title)
 	if err != nil {
-		return response, fmt.Errorf("failed to get an unique ItemID for a new teamDto: %w", err)
+		return response, fmt.Errorf("failed to get an unique ID for a new teamDto: %w", err)
 	}
 	teamKey := dal.NewKeyWithID(dal4teamus.TeamsCollection, teamID)
 
@@ -208,7 +208,7 @@ func getUniqueTeamID(ctx context.Context, getter dal.ReadSession, title string) 
 	const maxAttemptsCount = 9
 	for i := 0; i <= maxAttemptsCount; i++ {
 		if i == maxAttemptsCount {
-			return "", errors.New("too many attempts to get an unique team ItemID")
+			return "", errors.New("too many attempts to get an unique team ID")
 		}
 		teamID = strings.ToLower(teamID)
 		teamKey := dal.NewKeyWithID(dal4teamus.TeamsCollection, teamID)

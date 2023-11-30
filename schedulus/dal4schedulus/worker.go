@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-core-modules/schedulus/const4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/dto4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/models4schedulus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
@@ -11,6 +12,11 @@ import (
 )
 
 type SchedulusTeamWorkerParams = dal4teamus.ModuleTeamWorkerParams[*models4schedulus.SchedulusTeamDto]
+
+func NewSchedulusTeamWorkerParams(userID, teamID string) *SchedulusTeamWorkerParams {
+	teamWorkerParams := dal4teamus.NewTeamWorkerParams(userID, teamID)
+	return dal4teamus.NewTeamModuleWorkerParams(const4schedulus.ModuleID, teamWorkerParams, new(models4schedulus.SchedulusTeamDto))
+}
 
 type HappeningWorkerParams struct {
 	SchedulusTeamWorkerParams

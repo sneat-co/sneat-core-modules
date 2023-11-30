@@ -1,21 +1,20 @@
 package dto4schedulus
 
 import (
-	"github.com/strongo/validation"
-	"strings"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 )
 
 type HappeningContactRequest struct {
 	HappeningRequest
-	ContactID string `json:"contactID"`
+	Contact models4linkage.ShortTeamModuleDocRef `json:"contact"`
 }
 
 func (v HappeningContactRequest) Validate() error {
 	if err := v.HappeningRequest.Validate(); err != nil {
 		return err
 	}
-	if strings.TrimSpace(v.ContactID) == "" {
-		return validation.NewErrRecordIsMissingRequiredField("contactID")
+	if err := v.Contact.Validate(); err != nil {
+		return err
 	}
 	return nil
 }

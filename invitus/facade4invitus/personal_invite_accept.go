@@ -164,8 +164,8 @@ func updateTeamRecord(
 			m.UserID = uid
 			params.TeamModuleEntry.Data.AddUserID(uid)
 			params.TeamModuleEntry.Data.AddContact(contactID, m)
-			//request.ItemID.Roles = m.Roles
-			//m = request.ItemID
+			//request.ID.Roles = m.Roles
+			//m = request.ID
 			m.UserID = uid
 			teamMember = &briefs4contactus.ContactBase{
 				ContactBrief: *m,
@@ -182,7 +182,7 @@ func updateTeamRecord(
 		}
 	}
 	if teamMember == nil {
-		return teamMember, fmt.Errorf("team member is not found by ItemID=%v", inviteToMemberID)
+		return teamMember, fmt.Errorf("team member is not found by ID=%v", inviteToMemberID)
 	}
 
 	if params.Team.Data.HasUserID(uid) {

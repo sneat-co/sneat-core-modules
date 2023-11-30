@@ -162,7 +162,7 @@ func CreateContactTx(
 	if request.ContactID == "" {
 		contactID, err = dbmodels.NewUniqueRandomID(params.TeamModuleEntry.Data.ContactIDs(), 3)
 		if err != nil {
-			return contact, fmt.Errorf("failed to generate new contact ItemID: %w", err)
+			return contact, fmt.Errorf("failed to generate new contact ID: %w", err)
 		}
 	} else {
 		contactID = request.ContactID

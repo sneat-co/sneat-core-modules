@@ -16,7 +16,7 @@ import (
 
 // JoinInfoRequest request
 type JoinInfoRequest struct {
-	InviteID string `json:"inviteID"` // InviteDto ItemID
+	InviteID string `json:"inviteID"` // InviteDto ID
 	Pin      string `json:"pin"`
 }
 
@@ -91,11 +91,11 @@ func GetTeamJoinInfo(ctx context.Context, request JoinInfoRequest) (response Joi
 	var inviteDto *models4invitus.InviteDto
 	inviteDto, _, err = GetInviteByID(ctx, db, request.InviteID)
 	if err != nil {
-		err = fmt.Errorf("failed to get invite record by ItemID=%v: %w", request.InviteID, err)
+		err = fmt.Errorf("failed to get invite record by ID=%v: %w", request.InviteID, err)
 		return
 	}
 	if inviteDto == nil {
-		err = errors.New("invite record not found by ItemID: " + request.InviteID)
+		err = errors.New("invite record not found by ID: " + request.InviteID)
 		return
 	}
 

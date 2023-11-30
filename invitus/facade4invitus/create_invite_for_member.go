@@ -174,7 +174,7 @@ func createPersonalInvite(
 			[]dal.Update{
 				{Field: "messageId", Value: personalInvite.MessageID},
 			}); err != nil {
-			err = fmt.Errorf("failed to update invite record with message ItemID: %v", err)
+			err = fmt.Errorf("failed to update invite record with message ID: %v", err)
 			return inviteID, personalInvite, err
 		}
 	}

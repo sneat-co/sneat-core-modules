@@ -31,7 +31,7 @@ type DbFacade struct {
 //	tx dal.ReadwriteTransaction
 //}
 
-// GetUserByID load user record by ItemID
+// GetUserByID load user record by ID
 var GetUserByID = func(ctx context.Context, getter dal.ReadSession, user dal.Record) (err error) {
 	if err = getter.Get(ctx, user); err != nil {
 		return fmt.Errorf("failed to get user record by user=%v: %w", user.Key().ID, err)
@@ -39,7 +39,7 @@ var GetUserByID = func(ctx context.Context, getter dal.ReadSession, user dal.Rec
 	return nil
 }
 
-// TxGetUserByID load user record by ItemID within transaction
+// TxGetUserByID load user record by ID within transaction
 var TxGetUserByID = func(ctx context.Context, transaction dal.ReadwriteTransaction, user dal.Record) (
 	err error,
 ) { // TODO: Why we need this wrapper? Consider removing.

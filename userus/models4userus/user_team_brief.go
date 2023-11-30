@@ -82,10 +82,10 @@ func (v UserTeamBrief) Validate() error {
 	//				return newItemErr(err.Error())
 	//			}
 	//			for _, itemID := range itemIDs {
-	//				if itemID == item.ItemID {
-	//					return newItemErr("duplicate item ItemID")
+	//				if itemID == item.ID {
+	//					return newItemErr("duplicate item ID")
 	//				}
-	//				itemIDs = append(itemIDs, item.ItemID)
+	//				itemIDs = append(itemIDs, item.ID)
 	//			}
 	//		}
 	//	}

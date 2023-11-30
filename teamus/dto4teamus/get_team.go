@@ -15,10 +15,10 @@ type GetTeamRequest struct {
 func (v *GetTeamRequest) Validate() error {
 	id := strings.TrimSpace(v.ID)
 	if id == "" {
-		return validation.NewErrRecordIsMissingRequiredField("ItemID")
+		return validation.NewErrRecordIsMissingRequiredField("ID")
 	}
 	if id != v.ID {
-		return validation.NewErrBadRequestFieldValue("ItemID", "has spaces")
+		return validation.NewErrBadRequestFieldValue("ID", "has spaces")
 	}
 	return nil
 }

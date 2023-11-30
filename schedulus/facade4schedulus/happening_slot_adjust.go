@@ -15,7 +15,7 @@ func AdjustSlot(ctx context.Context, userID string, request dto4schedulus.Happen
 		return
 	}
 
-	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params happeningWorkerParams) (err error) {
+	var worker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *happeningWorkerParams) (err error) {
 		switch params.Happening.Dto.Type {
 		case "single":
 			return errors.New("only recurring happenings can be adjusted, single happenings should be updated")

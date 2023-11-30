@@ -229,7 +229,7 @@ func (v *TeamDto) Validate() error {
 	return nil
 }
 
-// HasUser checks if team has a user with given ItemID
+// HasUser checks if team has a user with given ID
 func (v *TeamDto) HasUser(uid string) bool {
 	return slice.Index(v.UserIDs, uid) >= 0
 }

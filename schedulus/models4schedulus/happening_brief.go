@@ -15,9 +15,7 @@ type HappeningBrief struct {
 	Levels   []string         `json:"levels,omitempty" firestore:"levels,omitempty"`
 	Slots    []*HappeningSlot `json:"slots,omitempty" firestore:"slots,omitempty"`
 
-	// Participants keeps contact info specific to the happening.
-	// Map key is expected to be valid dbmodels.TeamItemID to support contacts from multiple teams.
-	Participants map[string]*HappeningParticipant `json:"participants,omitempty" firestore:"participants,omitempty"`
+	WithParticipants
 
 	// HappeningAssets keeps briefs for assets related to the happening.
 	// Map key is expected to be valid dbmodels.TeamItemID to support contacts from multiple teams.
@@ -74,31 +72,14 @@ func (v HappeningBrief) Validate() error {
 			// TODO: Add more validations?
 		}
 	}
-	if err := validateHappeningParticipants(v.Participants); err != nil {
+
+	if err := v.WithParticipants.Validate(); err != nil {
 		return err
 	}
 	if err := validateHappeningAssetBriefs(v.HappeningAssets); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func validateHappeningParticipants(participants map[string]*HappeningParticipant) error {
-	for contactID, participant := range participants {
-		if contactID == "" {
-			return validation.NewErrBadRecordFieldValue("participants", "contactID is empty")
-		}
-		field := func() string {
-			return fmt.Sprintf("participants[%s]", contactID)
-		}
-		if err := dbmodels.TeamItemID(contactID).Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue(field(), err.Error())
-		}
-		if err := participant.Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue(field(), err.Error())
-		}
-	}
 	return nil
 }
 

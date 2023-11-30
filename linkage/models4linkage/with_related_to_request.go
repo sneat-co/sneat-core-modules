@@ -6,7 +6,7 @@ package models4linkage
 //	dto4teamus.TeamRequest
 //	ModuleID   string               `json:"moduleID"`
 //	Collection string               `json:"collection"`
-//	ItemID     string               `json:"itemID"`
+//	ID     string               `json:"itemID"`
 //	Add        *RelationshipRequest `json:"add,omitempty"`
 //	Remove     *RelationshipRequest `json:"remove,omitempty"`
 //}
