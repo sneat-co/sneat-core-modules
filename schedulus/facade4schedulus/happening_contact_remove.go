@@ -7,7 +7,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/schedulus/dal4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/dto4schedulus"
 	"github.com/sneat-co/sneat-core-modules/schedulus/models4schedulus"
-	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -28,10 +27,6 @@ func RemoveParticipantFromHappening(ctx context.Context, user facade.User, reque
 		case "single":
 			break // nothing to do
 		case "recurring":
-			team := dal4teamus.NewTeamContext(request.TeamID)
-			if err = tx.Get(ctx, team.Record); err != nil {
-				return fmt.Errorf("failed to get team record: %w", err)
-			}
 			var updates []dal.Update
 			if updates, err = removeContactFromHappeningBriefInTeamDto(params.TeamModuleEntry, params.Happening, teamContactID); err != nil {
 				return fmt.Errorf("failed to remove member from happening brief in team DTO: %w", err)

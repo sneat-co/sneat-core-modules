@@ -15,6 +15,9 @@ type WithParticipants struct {
 
 func (v *WithParticipants) AddParticipant(teamID, contactID string, participant *HappeningParticipant) []dal.Update {
 	id := dbmodels.NewTeamItemID(teamID, contactID)
+	if participant == nil {
+		participant = &HappeningParticipant{}
+	}
 	if v.Participants == nil {
 		v.Participants = make(map[string]*HappeningParticipant)
 	}

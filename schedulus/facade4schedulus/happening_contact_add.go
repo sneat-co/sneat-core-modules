@@ -54,24 +54,29 @@ func addContactToHappeningBriefInTeamDto(
 	contactID string,
 ) (err error) {
 	teamID := schedulusTeam.Key.Parent().ID.(string)
-	happeningBrief := schedulusTeam.Data.GetRecurringHappeningBrief(happening.ID)
+	happeningBriefPointer := schedulusTeam.Data.GetRecurringHappeningBrief(happening.ID)
 	teamContactID := dbmodels.NewTeamItemID(teamID, contactID)
-	if happeningBrief != nil && happeningBrief.Participants[string(teamContactID)] != nil {
+	var happeningBrief models4schedulus.HappeningBrief
+	if happeningBriefPointer == nil {
+		happeningBrief = happening.Dto.HappeningBrief // Make copy so we do not affect the DTO object
+		happeningBriefPointer = &happeningBrief
+	} else if happeningBriefPointer.Participants[string(teamContactID)] != nil {
 		return nil // Already added to happening brief in schedulusTeam record
 	}
-	happeningBrief = &happening.Dto.HappeningBrief
-	// We have to check again as DTO can have member ContactID while brief does not.
-	if happeningBrief.Participants[string(teamContactID)] == nil {
-		happeningBrief.Participants[string(teamContactID)] = &models4schedulus.HappeningParticipant{}
+	if happeningBriefPointer.Participants == nil {
+		happeningBriefPointer.Participants = make(map[string]*models4schedulus.HappeningParticipant)
+	}
+	if happeningBriefPointer.Participants[string(teamContactID)] == nil {
+		happeningBriefPointer.Participants[string(teamContactID)] = &models4schedulus.HappeningParticipant{}
 	}
 	if schedulusTeam.Data.RecurringHappenings == nil {
 		schedulusTeam.Data.RecurringHappenings = make(map[string]*models4schedulus.HappeningBrief, 1)
 	}
-	schedulusTeam.Data.RecurringHappenings[happening.ID] = happeningBrief
+	schedulusTeam.Data.RecurringHappenings[happening.ID] = happeningBriefPointer
 	teamUpdates := []dal.Update{
 		{
 			Field: "recurringHappenings." + happening.ID,
-			Value: happeningBrief,
+			Value: happeningBriefPointer,
 		},
 	}
 	if err = tx.Update(ctx, schedulusTeam.Key, teamUpdates); err != nil {
