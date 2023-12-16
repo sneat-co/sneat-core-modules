@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/calendarium/dal4calendarium"
 	"github.com/sneat-co/sneat-core-modules/calendarium/dto4calendarium"
 	"github.com/sneat-co/sneat-core-modules/calendarium/models4calendarium"
+	"github.com/sneat-co/sneat-core-modules/contactus/models4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -39,8 +40,8 @@ func RemoveParticipantFromHappening(ctx context.Context, user facade.User, reque
 				validation.NewErrBadRecordFieldValue("type",
 					fmt.Sprintf("unknown value: [%v]", params.Happening.Dto.Type)))
 		}
-		params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.RemoveContact(request.Contact.TeamID, request.Contact.ID)...)
-		params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.RemoveParticipant(request.Contact.TeamID, request.Contact.ID)...)
+		//params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.RemoveContact(request.Contact.TeamID, request.Contact.ID)...)
+		//params.HappeningUpdates = append(params.HappeningUpdates, params.Happening.Dto.RemoveParticipant(request.Contact.TeamID, request.Contact.ID)...)
 		return err
 	}
 
@@ -53,17 +54,13 @@ func RemoveParticipantFromHappening(ctx context.Context, user facade.User, reque
 func removeContactFromHappeningBriefInTeamDto(
 	calendariumTeam dal4calendarium.CalendariumTeamContext,
 	happening models4calendarium.HappeningContext,
-	teamContactID dbmodels.TeamItemID,
+	teamContactRef dbmodels.TeamItemID,
 ) (updates []dal.Update, err error) {
-	happeningBrief := calendariumTeam.Data.GetRecurringHappeningBrief(happening.ID)
-	if happeningBrief == nil {
-		calendariumTeam.Data.RecurringHappenings[happening.ID] = &happening.Dto.HappeningBrief
-	} else if _, ok := happeningBrief.Participants[string(teamContactID)]; ok {
-		delete(happeningBrief.Participants, string(teamContactID))
-		updates = append(updates, dal.Update{
-			Field: fmt.Sprintf("recurringHappenings.%s.participants.%s", happening.ID, teamContactID),
-			Value: dal.DeleteField,
-		})
+	calendarHappeningBrief := calendariumTeam.Data.GetRecurringHappeningBrief(happening.ID)
+	if calendarHappeningBrief == nil {
+		return nil, err
 	}
+	contactRef := models4contactus.NewContactRef(teamContactRef.TeamID(), teamContactRef.ItemID())
+	updates = calendarHappeningBrief.WithRelated.RemoveRelationshipToContact(contactRef)
 	return updates, nil
 }

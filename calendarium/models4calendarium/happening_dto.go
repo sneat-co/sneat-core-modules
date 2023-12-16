@@ -3,6 +3,7 @@ package models4calendarium
 import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
@@ -16,9 +17,10 @@ type HappeningDto struct {
 	dbmodels.WithTags
 	dbmodels.WithUserIDs
 	dbmodels.WithDates
+	models4linkage.WithRelatedAndIDs
 	//dbmodels.WithTeamDates
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
-	AssetIDs []string `json:"assetIDs,omitempty" firestore:"assetIDs,omitempty"` // TODO: should be part of WithAssets
+	AssetIDs []string `json:"assetIDs,omitempty" firestore:"assetIDs,omitempty"` // TODO: migrated to WithRelatedAndIDs
 }
 
 // Validate returns error if not valid

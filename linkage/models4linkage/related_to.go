@@ -29,7 +29,16 @@ type TeamModuleDocRef struct { // TODO: Move to sneat-go-core or document why no
 	ItemID     string `json:"itemID" firestore:"itemID"`
 }
 
-func NewTeamModuleDocRef(id string) TeamModuleDocRef {
+func NewTeamModuleDocRef(teamID, moduleID, collection, itemID string) TeamModuleDocRef {
+	return TeamModuleDocRef{
+		TeamID:     teamID,
+		ModuleID:   moduleID,
+		Collection: collection,
+		ItemID:     itemID,
+	}
+}
+
+func NewTeamModuleDocRefFromString(id string) TeamModuleDocRef {
 	ids := strings.Split(id, ".")
 	return TeamModuleDocRef{
 		TeamID:     ids[0],
@@ -39,11 +48,11 @@ func NewTeamModuleDocRef(id string) TeamModuleDocRef {
 	}
 }
 
-func (v *TeamModuleDocRef) ID() string {
+func (v TeamModuleDocRef) ID() string {
 	return fmt.Sprintf("%s.%s.%s.%s", v.TeamID, v.ModuleID, v.Collection, v.ItemID)
 }
 
-func (v *TeamModuleDocRef) Validate() error {
+func (v TeamModuleDocRef) Validate() error {
 	// TeamID can be empty for global collections like Happening
 	if v.ModuleID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("moduleID")

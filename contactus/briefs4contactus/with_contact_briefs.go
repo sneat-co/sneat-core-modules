@@ -18,15 +18,19 @@ type WithContactBriefs[
 	Contacts map[string]T `json:"contacts,omitempty" firestore:"contacts,omitempty"`
 }
 
+type ContactBriefer interface {
+	core.Validatable
+	dbmodels.UserIDGetter
+	dbmodels.RelatedAs
+	HasRole(role string) bool
+}
+
 // WithContactsBase is a base struct for DTOs that represent a short version of a contact
 // TODO: Document how it is different from WithContactBriefs or merge them
-type WithContactsBase[
-	T interface {
-		dbmodels.UserIDGetter
-		dbmodels.RelatedAs
-		HasRole(role string) bool
-		Equal(v T) bool
-	}] struct {
+type WithContactsBase[T interface {
+	ContactBriefer
+	Equal(v T) bool
+}] struct {
 	WithContactBriefs[T]
 	dbmodels.WithUserIDs
 }

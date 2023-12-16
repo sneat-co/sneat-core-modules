@@ -2,7 +2,6 @@ package facade4calendarium
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/calendarium/const4calendarium"
@@ -86,24 +85,24 @@ func createHappeningTx(ctx context.Context, tx dal.ReadwriteTransaction, request
 
 	contactsByTeamID := make(map[string][]dal4contactus.ContactEntry)
 
-	for participantID := range happeningDto.Participants {
-		participantKey := dbmodels.TeamItemID(participantID)
-		teamID := participantKey.TeamID()
-		if teamID == params.Team.ID {
-			contactBrief := contactusTeam.Data.Contacts[participantKey.ItemID()]
-			if contactBrief == nil {
-				teamContacts := contactsByTeamID[teamID]
-				if teamContacts == nil {
-					teamContacts = make([]dal4contactus.ContactEntry, 0, 1)
-				}
-				contactsByTeamID[teamID] = append(teamContacts, dal4contactus.NewContactEntry(teamID, participantKey.ItemID()))
-			} else {
-				happeningDto.AddContact(teamID, participantKey.ItemID(), contactBrief)
-			}
-		} else {
-			return response, errors.New("not implemented yet: adding participants from other teams at happening creation")
-		}
-	}
+	//for participantID := range happeningDto.Participants {
+	//	participantKey := dbmodels.TeamItemID(participantID)
+	//	teamID := participantKey.TeamID()
+	//	if teamID == params.Team.ID {
+	//		contactBrief := contactusTeam.Data.Contacts[participantKey.ItemID()]
+	//		if contactBrief == nil {
+	//			teamContacts := contactsByTeamID[teamID]
+	//			if teamContacts == nil {
+	//				teamContacts = make([]dal4contactus.ContactEntry, 0, 1)
+	//			}
+	//			contactsByTeamID[teamID] = append(teamContacts, dal4contactus.NewContactEntry(teamID, participantKey.ItemID()))
+	//		} else {
+	//			happeningDto.AddContact(teamID, participantKey.ItemID(), contactBrief)
+	//		}
+	//	} else {
+	//		return response, errors.New("not implemented yet: adding participants from other teams at happening creation")
+	//	}
+	//}
 
 	if len(contactsByTeamID) > 0 {
 		contactRecords := make([]dal.Record, 0)
@@ -138,14 +137,15 @@ func createHappeningTx(ctx context.Context, tx dal.ReadwriteTransaction, request
 		return response, fmt.Errorf("failed to insert new happening record: %w", err)
 	}
 	if happeningDto.Type == models4calendarium.HappeningTypeRecurring {
-		brief := &happeningDto.HappeningBrief
 		if params.TeamModuleEntry.Data.RecurringHappenings == nil {
-			params.TeamModuleEntry.Data.RecurringHappenings = make(map[string]*models4calendarium.HappeningBrief)
+			params.TeamModuleEntry.Data.RecurringHappenings = make(map[string]*models4calendarium.CalendarHappeningBrief)
 		}
-		params.TeamModuleEntry.Data.RecurringHappenings[happeningID] = brief
+		params.TeamModuleEntry.Data.RecurringHappenings[happeningID] = &models4calendarium.CalendarHappeningBrief{
+			HappeningBrief: happeningDto.HappeningBrief,
+		}
 		params.TeamModuleUpdates = append(params.TeamUpdates, dal.Update{
 			Field: "recurringHappenings." + happeningID,
-			Value: brief,
+			Value: &happeningDto.HappeningBrief,
 		})
 	}
 	return

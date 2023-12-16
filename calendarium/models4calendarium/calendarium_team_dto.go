@@ -2,11 +2,27 @@ package models4calendarium
 
 import (
 	"fmt"
+	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/strongo/validation"
 )
 
+type CalendarHappeningBrief struct {
+	HappeningBrief
+	models4linkage.WithRelated
+}
+
+func (v *CalendarHappeningBrief) Validate() error {
+	if err := v.HappeningBrief.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithRelated.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 type CalendariumTeamDto struct {
-	RecurringHappenings map[string]*HappeningBrief `json:"recurringHappenings,omitempty" firestore:"recurringHappenings,omitempty"`
+	RecurringHappenings map[string]*CalendarHappeningBrief `json:"recurringHappenings,omitempty" firestore:"recurringHappenings,omitempty"`
 }
 
 func (v *CalendariumTeamDto) Validate() error {
@@ -22,6 +38,6 @@ func (v *CalendariumTeamDto) Validate() error {
 	return nil
 }
 
-func (v *CalendariumTeamDto) GetRecurringHappeningBrief(id string) *HappeningBrief {
+func (v *CalendariumTeamDto) GetRecurringHappeningBrief(id string) *CalendarHappeningBrief {
 	return v.RecurringHappenings[id]
 }

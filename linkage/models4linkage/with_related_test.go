@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-func TestWithRelated_SetRelationshipToItem(t *testing.T) {
+func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 	type fields struct {
 		Related    RelatedByTeamID
 		relatedIDs []string
 	}
 	type args struct {
-		userID    string
-		recordRef TeamModuleDocRef
-		link      Link
-		now       time.Time
+		userID string
+		//recordRef TeamModuleDocRef
+		link Link
+		now  time.Time
 	}
 	now := time.Now()
 	tests := []struct {
@@ -32,12 +32,12 @@ func TestWithRelated_SetRelationshipToItem(t *testing.T) {
 			fields: fields{},
 			args: args{
 				userID: "u1",
-				recordRef: TeamModuleDocRef{
-					TeamID:     "team1",
-					ModuleID:   const4contactus.ModuleID,
-					Collection: const4contactus.ContactsCollection,
-					ItemID:     "u1c",
-				},
+				//recordRef: TeamModuleDocRef{
+				//	TeamID:     "team1",
+				//	ModuleID:   const4contactus.ModuleID,
+				//	Collection: const4contactus.ContactsCollection,
+				//	ItemID:     "u1c",
+				//},
 				link: Link{
 					TeamModuleDocRef: TeamModuleDocRef{
 						TeamID:     "team1",
@@ -60,12 +60,12 @@ func TestWithRelated_SetRelationshipToItem(t *testing.T) {
 			fields: fields{},
 			args: args{
 				userID: "u1",
-				recordRef: TeamModuleDocRef{
-					TeamID:     "team1",
-					ModuleID:   const4contactus.ModuleID,
-					Collection: const4contactus.ContactsCollection,
-					ItemID:     "u1c",
-				},
+				//recordRef: TeamModuleDocRef{
+				//	TeamID:     "team1",
+				//	ModuleID:   const4contactus.ModuleID,
+				//	Collection: const4contactus.ContactsCollection,
+				//	ItemID:     "u1c",
+				//},
 				link: Link{
 					TeamModuleDocRef: TeamModuleDocRef{
 						TeamID:     "team1",
@@ -101,7 +101,6 @@ func TestWithRelated_SetRelationshipToItem(t *testing.T) {
 			}
 			gotUpdates, gotErr := v.SetRelationshipToItem(
 				tt.args.userID,
-				tt.args.recordRef,
 				tt.args.link,
 				tt.args.now,
 			)

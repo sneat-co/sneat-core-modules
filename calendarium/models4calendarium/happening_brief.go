@@ -15,7 +15,7 @@ type HappeningBrief struct {
 	Levels   []string         `json:"levels,omitempty" firestore:"levels,omitempty"`
 	Slots    []*HappeningSlot `json:"slots,omitempty" firestore:"slots,omitempty"`
 
-	WithParticipants
+	//WithParticipants // TODO: replace with models4linkage.WithRelated
 
 	// HappeningAssets keeps briefs for assets related to the happening.
 	// Map key is expected to be valid dbmodels.TeamItemID to support contacts from multiple teams.
@@ -73,9 +73,9 @@ func (v HappeningBrief) Validate() error {
 		}
 	}
 
-	if err := v.WithParticipants.Validate(); err != nil {
-		return err
-	}
+	//if err := v.WithParticipants.Validate(); err != nil {
+	//	return err
+	//}
 	if err := validateHappeningAssetBriefs(v.HappeningAssets); err != nil {
 		return err
 	}
