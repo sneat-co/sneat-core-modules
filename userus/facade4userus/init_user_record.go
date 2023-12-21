@@ -81,7 +81,9 @@ func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, reques
 	user.Dto.CountryID = dbmodels.UnknownCountryID
 	user.Dto.AgeGroup = "unknown"
 	user.Dto.Gender = "unknown"
-	user.Dto.Names = request.Names
+	if request.Names != nil && !request.Names.IsEmpty() {
+		user.Dto.Names = request.Names
+	}
 	user.Dto.CreatedAt = time.Now()
 	user.Dto.CreatedBy = request.RemoteClient.HostOrApp
 	if i := strings.Index(user.Dto.CreatedBy, ":"); i > 0 {
