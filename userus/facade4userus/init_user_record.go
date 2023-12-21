@@ -81,8 +81,8 @@ func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, reques
 	user.Dto.CountryID = dbmodels.UnknownCountryID
 	user.Dto.AgeGroup = "unknown"
 	user.Dto.Gender = "unknown"
-	if request.Name != nil {
-		user.Dto.Name = request.Name
+	if request.Names != nil {
+		user.Dto.Names = request.Names
 	}
 	user.Dto.CreatedAt = time.Now()
 	user.Dto.CreatedBy = request.RemoteClient.HostOrApp
@@ -118,7 +118,7 @@ func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, reques
 			Iana: request.IanaTimezone,
 		}
 	}
-	if user.Dto.Title == "" && user.Dto.Name.IsEmpty() {
+	if user.Dto.Title == "" && user.Dto.Names.IsEmpty() {
 		user.Dto.Title = user.Dto.Email
 	}
 	if err := user.Dto.Validate(); err != nil {
@@ -132,14 +132,14 @@ func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, reques
 
 func updateUserRecordWithInitData(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext) error {
 	var updates []dal.Update
-	if name := request.Name; name != nil {
-		if name.Full == "" && !name.IsEmpty() {
-			name.Full = name.Title()
+	if name := request.Names; name != nil {
+		if name.FullName == "" && !name.IsEmpty() {
+			name.FullName = name.GetFullName()
 		}
 		if !name.IsEmpty() {
 			updates = append(updates, dal.Update{Field: "name", Value: name})
 		}
-		user.Dto.Name = name
+		user.Dto.Names = name
 	}
 
 	if request.IanaTimezone != "" && (user.Dto.Timezone == nil || user.Dto.Timezone.Iana == "") {
@@ -149,7 +149,7 @@ func updateUserRecordWithInitData(ctx context.Context, tx dal.ReadwriteTransacti
 		user.Dto.Timezone.Iana = request.IanaTimezone
 		updates = append(updates, dal.Update{Field: "timezone.iana", Value: request.IanaTimezone})
 	}
-	if user.Dto.Title == user.Dto.Email && user.Dto.Name != nil && !user.Dto.Name.IsEmpty() {
+	if user.Dto.Title == user.Dto.Email && user.Dto.Names != nil && !user.Dto.Names.IsEmpty() {
 		user.Dto.Title = ""
 		updates = append(updates, dal.Update{Field: "title", Value: dal.DeleteField})
 	}

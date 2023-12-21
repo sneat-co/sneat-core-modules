@@ -52,11 +52,11 @@ func (v *ContactBase) Validate() error {
 			errs = append(errs, validation.NewErrBadRecordFieldValue("countryID", "missing required field for a contactBrief of type=company"))
 		}
 	}
-	if strings.TrimSpace(v.Title) == "" && v.Name == nil {
+	if strings.TrimSpace(v.Title) == "" && v.Names == nil {
 		errs = append(errs, validation.NewErrRecordIsMissingRequiredField("name|title"))
 	}
-	if v.Name != nil {
-		if err := v.Name.Validate(); err != nil {
+	if v.Names != nil {
+		if err := v.Names.Validate(); err != nil {
 			errs = append(errs, err)
 		}
 	}

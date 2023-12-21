@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
+	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
 	"net/mail"
 	"strings"
@@ -35,7 +36,7 @@ type InitUserRecordRequest struct {
 	Email           string                        `json:"email,omitempty"`
 	EmailIsVerified bool                          `json:"emailIsVerified,omitempty"`
 	IanaTimezone    string                        `json:"ianaTimezone,omitempty"`
-	Name            *dbmodels.Name                `json:"name"`
+	Names           *person.NameFields            `json:"name"`
 	Team            *dto4teamus.CreateTeamRequest `json:"team,omitempty"`
 	//
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
@@ -46,8 +47,8 @@ func (v *InitUserRecordRequest) Validate() error {
 	if v.AuthProvider != "" && !dbmodels.IsKnownAuthProviderID(v.AuthProvider) {
 		return validation.NewErrBadRequestFieldValue("authProvider", "unknown value: "+v.AuthProvider)
 	}
-	if v.Name != nil {
-		if err := v.Name.Validate(); err != nil {
+	if v.Names != nil {
+		if err := v.Names.Validate(); err != nil {
 			return fmt.Errorf("%w: %v", facade.ErrBadRequest, err)
 		}
 	}

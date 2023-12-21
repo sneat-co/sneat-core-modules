@@ -17,6 +17,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/person"
 )
 
 // CreateContact creates team contact
@@ -160,7 +161,7 @@ func CreateContactTx(
 	contactDto.ShortTitle = contactDto.DetermineShortTitle(request.Person.Title, params.TeamModuleEntry.Data.Contacts)
 	var contactID string
 	if request.ContactID == "" {
-		contactID, err = dbmodels.NewUniqueRandomID(params.TeamModuleEntry.Data.ContactIDs(), 3)
+		contactID, err = person.NewUniqueRandomID(params.TeamModuleEntry.Data.ContactIDs(), 3)
 		if err != nil {
 			return contact, fmt.Errorf("failed to generate new contact ID: %w", err)
 		}

@@ -12,6 +12,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
+	"github.com/strongo/strongoapp/person"
 	"testing"
 )
 
@@ -41,9 +42,9 @@ func TestCreateTeam(t *testing.T) { // TODO: Implement unit tests
 				userDto.Gender = dbmodels.GenderMale
 				userDto.AgeGroup = dbmodels.AgeGroupAdult
 				userDto.Type = briefs4contactus.ContactTypePerson
-				userDto.Name = &dbmodels.Name{
-					First: "1st",
-					Last:  "Lastnameoff",
+				userDto.Names = &person.NameFields{
+					FirstName: "1st",
+					LastName:  "Lastnameoff",
 				}
 				userDto.Created = dbmodels.CreatedInfo{
 					Client: dbmodels.RemoteClientInfo{

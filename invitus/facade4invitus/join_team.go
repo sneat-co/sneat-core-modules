@@ -284,7 +284,7 @@ UserIdAddedToUserIDsField:
 	}
 	memberBrief = &briefs4contactus.ContactBrief{
 		Type:   briefs4contactus.ContactTypePerson,
-		Title:  user.Name.Full,
+		Title:  user.Names.GetFullName(),
 		Avatar: user.Avatar,
 		WithRoles: dbmodels.WithRoles{
 			Roles: member.Data.Roles,

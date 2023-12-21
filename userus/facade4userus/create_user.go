@@ -43,10 +43,10 @@ package facade4userus
 //	}
 //
 //	{ // Set user's names
-//		user.Dto.Name.Full = briefs4contactus.CleanTitle(request.Title)
-//		if strings.Contains(user.Dto.Name.Full, " ") {
+//		user.Dto.Names.Full = briefs4contactus.CleanTitle(request.Title)
+//		if strings.Contains(user.Dto.Names.Full, " ") {
 //			user.Dto.Defaults = &models4userus.UserDefaults{
-//				ShortNames: briefs4contactus.GetShortNames(user.Dto.Name.Full),
+//				ShortNames: briefs4contactus.GetShortNames(user.Dto.Names.Full),
 //			}
 //		}
 //	}

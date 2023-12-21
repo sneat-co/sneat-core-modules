@@ -5,6 +5,7 @@ import (
 	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
+	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -17,12 +18,12 @@ type ContactBrief struct {
 	dbmodels.WithOptionalCountryID
 	dbmodels.WithRoles
 
-	Type       ContactType     `json:"type" firestore:"type"` // "person", "company", "location"
-	Gender     dbmodels.Gender `json:"gender,omitempty" firestore:"gender,omitempty"`
-	Name       *dbmodels.Name  `json:"name,omitempty" firestore:"name,omitempty"`
-	Title      string          `json:"title,omitempty" firestore:"title,omitempty"`
-	ShortTitle string          `json:"shortTitle,omitempty" firestore:"shortTitle,omitempty"` // Not supposed to be used in models4contactus.ContactDto
-	ParentID   string          `json:"parentID" firestore:"parentID"`                         // Intentionally not adding `omitempty` so we can search root contacts only
+	Type       ContactType        `json:"type" firestore:"type"` // "person", "company", "location"
+	Gender     dbmodels.Gender    `json:"gender,omitempty" firestore:"gender,omitempty"`
+	Names      *person.NameFields `json:"name,omitempty" firestore:"name,omitempty"`
+	Title      string             `json:"title,omitempty" firestore:"title,omitempty"`
+	ShortTitle string             `json:"shortTitle,omitempty" firestore:"shortTitle,omitempty"` // Not supposed to be used in models4contactus.ContactDto
+	ParentID   string             `json:"parentID" firestore:"parentID"`                         // Intentionally not adding `omitempty` so we can search root contacts only
 
 	// Number of active invites to join a team
 	InvitesCount int `json:"activeInvitesCount,omitempty" firestore:"activeInvitesCount,omitempty"`
@@ -36,20 +37,20 @@ type ContactBrief struct {
 }
 
 func (v *ContactBrief) SetName(field, value string) {
-	if v.Name == nil {
-		v.Name = &dbmodels.Name{}
+	if v.Names == nil {
+		v.Names = &person.NameFields{}
 	}
 	switch field {
 	case "first":
-		v.Name.First = value
+		v.Names.FirstName = value
 	case "last":
-		v.Name.Last = value
+		v.Names.LastName = value
 	case "middle":
-		v.Name.Middle = value
+		v.Names.MiddleName = value
 	case "full":
-		v.Name.Full = value
+		v.Names.FullName = value
 	case "nick":
-		v.Name.Nick = value
+		v.Names.NickName = value
 	default:
 		panic("unsupported field: " + field)
 	}
@@ -70,7 +71,7 @@ func (v *ContactBrief) Equal(v2 *ContactBrief) bool {
 		v.WithUserID == v2.WithUserID &&
 		v.Gender == v2.Gender &&
 		v.WithOptionalCountryID == v2.WithOptionalCountryID &&
-		v.Name.Equal(v2.Name) &&
+		v.Names.Equal(v2.Names) &&
 		v.WithOptionalRelatedAs.Equal(v2.WithOptionalRelatedAs) &&
 		v.Avatar.Equal(v2.Avatar)
 }
@@ -83,9 +84,9 @@ func (v *ContactBrief) Validate() error {
 	if err := dbmodels.ValidateGender(v.Gender, false); err != nil {
 		return err
 	}
-	if strings.TrimSpace(v.Title) == "" && v.Name == nil {
+	if strings.TrimSpace(v.Title) == "" && v.Names == nil {
 		return validation.NewErrRecordIsMissingRequiredField("name|title")
-	} else if err := v.Name.Validate(); err != nil {
+	} else if err := v.Names.Validate(); err != nil {
 		return validation.NewErrBadRecordFieldValue("name", err.Error())
 	}
 	if v.UserID != "" {
@@ -121,34 +122,16 @@ func (v *ContactBrief) GetTitle() string {
 	if v.Title != "" {
 		return v.Title
 	}
-	if v.Name.Full != "" {
-		return v.Name.Full
-	}
-	if v.Name.First != "" && v.Name.Last != "" && v.Name.Middle != "" {
-		return v.Name.First + " " + v.Name.Middle + " " + v.Name.Full
-	}
-	if v.Name.First != "" && v.Name.Last != "" {
-		return v.Name.First + " " + v.Name.Full
-	}
-	if v.Name.First != "" {
-		return v.Name.First
-	}
-	if v.Name.Last != "" {
-		return v.Name.Last
-	}
-	if v.Name.Middle != "" {
-		return v.Name.Middle
-	}
-	return ""
+	return v.Names.GetFullName()
 }
 
 func (v *ContactBrief) DetermineShortTitle(title string, contacts map[string]*ContactBrief) string {
-	if v.Name.First != "" && IsUniqueShortTitle(v.Name.First, contacts, const4contactus.TeamMemberRoleMember) {
-		v.ShortTitle = v.Name.First
-	} else if v.Name.Nick != "" && IsUniqueShortTitle(v.Name.First, contacts, const4contactus.TeamMemberRoleMember) {
-		return v.Name.Nick
-	} else if v.Name.Full != "" {
-		return getShortTitle(v.Name.Full, contacts)
+	if v.Names.FirstName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus.TeamMemberRoleMember) {
+		v.ShortTitle = v.Names.FirstName
+	} else if v.Names.NickName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus.TeamMemberRoleMember) {
+		return v.Names.NickName
+	} else if v.Names.FullName != "" {
+		return getShortTitle(v.Names.FullName, contacts)
 	} else if title != "" {
 		return getShortTitle(title, contacts)
 	}

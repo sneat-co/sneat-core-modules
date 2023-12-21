@@ -2,7 +2,7 @@ package facade4userus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/person"
 	"testing"
 )
 
@@ -17,8 +17,8 @@ func TestSetUserTitleRequest_Validate(t *testing.T) {
 		request := dto4userus.InitUserRecordRequest{
 			AuthProvider: "password",
 			Email:        "a@example.com",
-			Name: &dbmodels.Name{
-				Full: "Test User",
+			Names: &person.NameFields{
+				FullName: "Test User",
 			},
 		}
 		if err := request.Validate(); err != nil {

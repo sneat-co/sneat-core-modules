@@ -15,6 +15,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/random"
+	"github.com/strongo/strongoapp/person"
 	"strings"
 	"time"
 )
@@ -67,7 +68,7 @@ func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.Rea
 		}
 	}
 
-	userTeamContactID, err = dbmodels.GenerateIDFromNameOrRandom(user.Dto.Name, nil)
+	userTeamContactID, err = person.GenerateIDFromNameOrRandom(user.Dto.Names, nil)
 	if err != nil {
 		return response, fmt.Errorf("failed to generate  member ID: %w", err)
 	}

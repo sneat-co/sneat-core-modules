@@ -11,6 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"github.com/stretchr/testify/assert"
+	"github.com/strongo/strongoapp/person"
 	"testing"
 )
 
@@ -32,9 +33,9 @@ func Test_InitUserRecord(t *testing.T) {
 				user: models4userus.NewUserContext("test_user_1"),
 				request: dto4userus.InitUserRecordRequest{
 					AuthProvider: "password",
-					Name: &dbmodels.Name{
-						First: "First",
-						Last:  "User",
+					Names: &person.NameFields{
+						FirstName: "First",
+						LastName:  "User",
 					},
 					IanaTimezone: "Europe/Paris",
 					Email:        "u1@example.com",

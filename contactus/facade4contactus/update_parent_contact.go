@@ -18,7 +18,7 @@ func updateParentContact(
 	contactBrief := &briefs4contactus.ContactBrief{
 		Type:   contact.Data.Type,
 		Gender: contact.Data.Gender,
-		Name:   contact.Data.Name,
+		Names:  contact.Data.Names,
 	}
 	contactBrief.RelatedAs = RelatedAsChild
 	updates := parent.Data.SetContactBrief(contact.Key.Parent().ID.(string), contact.ID, contactBrief)

@@ -17,6 +17,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/person"
 	"testing"
 	"time"
 )
@@ -114,8 +115,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						ContactBrief: briefs4contactus.ContactBrief{
 							Type:   briefs4contactus.ContactTypePerson,
 							Gender: "unknown",
-							Name: &dbmodels.Name{
-								First: "First",
+							Names: &person.NameFields{
+								FirstName: "First",
 							},
 							//Status:   "active",
 							AgeGroup: "unknown",
@@ -312,8 +313,8 @@ func Test_updateTeamRecord(t *testing.T) {
 					ID: testMember.ID,
 					Data: &briefs4contactus.ContactBase{
 						ContactBrief: briefs4contactus.ContactBrief{
-							Name: &dbmodels.Name{
-								First: "First name",
+							Names: &person.NameFields{
+								FirstName: "First name",
 							},
 						},
 					},

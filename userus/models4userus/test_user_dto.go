@@ -3,6 +3,7 @@ package models4userus
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/person"
 	"testing"
 	"time"
 )
@@ -18,9 +19,9 @@ func TestUserDtoValidate(t *testing.T) {
 			ContactBrief: briefs4contactus.ContactBrief{
 				Type:   briefs4contactus.ContactTypePerson,
 				Gender: "unknown",
-				Name: &dbmodels.Name{
-					First: "Firstname",
-					Last:  "Lastname",
+				Names: &person.NameFields{
+					FirstName: "Firstname",
+					LastName:  "Lastname",
 				},
 				AgeGroup: "unknown",
 			},

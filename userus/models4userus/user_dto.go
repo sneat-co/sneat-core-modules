@@ -56,7 +56,7 @@ type UserDto struct {
 }
 
 func (v *UserDto) GetFullName() string {
-	return v.Name.GetFullName()
+	return v.Names.GetFullName()
 }
 
 // SetTeamBrief sets team brief and adds teamID to the list of team IDs if needed
@@ -95,7 +95,7 @@ func (v *UserDto) Validate() error {
 	//	}
 	//}
 	//if v.Title != "" {
-	//	if err := v.Name.Validate(); err != nil {
+	//	if err := v.Names.Validate(); err != nil {
 	//		return err
 	//	}
 	//}

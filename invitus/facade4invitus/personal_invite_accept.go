@@ -11,6 +11,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -241,9 +242,9 @@ func createOrUpdateUserRecord(
 		user.Dto.CreatedAt = now
 		user.Dto.Created.Client = request.RemoteClient
 		user.Dto.Type = briefs4contactus.ContactTypePerson
-		user.Dto.Name = request.Member.Data.Name
-		if user.Dto.Name.IsEmpty() && teamMember != nil {
-			user.Dto.Name = teamMember.Name
+		user.Dto.Names = request.Member.Data.Names
+		if user.Dto.Names.IsEmpty() && teamMember != nil {
+			user.Dto.Names = teamMember.Names
 		}
 		updatePersonDetails(&user.Dto.ContactBase, request.Member.Data, teamMember, nil)
 		if user.Dto.Gender == "" {
@@ -268,18 +269,18 @@ func createOrUpdateUserRecord(
 	return err
 }
 
-func updatePersonDetails(person *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, teamMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
-	if member.Name != nil {
-		if person.Name == nil {
-			person.Name = &dbmodels.Name{}
+func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, teamMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
+	if member.Names != nil {
+		if personContact.Names == nil {
+			personContact.Names = new(person.NameFields)
 		}
-		if person.Name.First == "" {
-			name := member.Name.First
+		if personContact.Names.FirstName == "" {
+			name := member.Names.FirstName
 			if name == "" {
-				name = teamMember.Name.First
+				name = teamMember.Names.FirstName
 			}
 			if name != "" {
-				person.Name.First = name
+				personContact.Names.FirstName = name
 				if updates != nil {
 					updates = append(updates, dal.Update{
 						Field: "name.first",
@@ -288,13 +289,13 @@ func updatePersonDetails(person *briefs4contactus.ContactBase, member *briefs4co
 				}
 			}
 		}
-		if person.Name.Last == "" {
-			name := member.Name.Last
+		if personContact.Names.LastName == "" {
+			name := member.Names.LastName
 			if name == "" {
-				name = teamMember.Name.Last
+				name = teamMember.Names.LastName
 			}
 			if name != "" {
-				person.Name.Last = name
+				personContact.Names.LastName = name
 				if updates != nil {
 					updates = append(updates, dal.Update{
 						Field: "name.last",
@@ -303,13 +304,13 @@ func updatePersonDetails(person *briefs4contactus.ContactBase, member *briefs4co
 				}
 			}
 		}
-		if person.Name.Full == "" {
-			name := member.Name.Full
+		if personContact.Names.FullName == "" {
+			name := member.Names.FullName
 			if name == "" {
-				name = teamMember.Name.Full
+				name = teamMember.Names.FullName
 			}
 			if name != "" {
-				person.Name.Full = name
+				personContact.Names.FullName = name
 				if updates != nil {
 					updates = append(updates, dal.Update{
 						Field: "name.full",
@@ -319,7 +320,7 @@ func updatePersonDetails(person *briefs4contactus.ContactBase, member *briefs4co
 			}
 		}
 	}
-	if person.Gender == "" || person.Gender == "unknown" {
+	if personContact.Gender == "" || personContact.Gender == "unknown" {
 		gender := member.Gender
 		if gender == "" || gender == "unknown" {
 			gender = teamMember.Gender
@@ -327,8 +328,8 @@ func updatePersonDetails(person *briefs4contactus.ContactBase, member *briefs4co
 		if gender == "" {
 			gender = "unknown"
 		}
-		if person.Gender == "" || gender != "unknown" {
-			person.Gender = member.Gender
+		if personContact.Gender == "" || gender != "unknown" {
+			personContact.Gender = member.Gender
 			if updates != nil {
 				updates = append(updates, dal.Update{
 					Field: "gender",
