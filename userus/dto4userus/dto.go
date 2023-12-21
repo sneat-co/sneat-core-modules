@@ -36,7 +36,7 @@ type InitUserRecordRequest struct {
 	Email           string                        `json:"email,omitempty"`
 	EmailIsVerified bool                          `json:"emailIsVerified,omitempty"`
 	IanaTimezone    string                        `json:"ianaTimezone,omitempty"`
-	Names           *person.NameFields            `json:"name"`
+	Names           *person.NameFields            `json:"names"`
 	Team            *dto4teamus.CreateTeamRequest `json:"team,omitempty"`
 	//
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
