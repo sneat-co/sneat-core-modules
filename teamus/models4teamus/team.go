@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -107,7 +108,7 @@ type TeamBrief struct {
 
 	Modules []string `json:"modules,omitempty" firestore:"modules,omitempty"`
 
-	dbmodels.WithRequiredCountryID
+	with.RequiredCountryID
 
 	// TODO: This should be populated
 	ParentTeamID string `json:"parentTeamID,omitempty" firestore:"parentTeamID,omitempty"`
@@ -132,7 +133,7 @@ func (v TeamBrief) Validate() error {
 	} else if !IsKnownTeamStatus(v.Status) {
 		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+v.Status)
 	}
-	if err := v.WithRequiredCountryID.Validate(); err != nil {
+	if err := v.RequiredCountryID.Validate(); err != nil {
 		return err
 	}
 	return nil
@@ -149,7 +150,7 @@ func IsKnownTeamStatus(status dbmodels.Status) bool {
 // TeamDto record
 type TeamDto struct {
 	TeamBrief
-	dbmodels.WithCreated
+	with.CreatedFields
 	dbmodels.WithUpdatedAndVersion
 	dbmodels.WithUserIDs
 
@@ -187,10 +188,10 @@ func (v *TeamDto) Validate() error {
 	if err := v.TeamBrief.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithCreated.Validate(); err != nil {
+	if err := v.CreatedFields.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithUpdated.Validate(); err != nil {
+	if err := v.WithUpdatedAndVersion.Validate(); err != nil {
 		return err
 	}
 	for i, userID := range v.UserIDs {

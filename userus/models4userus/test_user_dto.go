@@ -4,6 +4,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/with"
 	"testing"
 	"time"
 )
@@ -11,9 +12,13 @@ import (
 func TestUserDtoValidate(t *testing.T) {
 	now := time.Now()
 	userDto := UserDto{
-		WithCreated: dbmodels.WithCreated{
-			CreatedAt: now,
-			CreatedBy: "user",
+		CreatedFields: with.CreatedFields{
+			CreatedAtField: with.CreatedAtField{
+				CreatedAt: now,
+			},
+			CreatedByField: with.CreatedByField{
+				CreatedBy: "user",
+			},
 		},
 		ContactBase: briefs4contactus.ContactBase{
 			ContactBrief: briefs4contactus.ContactBrief{
@@ -34,7 +39,7 @@ func TestUserDtoValidate(t *testing.T) {
 			},
 		},
 	}
-	userDto.CountryID = dbmodels.UnknownCountryID
+	userDto.CountryID = with.UnknownCountryID
 	t.Run("empty_record", func(t *testing.T) {
 		if err := userDto.Validate(); err != nil {
 			t.Fatalf("no error expected, got: %v", err)

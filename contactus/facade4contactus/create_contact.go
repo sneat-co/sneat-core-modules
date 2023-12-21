@@ -124,7 +124,7 @@ func CreateContactTx(
 	contactDto.CreatedBy = params.UserID
 	contactDto.Status = "active"
 	contactDto.ParentID = parentContactID
-	contactDto.WithRoles = request.WithRoles
+	contactDto.RolesField = request.RolesField
 	if request.Person != nil {
 		contactDto.ContactBase = request.Person.ContactBase
 		contactDto.Type = briefs4contactus.ContactTypePerson

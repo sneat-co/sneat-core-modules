@@ -6,6 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -13,10 +14,10 @@ import (
 // HappeningDto DTO
 type HappeningDto struct {
 	HappeningBrief
-	dbmodels.WithCreated
-	dbmodels.WithTags
+	with.CreatedFields
+	with.TagsField
 	dbmodels.WithUserIDs
-	dbmodels.WithDates
+	with.DatesFields
 	models4linkage.WithRelatedAndIDs
 	//dbmodels.WithTeamDates
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
@@ -31,10 +32,10 @@ func (v *HappeningDto) Validate() error {
 	if err := v.WithUserIDs.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithTags.Validate(); err != nil {
+	if err := v.TagsField.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithDates.Validate(); err != nil {
+	if err := v.DatesFields.Validate(); err != nil {
 		return err
 	}
 	//if err := v.WithTeamDates.Validate(); err != nil {

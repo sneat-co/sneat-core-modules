@@ -7,7 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 )
 
@@ -43,7 +43,7 @@ func SetUserCountry(ctx context.Context, userContext facade.User, request SetUse
 				if err = params.GetRecords(ctx, tx, params.UserID); err != nil {
 					return err
 				}
-				if params.Team.Data.CountryID == "" || params.Team.Data.CountryID == dbmodels.UnknownCountryID {
+				if params.Team.Data.CountryID == "" || params.Team.Data.CountryID == with.UnknownCountryID {
 					params.Team.Data.CountryID = request.CountryID
 					params.TeamUpdates = append(params.TeamUpdates, dal.Update{Field: "countryID", Value: request.CountryID})
 				}
@@ -71,5 +71,5 @@ func SetUserCountry(ctx context.Context, userContext facade.User, request SetUse
 
 // IsUnknownCountryID checks if countryID is empty or "--" - TODO: move next to dbmodels.UnknownCountryID
 func IsUnknownCountryID(countryID string) bool {
-	return countryID == "" || countryID == dbmodels.UnknownCountryID
+	return countryID == "" || countryID == with.UnknownCountryID
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -251,7 +252,7 @@ func createOrUpdateUserRecord(
 			user.Dto.Gender = "unknown"
 		}
 		if user.Dto.CountryID == "" {
-			user.Dto.CountryID = dbmodels.UnknownCountryID
+			user.Dto.CountryID = with.UnknownCountryID
 		}
 		if len(request.Member.Data.Emails) > 0 {
 			user.Dto.Emails = request.Member.Data.Emails

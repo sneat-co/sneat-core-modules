@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -14,11 +14,11 @@ import (
 type RelationshipID = string
 
 type Relationship struct {
-	dbmodels.WithCreatedField
+	with.CreatedField
 }
 
 func (v Relationship) Validate() error {
-	return v.WithCreatedField.Validate()
+	return v.CreatedField.Validate()
 }
 
 type Relationships = map[RelationshipID]*Relationship

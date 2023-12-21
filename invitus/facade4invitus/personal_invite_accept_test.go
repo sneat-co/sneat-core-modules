@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/slice"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/with"
 	"testing"
 	"time"
 )
@@ -102,8 +103,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 				userRecordError: dal.ErrRecordNotFound,
 				team: dal4teamus.NewTeamContextWithDto("testteamid", &models4teamus.TeamDto{
 					TeamBrief: models4teamus.TeamBrief{
-						WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-							CountryID: dbmodels.UnknownCountryID,
+						RequiredCountryID: with.RequiredCountryID{
+							CountryID: with.UnknownCountryID,
 						},
 						Type:  "family",
 						Title: "Family",

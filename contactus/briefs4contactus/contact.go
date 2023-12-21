@@ -5,6 +5,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 )
 
@@ -15,7 +16,7 @@ type WithGroupIDs struct {
 
 // Validate returns error if not valid
 func (v WithGroupIDs) Validate() error {
-	if err := dbmodels.ValidateSetSliceField("groupIDs", v.GroupIDs, true); err != nil {
+	if err := with.ValidateSetSliceField("groupIDs", v.GroupIDs, true); err != nil {
 		return err
 	}
 	return nil

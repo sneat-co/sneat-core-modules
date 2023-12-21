@@ -10,8 +10,8 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/teamus/dal4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"strings"
 )
 
@@ -31,8 +31,10 @@ func CreateHappening(
 	}
 	happeningDto := &models4calendarium.HappeningDto{
 		HappeningBrief: *request.Happening,
-		WithCreated: dbmodels.WithCreated{
-			CreatedBy: user.GetID(),
+		CreatedFields: with.CreatedFields{
+			CreatedByField: with.CreatedByField{
+				CreatedBy: user.GetID(),
+			},
 		},
 		//WithTeamDates: dbmodels.WithTeamDates{
 		//	WithTeamIDs: dbmodels.WithTeamIDs{

@@ -12,11 +12,11 @@ require (
 	github.com/dal-go/mocks4dalgo v0.1.17
 	github.com/golang/mock v1.6.0
 	github.com/gosimple/slug v1.13.1
-	github.com/sneat-co/sneat-go-core v0.20.2
+	github.com/sneat-co/sneat-go-core v0.21.0
 	github.com/stretchr/testify v1.8.4
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.1.4
-	github.com/strongo/strongoapp v0.14.1
+	github.com/strongo/strongoapp v0.15.0
 	github.com/strongo/validation v0.0.6
 )
 

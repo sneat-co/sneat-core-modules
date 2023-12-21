@@ -11,7 +11,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/models4teamus"
 	"github.com/sneat-co/sneat-core-modules/userus/models4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -286,7 +286,7 @@ UserIdAddedToUserIDsField:
 		Type:   briefs4contactus.ContactTypePerson,
 		Title:  user.Names.GetFullName(),
 		Avatar: user.Avatar,
-		WithRoles: dbmodels.WithRoles{
+		RolesField: with.RolesField{
 			Roles: member.Data.Roles,
 		},
 		//Emails: user.Emails,

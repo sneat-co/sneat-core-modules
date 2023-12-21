@@ -5,7 +5,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/models4invitus"
 	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 )
 
 // TeamContactsCollection defines  collection name for team contacts.
@@ -20,8 +20,8 @@ type ContactDto struct {
 
 	models4linkage.WithRelatedAndIDs
 	briefs4contactus.ContactBase
-	dbmodels.WithCreated
-	dbmodels.WithTags
+	with.CreatedFields
+	with.TagsField
 	briefs4contactus.WithMultiTeamContacts[*briefs4contactus.ContactBrief]
 	models4invitus.WithInvites // Invites to become a team member
 }
@@ -31,13 +31,13 @@ func (v ContactDto) Validate() error {
 	if err := v.ContactBase.Validate(); err != nil {
 		return fmt.Errorf("ContactRecordBase is not valid: %w", err)
 	}
-	if err := v.WithCreated.Validate(); err != nil {
+	if err := v.CreatedFields.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithRoles.Validate(); err != nil {
+	if err := v.RolesField.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithTags.Validate(); err != nil {
+	if err := v.TagsField.Validate(); err != nil {
 		return err
 	}
 	if err := v.WithInvites.Validate(); err != nil {

@@ -16,6 +16,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/random"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/with"
 	"strings"
 	"time"
 )
@@ -95,9 +96,13 @@ func createTeamTxWorker(ctx context.Context, userContext facade.User, tx dal.Rea
 		WithUserIDs: dbmodels.WithUserIDs{
 			UserIDs: []string{userID},
 		},
-		WithCreated: dbmodels.WithCreated{
-			CreatedAt: now,
-			CreatedBy: userID,
+		CreatedFields: with.CreatedFields{
+			CreatedAtField: with.CreatedAtField{
+				CreatedAt: now,
+			},
+			CreatedByField: with.CreatedByField{
+				CreatedBy: userID,
+			},
 		},
 		//WithUpdated: dbmodels.WithUpdated{}, // This is updated by IncreaseVersion()
 		//WithMembers: models4memberus.WithMembers{}, // Moved to contactus module

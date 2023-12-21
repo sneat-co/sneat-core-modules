@@ -3,7 +3,7 @@ package models4linkage
 import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 	"reflect"
 	"testing"
 	"time"
@@ -50,7 +50,10 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				now: now,
 			},
 			wantUpdates: []dal.Update{
-				{Field: "related.team1.contactus.contacts.c2.relatedAs.parent", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
+				{Field: "related.team1.contactus.contacts.c2.relatedAs.parent", Value: &Relationship{
+					CreatedField: with.CreatedField{
+						Created: with.Created{By: "u1", At: now.Format(time.DateOnly)}}},
+				},
 				//{Field: "related.team1.contactus.contacts.c2.relatesAs.child", Value: &Relationship{WithCreatedField: dbmodels.WithCreatedField{Created: dbmodels.Created{By: "u1", On: now.Format(time.DateOnly)}}}},
 				{Field: "relatedIDs", Value: []string{"team1.contactus.contacts.c2"}},
 			},
@@ -80,9 +83,9 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 			wantUpdates: []dal.Update{
 				{Field: "related.team1.contactus.contacts.c2.relatedAs.child",
 					Value: &Relationship{
-						WithCreatedField: dbmodels.WithCreatedField{
-							Created: dbmodels.Created{By: "u1",
-								On: now.Format(time.DateOnly),
+						CreatedField: with.CreatedField{
+							Created: with.Created{By: "u1",
+								At: now.Format(time.DateOnly),
 							},
 						},
 					},

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -187,10 +187,10 @@ func (v *WithRelated) AddRelationship(
 		for _, relationshipID := range relationshipIDs {
 			if relationship := relationships[relationshipID]; relationship == nil {
 				relationship = &Relationship{
-					WithCreatedField: dbmodels.WithCreatedField{
-						Created: dbmodels.Created{
+					CreatedField: with.CreatedField{
+						Created: with.Created{
 							By: userID,
-							On: now.Format(time.DateOnly),
+							At: now.Format(time.DateOnly),
 						},
 					},
 				}

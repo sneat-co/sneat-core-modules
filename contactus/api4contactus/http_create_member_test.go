@@ -14,6 +14,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
+	"github.com/strongo/strongoapp/with"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -34,10 +35,10 @@ func TestHttpAddMember(t *testing.T) {
 							"c1": &models4linkage.RelatedItem{
 								RelatedAs: map[models4linkage.RelationshipID]*models4linkage.Relationship{
 									"spouse": {
-										WithCreatedField: dbmodels.WithCreatedField{
-											Created: dbmodels.Created{
+										CreatedField: with.CreatedField{
+											Created: with.Created{
 												By: "u1",
-												On: "2020-01-01",
+												At: "2020-01-01",
 											},
 										},
 									},
@@ -55,7 +56,7 @@ func TestHttpAddMember(t *testing.T) {
 					Gender:   "unknown",
 					Title:    "Some new members",
 					AgeGroup: "unknown",
-					WithRoles: dbmodels.WithRoles{
+					RolesField: with.RolesField{
 						Roles: []string{const4contactus.TeamMemberRoleContributor},
 					},
 				},
@@ -94,10 +95,10 @@ func TestHttpAddMember(t *testing.T) {
 				ContactBrief: briefs4contactus.ContactBrief{
 					Type:  briefs4contactus.ContactTypeCompany,
 					Title: "Some company",
-					WithOptionalCountryID: dbmodels.WithOptionalCountryID{
+					OptionalCountryID: with.OptionalCountryID{
 						CountryID: "IE",
 					},
-					WithRoles: dbmodels.WithRoles{
+					RolesField: with.RolesField{
 						Roles: []string{const4contactus.TeamMemberRoleContributor},
 					},
 				},

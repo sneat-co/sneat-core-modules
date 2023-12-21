@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/core4teamus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"net/mail"
 	"slices"
@@ -32,7 +33,7 @@ var _ botsfwmodels.AppUserData = (*userBotsFwAdapter)(nil)
 // UserDto is a record that hold information about user
 type UserDto struct {
 	briefs4contactus.ContactBase
-	dbmodels.WithCreated
+	with.CreatedFields
 	dbmodels.WithPreferredLocale
 	botsfwmodels.WithBotUserIDs
 

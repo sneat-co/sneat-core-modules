@@ -6,6 +6,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -15,8 +16,8 @@ import (
 type ContactBrief struct {
 	dbmodels.WithUserID
 	dbmodels.WithOptionalRelatedAs // This is used in `Related` field of `ContactDto`
-	dbmodels.WithOptionalCountryID
-	dbmodels.WithRoles
+	with.OptionalCountryID
+	with.RolesField
 
 	Type       ContactType        `json:"type" firestore:"type"` // "person", "company", "location"
 	Gender     dbmodels.Gender    `json:"gender,omitempty" firestore:"gender,omitempty"`
@@ -70,7 +71,7 @@ func (v *ContactBrief) Equal(v2 *ContactBrief) bool {
 	return v.Type == v2.Type &&
 		v.WithUserID == v2.WithUserID &&
 		v.Gender == v2.Gender &&
-		v.WithOptionalCountryID == v2.WithOptionalCountryID &&
+		v.OptionalCountryID == v2.OptionalCountryID &&
 		v.Names.Equal(v2.Names) &&
 		v.WithOptionalRelatedAs.Equal(v2.WithOptionalRelatedAs) &&
 		v.Avatar.Equal(v2.Avatar)
@@ -100,10 +101,10 @@ func (v *ContactBrief) Validate() error {
 			return validation.NewErrRecordIsMissingRequiredField("parentID")
 		}
 	}
-	if err := v.WithOptionalCountryID.Validate(); err != nil {
+	if err := v.OptionalCountryID.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithRoles.Validate(); err != nil {
+	if err := v.RolesField.Validate(); err != nil {
 		return err
 	}
 	if err := v.WithUserID.Validate(); err != nil {

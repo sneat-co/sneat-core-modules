@@ -11,6 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
+	"github.com/strongo/strongoapp/with"
 	"strings"
 	"time"
 )
@@ -78,7 +79,7 @@ func initUserRecordTxWorker(ctx context.Context, tx dal.ReadwriteTransaction, ui
 func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, request dto4userus.InitUserRecordRequest, user models4userus.UserContext, userInfo *sneatauth.AuthUserInfo) error {
 	user.Dto.Status = "active"
 	user.Dto.Type = briefs4contactus.ContactTypePerson
-	user.Dto.CountryID = dbmodels.UnknownCountryID
+	user.Dto.CountryID = with.UnknownCountryID
 	user.Dto.AgeGroup = "unknown"
 	user.Dto.Gender = "unknown"
 	if request.Names != nil && !request.Names.IsEmpty() {

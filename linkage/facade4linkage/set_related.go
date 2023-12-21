@@ -6,8 +6,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/linkage/models4linkage"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
+	"github.com/strongo/strongoapp/with"
 	"time"
 )
 
@@ -69,9 +69,9 @@ func SetRelated[D models4linkage.Relatable](
 		relationships = make(models4linkage.Relationships, len(ids))
 		for _, r := range ids {
 			relationships[r] = &models4linkage.Relationship{
-				WithCreatedField: dbmodels.WithCreatedField{
-					Created: dbmodels.Created{
-						On: now.Format(time.DateOnly),
+				CreatedField: with.CreatedField{
+					Created: with.Created{
+						At: now.Format(time.DateOnly),
 						By: userID,
 					},
 				},

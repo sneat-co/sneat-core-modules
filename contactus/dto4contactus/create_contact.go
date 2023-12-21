@@ -8,13 +8,14 @@ import (
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 )
 
 // CreateContactRequest DTO
 type CreateContactRequest struct {
 	dto4teamus.TeamRequest
-	dbmodels.WithRoles
+	with.RolesField
 	ParentContactID string                       `json:"parentContactID,omitempty"`
 	Type            briefs4contactus.ContactType `json:"type"`
 
@@ -91,7 +92,7 @@ func (v CreateContactRequest) Validate() error {
 	if v.Location != nil && v.Type != "location" {
 		return validation.NewErrBadRequestFieldValue("location", "the `location` field is not nil, but contact type is set to 'location'")
 	}
-	if err := v.WithRoles.Validate(); err != nil {
+	if err := v.RolesField.Validate(); err != nil {
 		return fmt.Errorf("%w: %v", facade.ErrBadRequest, err.Error())
 	}
 	if v.Person != nil && v.Person.Status != v.Status {
