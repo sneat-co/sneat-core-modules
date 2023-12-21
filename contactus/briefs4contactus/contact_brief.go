@@ -20,7 +20,7 @@ type ContactBrief struct {
 
 	Type       ContactType        `json:"type" firestore:"type"` // "person", "company", "location"
 	Gender     dbmodels.Gender    `json:"gender,omitempty" firestore:"gender,omitempty"`
-	Names      *person.NameFields `json:"name,omitempty" firestore:"name,omitempty"`
+	Names      *person.NameFields `json:"names,omitempty" firestore:"names,omitempty"`
 	Title      string             `json:"title,omitempty" firestore:"title,omitempty"`
 	ShortTitle string             `json:"shortTitle,omitempty" firestore:"shortTitle,omitempty"` // Not supposed to be used in models4contactus.ContactDto
 	ParentID   string             `json:"parentID" firestore:"parentID"`                         // Intentionally not adding `omitempty` so we can search root contacts only
