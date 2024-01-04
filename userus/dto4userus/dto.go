@@ -3,9 +3,9 @@ package dto4userus
 import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/teamus/dto4teamus"
-	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/sneat-co/sneat-go-core/security"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
@@ -82,7 +82,7 @@ func (v *CreateUserRequest) Validate() error {
 	}
 	if v.Creator == "" {
 		return validation.NewErrRecordIsMissingRequiredField("creator")
-	} else if !core.IsKnownHost(v.Creator) {
+	} else if !security.IsKnownHost(v.Creator) {
 		return validation.NewErrBadRequestFieldValue("creator", "unknown creator: "+v.Creator)
 	}
 	return nil
