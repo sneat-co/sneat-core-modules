@@ -74,9 +74,6 @@ type CreateUserRequest struct {
 
 // Validate validates request
 func (v *CreateUserRequest) Validate() error {
-	//if err := validate.RequestTitle(v.Title, "title"); err != nil {
-	//	return err
-	//}
 	if err := validate.OptionalEmail(v.Email, "email"); err != nil {
 		return err
 	}
