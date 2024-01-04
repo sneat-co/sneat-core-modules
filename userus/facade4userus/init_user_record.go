@@ -11,6 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
+	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"strings"
 	"time"
@@ -82,9 +83,21 @@ func createUserRecordTx(ctx context.Context, tx dal.ReadwriteTransaction, reques
 	user.Dto.CountryID = with.UnknownCountryID
 	user.Dto.AgeGroup = "unknown"
 	user.Dto.Gender = "unknown"
+
 	if request.Names != nil && !request.Names.IsEmpty() {
 		user.Dto.Names = request.Names
 	}
+
+	if user.Dto.Names != nil && user.Dto.Names.FullName != "" && (user.Dto.Names.FirstName == "" || user.Dto.Names.LastName == "") {
+		firstName, lastName := person.DeductNamesFromFullName(user.Dto.Names.FullName)
+		if user.Dto.Names.FirstName == "" || firstName != "" {
+			user.Dto.Names.FirstName = firstName
+		}
+		if user.Dto.Names.LastName == "" || lastName != "" {
+			user.Dto.Names.LastName = lastName
+		}
+	}
+
 	user.Dto.CreatedAt = time.Now()
 	user.Dto.CreatedBy = request.RemoteClient.HostOrApp
 	if i := strings.Index(user.Dto.CreatedBy, ":"); i > 0 {
