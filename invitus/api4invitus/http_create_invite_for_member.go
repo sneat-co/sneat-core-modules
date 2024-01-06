@@ -35,7 +35,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 	request.To.Channel = "link"
 	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
-		httpserver.HandleError(err, "VerifyRequestAndCreateUserContext", w, r)
+		httpserver.HandleError(ctx, err, "VerifyRequestAndCreateUserContext", w, r)
 		return
 	}
 	request.RemoteClient = apicore.GetRemoteClientInfo(r)

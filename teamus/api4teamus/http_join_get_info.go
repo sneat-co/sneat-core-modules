@@ -14,7 +14,7 @@ var getTeamJoinInfo = facade4invitus.GetTeamJoinInfo
 func httpPostGetTeamJoinInfo(w http.ResponseWriter, r *http.Request) {
 	ctx, err := apicore.VerifyRequest(w, r, verify.DefaultJsonWithNoAuthRequired)
 	if err != nil {
-		httpserver.HandleError(err, "VerifyRequest", w, r)
+		httpserver.HandleError(ctx, err, "VerifyRequest", w, r)
 		return
 	}
 	q := r.URL.Query()
