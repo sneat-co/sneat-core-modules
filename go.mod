@@ -7,7 +7,7 @@ require (
 	github.com/bots-go-framework/bots-fw v0.40.2
 	github.com/bots-go-framework/bots-fw-store v0.8.2
 	github.com/bots-go-framework/bots-fw-telegram v0.13.5
-	github.com/bots-go-framework/bots-fw-telegram-models v0.3.6
+	github.com/bots-go-framework/bots-fw-telegram-models v0.3.7
 	github.com/bots-go-framework/bots-fw-telegram-webapp v0.3.1
 	github.com/crediterra/money v0.3.0
 	github.com/dal-go/dalgo v0.14.0
@@ -17,7 +17,7 @@ require (
 	github.com/gosimple/slug v1.14.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/sneat-co/debtstracker-translations v0.2.2
-	github.com/sneat-co/sneat-go-core v0.37.0
+	github.com/sneat-co/sneat-go-core v0.37.1
 	github.com/stretchr/testify v1.9.0
 	github.com/strongo/delaying v0.0.1
 	github.com/strongo/facebook v1.8.1
