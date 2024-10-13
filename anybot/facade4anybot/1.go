@@ -4,8 +4,8 @@ import (
 	"github.com/strongo/delaying"
 )
 
-func InitDelaying(mustRegisterFunc func(key string, i any) delaying.Function) {
+func InitDelaying(mustRegisterFunc func(key string, i any) delaying.Delayer) {
 	//delayerSetUserReferrer = mustRegisterFunc("delayedSetUserReferrer", delayedSetUserReferrer)
 }
 
-//var delayerSetUserReferrer delaying.Function
+//var delayerSetUserReferrer delaying.Delayer

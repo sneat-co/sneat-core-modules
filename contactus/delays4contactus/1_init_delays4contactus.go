@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-func InitDelays4contactus(mustRegisterFunc func(key string, i any) delaying.Function) {
+func InitDelays4contactus(mustRegisterFunc func(key string, i any) delaying.Delayer) {
 	delayerUpdateContactusSpaceDboWithContact = mustRegisterFunc("delayedUpdateContactusSpaceDboWithContact", delayedUpdateContactusSpaceDboWithContact)
 }
 
 var (
-	delayerUpdateContactusSpaceDboWithContact delaying.Function
+	delayerUpdateContactusSpaceDboWithContact delaying.Delayer
 )
 
 func DelayUpdateContactusSpaceDboWithContact(ctx context.Context, delay time.Duration, userID string, contactID string) error {

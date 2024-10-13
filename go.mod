@@ -19,7 +19,7 @@ require (
 	github.com/sneat-co/debtstracker-translations v0.2.2
 	github.com/sneat-co/sneat-go-core v0.37.1
 	github.com/stretchr/testify v1.9.0
-	github.com/strongo/delaying v0.0.1
+	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
 	github.com/strongo/i18n v0.6.1
 	github.com/strongo/logus v0.2.0

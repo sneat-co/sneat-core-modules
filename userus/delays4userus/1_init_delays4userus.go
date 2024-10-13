@@ -8,10 +8,10 @@ import (
 )
 
 var (
-	delaySetUserPreferredLocale delaying.Function
+	delaySetUserPreferredLocale delaying.Delayer
 )
 
-func InitDelays4userus(mustRegisterFunc func(key string, i any) delaying.Function) {
+func InitDelays4userus(mustRegisterFunc func(key string, i any) delaying.Delayer) {
 	delaySetUserPreferredLocale = mustRegisterFunc("delayedSetUserPreferredLocale", delayedSetUserPreferredLocale)
 }
 
