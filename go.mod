@@ -17,7 +17,7 @@ require (
 	github.com/gosimple/slug v1.14.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/sneat-co/debtstracker-translations v0.2.2
-	github.com/sneat-co/sneat-go-core v0.37.1
+	github.com/sneat-co/sneat-go-core v0.37.2
 	github.com/stretchr/testify v1.9.0
 	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
