@@ -35,19 +35,43 @@ type SpaceWorkerParams struct {
 }
 
 func (v SpaceWorkerParams) UserID() string {
+	if v.UserCtx == nil {
+		return ""
+	}
 	return v.UserCtx.GetUserID()
 }
 
-// GetRecords loads records from DB. If userID is passed, it will check for user permissions
-func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) (err error) {
+func (v SpaceWorkerParams) hasSpaceRecord(records []dal.Record) bool {
+	for _, rec := range records {
+		if rec == v.Space.Record {
+			return true
+		}
+	}
+	return false
+}
 
-	// We do not add space record as we load it separately in RunSpaceWorkerTx()
-	//records = append(records, v.Space.Record)
+// GetRecords loads records from DB. If userID is passed, it will check for user permissions
+func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.MultiGetter, records ...dal.Record) (err error) {
+	userID := v.UserID()
+
+	hasSpaceRecord := v.hasSpaceRecord(records)
+
+	if userID != "" && !hasSpaceRecord {
+		records = append(records, v.Space.Record)
+		hasSpaceRecord = true
+	}
 
 	if err = tx.GetMulti(ctx, records); err != nil {
 		return err
 	}
-	if userID := v.UserID(); userID != "" {
+
+	if hasSpaceRecord {
+		if err = v.Space.Data.Validate(); err != nil {
+			return fmt.Errorf("space record loaded from DB is not valid: %w", err)
+		}
+	}
+
+	if userID != "" {
 		if !v.Space.Record.Exists() {
 			return errors.New("space record does not exist")
 		}
@@ -92,16 +116,13 @@ var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, space
 
 func RunSpaceWorkerTx(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, spaceID string, worker spaceWorker) (err error) {
 	params := NewSpaceWorkerParams(userCtx, spaceID)
-	beforeWorker := func(ctx context.Context) error {
-		if err = tx.Get(ctx, params.Space.Record); err != nil {
-			return fmt.Errorf("failed to load space record: %w", err)
-		}
-		if err = params.Space.Data.Validate(); err != nil {
-			return fmt.Errorf("space record loaded from DB is not valid: %w", err)
-		}
-		return nil
-	}
-	return runSpaceWorkerTx(ctx, tx, params, beforeWorker, worker)
+	//beforeWorker := func(ctx context.Context) error {
+	//	if err = tx.Get(ctx, params.Space.Record); err != nil {
+	//		return fmt.Errorf("failed to load space record: %w", err)
+	//	}
+	//	return nil
+	//}
+	return runSpaceWorkerTx(ctx, tx, params, nil, worker)
 }
 
 func runSpaceWorkerTx(
