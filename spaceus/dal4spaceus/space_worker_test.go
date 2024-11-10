@@ -19,6 +19,9 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 	type args struct {
 		records []dal.Record
 	}
+	const userID = "user1"
+	const spaceID = "space1"
+
 	tests := []struct {
 		name    string
 		params  SpaceWorkerParams
@@ -28,7 +31,7 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 		{
 			name: "no user context - space record not added",
 			params: SpaceWorkerParams{
-				Space:   dbo4spaceus.NewSpaceEntry("space1"),
+				Space:   dbo4spaceus.NewSpaceEntry(spaceID),
 				UserCtx: nil,
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
@@ -38,8 +41,8 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 		{
 			name: "with user context - space record added",
 			params: SpaceWorkerParams{
-				Space:   dbo4spaceus.NewSpaceEntry("space1"),
-				UserCtx: facade.NewUserContext("user1"),
+				Space:   dbo4spaceus.NewSpaceEntry(spaceID),
+				UserCtx: facade.NewUserContext(userID),
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
 				return assert.NoError(t, err, i...)
@@ -54,11 +57,11 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 			mockController := gomock.NewController(t)
 			tx := mocks4dal.NewMockReadTransaction(mockController)
 
-			// Using gomock assert that GetMulti is called with the records
-
+			// Assert that GetMulti is called with the records
 			tx.EXPECT().
 				GetMulti(ctx, gomock.Any()).
-				Do(func(ctx context.Context, records []dal.Record) {
+				Times(1).
+				Do(func(ctx context.Context, records []dal.Record) error {
 					if tt.params.UserCtx != nil {
 						assert.Equal(t, 1, len(records))
 					} else {
@@ -70,15 +73,15 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 					if tt.params.Space.Data != nil {
 						tt.params.Space.Data.Type = core4spaceus.SpaceTypePrivate
 						tt.params.Space.Data.Status = dbmodels.StatusActive
-						tt.params.Space.Data.UserIDs = []string{"user1"}
-						tt.params.Space.Data.CreatedBy = "user1"
+						tt.params.Space.Data.UserIDs = []string{userID}
+						tt.params.Space.Data.CreatedBy = userID
 						tt.params.Space.Data.CreatedAt = time.Now()
 						tt.params.Space.Data.UpdatedBy = tt.params.Space.Data.CreatedBy
 						tt.params.Space.Data.UpdatedAt = tt.params.Space.Data.CreatedAt
 						tt.params.Space.Data.Version = 1
 					}
-				}).
-				Return(nil)
+					return nil
+				})
 
 			tt.wantErr(t,
 				tt.params.GetRecords(ctx, tx, tt.args.records...),
