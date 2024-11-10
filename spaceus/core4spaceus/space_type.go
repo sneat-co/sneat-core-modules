@@ -47,6 +47,12 @@ func (v SpaceRef) UrlPath() string {
 const SpaceRefSeparator = "!"
 
 func NewSpaceRef(spaceType SpaceType, spaceID string) SpaceRef {
+	if !IsValidSpaceType(spaceType) {
+		panic(fmt.Errorf("invalid space type: %v", spaceType))
+	}
+	if spaceID == "" {
+		panic("spaceID is an empty string")
+	}
 	return SpaceRef(string(spaceType) + SpaceRefSeparator + spaceID)
 }
 
