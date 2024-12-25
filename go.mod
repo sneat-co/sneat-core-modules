@@ -14,7 +14,7 @@ require (
 	github.com/dal-go/mocks4dalgo v0.1.27
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/golang/mock v1.6.0
-	github.com/gosimple/slug v1.14.0
+	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/sneat-co/debtstracker-translations v0.2.4
 	github.com/sneat-co/sneat-go-core v0.37.4
