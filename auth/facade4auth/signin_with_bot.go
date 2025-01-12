@@ -53,8 +53,8 @@ func SignInWithBot(
 				Record:  params.User.Record,
 				Updates: params.UserUpdates,
 			})
-		} else {
-			params.QueueForInsert(params.User.Record)
+			//} else {  // We are inserting user insder the createBotUserAndAppUserRecordsTx()
+			//	params.QueueForInsert(params.User.Record)
 		}
 		if botUser.Record.Exists() {
 			params.RecordsToUpdate = append(params.RecordsToUpdate, &record.Updates{
@@ -64,8 +64,8 @@ func SignInWithBot(
 					{Field: "dtUpdated", Value: now},
 				},
 			})
-		} else {
-			params.QueueForInsert(botUser.Record)
+			//} else { // We are inserting user insder the createBotUserAndAppUserRecordsTx()
+			//	params.QueueForInsert(botUser.Record)
 		}
 		if err = params.ApplyChanges(ctx, tx); err != nil {
 			err = fmt.Errorf("failed to apply changes returned by createBotUserAndAppUserRecordsTx(): %w", err)
@@ -94,15 +94,16 @@ func createBotUserAndAppUserRecordsTx(
 		appUserID = authToken.UID
 	}
 	if botUser, err = botsdal.GetPlatformUser(ctx, tx, telegram.PlatformID, botUserID, new(models4bots.TelegramUserDbo)); err != nil {
-		if dal.IsNotFound(err) {
-			botUserData := newBotUserData()
-			if botUser, params, err = CreateBotUserAndAppUserRecords(ctx, tx, appUserID, botPlatformID, botUserData, remoteClientInfo); err != nil {
-				return
-			}
+		if !dal.IsNotFound(err) {
+			return
+		}
+		botUserData := newBotUserData()
+		if botUser, params, err = CreateBotUserAndAppUserRecords(ctx, tx, appUserID, botPlatformID, botUserData, remoteClientInfo); err != nil {
 			return
 		}
 		return
-	} else if botAppUserID := botUser.Data.GetAppUserID(); botAppUserID == "" {
+	}
+	if botAppUserID := botUser.Data.GetAppUserID(); botAppUserID == "" {
 		if appUserID == "" {
 			botUserData := newBotUserData()
 			if params, err = createAppUserRecordsAndUpdateBotUserRecord(ctx, tx, botUserData, remoteClientInfo, botUser); err != nil {
