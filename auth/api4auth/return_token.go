@@ -43,10 +43,12 @@ func ReturnToken(ctx context.Context, w http.ResponseWriter, r *http.Request, us
 		return
 	}
 	header := w.Header()
-	//header.Add("Access-Control-Allow-Origin", "*")
+
+	// If decided to remove or add the Access-Control-Allow-Origin header - comment  the reason for doing that.
+	// Reason for removing: Apparently, we add the header in an HTTP handler wrapper using the request's ORIGIN header.
+	// Header.Add("Access-Control-Allow-Origin", "*")
+
 	header.Add("Content-Type", "application/json")
-	_, _ = w.Write([]byte("{"))
-	_, _ = w.Write([]byte(`"token":"`))
-	_, _ = w.Write([]byte(token))
-	_, _ = w.Write([]byte(`"}`))
+	responseBody := fmt.Sprintf(`{"token":"%s"}`, token)
+	_, _ = w.Write([]byte(responseBody))
 }
