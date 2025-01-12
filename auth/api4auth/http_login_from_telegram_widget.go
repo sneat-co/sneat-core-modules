@@ -33,6 +33,7 @@ func httpLoginFromTelegramWidget(w http.ResponseWriter, r *http.Request) {
 
 	var botToken string
 	if botToken, err = botscore.GetBotToken(telegram.PlatformID, botID); err != nil {
+		apicore.ReturnError(ctx, w, r, err)
 		return
 	}
 
