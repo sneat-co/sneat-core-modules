@@ -60,7 +60,7 @@ func SendEmail(ctx context.Context, email emails.Email) (messageID string, err e
 		return "", err
 	}
 	var sent emails.Sent
-	if sent, err = emailClient.Send(email); err != nil {
+	if sent, err = emailClient.Send(ctx, email); err != nil {
 		return "", err
 	}
 	return sent.MessageID(), err

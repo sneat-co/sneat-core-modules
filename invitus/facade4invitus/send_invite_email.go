@@ -67,7 +67,7 @@ func sendInviteEmail(ctx context.Context, id string, invite *dbo4invitus.Persona
 		//ReplyTo: nil,
 	}
 	var response emails.Sent
-	if response, err = emails.Send(msg); err != nil {
+	if response, err = emails.Send(ctx, msg); err != nil {
 		err = capturer.CaptureError(ctx, err)
 		return
 	}
