@@ -83,8 +83,10 @@ func createOrUpdateUserRecord(userInfo *sneatauth.AuthUserInfo, userToCreate dto
 			err = fmt.Errorf("failed to populate new user record data: %w", err)
 			return
 		}
-		params.User.Record.MarkAsChanged()
-		params.QueueForInsert(params.User.Record)
+		if !params.User.Record.HasChanged() {
+			params.User.Record.MarkAsChanged()
+			params.QueueForInsert(params.User.Record)
+		}
 	} else if err = updateUserRecordWithInitData(userToCreate, params.UserWorkerParams); err != nil {
 		err = fmt.Errorf("failed to update user record data: %w", err)
 		// It might be too earlier to add updates to RecordsToUpdate?
