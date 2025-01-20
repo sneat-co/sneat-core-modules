@@ -59,7 +59,7 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 	}
 	err = dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) (err error) {
-			if err = tx.Get(ctx, params.SpaceModuleEntry.Record); err != nil {
+			if err = tx.GetMulti(ctx, []dal.Record{params.Space.Record, params.SpaceModuleEntry.Record}); err != nil {
 				return
 			}
 			userID := params.UserID()
@@ -146,6 +146,10 @@ func createPersonalInvite(
 	}
 	to := request.To
 	to.Title = toMember.GetTitle()
+	if !param.Space.Record.Exists() {
+		err = fmt.Errorf("space record should not exist before creating a personal invite")
+		return
+	}
 	inviteSpace := dbo4invitus.InviteSpace{
 		ID:    request.SpaceID,
 		Type:  param.Space.Data.Type,
