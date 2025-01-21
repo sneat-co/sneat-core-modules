@@ -1,13 +1,7 @@
 github.com/alexsergivan/transliterator v1.0.1 h1:vON2ilWCHjq+S5Y4obhLGhHK4Y1VIhsHEtQlij5d9pI=
 github.com/alexsergivan/transliterator v1.0.1/go.mod h1:0IrumukulURJ4PD0z6UcdJKP2job1DYDhnHAP5y+5pE=
-github.com/bots-go-framework/bots-fw v0.40.6 h1:GpsqOuELd9VuV7qBuKTv9ospkIrwh8TF3Aj2724BiF8=
-github.com/bots-go-framework/bots-fw v0.40.6/go.mod h1:baBLMsoY14odhgYBCtsWr3e3scD9FgoWyK0E5FQY4i4=
 github.com/bots-go-framework/bots-fw-store v0.8.2 h1:Ss2ZRFoBeNgEy1TWzRIoVdERMoAv1kp9GlJvq3EbiHo=
 github.com/bots-go-framework/bots-fw-store v0.8.2/go.mod h1:ZxeNr86seS59kKyf9zol15vdZEcH+1CjjzHOFokGrVI=
-github.com/bots-go-framework/bots-fw-telegram-models v0.3.9 h1:JKr0um6N1AEGEqmXTt3/0Chpb3nSa8jsDW6VUFRdOsw=
-github.com/bots-go-framework/bots-fw-telegram-models v0.3.9/go.mod h1:z/AIwD4Myx8MQ3Ag0uODcw+biot49CY8RVJc2DmNbQU=
-github.com/bots-go-framework/bots-go-core v0.0.3 h1:z3A7DLUgxbHWxvTCGnkHP9WHpTT9xxROEypoqAfvYIQ=
-github.com/bots-go-framework/bots-go-core v0.0.3/go.mod h1:XCn9z4TI8sbgwyus+VDzw7iMY2QCPWEAvl23GMDjeEU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crediterra/money v0.3.0 h1:dHWEZhkMGGxkHTAbGQOaeg8eYbL8qJSCgcqdOTbNg20=
 github.com/crediterra/money v0.3.0/go.mod h1:0BT7dzPk4Wv+Wi8J6sxlFbCknYioLWVVQM4ciMJh6TI=
@@ -53,8 +47,6 @@ github.com/strongo/delaying v0.1.0 h1:w4dpqwrwOxP5YlTJeZmzzIrIUM9rVXiPNv53opL0Aa
 github.com/strongo/delaying v0.1.0/go.mod h1:6PnWp2IL3UDo7tQyFVIOxBiIiHSj0eVZ6VfrleGNjzA=
 github.com/strongo/facebook v1.8.1 h1:1kR0YdkeuP3YS3t6fns57boPiarMZq92/M4S5PeUhMs=
 github.com/strongo/facebook v1.8.1/go.mod h1:dRSmmClIUzv5MRzeVvgVsnkBbqOdbCq3QkvAhx161/k=
-github.com/strongo/gamp v0.0.1 h1:b6vzHUzNvbPOhzPtIja1NqKf8GQqrJWjs2gninQPZac=
-github.com/strongo/gamp v0.0.1/go.mod h1:ZcVVIzSQFygVehdtGh6KYmcp1eOacuEKb9th81WcUOw=
 github.com/strongo/i18n v0.6.1 h1:hNtpU97R5xYavf6n2wfRFWGZHjRZ2lHmube0t2+FHFE=
 github.com/strongo/i18n v0.6.1/go.mod h1:4jBQ4PJ3Uiri2Y+LHJ5/o1nB1H2ToddRW/yZXSOTUjE=
 github.com/strongo/logus v0.2.1 h1:ZzAtdSg6PPF1Y43WbNWl7MH1XYl7kvKMxyxv/lpbadI=

@@ -3,8 +3,6 @@ package common4all
 import (
 	"bytes"
 	"fmt"
-	"github.com/bots-go-framework/bots-fw/botsfw"
-	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/strongo/strongoapp"
 )
 
@@ -31,13 +29,6 @@ func NewLinker(environment string, userID string, locale, issuer string) Linker 
 		issuer: issuer,
 		host:   host(environment),
 	}
-}
-
-func NewLinkerFromWhc(whc botsfw.WebhookContext) Linker {
-	botCode := whc.GetBotCode()
-	botPlatformID := whc.BotPlatform().ID()
-	userID := whc.AppUserID()
-	return NewLinker(whc.Environment(), userID, whc.Locale().SiteCode(), token4auth.GetBotIssuer(botPlatformID, botCode))
 }
 
 func host(environment string) string {
@@ -72,6 +63,6 @@ func (l Linker) url(path, query, hash string) string {
 	return buffer.String()
 }
 
-func (l Linker) ToMainScreen(_ botsfw.WebhookContext) string {
+func (l Linker) ToMainScreen() string {
 	return l.url("/app/", "", "#")
 }
