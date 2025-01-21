@@ -5,10 +5,8 @@ import (
 	"github.com/bots-go-framework/bots-fw-telegram-models/botsfwtgmodels"
 	"github.com/dal-go/dalgo/dal"
 	models4auth2 "github.com/sneat-co/sneat-core-modules/auth/models4auth"
-	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
-	"github.com/sneat-co/sneat-core-modules/bots/anybot"
+	//"github.com/sneat-co/sneat-core-modules/bots/anybot"
 	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
-	"sync"
 	"time"
 )
 
@@ -93,18 +91,18 @@ type LoginCodeDal interface {
 	ClaimLoginCode(ctx context.Context, code int) (userID string, err error)
 }
 
-type TgChatDal interface {
-	GetTgChatByID(ctx context.Context, tgBotID string, tgChatID int64) (tgChat anybot.SneatAppTgChatEntry, err error)
-	DoSomething( // TODO: WTF name?
-		ctx context.Context,
-		userTask *sync.WaitGroup,
-		currency string,
-		tgChatID int64,
-		authInfo token4auth.AuthInfo,
-		user dbo4userus2.UserEntry,
-		sendToTelegram func(tgChat botsfwtgmodels.TgChatData) error,
-	) (err error)
-}
+//type TgChatDal interface {
+//	GetTgChatByID(ctx context.Context, tgBotID string, tgChatID int64) (tgChat anybot.SneatAppTgChatEntry, err error)
+//	DoSomething( // TODO: WTF name?
+//		ctx context.Context,
+//		userTask *sync.WaitGroup,
+//		currency string,
+//		tgChatID int64,
+//		authInfo token4auth.AuthInfo,
+//		user dbo4userus2.UserEntry,
+//		sendToTelegram func(tgChat botsfwtgmodels.TgChatData) error,
+//	) (err error)
+//}
 
 type TgUserDal interface {
 	FindByUserName(ctx context.Context, tx dal.ReadSession, userName string) (tgUsers []botsfwtgmodels.TgPlatformUser, err error)
@@ -120,6 +118,6 @@ var PasswordReset PasswordResetDal
 
 var UserEmail UserEmailDal
 
-var TgChat TgChatDal
+//var TgChat TgChatDal
 
 var TgUser TgUserDal

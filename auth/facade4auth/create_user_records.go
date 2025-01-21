@@ -36,11 +36,11 @@ func CreateUserRecords(ctx context.Context, userCtx facade.UserContext, userToCr
 		params = CreateUserWorkerParams{
 			UserWorkerParams: userWorkerParams,
 		}
-		if err = createUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params); err != nil {
+		if err = CreateUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params); err != nil {
 			return
 		}
 		if err = params.ApplyChanges(ctx, tx); err != nil {
-			err = fmt.Errorf("failed to apply changes returned by createUserRecordsTxWorker(): %w", err)
+			err = fmt.Errorf("failed to apply changes returned by CreateUserRecordsTxWorker(): %w", err)
 		}
 		return
 	})
@@ -50,7 +50,7 @@ func CreateUserRecords(ctx context.Context, userCtx facade.UserContext, userToCr
 	return
 }
 
-func createUserRecordsTxWorker(
+func CreateUserRecordsTxWorker(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	userInfo *sneatauth.AuthUserInfo, userToCreate dto4auth.DataToCreateUser, // TODO: Does this 2 duplicate each other?
