@@ -6,9 +6,9 @@ import (
 	"github.com/bots-go-framework/bots-fw/botinput"
 	"github.com/bots-go-framework/bots-fw/botsfw"
 	"github.com/sneat-co/debtstracker-translations/trans"
-	"github.com/sneat-co/sneat-core-modules/anybot/cmds4anybot"
-	"github.com/sneat-co/sneat-core-modules/botscore/bothelpers"
-	tghelpers2 "github.com/sneat-co/sneat-core-modules/botscore/tghelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/anybot/cmds4anybot"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/bothelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/tghelpers"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
@@ -27,7 +27,7 @@ var spaceCommand = botsfw.Command{
 }
 
 func spaceCallbackAction(whc botsfw.WebhookContext, callbackUrl *url.URL) (m botsfw.MessageFromBot, err error) {
-	spaceRef := tghelpers2.GetSpaceRef(callbackUrl)
+	spaceRef := tghelpers.GetSpaceRef(callbackUrl)
 	if m, err = spaceAction(whc, spaceRef); err != nil {
 		return
 	}
@@ -36,7 +36,7 @@ func spaceCallbackAction(whc botsfw.WebhookContext, callbackUrl *url.URL) (m bot
 		return
 	}
 	m.Keyboard = keyboard
-	if m.EditMessageUID, err = tghelpers2.GetEditMessageUID(whc); err != nil {
+	if m.EditMessageUID, err = tghelpers.GetEditMessageUID(whc); err != nil {
 		return
 	}
 	whc.ChatData().SetAwaitingReplyTo("")

@@ -4,7 +4,7 @@ import (
 	telegram "github.com/bots-go-framework/bots-fw-telegram"
 	"github.com/bots-go-framework/bots-fw-telegram-webapp/tgloginwidget"
 	"github.com/bots-go-framework/bots-fw-telegram-webapp/twainitdata"
-	"github.com/sneat-co/sneat-core-modules/botscore"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/strongo/validation"

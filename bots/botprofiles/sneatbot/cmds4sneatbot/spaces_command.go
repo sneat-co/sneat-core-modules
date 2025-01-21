@@ -5,7 +5,7 @@ import (
 	"github.com/bots-go-framework/bots-api-telegram/tgbotapi"
 	"github.com/bots-go-framework/bots-fw/botinput"
 	"github.com/bots-go-framework/bots-fw/botsfw"
-	"github.com/sneat-co/sneat-core-modules/botscore/tghelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/tghelpers"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"net/url"
 )

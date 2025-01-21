@@ -4,8 +4,8 @@ import (
 	"github.com/bots-go-framework/bots-api-telegram/tgbotapi"
 	"github.com/bots-go-framework/bots-fw/botinput"
 	"github.com/bots-go-framework/bots-fw/botsfw"
-	"github.com/sneat-co/sneat-core-modules/botscore/bothelpers"
-	tghelpers2 "github.com/sneat-co/sneat-core-modules/botscore/tghelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/bothelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/tghelpers"
 	"net/url"
 )
 
@@ -26,16 +26,16 @@ func budgetCallbackAction(whc botsfw.WebhookContext, callbackUrl *url.URL) (m bo
 	}
 
 	keyboard := m.Keyboard.(*tgbotapi.InlineKeyboardMarkup)
-	spaceRef := tghelpers2.GetSpaceRef(callbackUrl)
+	spaceRef := tghelpers.GetSpaceRef(callbackUrl)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, []tgbotapi.InlineKeyboardButton{
-		tghelpers2.BackToSpaceMenuButton(spaceRef),
+		tghelpers.BackToSpaceMenuButton(spaceRef),
 	})
 	if m, err = whc.NewEditMessage(m.Text, m.Format); err != nil {
 		return
 	}
 	m.Keyboard = keyboard
 
-	m.EditMessageUID, err = tghelpers2.GetEditMessageUID(whc)
+	m.EditMessageUID, err = tghelpers.GetEditMessageUID(whc)
 	return
 }
 

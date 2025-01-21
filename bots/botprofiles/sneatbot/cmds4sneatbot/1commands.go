@@ -3,7 +3,7 @@ package cmds4sneatbot
 import (
 	"github.com/bots-go-framework/bots-fw/botinput"
 	"github.com/bots-go-framework/bots-fw/botsfw"
-	"github.com/sneat-co/sneat-core-modules/botscore/bothelpers"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/bothelpers"
 )
 
 // AddSneatSharedCommands registers commands shared by all Sneat bots

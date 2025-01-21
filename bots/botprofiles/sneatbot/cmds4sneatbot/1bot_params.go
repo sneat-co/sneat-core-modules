@@ -2,7 +2,7 @@ package cmds4sneatbot
 
 import (
 	"github.com/bots-go-framework/bots-fw/botsfw"
-	cmds4anybot2 "github.com/sneat-co/sneat-core-modules/anybot/cmds4anybot"
+	cmds4anybot2 "github.com/sneat-co/sneat-core-modules/bots/anybot/cmds4anybot"
 )
 
 func GetBotParams() cmds4anybot2.BotParams {

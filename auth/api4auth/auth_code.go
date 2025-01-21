@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/anybot/facade4anybot"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
+	facade4anybot2 "github.com/sneat-co/sneat-core-modules/bots/anybot/facade4anybot"
 	common4all2 "github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/strongo/logus"
 	"net/http"
@@ -62,11 +62,11 @@ func HandleSignInWithPin(ctx context.Context, w http.ResponseWriter, r *http.Req
 		common4all2.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Parameter 'loginCode' should not be 0."))
 		return
 	} else {
-		if userID, err := facade4anybot.AuthFacade.SignInWithPin(ctx, loginID, int32(loginCode)); err != nil {
+		if userID, err := facade4anybot2.AuthFacade.SignInWithPin(ctx, loginID, int32(loginCode)); err != nil {
 			switch err {
-			case facade4anybot.ErrLoginExpired:
+			case facade4anybot2.ErrLoginExpired:
 				_, _ = w.Write([]byte("expired"))
-			case facade4anybot.ErrLoginAlreadySigned:
+			case facade4anybot2.ErrLoginAlreadySigned:
 				_, _ = w.Write([]byte("claimed"))
 			default:
 				err = fmt.Errorf("failed to claim loginCode: %w", err)

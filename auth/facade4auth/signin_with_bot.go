@@ -9,7 +9,7 @@ import (
 	"github.com/bots-go-framework/bots-fw/botsfwconst"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
-	"github.com/sneat-co/sneat-core-modules/botscore/models4bots"
+	"github.com/sneat-co/sneat-core-modules/bots/botscore/models4bots"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
