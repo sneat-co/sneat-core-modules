@@ -2,6 +2,8 @@ github.com/alexsergivan/transliterator v1.0.1 h1:vON2ilWCHjq+S5Y4obhLGhHK4Y1VIhs
 github.com/alexsergivan/transliterator v1.0.1/go.mod h1:0IrumukulURJ4PD0z6UcdJKP2job1DYDhnHAP5y+5pE=
 github.com/bots-go-framework/bots-fw-store v0.8.2 h1:Ss2ZRFoBeNgEy1TWzRIoVdERMoAv1kp9GlJvq3EbiHo=
 github.com/bots-go-framework/bots-fw-store v0.8.2/go.mod h1:ZxeNr86seS59kKyf9zol15vdZEcH+1CjjzHOFokGrVI=
+github.com/bots-go-framework/bots-fw-store v0.9.0 h1:GDeTB7O4ePWiHAYanG8E4Eb3yB++bDGCQD15X7cabPA=
+github.com/bots-go-framework/bots-fw-store v0.9.0/go.mod h1:ZxeNr86seS59kKyf9zol15vdZEcH+1CjjzHOFokGrVI=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crediterra/money v0.3.0 h1:dHWEZhkMGGxkHTAbGQOaeg8eYbL8qJSCgcqdOTbNg20=
 github.com/crediterra/money v0.3.0/go.mod h1:0BT7dzPk4Wv+Wi8J6sxlFbCknYioLWVVQM4ciMJh6TI=

@@ -18,24 +18,22 @@ type CreateUserData struct {
 	Nickname   string
 }
 
-// CreateUserEntity
-// Deprecated
-func CreateUserEntity(createUserData CreateUserData) (user dbo4userus.UserEntry) {
-	return
-	//return &models4debtus.DebutsAppUserDataOBSOLETE{
-	//	//FbUserID: createUserData.FbUserID,
-	//	//VkUserID: createUserData.VkUserID,
-	//	//GoogleUniqueUserID: createUserData.GoogleUserID,
-	//	//ContactDetails: dto4contactus.ContactDetails{
-	//	//	NameFields: person.NameFields{
-	//	//		FirstName:  createUserData.FirstName,
-	//	//		LastName:   createUserData.LastName,
-	//	//		ScreenName: createUserData.ScreenName,
-	//	//		NickName:   createUserData.Nickname,
-	//	//	},
-	//	//},
-	//}
-}
+//Deprecated
+//func CreateUserEntity(createUserData CreateUserData) (user dbo4userus.UserEntry) {
+//	return &models4debtus.DebutsAppUserDataOBSOLETE{
+//		FbUserID: createUserData.FbUserID,
+//		VkUserID: createUserData.VkUserID,
+//		GoogleUniqueUserID: createUserData.GoogleUserID,
+//		ContactDetails: dto4contactus.ContactDetails{
+//			NameFields: person.NameFields{
+//				FirstName:  createUserData.FirstName,
+//				LastName:   createUserData.LastName,
+//				ScreenName: createUserData.ScreenName,
+//				NickName:   createUserData.Nickname,
+//			},
+//		},
+//	}
+//}
 
 type UserDal interface {
 	GetUserByStrID(ctx context.Context, userID string) (dbo4userus.UserEntry, error)
@@ -89,23 +87,6 @@ type LoginCodeDal interface {
 	ClaimLoginCode(ctx context.Context, code int) (userID string, err error)
 }
 
-//type TgChatDal interface {
-//	GetTgChatByID(ctx context.Context, tgBotID string, tgChatID int64) (tgChat anybot.SneatAppTgChatEntry, err error)
-//	DoSomething( // TODO: WTF name?
-//		ctx context.Context,
-//		userTask *sync.WaitGroup,
-//		currency string,
-//		tgChatID int64,
-//		authInfo token4auth.AuthInfo,
-//		user dbo4userus.UserEntry,
-//		sendToTelegram func(tgChat botsfwtgmodels.TgChatData) error,
-//	) (err error)
-//}
-
-//type TgUserDal interface {
-//	FindByUserName(ctx context.Context, tx dal.ReadSession, userName string) (tgUsers []botsfwtgmodels.TgPlatformUser, err error)
-//}
-
 var User UserDal
 
 var UserFacebook UserFacebookDal
@@ -115,7 +96,3 @@ var UserGooglePlus UserGooglePlusDal
 var PasswordReset PasswordResetDal
 
 var UserEmail UserEmailDal
-
-//var TgChat TgChatDal
-
-//var TgUser TgUserDal

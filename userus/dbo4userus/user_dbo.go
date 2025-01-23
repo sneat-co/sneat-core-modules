@@ -167,6 +167,9 @@ func (v *UserDbo) Validate() error {
 	if err := v.WithRelatedAndIDs.Validate(); err != nil {
 		return err
 	}
+	if err := v.WithBotUserIDs.Validate(); err != nil {
+		return err
+	}
 	return nil
 }
 
