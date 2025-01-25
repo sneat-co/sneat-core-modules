@@ -1,12 +1,12 @@
 package dal4contactus
 
 import (
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 )
 
 type ContactGroupDto struct {
-	briefs4contactus2.ContactGroupBrief
-	briefs4contactus2.WithMultiSpaceContacts[*briefs4contactus2.ContactBrief]
+	briefs4contactus.ContactGroupBrief
+	briefs4contactus.WithMultiSpaceContacts[*briefs4contactus.ContactBrief]
 }
 
 func (v *ContactGroupDto) Validate() error {

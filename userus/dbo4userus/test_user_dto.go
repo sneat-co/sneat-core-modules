@@ -1,7 +1,7 @@
 package dbo4userus
 
 import (
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
@@ -20,9 +20,9 @@ func TestUserDtoValidate(t *testing.T) {
 				CreatedBy: "user",
 			},
 		},
-		ContactBase: briefs4contactus2.ContactBase{
-			ContactBrief: briefs4contactus2.ContactBrief{
-				Type:   briefs4contactus2.ContactTypePerson,
+		ContactBase: briefs4contactus.ContactBase{
+			ContactBrief: briefs4contactus.ContactBrief{
+				Type:   briefs4contactus.ContactTypePerson,
 				Gender: "unknown",
 				Names: &person.NameFields{
 					FirstName: "Firstname",

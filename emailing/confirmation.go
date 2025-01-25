@@ -3,12 +3,12 @@ package emailing
 import (
 	"context"
 	"fmt"
-	models4auth2 "github.com/sneat-co/sneat-core-modules/auth/models4auth"
+	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 )
 
-func CreateConfirmationEmailAndQueueForSending(ctx context.Context, user dbo4userus.UserEntry, userEmail models4auth2.UserEmailEntry) error {
-	emailEntity := &models4auth2.EmailData{
+func CreateConfirmationEmailAndQueueForSending(ctx context.Context, user dbo4userus.UserEntry, userEmail models4auth.UserEmailEntry) error {
+	emailEntity := &models4auth.EmailData{
 		From:    "Alex @ DebtsTracker.io <alex@debtusbot.io>",
 		To:      userEmail.ID,
 		Subject: "Please confirm your account at Sneat.app",

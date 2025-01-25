@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
-	dbo4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
@@ -39,7 +39,7 @@ func (v *JoinSpaceRequest) Validate() error {
 }
 
 // JoinSpace joins space
-func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpaceRequest) (team *dbo4spaceus2.SpaceDbo, err error) {
+func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpaceRequest) (team *dbo4spaceus.SpaceDbo, err error) {
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
@@ -47,10 +47,10 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 	uid := userCtx.GetUserID()
 
 	// We intentionally do not use team worker to query both team & user records in parallel
-	err = dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) error {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 
-		userKey := dbo4userus2.NewUserKey(uid)
-		userDto := new(dbo4userus2.UserDbo)
+		userKey := dbo4userus.NewUserKey(uid)
+		userDto := new(dbo4userus.UserDbo)
 		userRecord := dal.NewRecordWithData(userKey, userDto)
 
 		inviteKey := NewInviteKey(request.InviteID)
@@ -90,7 +90,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 		//	}
 		//}
 
-		member := dal4contactus2.NewContactEntry(inviteDto.SpaceID, inviteDto.To.MemberID)
+		member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.MemberID)
 		if err = tx.Get(ctx, member.Record); err != nil {
 			return fmt.Errorf("failed to get member record: %w", err)
 		}
@@ -167,11 +167,11 @@ func onJoinUpdateInvite(
 func onJoinAddSpaceToUser(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	userDto *dbo4userus2.UserDbo,
+	userDto *dbo4userus.UserDbo,
 	userRecord dal.Record,
 	spaceID string,
-	space *dbo4spaceus2.SpaceDbo,
-	member dal4contactus2.ContactEntry,
+	space *dbo4spaceus.SpaceDbo,
+	member dal4contactus.ContactEntry,
 ) (err error) {
 	var updates []dal.Update
 	if userDto == nil {
@@ -185,7 +185,7 @@ func onJoinAddSpaceToUser(
 	}
 	spaceInfo := userDto.GetUserSpaceInfoByID(spaceID)
 	if spaceInfo == nil {
-		spaceInfo = &dbo4userus2.UserSpaceBrief{
+		spaceInfo = &dbo4userus.UserSpaceBrief{
 			SpaceBrief: space.SpaceBrief,
 			Roles:      member.Data.Roles,
 			//MemberType:   "", // TODO: populate?
@@ -206,7 +206,7 @@ func onJoinAddSpaceToUser(
 	}
 	updates = []dal.Update{
 		{
-			Field: dbo4spaceus2.SpacesFiled,
+			Field: dbo4spaceus.SpacesFiled,
 			Value: userDto.Spaces,
 		},
 		{
@@ -234,11 +234,11 @@ func onJoinAddSpaceToUser(
 func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	_ context.Context,
 	_ dal.ReadwriteTransaction,
-	params *dal4contactus2.ContactusSpaceWorkerParams,
+	params *dal4contactus.ContactusSpaceWorkerParams,
 	inviterMemberID string,
-	member dal4contactus2.ContactEntry,
+	member dal4contactus.ContactEntry,
 	uid string,
-	user *dbo4userus2.UserDbo,
+	user *dbo4userus.UserDbo,
 ) (err error) {
 	//var updates []dal.Update
 	if strings.TrimSpace(uid) == "" {
@@ -264,7 +264,7 @@ func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 
 UserIdAddedToUserIDsField:
 
-	var memberBrief *briefs4contactus2.ContactBrief
+	var memberBrief *briefs4contactus.ContactBrief
 
 	var isValidInviter bool
 
@@ -282,8 +282,8 @@ UserIdAddedToUserIDsField:
 	if !isValidInviter {
 		return fmt.Errorf("supplied inviterMemberID does not belong to the team: %s", inviterMemberID)
 	}
-	memberBrief = &briefs4contactus2.ContactBrief{
-		Type:   briefs4contactus2.ContactTypePerson,
+	memberBrief = &briefs4contactus.ContactBrief{
+		Type:   briefs4contactus.ContactTypePerson,
 		Title:  user.Names.GetFullName(),
 		Avatar: user.Avatar,
 		RolesField: with.RolesField{

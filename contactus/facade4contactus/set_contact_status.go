@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -17,8 +17,8 @@ func SetContactsStatus(ctx context.Context, userCtx facade.UserContext, request 
 		return
 	}
 
-	err = dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) (err error) {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 			return setContactsStatusTxWorker(ctx, tx, params, request.ContactIDs, request.Status)
 		},
 	)
@@ -29,7 +29,7 @@ func SetContactsStatus(ctx context.Context, userCtx facade.UserContext, request 
 }
 
 func setContactsStatusTxWorker(
-	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams,
+	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams,
 	contactIDs []string, status string,
 ) (err error) {
 	for _, contactID := range contactIDs {
@@ -41,17 +41,17 @@ func setContactsStatusTxWorker(
 }
 
 func setContactStatusTxWorker(
-	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams,
+	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams,
 	contactID string, status string,
 ) (err error) {
-	contact := dal4contactus2.NewContactEntry(params.Space.ID, contactID)
+	contact := dal4contactus.NewContactEntry(params.Space.ID, contactID)
 	if err = tx.Get(ctx, contact.Record); err != nil {
 		return fmt.Errorf("failed to get contact record: %w", err)
 	}
 
-	var relatedContacts []dal4contactus2.ContactEntry
+	var relatedContacts []dal4contactus.ContactEntry
 
-	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Space.ID, "child", 0, -1, []dal4contactus2.ContactEntry{contact})
+	relatedContacts, err = GetRelatedContacts(ctx, tx, params.Space.ID, "child", 0, -1, []dal4contactus.ContactEntry{contact})
 	if err != nil {
 		return fmt.Errorf("failed to get descendant contacts: %w", err)
 	}

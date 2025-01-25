@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
-	common4all2 "github.com/sneat-co/sneat-core-modules/common4all"
+	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-go-core/emails"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/i18n"
@@ -21,7 +21,7 @@ func CreateEmailRecordAndQueueForSending(ctx context.Context, emailEntity *model
 	}
 	if err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
 		emailEntity.Status = "queued"
-		if email, err = common4all2.Email.InsertEmail(ctx, tx, emailEntity); err != nil {
+		if email, err = common4all.Email.InsertEmail(ctx, tx, emailEntity); err != nil {
 			err = fmt.Errorf("%w: Failed to insert Email record", err)
 			return err
 		}
@@ -37,12 +37,12 @@ func CreateEmailRecordAndQueueForSending(ctx context.Context, emailEntity *model
 }
 
 func GetEmailText(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams interface{}) (string, error) {
-	return common4all2.TextTemplates.RenderTemplate(ctx, translator, templateName, templateParams)
+	return common4all.TextTemplates.RenderTemplate(ctx, translator, templateName, templateParams)
 }
 
 func GetEmailHtml(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams interface{}) (s string, err error) {
 	var buffer bytes.Buffer
-	err = common4all2.HtmlTemplates.RenderTemplate(ctx, &buffer, translator, templateName, templateParams)
+	err = common4all.HtmlTemplates.RenderTemplate(ctx, &buffer, translator, templateName, templateParams)
 	return buffer.String(), err
 }
 

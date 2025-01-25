@@ -2,7 +2,7 @@ package dbo4contactus
 
 import (
 	"fmt"
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/strongo/strongoapp/with"
@@ -17,12 +17,12 @@ type ContactDbo struct {
 	//dbmodels.WithSpaceID -- not needed as it's in record key
 	//dbmodels.WithUserIDs
 
-	briefs4contactus2.ContactBase
+	briefs4contactus.ContactBase
 
 	dbo4linkage.WithRelatedAndIDs
 	with.CreatedFields
 	with.TagsField
-	briefs4contactus2.WithMultiSpaceContacts[*briefs4contactus2.ContactBrief]
+	briefs4contactus.WithMultiSpaceContacts[*briefs4contactus.ContactBrief]
 	dbo4invitus.WithInvites // Invites to become a team member
 }
 

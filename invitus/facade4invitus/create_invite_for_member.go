@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -57,8 +57,8 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
-	err = dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) (err error) {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 			if err = tx.GetMulti(ctx, []dal.Record{params.Space.Record, params.SpaceModuleEntry.Record}); err != nil {
 				return
 			}
@@ -74,7 +74,7 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 				personalInvite *dbo4invitus.PersonalInviteDbo
 			)
 
-			fromContact := dal4contactus2.NewContactEntry(request.SpaceID, fromContactID)
+			fromContact := dal4contactus.NewContactEntry(request.SpaceID, fromContactID)
 			if err = tx.Get(ctx, fromContact.Record); err != nil {
 				return err
 			}
@@ -125,8 +125,8 @@ func createPersonalInvite(
 	tx dal.ReadwriteTransaction,
 	uid string,
 	request InviteMemberRequest,
-	param *dal4contactus2.ContactusSpaceWorkerParams,
-	fromMember dal4contactus2.ContactEntry,
+	param *dal4contactus.ContactusSpaceWorkerParams,
+	fromMember dal4contactus.ContactEntry,
 ) (
 	inviteID string, personalInvite *dbo4invitus.PersonalInviteDbo, err error,
 ) {
@@ -191,7 +191,7 @@ func createPersonalInvite(
 		To:         *personalInvite.To,
 		CreateTime: personalInvite.CreatedAt,
 	})
-	memberKey := dal4contactus2.NewContactKey(request.SpaceID, fromMember.ID)
+	memberKey := dal4contactus.NewContactKey(request.SpaceID, fromMember.ID)
 	if err = tx.Update(ctx, memberKey, []dal.Update{
 		{Field: "invites", Value: fromMember.Data.Invites},
 	}); err != nil {

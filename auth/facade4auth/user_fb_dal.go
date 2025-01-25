@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/dal-go/dalgo/dal"
-	models4auth2 "github.com/sneat-co/sneat-core-modules/auth/models4auth"
+	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 )
 
 func NewUserFacebookKey(ctx context.Context, fbAppOrPageID, fbUserOrPageScopeID string) *dal.Key {
@@ -14,7 +14,7 @@ func NewUserFacebookKey(ctx context.Context, fbAppOrPageID, fbUserOrPageScopeID 
 	if fbUserOrPageScopeID == "" {
 		panic("fbUserOrPageScopeID is empty string")
 	}
-	return dal.NewKeyWithID(models4auth2.UserFacebookCollection, fbAppOrPageID+":"+fbUserOrPageScopeID)
+	return dal.NewKeyWithID(models4auth.UserFacebookCollection, fbAppOrPageID+":"+fbUserOrPageScopeID)
 }
 
 type UserFacebookDalGae struct {
@@ -24,7 +24,7 @@ func NewUserFacebookDalGae() UserFacebookDalGae {
 	return UserFacebookDalGae{}
 }
 
-func (UserFacebookDalGae) SaveFbUser(_ context.Context, tx dal.ReadwriteTransaction, fbUser models4auth2.UserFacebook) (err error) {
+func (UserFacebookDalGae) SaveFbUser(_ context.Context, tx dal.ReadwriteTransaction, fbUser models4auth.UserFacebook) (err error) {
 	//key := NewUserFacebookKey(ctx, fbUser.FbAppOrPageID, fbUser.FbUserOrPageScopeID)
 	//if _, err = gaedb.Put(c, key, fbUser.Data); err != nil {
 	//	return
@@ -41,7 +41,7 @@ func (UserFacebookDalGae) DeleteFbUser(_ context.Context, fbAppOrPageID, fbUserO
 	return errors.New("not implemented")
 }
 
-func (UserFacebookDalGae) GetFbUserByFbID(_ context.Context, fbAppOrPageID, fbUserOrPageScopeID string) (fbUser models4auth2.UserFacebook, err error) {
+func (UserFacebookDalGae) GetFbUserByFbID(_ context.Context, fbAppOrPageID, fbUserOrPageScopeID string) (fbUser models4auth.UserFacebook, err error) {
 	err = errors.New("not implemented")
 	return
 	//var entity models.UserFacebookData

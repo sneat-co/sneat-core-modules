@@ -4,11 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/validation"
 	"strings"
 )
 
-// ContactBase is used in dbo4contactus.ContactDto and in requests to create a contactBrief
+// ContactBase is used in dbo4contactus.ContactDbo and in requests to create a contactBrief
 type ContactBase struct {
 	ContactBrief
 
@@ -24,8 +25,9 @@ type ContactBase struct {
 	// Dob is Date of birth
 	DoB string `json:"dob,omitempty" firestore:"dob,omitempty"`
 
-	Emails []dbmodels.PersonEmail `json:"emails,omitempty" firestore:"emails,omitempty"`
-	Phones []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
+	Emails  []dbmodels.PersonEmail `json:"emails,omitempty" firestore:"emails,omitempty"`
+	Phones  []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
+	Avatars []dbprofile.Avatar     `json:"avatars,omitempty" firestore:"avatars,omitempty"`
 
 	Timezone *dbmodels.Timezone `json:"timezone,omitempty" firestore:"timezone,omitempty"`
 }
@@ -105,16 +107,24 @@ func (v *ContactBase) Validate() error {
 			errs = append(errs, validation.NewErrBadRecordFieldValue(fmt.Sprintf("phones[%d]", i), err.Error()))
 		}
 	}
+	for i, avatar := range v.Avatars {
+		if err := avatar.Validate(); err != nil {
+			errs = append(errs, validation.NewErrBadRecordFieldValue(fmt.Sprintf("avatars[%d]", i), err.Error()))
+		}
+	}
+	if err := v.WithGroupIDs.Validate(); err != nil {
+		errs = append(errs, validation.NewErrBadRecordFieldValue("withGroupIDs", err.Error()))
+	}
+
+	if err := v.Timezone.Validate(); err != nil {
+		errs = append(errs, validation.NewErrBadRecordFieldValue("timezone", err.Error()))
+	}
+
 	if l := len(errs); l == 1 {
 		return validation.NewErrBadRecordFieldValue("ContactBase", errs[0].Error())
 	} else if l > 0 {
 		return validation.NewErrBadRecordFieldValue("ContactBase", fmt.Errorf("%d errors:\n%w", l, errors.Join(errs...)).Error())
 	}
-	if err := v.WithGroupIDs.Validate(); err != nil {
-		return err
-	}
-	if err := v.Timezone.Validate(); err != nil {
-		return fmt.Errorf("invalid 'timezone' field: %w", err)
-	}
+
 	return nil
 }

@@ -8,13 +8,13 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/gosimple/slug"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
-	dbo4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/random"
@@ -27,10 +27,10 @@ import (
 // CreateSpaceParams is a result of CreateSpace
 type CreateSpaceParams struct {
 	UserUpdates    []dal.Update
-	User           dbo4userus2.UserEntry
-	Space          dbo4spaceus2.SpaceEntry
-	ContactusSpace dal4contactus2.ContactusSpaceEntry
-	Member         dal4contactus2.ContactEntry
+	User           dbo4userus.UserEntry
+	Space          dbo4spaceus.SpaceEntry
+	ContactusSpace dal4contactus.ContactusSpaceEntry
+	Member         dal4contactus.ContactEntry
 	*record.WithRecordChanges
 }
 
@@ -76,8 +76,8 @@ func CreateSpaceTxWorker(
 	if request.Title == "" {
 		params.Space.ID, _ = params.User.Data.GetFirstSpaceBriefBySpaceType(request.Type)
 		if params.Space.ID != "" {
-			params.Space = dbo4spaceus2.NewSpaceEntry(params.Space.ID)
-			params.ContactusSpace = dal4contactus2.NewContactusSpaceEntry(params.Space.ID)
+			params.Space = dbo4spaceus.NewSpaceEntry(params.Space.ID)
+			params.ContactusSpace = dal4contactus.NewContactusSpaceEntry(params.Space.ID)
 			err = tx.GetMulti(ctx, []dal.Record{params.Space.Record, params.ContactusSpace.Record})
 			return
 		}
@@ -93,8 +93,8 @@ func CreateSpaceTxWorker(
 	//if request.Type == "family" && request.Title == "" {
 	//	request.Title = "Family"
 	//}
-	params.Space.Data = &dbo4spaceus2.SpaceDbo{
-		SpaceBrief: dbo4spaceus2.SpaceBrief{
+	params.Space.Data = &dbo4spaceus.SpaceDbo{
+		SpaceBrief: dbo4spaceus.SpaceBrief{
 			Type:   request.Type,
 			Title:  request.Title,
 			Status: dbmodels.StatusActive,
@@ -122,15 +122,15 @@ func CreateSpaceTxWorker(
 	if request.Type == "work" {
 		zero := 0
 		hundred := 100
-		params.Space.Data.Metrics = []*dbo4spaceus2.SpaceMetric{
+		params.Space.Data.Metrics = []*dbo4spaceus.SpaceMetric{
 			{ID: "cc", Title: "Code coverage", Type: "int", Mode: "SpaceIDs", Min: &zero, Max: &hundred},
-			{ID: "bb", Title: "Build is broken", Type: "bool", Mode: "SpaceIDs", Bool: &dbo4spaceus2.BoolMetric{
-				True:  &dbo4spaceus2.BoolMetricVal{Label: "Yes", Color: "danger"},
-				False: &dbo4spaceus2.BoolMetricVal{Label: "No", Color: "success"},
+			{ID: "bb", Title: "Build is broken", Type: "bool", Mode: "SpaceIDs", Bool: &dbo4spaceus.BoolMetric{
+				True:  &dbo4spaceus.BoolMetricVal{Label: "Yes", Color: "danger"},
+				False: &dbo4spaceus.BoolMetricVal{Label: "No", Color: "success"},
 			}},
-			{ID: "wfh", Title: "Working From Home", Type: "bool", Mode: "personal", Bool: &dbo4spaceus2.BoolMetric{
-				True:  &dbo4spaceus2.BoolMetricVal{Label: "Yes", Color: "tertiary"},
-				False: &dbo4spaceus2.BoolMetricVal{Label: "No", Color: "secondary"},
+			{ID: "wfh", Title: "Working From Home", Type: "bool", Mode: "personal", Bool: &dbo4spaceus.BoolMetric{
+				True:  &dbo4spaceus.BoolMetricVal{Label: "Yes", Color: "tertiary"},
+				False: &dbo4spaceus.BoolMetricVal{Label: "No", Color: "secondary"},
 			}},
 		}
 	}
@@ -151,9 +151,9 @@ func CreateSpaceTxWorker(
 		return
 	}
 
-	params.Space = dbo4spaceus2.NewSpaceEntryWithDbo(spaceID, params.Space.Data)
+	params.Space = dbo4spaceus.NewSpaceEntryWithDbo(spaceID, params.Space.Data)
 
-	params.ContactusSpace = dal4contactus2.NewContactusSpaceEntry(spaceID)
+	params.ContactusSpace = dal4contactus.NewContactusSpaceEntry(spaceID)
 
 	spaceContactBrief := params.User.Data.ContactBrief // This should copy data from user's contact brief as it's not a pointer
 
@@ -209,8 +209,8 @@ func CreateSpaceTxWorker(
 	return
 }
 
-func updateUserWithSpaceBrief(user dbo4userus2.UserEntry, spaceID, userSpaceContactID string, spaceBrief dbo4spaceus2.SpaceBrief, spaceUserRoles []string) (updates []dal.Update) {
-	userSpaceBrief := dbo4userus2.UserSpaceBrief{
+func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID, userSpaceContactID string, spaceBrief dbo4spaceus.SpaceBrief, spaceUserRoles []string) (updates []dal.Update) {
+	userSpaceBrief := dbo4userus.UserSpaceBrief{
 		SpaceBrief:    spaceBrief,
 		UserContactID: userSpaceContactID,
 		Roles:         spaceUserRoles,
@@ -232,7 +232,7 @@ func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string)
 			return "", errors.New("too many attempts to get an unique space ContactID")
 		}
 		spaceID = strings.ToLower(spaceID)
-		teamKey := dal.NewKeyWithID(dbo4spaceus2.SpacesCollection, spaceID)
+		teamKey := dal.NewKeyWithID(dbo4spaceus.SpacesCollection, spaceID)
 		teamRecord := dal.NewRecordWithData(teamKey, nil)
 		if err = getter.Get(ctx, teamRecord); dal.IsNotFound(err) {
 			return spaceID, nil

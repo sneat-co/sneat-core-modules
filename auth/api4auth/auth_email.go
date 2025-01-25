@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	models4auth2 "github.com/sneat-co/sneat-core-modules/auth/models4auth"
+	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -111,7 +111,7 @@ func HandleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *h
 
 	now := time.Now()
 
-	pwdResetEntity := models4auth2.PasswordResetData{
+	pwdResetEntity := models4auth.PasswordResetData{
 		Email:             userEmail.ID,
 		Status:            "created",
 		OwnedByUserWithID: appuser.NewOwnedByUserWithID(userEmail.Data.AppUserID, now),
@@ -130,7 +130,7 @@ func HandleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *h
 func HandleChangePasswordAndSignIn(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	var (
 		err           error
-		passwordReset models4auth2.PasswordReset
+		passwordReset models4auth.PasswordReset
 	)
 
 	if passwordReset.ID, err = strconv.Atoi(r.PostFormValue("pin")); err != nil {
@@ -157,7 +157,7 @@ func HandleChangePasswordAndSignIn(ctx context.Context, w http.ResponseWriter, r
 
 		now := time.Now()
 		appUser := dbo4userus.NewUserEntry(passwordReset.Data.AppUserID)
-		userEmail := models4auth2.NewUserEmail(passwordReset.Data.Email, nil)
+		userEmail := models4auth.NewUserEmail(passwordReset.Data.Email, nil)
 
 		records := []dal.Record{appUser.Record, userEmail.Record, passwordReset.Record}
 
@@ -199,7 +199,7 @@ var errInvalidEmailConformationPin = errors.New("email confirmation pin is not v
 func HandleConfirmEmailAndSignIn(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	var (
 		err       error
-		userEmail models4auth2.UserEmailEntry
+		userEmail models4auth.UserEmailEntry
 		pin       string
 	)
 

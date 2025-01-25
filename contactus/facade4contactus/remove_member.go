@@ -8,7 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
 	"slices"
@@ -56,7 +56,7 @@ func removeSpaceMemberTx(
 		var (
 			userRef *dal.Key
 		)
-		memberUser := dbo4userus2.NewUserEntry(memberUserID)
+		memberUser := dbo4userus.NewUserEntry(memberUserID)
 		if err = dal4userus.GetUser(ctx, tx, memberUser); err != nil {
 			return
 		}
@@ -71,7 +71,7 @@ func removeSpaceMemberTx(
 	return
 }
 
-func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus2.UserDbo, spaceID string) *dal.Update {
+func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID string) *dal.Update {
 	delete(user.Spaces, spaceID)
 	user.SpaceIDs = slice.RemoveInPlaceByValue(user.SpaceIDs, spaceID)
 	return &dal.Update{

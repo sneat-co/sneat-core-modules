@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/gosimple/slug"
-	dal4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -34,7 +34,7 @@ func AddMetric(ctx context.Context, userCtx facade.UserContext, request AddSpace
 	if err = request.Validate(); err != nil {
 		return
 	}
-	err = dal4spaceus2.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus2.SpaceWorkerParams) (err error) {
+	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
 		request.Metric.ID = strings.Replace(slug.Make(request.Metric.Title), "-", "_", -1)
 		for _, m := range params.Space.Data.Metrics {
 			if m.ID == request.Metric.ID {
@@ -43,7 +43,7 @@ func AddMetric(ctx context.Context, userCtx facade.UserContext, request AddSpace
 			}
 		}
 		params.Space.Data.Metrics = append(params.Space.Data.Metrics, &request.Metric)
-		if err = dal4spaceus2.TxUpdateSpace(ctx, tx, params.Started, params.Space, []dal.Update{
+		if err = dal4spaceus.TxUpdateSpace(ctx, tx, params.Started, params.Space, []dal.Update{
 			{Field: "metrics", Value: params.Space.Data.Metrics},
 		}); err != nil {
 			return err

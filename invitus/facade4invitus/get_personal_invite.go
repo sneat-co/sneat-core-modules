@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -38,9 +38,9 @@ type PersonalInviteResponse struct {
 	Members map[string]*briefs4contactus.ContactBrief `json:"members,omitempty"`
 }
 
-func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus2.ContactusSpaceWorkerParams, inviteID, memberID string) (
+func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusSpaceWorkerParams, inviteID, memberID string) (
 	invite PersonalInviteEntry,
-	member dal4contactus2.ContactEntry,
+	member dal4contactus.ContactEntry,
 	err error,
 ) {
 	if inviteID == "" {
@@ -51,7 +51,7 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 
 	records := []dal.Record{invite.Record}
 	if memberID != "" {
-		member = dal4contactus2.NewContactEntry(params.Space.ID, memberID)
+		member = dal4contactus.NewContactEntry(params.Space.ID, memberID)
 		records = append(records, member.Record)
 	}
 	if err = params.GetRecords(ctx, getter, records...); err != nil {
@@ -84,7 +84,7 @@ func GetPersonal(ctx context.Context, userCtx facade.UserContext, request GetPer
 	if err = request.Validate(); err != nil {
 		return
 	}
-	return response, dal4contactus2.RunReadonlyContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) error {
+	return response, dal4contactus.RunReadonlyContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 		invite, _, err := getPersonalInviteRecords(ctx, tx, params, request.InviteID, "")
 		if err != nil {
 			return err

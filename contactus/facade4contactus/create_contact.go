@@ -7,12 +7,12 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	dbo4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
-	dal4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -34,9 +34,9 @@ func CreateContact(
 		return response, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
 
-	err = dal4spaceus2.CreateSpaceItem(ctx, userCtx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus2.ContactusSpaceDbo),
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus2.ModuleSpaceWorkerParams[*dbo4contactus2.ContactusSpaceDbo]) (err error) {
-			var contact dal4contactus2.ContactEntry
+	err = dal4spaceus.CreateSpaceItem(ctx, userCtx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
+			var contact dal4contactus.ContactEntry
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
 				return err
 			}
@@ -62,9 +62,9 @@ func CreateContactTx(
 	tx dal.ReadwriteTransaction,
 	userCanBeNonSpaceMember bool,
 	request dto4contactus.CreateContactRequest,
-	params *dal4spaceus2.ModuleSpaceWorkerParams[*dbo4contactus2.ContactusSpaceDbo],
+	params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo],
 ) (
-	contact dal4contactus2.ContactEntry,
+	contact dal4contactus.ContactEntry,
 	err error,
 ) {
 	if err = request.Validate(); err != nil {
@@ -98,7 +98,7 @@ func CreateContactTx(
 							switch relatedAs {
 							case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
 								userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
-								userContactKey := dal4contactus2.NewContactKey(request.SpaceID, userContactID)
+								userContactKey := dal4contactus.NewContactKey(request.SpaceID, userContactID)
 								if err = tx.Update(ctx, userContactKey, []dal.Update{
 									{
 										Field: "ageGroup",
@@ -122,15 +122,15 @@ func CreateContactTx(
 
 	parentContactID := request.ParentContactID
 
-	var parent dal4contactus2.ContactEntry
+	var parent dal4contactus.ContactEntry
 	if parentContactID != "" {
-		parent = dal4contactus2.NewContactEntry(request.SpaceID, parentContactID)
+		parent = dal4contactus.NewContactEntry(request.SpaceID, parentContactID)
 		if err = tx.Get(ctx, parent.Record); err != nil {
 			return contact, fmt.Errorf("failed to get parent contact with ContactID=[%s]: %w", parentContactID, err)
 		}
 	}
 
-	contactDbo := new(dbo4contactus2.ContactDbo)
+	contactDbo := new(dbo4contactus.ContactDbo)
 	contactDbo.CreatedAt = params.Started
 	contactDbo.CreatedBy = params.UserID()
 	contactDbo.Status = "active"
@@ -207,7 +207,7 @@ func CreateContactTx(
 		}
 	}
 
-	contact = dal4contactus2.NewContactEntryWithData(request.SpaceID, contactID, contactDbo)
+	contact = dal4contactus.NewContactEntryWithData(request.SpaceID, contactID, contactDbo)
 
 	_ = dbo4linkage.UpdateRelatedIDs(&contact.Data.WithRelated, &contact.Data.WithRelatedIDs)
 	if err = contact.Data.Validate(); err != nil {
@@ -226,11 +226,13 @@ func CreateContactTx(
 
 func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransaction,
 	userID, userContactID, spaceID, contactID string,
-	contactusSpaceEntry dal4contactus2.ContactusSpaceEntry,
-	contactDbo *dbo4contactus2.ContactDbo,
+	contactusSpaceEntry dal4contactus.ContactusSpaceEntry,
+	contactDbo *dbo4contactus.ContactDbo,
 	related dbo4linkage.RelatedByModuleID,
 ) (err error) {
-	if userContactID == "" { // Why we get it 2nd time? Previous is up in stack in CreateContactTx()
+	_ = contactID // TODO: either user the parameter or remove it or document why not using but needs keeping
+
+	if userContactID == "" { // Why do we get it 2nd time? Previous is up in stack in CreateContactTx()
 		if userContactID, err = dal4userus.GetUserSpaceContactID(ctx, tx, userID, contactusSpaceEntry); err != nil {
 			return
 		}

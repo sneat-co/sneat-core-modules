@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
@@ -23,7 +23,7 @@ type AcceptPersonalInviteRequest struct {
 	InviteRequest
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
 	MemberID     string
-	Member       dbmodels.DtoWithID[*briefs4contactus2.ContactBase] `json:"member"`
+	Member       dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
 	//FullName string                      `json:"fullName"`
 	//Email    string                      `json:"email"`
 }
@@ -53,10 +53,10 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 	}
 	uid := userCtx.GetUserID()
 
-	return dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) error {
+	return dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 			var invite PersonalInviteEntry
-			var member dal4contactus2.ContactEntry
+			var member dal4contactus.ContactEntry
 
 			if invite, member, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID, request.Member.ID); err != nil {
 				return err
@@ -69,7 +69,7 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 				return fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
 			}
 
-			user := dbo4userus2.NewUserEntry(uid)
+			user := dbo4userus.NewUserEntry(uid)
 			if err = dal4userus.GetUser(ctx, tx, user); err != nil {
 				if !dal.IsNotFound(err) {
 					return err
@@ -82,12 +82,12 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 				return fmt.Errorf("failed to update invite record: %w", err)
 			}
 
-			var spaceMember *briefs4contactus2.ContactBase
+			var spaceMember *briefs4contactus.ContactBase
 			if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceMemberID, params, request.Member); err != nil {
 				return fmt.Errorf("failed to update team record: %w", err)
 			}
 
-			memberContext := dal4contactus2.NewContactEntry(params.Space.ID, member.ID)
+			memberContext := dal4contactus.NewContactEntry(params.Space.ID, member.ID)
 
 			if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
 				return fmt.Errorf("failed to update team member record: %w", err)
@@ -139,9 +139,9 @@ func updateMemberRecord(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	uid string,
-	member dal4contactus2.ContactEntry,
-	requestMember *briefs4contactus2.ContactBase,
-	teamMember *briefs4contactus2.ContactBase,
+	member dal4contactus.ContactEntry,
+	requestMember *briefs4contactus.ContactBase,
+	teamMember *briefs4contactus.ContactBase,
 ) (err error) {
 	updates := []dal.Update{
 		{Field: "userID", Value: uid},
@@ -155,9 +155,9 @@ func updateMemberRecord(
 
 func updateSpaceRecord(
 	uid, memberID string,
-	params *dal4contactus2.ContactusSpaceWorkerParams,
-	requestMember dbmodels.DtoWithID[*briefs4contactus2.ContactBase],
-) (teamMember *briefs4contactus2.ContactBase, err error) {
+	params *dal4contactus.ContactusSpaceWorkerParams,
+	requestMember dbmodels.DtoWithID[*briefs4contactus.ContactBase],
+) (teamMember *briefs4contactus.ContactBase, err error) {
 	if uid == "" {
 		panic("required parameter `uid` is empty string")
 	}
@@ -171,7 +171,7 @@ func updateSpaceRecord(
 			//request.ContactID.Roles = m.Roles
 			//m = request.ContactID
 			m.UserID = uid
-			teamMember = &briefs4contactus2.ContactBase{
+			teamMember = &briefs4contactus.ContactBase{
 				ContactBrief: *m,
 			}
 			//team.Members[i] = m
@@ -199,10 +199,10 @@ func createOrUpdateUserRecord(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	now time.Time,
-	user dbo4userus2.UserEntry,
+	user dbo4userus.UserEntry,
 	request AcceptPersonalInviteRequest,
-	params *dal4contactus2.ContactusSpaceWorkerParams,
-	teamMember *briefs4contactus2.ContactBase,
+	params *dal4contactus.ContactusSpaceWorkerParams,
+	teamMember *briefs4contactus.ContactBase,
 	invite PersonalInviteEntry,
 ) (err error) {
 	if teamMember == nil {
@@ -216,7 +216,7 @@ func createOrUpdateUserRecord(
 		}
 	}
 
-	userSpaceInfo := dbo4userus2.UserSpaceBrief{
+	userSpaceInfo := dbo4userus.UserSpaceBrief{
 		SpaceBrief: params.Space.Data.SpaceBrief,
 		Roles:      invite.Data.Roles, // TODO: Validate roles?
 	}
@@ -242,7 +242,7 @@ func createOrUpdateUserRecord(
 	} else { // New user record
 		user.Data.CreatedAt = now
 		user.Data.Created.Client = request.RemoteClient
-		user.Data.Type = briefs4contactus2.ContactTypePerson
+		user.Data.Type = briefs4contactus.ContactTypePerson
 		user.Data.Names = request.Member.Data.Names
 		if user.Data.Names.IsEmpty() {
 			user.Data.Names = teamMember.Names
@@ -270,7 +270,7 @@ func createOrUpdateUserRecord(
 	return err
 }
 
-func updatePersonDetails(personContact *briefs4contactus2.ContactBase, member *briefs4contactus2.ContactBase, teamMember *briefs4contactus2.ContactBase, updates []dal.Update) []dal.Update {
+func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, teamMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
 	if member.Names != nil {
 		if personContact.Names == nil {
 			personContact.Names = new(person.NameFields)

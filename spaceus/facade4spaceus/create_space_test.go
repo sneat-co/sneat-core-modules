@@ -8,7 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
@@ -31,9 +31,9 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
 		tx.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			switch record.Key().Collection() {
-			case dbo4userus2.UsersCollection:
+			case dbo4userus.UsersCollection:
 				record.SetError(nil)
-				userDto := record.Data().(*dbo4userus2.UserDbo)
+				userDto := record.Data().(*dbo4userus.UserDbo)
 				userDto.CountryID = "--"
 				userDto.Status = "active"
 				userDto.Gender = dbmodels.GenderMale

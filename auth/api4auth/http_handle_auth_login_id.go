@@ -7,7 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
-	common4all2 "github.com/sneat-co/sneat-core-modules/common4all"
+	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/logus"
 	"io"
@@ -26,14 +26,14 @@ func HandleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	loginIdStr := query.Get("id")
 
 	if loginIdStr != "" {
-		if loginID, err = common4all2.DecodeIntID(loginIdStr); err != nil {
-			common4all2.BadRequestError(ctx, w, err)
+		if loginID, err = common4all.DecodeIntID(loginIdStr); err != nil {
+			common4all.BadRequestError(ctx, w, err)
 			return
 		}
 	}
 
 	returnLoginID := func(loginID int) {
-		encoded := common4all2.EncodeIntID(loginID)
+		encoded := common4all.EncodeIntID(loginID)
 		logus.Infof(ctx, "Login ContactID: %d, Encoded: %s", loginID, encoded)
 		if _, err = w.Write([]byte(encoded)); err != nil {
 			logus.Criticalf(ctx, "Failed to write login ContactID to response: %v", err)
@@ -55,19 +55,19 @@ func HandleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 	var rBody []byte
 	if rBody, err = io.ReadAll(r.Body); err != nil {
-		common4all2.BadRequestError(ctx, w, fmt.Errorf("failed to read request body: %w", err))
+		common4all.BadRequestError(ctx, w, fmt.Errorf("failed to read request body: %w", err))
 		return
 	}
 	gaClientID := string(rBody)
 
 	if gaClientID != "" {
 		if len(gaClientID) > 100 {
-			common4all2.BadRequestMessage(ctx, w, fmt.Sprintf("Google Client ContactID is too long: %d", len(gaClientID)))
+			common4all.BadRequestMessage(ctx, w, fmt.Sprintf("Google Client ContactID is too long: %d", len(gaClientID)))
 			return
 		}
 
 		if strings.Count(gaClientID, ".") != 1 {
-			common4all2.BadRequestMessage(ctx, w, "Google Client ContactID has wrong format, a '.' char expected")
+			common4all.BadRequestMessage(ctx, w, "Google Client ContactID has wrong format, a '.' char expected")
 			return
 		}
 	}
@@ -75,7 +75,7 @@ func HandleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 		var loginPin models4auth.LoginPin
 		if loginPin, err = unsorted4auth.LoginPin.CreateLoginPin(ctx, tx, channel, gaClientID, authInfo.UserID); err != nil {
-			common4all2.ErrorAsJson(ctx, w, http.StatusInternalServerError, err)
+			common4all.ErrorAsJson(ctx, w, http.StatusInternalServerError, err)
 			return
 		}
 		loginID = loginPin.ID

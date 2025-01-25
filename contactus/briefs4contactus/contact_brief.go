@@ -1,7 +1,7 @@
 package briefs4contactus
 
 import (
-	const4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
@@ -60,7 +60,7 @@ func (v *ContactBrief) SetName(field, value string) {
 }
 
 func (v *ContactBrief) IsSpaceMember() bool {
-	return v.HasRole(const4contactus2.SpaceMemberRoleMember)
+	return v.HasRole(const4contactus.SpaceMemberRoleMember)
 }
 
 // GetUserID returns GetUserID field value
@@ -113,7 +113,7 @@ func (v *ContactBrief) Validate() error {
 		return err
 	}
 	if v.PetKind != "" {
-		if !const4contactus2.IsKnownPetPetKind(v.PetKind) {
+		if !const4contactus.IsKnownPetPetKind(v.PetKind) {
 			return validation.NewErrBadRecordFieldValue("species", "unknown value: "+v.PetKind)
 		}
 	}
@@ -129,9 +129,9 @@ func (v *ContactBrief) GetTitle() string {
 }
 
 func (v *ContactBrief) DetermineShortTitle(title string, contacts map[string]*ContactBrief) string {
-	if v.Names.FirstName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus2.SpaceMemberRoleMember) {
+	if v.Names.FirstName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus.SpaceMemberRoleMember) {
 		v.ShortTitle = v.Names.FirstName
-	} else if v.Names.NickName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus2.SpaceMemberRoleMember) {
+	} else if v.Names.NickName != "" && IsUniqueShortTitle(v.Names.FirstName, contacts, const4contactus.SpaceMemberRoleMember) {
 		return v.Names.NickName
 	} else if v.Names.FullName != "" {
 		return getShortTitle(v.Names.FullName, contacts)

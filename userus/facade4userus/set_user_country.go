@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -55,8 +55,8 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 			spaceBrief.CountryID = request.CountryID
 			params.UserUpdates = append(params.UserUpdates, dal.Update{Field: fmt.Sprintf("spaces.%s.countryID", spaceID), Value: request.CountryID})
 		}
-		if err = dal4contactus2.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, spaceID,
-			func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) (err error) {
+		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, spaceID,
+			func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 				if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
 					return
 				}
@@ -70,7 +70,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 					userContactBrief.CountryID = request.CountryID
 					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "contacts." + userContactID + ".countryID", Value: request.CountryID})
 					params.SpaceModuleEntry.Record.MarkAsChanged()
-					userContact := dal4contactus2.NewContactEntry(spaceID, userContactID)
+					userContact := dal4contactus.NewContactEntry(spaceID, userContactID)
 					if err = tx.Get(ctx, userContact.Record); err != nil {
 						return
 					}

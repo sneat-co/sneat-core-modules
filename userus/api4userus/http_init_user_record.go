@@ -1,7 +1,7 @@
 package api4userus
 
 import (
-	facade4auth2 "github.com/sneat-co/sneat-core-modules/auth/facade4auth"
+	"github.com/sneat-co/sneat-core-modules/auth/facade4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
@@ -22,7 +22,7 @@ func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	request.RemoteClient = apicore.GetRemoteClientInfo(r)
-	var params facade4auth2.CreateUserWorkerParams
+	var params facade4auth.CreateUserWorkerParams
 	userToCreate := dto4auth.DataToCreateUser{
 		AuthAccount: appuser.AccountKey{
 			Provider: request.AuthProvider,
@@ -36,7 +36,7 @@ func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
 	if request.Names != nil {
 		userToCreate.Names = *request.Names
 	}
-	if params, err = facade4auth2.CreateUserRecords(ctx, userContext, userToCreate); err != nil {
+	if params, err = facade4auth.CreateUserRecords(ctx, userContext, userToCreate); err != nil {
 		apicore.ReturnError(ctx, w, r, err)
 		return
 	}

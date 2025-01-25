@@ -2,11 +2,11 @@ package api4contactus
 
 import (
 	"context"
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	const4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
-	dto4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
@@ -29,8 +29,8 @@ func TestHttpAddMember(t *testing.T) {
 		},
 		WithRelated: dbo4linkage.WithRelated{
 			Related: dbo4linkage.RelatedByModuleID{
-				const4contactus2.ModuleID: dbo4linkage.RelatedByCollectionID{
-					const4contactus2.ContactsCollection: []*dbo4linkage.RelatedItem{
+				const4contactus.ModuleID: dbo4linkage.RelatedByCollectionID{
+					const4contactus.ContactsCollection: []*dbo4linkage.RelatedItem{
 						{
 							Keys: []dbo4linkage.RelatedItemKey{
 								{SpaceID: "space1", ItemID: "c1"},
@@ -50,15 +50,15 @@ func TestHttpAddMember(t *testing.T) {
 				},
 			},
 		},
-		CreatePersonRequest: dto4contactus2.CreatePersonRequest{
-			ContactBase: briefs4contactus2.ContactBase{
-				ContactBrief: briefs4contactus2.ContactBrief{
-					Type:     briefs4contactus2.ContactTypePerson,
+		CreatePersonRequest: dto4contactus.CreatePersonRequest{
+			ContactBase: briefs4contactus.ContactBase{
+				ContactBrief: briefs4contactus.ContactBrief{
+					Type:     briefs4contactus.ContactTypePerson,
 					Gender:   "unknown",
 					Title:    "Some new members",
 					AgeGroup: "unknown",
 					RolesField: with.RolesField{
-						Roles: []string{const4contactus2.SpaceMemberRoleContributor},
+						Roles: []string{const4contactus.SpaceMemberRoleContributor},
 					},
 				},
 				Status: "active",
@@ -86,21 +86,21 @@ func TestHttpAddMember(t *testing.T) {
 	req.Host = "localhost"
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (response dto4contactus2.CreateContactResponse, err error) {
+	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (response dto4contactus.CreateContactResponse, err error) {
 		if request.SpaceID != teamID {
 			t.Fatalf("Expected teamID=%s, got: %s", teamID, request.SpaceID)
 		}
 		response.ID = "abc1"
 		response.Data = &dbo4contactus.ContactDbo{
-			ContactBase: briefs4contactus2.ContactBase{
-				ContactBrief: briefs4contactus2.ContactBrief{
-					Type:  briefs4contactus2.ContactTypeCompany,
+			ContactBase: briefs4contactus.ContactBase{
+				ContactBrief: briefs4contactus.ContactBrief{
+					Type:  briefs4contactus.ContactTypeCompany,
 					Title: "Some company",
 					OptionalCountryID: with.OptionalCountryID{
 						CountryID: "IE",
 					},
 					RolesField: with.RolesField{
-						Roles: []string{const4contactus2.SpaceMemberRoleContributor},
+						Roles: []string{const4contactus.SpaceMemberRoleContributor},
 					},
 				},
 				Status: "active",

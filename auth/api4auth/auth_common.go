@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
-	unsorted4auth2 "github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
+	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
-	dal4userus2 "github.com/sneat-co/sneat-core-modules/userus/dal4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp/appuser"
@@ -20,8 +20,8 @@ func HandleDisconnect(ctx context.Context, w http.ResponseWriter, r *http.Reques
 
 	userCtx := facade.NewUserContext(authInfo.UserID)
 
-	if err := dal4userus2.RunUserWorker(ctx, userCtx, true, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus2.UserWorkerParams) error {
-		appUser, err := dal4userus2.GetUserByID(ctx, tx, authInfo.UserID)
+	if err := dal4userus.RunUserWorker(ctx, userCtx, true, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams) error {
+		appUser, err := dal4userus.GetUserByID(ctx, tx, authInfo.UserID)
 		if err != nil {
 			return err
 		}
@@ -29,12 +29,12 @@ func HandleDisconnect(ctx context.Context, w http.ResponseWriter, r *http.Reques
 		changed := false
 
 		deleteFbUser := func(userAccount appuser.AccountKey) error {
-			if userFb, err := unsorted4auth2.UserFacebook.GetFbUserByFbID(ctx, userAccount.App, userAccount.ID); err != nil {
+			if userFb, err := unsorted4auth.UserFacebook.GetFbUserByFbID(ctx, userAccount.App, userAccount.ID); err != nil {
 				if !dal.IsNotFound(err) {
 					return err
 				}
 			} else if fbUserAppID := userFb.FbUserData().GetAppUserID(); fbUserAppID == appUser.ID {
-				if err = unsorted4auth2.UserFacebook.DeleteFbUser(ctx, userAccount.App, userAccount.ID); err != nil {
+				if err = unsorted4auth.UserFacebook.DeleteFbUser(ctx, userAccount.App, userAccount.ID); err != nil {
 					return err
 				}
 			} else {
@@ -56,13 +56,13 @@ func HandleDisconnect(ctx context.Context, w http.ResponseWriter, r *http.Reques
 			if userAccount, err = appUser.Data.GetAccount(provider, ""); err != nil {
 				return err
 			} else if userAccount != nil {
-				if userGoogle, err := unsorted4auth2.UserGoogle.GetUserGoogleByID(ctx, userAccount.ID); err != nil {
+				if userGoogle, err := unsorted4auth.UserGoogle.GetUserGoogleByID(ctx, userAccount.ID); err != nil {
 					if !dal.IsNotFound(err) {
 						return err
 					}
 				} else if userGoogle.Data.GetAppUserID() == appUser.ID {
 					userGoogle.Data.SetAppUserID("")
-					if err = unsorted4auth2.UserGoogle.DeleteUserGoogle(ctx, userGoogle.ID); err != nil {
+					if err = unsorted4auth.UserGoogle.DeleteUserGoogle(ctx, userGoogle.ID); err != nil {
 						return err
 					}
 				} else {

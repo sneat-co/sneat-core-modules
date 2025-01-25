@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -17,27 +17,27 @@ func DeleteContact(ctx context.Context, userCtx facade.UserContext, request dto4
 		return
 	}
 
-	return dal4contactus2.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams) (err error) {
+	return dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 			return deleteContactTxWorker(ctx, tx, params, request.ContactID)
 		},
 	)
 }
 
 func deleteContactTxWorker(
-	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus2.ContactusSpaceWorkerParams,
+	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams,
 	contactID string,
 ) (err error) {
 	if contactID == params.Space.ID {
 		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents team/company itself")
 	}
-	contact := dal4contactus2.NewContactEntry(params.Space.ID, contactID)
+	contact := dal4contactus.NewContactEntry(params.Space.ID, contactID)
 	if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
 		return err
 	}
 
-	var subContacts []dal4contactus2.ContactEntry
-	subContacts, err = GetRelatedContacts(ctx, tx, params.Space.ID, RelatedAsChild, 0, -1, []dal4contactus2.ContactEntry{contact})
+	var subContacts []dal4contactus.ContactEntry
+	subContacts, err = GetRelatedContacts(ctx, tx, params.Space.ID, RelatedAsChild, 0, -1, []dal4contactus.ContactEntry{contact})
 	if err != nil {
 		return fmt.Errorf("failed to get related contacts: %w", err)
 	}

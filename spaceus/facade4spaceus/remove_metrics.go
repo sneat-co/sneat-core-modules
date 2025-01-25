@@ -3,7 +3,7 @@ package facade4spaceus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	dal4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -14,8 +14,8 @@ func RemoveMetrics(ctx context.Context, userCtx facade.UserContext, request dto4
 	if err = request.Validate(); err != nil {
 		return
 	}
-	err = dal4spaceus2.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus2.SpaceWorkerParams) (err error) {
+	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
 			changed := false
 			team := params.Space
 
@@ -42,7 +42,7 @@ func RemoveMetrics(ctx context.Context, userCtx facade.UserContext, request dto4
 						{Field: "metrics", Value: metrics},
 					}
 				}
-				if err = dal4spaceus2.TxUpdateSpace(ctx, tx, params.Started, params.Space, updates); err != nil {
+				if err = dal4spaceus.TxUpdateSpace(ctx, tx, params.Started, params.Space, updates); err != nil {
 					return err
 				}
 			}

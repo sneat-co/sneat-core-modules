@@ -6,7 +6,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
-	dbo4userus2 "github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/random"
 	"strings"
@@ -28,12 +28,12 @@ func NewUserDalGae() UserDalGae {
 
 var _ unsorted4auth.UserDal = (*UserDalGae)(nil)
 
-func (userDal UserDalGae) GetUserByStrID(ctx context.Context, userID string) (user dbo4userus2.UserEntry, err error) {
-	user = dbo4userus2.NewUserEntry(userID)
+func (userDal UserDalGae) GetUserByStrID(ctx context.Context, userID string) (user dbo4userus.UserEntry, err error) {
+	user = dbo4userus.NewUserEntry(userID)
 	return user, dal4userus.GetUser(ctx, nil, user)
 }
 
-func (userDal UserDalGae) GetUserByVkUserID(_ context.Context, vkUserID int64) (dbo4userus2.UserEntry, error) {
+func (userDal UserDalGae) GetUserByVkUserID(_ context.Context, vkUserID int64) (dbo4userus.UserEntry, error) {
 	panic("not implemented")
 	//query := datastore.NewQuery(models.AppUserKind).Filter("VkUserID =", vkUserID)
 	//return userDal.getUserByQuery(ctx, query, "VkUserID")
@@ -72,21 +72,21 @@ func (userDal UserDalGae) GetUserByVkUserID(_ context.Context, vkUserID int64) (
 //	}
 //}
 
-func (userDal UserDalGae) CreateAnonymousUser(ctx context.Context) (user dbo4userus2.UserEntry, err error) {
-	return userDal.CreateUser(ctx, &dbo4userus2.UserDbo{
+func (userDal UserDalGae) CreateAnonymousUser(ctx context.Context) (user dbo4userus.UserEntry, err error) {
+	return userDal.CreateUser(ctx, &dbo4userus.UserDbo{
 		IsAnonymous: true,
 	})
 }
 
-func (userDal UserDalGae) CreateUser(ctx context.Context, userData *dbo4userus2.UserDbo) (user dbo4userus2.UserEntry, err error) {
-	user = dbo4userus2.NewUserEntryWithDbo("", userData)
+func (userDal UserDalGae) CreateUser(ctx context.Context, userData *dbo4userus.UserDbo) (user dbo4userus.UserEntry, err error) {
+	user = dbo4userus.NewUserEntryWithDbo("", userData)
 
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
 		if err = tx.Insert(ctx, user.Record); err != nil {
 			return err
 		}
 		user.ID = user.Record.Key().ID.(string)
-		user.Data = user.Record.Data().(*dbo4userus2.UserDbo)
+		user.Data = user.Record.Data().(*dbo4userus.UserDbo)
 		return nil
 	})
 	return
@@ -100,7 +100,7 @@ func GenerateRandomUserID(ctx context.Context, tx dal.ReadwriteTransaction) (use
 
 	for i := 1; i <= maxAttempts; i++ {
 		userID = random.ID(12)
-		userKey := dbo4userus2.NewUserKey(userID)
+		userKey := dbo4userus.NewUserKey(userID)
 		userData := make(map[string]any)
 		userRecord := dal.NewRecordWithData(userKey, userData)
 		if err = tx.Get(ctx, userRecord); err != nil {

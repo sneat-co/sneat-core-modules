@@ -5,11 +5,11 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mocks4dal"
 	"github.com/golang/mock/gomock"
-	briefs4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	dal4contactus2 "github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
-	dbo4spaceus2 "github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -52,7 +52,7 @@ func TestAcceptPersonalInvite(t *testing.T) {
 func TestAcceptPersonalInviteRequest_Validate(t *testing.T) {
 	type fields struct {
 		InviteRequest InviteRequest
-		Member        dbmodels.DtoWithID[*briefs4contactus2.ContactBase]
+		Member        dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 	}
 	tests := []struct {
 		name    string
@@ -85,8 +85,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 		teamRecordError   error
 		inviteRecordError error
 		request           AcceptPersonalInviteRequest
-		team              dbo4spaceus2.SpaceEntry
-		teamMember        dbmodels.DtoWithID[*briefs4contactus2.ContactBase]
+		team              dbo4spaceus.SpaceEntry
+		teamMember        dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 		invite            PersonalInviteEntry
 	}
 
@@ -100,8 +100,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			args: args{
 				user:            dbo4userus.NewUserEntry("test_user_id"),
 				userRecordError: dal.ErrRecordNotFound,
-				team: dbo4spaceus2.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus2.SpaceDbo{
-					SpaceBrief: dbo4spaceus2.SpaceBrief{
+				team: dbo4spaceus.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus.SpaceDbo{
+					SpaceBrief: dbo4spaceus.SpaceBrief{
 						OptionalCountryID: with.OptionalCountryID{
 							CountryID: with.UnknownCountryID,
 						},
@@ -109,11 +109,11 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						Title: "Family",
 					},
 				}),
-				teamMember: dbmodels.DtoWithID[*briefs4contactus2.ContactBase]{
+				teamMember: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 					ID: "test_member_id2",
-					Data: &briefs4contactus2.ContactBase{
-						ContactBrief: briefs4contactus2.ContactBrief{
-							Type:   briefs4contactus2.ContactTypePerson,
+					Data: &briefs4contactus.ContactBase{
+						ContactBrief: briefs4contactus.ContactBrief{
+							Type:   briefs4contactus.ContactTypePerson,
 							Gender: "unknown",
 							Names: &person.NameFields{
 								FirstName: "First",
@@ -141,11 +141,11 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						InviteID: "test_personal_invite_id",
 						Pin:      "1234",
 					},
-					Member: dbmodels.DtoWithID[*briefs4contactus2.ContactBase]{
+					Member: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 						ID: "test_member_id",
-						Data: &briefs4contactus2.ContactBase{
-							ContactBrief: briefs4contactus2.ContactBrief{
-								Type:     briefs4contactus2.ContactTypePerson,
+						Data: &briefs4contactus.ContactBase{
+							ContactBrief: briefs4contactus.ContactBrief{
+								Type:     briefs4contactus.ContactTypePerson,
 								Gender:   "unknown",
 								AgeGroup: "unknown",
 							},
@@ -173,7 +173,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 				tx.EXPECT().Insert(gomock.Any(), tt.args.user.Record).Return(nil)
 			}
 			now := time.Now()
-			params := dal4contactus2.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.team.ID)
+			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.team.ID)
 			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, params, tt.args.teamMember.Data, tt.args.invite); err != nil {
 				if !tt.wantErr {
 					t.Errorf("createOrUpdateUserRecord() error = %v, wantErr %v", err, tt.wantErr)
@@ -271,19 +271,19 @@ func Test_updateSpaceRecord(t *testing.T) {
 	type args struct {
 		uid            string
 		memberID       string
-		team           dbo4spaceus2.SpaceEntry
-		contactusSpace dal4contactus2.ContactusSpaceEntry
-		requestMember  dbmodels.DtoWithID[*briefs4contactus2.ContactBase]
+		team           dbo4spaceus.SpaceEntry
+		contactusSpace dal4contactus.ContactusSpaceEntry
+		requestMember  dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 	}
-	testMember := dbmodels.DtoWithID[*briefs4contactus2.ContactBase]{
+	testMember := dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 		ID:   "test_member_id1",
-		Data: &briefs4contactus2.ContactBase{},
+		Data: &briefs4contactus.ContactBase{},
 	}
 	tests := []struct {
 		name            string
 		teamRecordErr   error
 		args            args
-		wantSpaceMember dbmodels.DtoWithID[*briefs4contactus2.ContactBase]
+		wantSpaceMember dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 		wantErr         bool
 	}{
 		{
@@ -292,27 +292,27 @@ func Test_updateSpaceRecord(t *testing.T) {
 			args: args{
 				uid:      "test_user_id",
 				memberID: "test_member_id1",
-				team: dbo4spaceus2.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus2.SpaceDbo{
-					SpaceBrief: dbo4spaceus2.SpaceBrief{
+				team: dbo4spaceus.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus.SpaceDbo{
+					SpaceBrief: dbo4spaceus.SpaceBrief{
 						Type:  "family",
 						Title: "Family",
 					},
 				}),
-				contactusSpace: dal4contactus2.NewContactusSpaceEntryWithData("testteamid", &dbo4contactus.ContactusSpaceDbo{
-					WithSingleSpaceContactsWithoutContactIDs: briefs4contactus2.WithSingleSpaceContactsWithoutContactIDs[*briefs4contactus2.ContactBrief]{
-						WithContactsBase: briefs4contactus2.WithContactsBase[*briefs4contactus2.ContactBrief]{
-							WithContactBriefs: briefs4contactus2.WithContactBriefs[*briefs4contactus2.ContactBrief]{
-								Contacts: map[string]*briefs4contactus2.ContactBrief{
+				contactusSpace: dal4contactus.NewContactusSpaceEntryWithData("testteamid", &dbo4contactus.ContactusSpaceDbo{
+					WithSingleSpaceContactsWithoutContactIDs: briefs4contactus.WithSingleSpaceContactsWithoutContactIDs[*briefs4contactus.ContactBrief]{
+						WithContactsBase: briefs4contactus.WithContactsBase[*briefs4contactus.ContactBrief]{
+							WithContactBriefs: briefs4contactus.WithContactBriefs[*briefs4contactus.ContactBrief]{
+								Contacts: map[string]*briefs4contactus.ContactBrief{
 									testMember.ID: &testMember.Data.ContactBrief,
 								},
 							},
 						},
 					},
 				}),
-				requestMember: dbmodels.DtoWithID[*briefs4contactus2.ContactBase]{
+				requestMember: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 					ID: testMember.ID,
-					Data: &briefs4contactus2.ContactBase{
-						ContactBrief: briefs4contactus2.ContactBrief{
+					Data: &briefs4contactus.ContactBase{
+						ContactBrief: briefs4contactus.ContactBrief{
 							Names: &person.NameFields{
 								FirstName: "First name",
 							},
@@ -331,7 +331,7 @@ func Test_updateSpaceRecord(t *testing.T) {
 			//tx.EXPECT().Update(gomock.Any(), tt.args.team.Key, gomock.Any()).Return(nil)
 			//tx.EXPECT().Update(gomock.Any(), tt.args.contactusSpace.Key, gomock.Any()).Return(nil)
 			tt.args.contactusSpace.Record.SetError(tt.teamRecordErr)
-			params := dal4contactus2.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.uid), tt.args.team.ID)
+			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.uid), tt.args.team.ID)
 			params.SpaceModuleEntry.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
 			params.SpaceModuleEntry.Data.AddUserID(tt.args.uid)
 			params.Space.Data.AddUserID(tt.args.uid)
