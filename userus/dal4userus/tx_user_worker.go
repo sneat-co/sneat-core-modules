@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// UserWorkerParams passes data to a team worker
+// UserWorkerParams passes data to a space worker
 type UserWorkerParams struct {
 	Started     time.Time
 	User        dbo4userus.UserEntry
@@ -38,7 +38,7 @@ var RunUserWorker = func(ctx context.Context, userCtx facade.UserContext, userRe
 			return
 		}
 		if err = worker(ctx, tx, &params); err != nil {
-			return fmt.Errorf("failed to execute teamWorker: %w", err)
+			return fmt.Errorf("failed to execute spaceWorker: %w", err)
 		}
 		if err = params.User.Data.Validate(); err != nil {
 			return fmt.Errorf("user record is not valid after userWorker completion: %w", err)

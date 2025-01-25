@@ -82,11 +82,11 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 	type args struct {
 		user              dbo4userus.UserEntry
 		userRecordError   error
-		teamRecordError   error
+		spaceRecordError  error
 		inviteRecordError error
 		request           AcceptPersonalInviteRequest
-		team              dbo4spaceus.SpaceEntry
-		teamMember        dbmodels.DtoWithID[*briefs4contactus.ContactBase]
+		space             dbo4spaceus.SpaceEntry
+		spaceMember       dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 		invite            PersonalInviteEntry
 	}
 
@@ -100,7 +100,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			args: args{
 				user:            dbo4userus.NewUserEntry("test_user_id"),
 				userRecordError: dal.ErrRecordNotFound,
-				team: dbo4spaceus.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus.SpaceDbo{
+				space: dbo4spaceus.NewSpaceEntryWithDbo("testspaceid", &dbo4spaceus.SpaceDbo{
 					SpaceBrief: dbo4spaceus.SpaceBrief{
 						OptionalCountryID: with.OptionalCountryID{
 							CountryID: with.UnknownCountryID,
@@ -109,7 +109,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						Title: "Family",
 					},
 				}),
-				teamMember: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
+				spaceMember: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 					ID: "test_member_id2",
 					Data: &briefs4contactus.ContactBase{
 						ContactBrief: briefs4contactus.ContactBrief{
@@ -136,7 +136,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 					},
 					InviteRequest: InviteRequest{
 						SpaceRequest: dto4spaceus.SpaceRequest{
-							SpaceID: "testteamid",
+							SpaceID: "testspaceid",
 						},
 						InviteID: "test_personal_invite_id",
 						Pin:      "1234",
@@ -165,16 +165,16 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
 			//
 			tt.args.user.Record.SetError(tt.args.userRecordError)
-			tt.args.team.Record.SetError(tt.args.teamRecordError)
+			tt.args.space.Record.SetError(tt.args.spaceRecordError)
 			tt.args.invite.Record.SetError(tt.args.inviteRecordError)
 			//
 			tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
-			if tt.args.userRecordError == nil && tt.args.teamRecordError == nil && tt.args.inviteRecordError == nil {
+			if tt.args.userRecordError == nil && tt.args.spaceRecordError == nil && tt.args.inviteRecordError == nil {
 				tx.EXPECT().Insert(gomock.Any(), tt.args.user.Record).Return(nil)
 			}
 			now := time.Now()
-			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.team.ID)
-			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, params, tt.args.teamMember.Data, tt.args.invite); err != nil {
+			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.space.ID)
+			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, params, tt.args.spaceMember.Data, tt.args.invite); err != nil {
 				if !tt.wantErr {
 					t.Errorf("createOrUpdateUserRecord() error = %v, wantErr %v", err, tt.wantErr)
 				}
@@ -186,8 +186,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			assert.Equal(t, 1, len(userDto.Spaces), "len(Spaces)")
 			assert.Equal(t, 1, len(userDto.SpaceIDs), "len(SpaceIDs)")
 			assert.True(t, slices.Contains(userDto.SpaceIDs, tt.args.request.SpaceID), "SpaceIDs contains tt.args.request.Space")
-			teamBrief := userDto.Spaces[tt.args.request.SpaceID]
-			assert.NotNil(t, teamBrief, "Spaces[tt.args.request.Space]")
+			spaceBrief := userDto.Spaces[tt.args.request.SpaceID]
+			assert.NotNil(t, spaceBrief, "Spaces[tt.args.request.Space]")
 		})
 	}
 }
@@ -214,9 +214,9 @@ func Test_updateInviteRecord(t *testing.T) {
 					Address:         "to.test.user@example.com",
 					InviteDbo: dbo4invitus.InviteDbo{
 						Pin:     "1234",
-						SpaceID: "testteamid1",
+						SpaceID: "testspaceid1",
 						Space: dbo4invitus.InviteSpace{
-							ID:    "testteamid1",
+							ID:    "testspaceid1",
 							Type:  "family",
 							Title: "Family",
 						},
@@ -271,7 +271,7 @@ func Test_updateSpaceRecord(t *testing.T) {
 	type args struct {
 		uid            string
 		memberID       string
-		team           dbo4spaceus.SpaceEntry
+		space          dbo4spaceus.SpaceEntry
 		contactusSpace dal4contactus.ContactusSpaceEntry
 		requestMember  dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 	}
@@ -281,24 +281,24 @@ func Test_updateSpaceRecord(t *testing.T) {
 	}
 	tests := []struct {
 		name            string
-		teamRecordErr   error
+		spaceRecordErr  error
 		args            args
 		wantSpaceMember dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 		wantErr         bool
 	}{
 		{
-			name:          "should_pass",
-			teamRecordErr: nil,
+			name:           "should_pass",
+			spaceRecordErr: nil,
 			args: args{
 				uid:      "test_user_id",
 				memberID: "test_member_id1",
-				team: dbo4spaceus.NewSpaceEntryWithDbo("testteamid", &dbo4spaceus.SpaceDbo{
+				space: dbo4spaceus.NewSpaceEntryWithDbo("testspaceid", &dbo4spaceus.SpaceDbo{
 					SpaceBrief: dbo4spaceus.SpaceBrief{
 						Type:  "family",
 						Title: "Family",
 					},
 				}),
-				contactusSpace: dal4contactus.NewContactusSpaceEntryWithData("testteamid", &dbo4contactus.ContactusSpaceDbo{
+				contactusSpace: dal4contactus.NewContactusSpaceEntryWithData("testspaceid", &dbo4contactus.ContactusSpaceDbo{
 					WithSingleSpaceContactsWithoutContactIDs: briefs4contactus.WithSingleSpaceContactsWithoutContactIDs[*briefs4contactus.ContactBrief]{
 						WithContactsBase: briefs4contactus.WithContactsBase[*briefs4contactus.ContactBrief]{
 							WithContactBriefs: briefs4contactus.WithContactBriefs[*briefs4contactus.ContactBrief]{
@@ -328,10 +328,10 @@ func Test_updateSpaceRecord(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			//mockCtrl := gomock.NewController(t)
 			//tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
-			//tx.EXPECT().Update(gomock.Any(), tt.args.team.Key, gomock.Any()).Return(nil)
+			//tx.EXPECT().Update(gomock.Any(), tt.args.space.Key, gomock.Any()).Return(nil)
 			//tx.EXPECT().Update(gomock.Any(), tt.args.contactusSpace.Key, gomock.Any()).Return(nil)
-			tt.args.contactusSpace.Record.SetError(tt.teamRecordErr)
-			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.uid), tt.args.team.ID)
+			tt.args.contactusSpace.Record.SetError(tt.spaceRecordErr)
+			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.uid), tt.args.space.ID)
 			params.SpaceModuleEntry.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
 			params.SpaceModuleEntry.Data.AddUserID(tt.args.uid)
 			params.Space.Data.AddUserID(tt.args.uid)

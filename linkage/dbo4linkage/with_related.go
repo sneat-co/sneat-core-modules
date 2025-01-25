@@ -164,7 +164,7 @@ func (v *WithRelatedAndIDs) GetRelated() *WithRelatedAndIDs {
 
 type WithRelated struct {
 	// Related defines relationships of the current contact to other contacts.
-	// Key is team ContactID.
+	// Key is space ContactID.
 	Related RelatedByModuleID `json:"related,omitempty" firestore:"related,omitempty"`
 }
 

@@ -5,7 +5,7 @@ import (
 	"github.com/strongo/validation"
 )
 
-// CreatePersonRequest - base for CreateMemberRequest & facade4contactus.CreateTeamContactRequest
+// CreatePersonRequest - base for CreateMemberRequest & facade4contactus.CreateSpaceContactRequest
 type CreatePersonRequest struct {
 	briefs4contactus.ContactBase
 	Message string `json:"message"`

@@ -10,7 +10,7 @@ import (
 
 var removeMetrics = facade4spaceus.RemoveMetrics
 
-// httpPostRemoveMetrics is an API endpoint that removes a team metric
+// httpPostRemoveMetrics is an API endpoint that removes a space metric
 func httpPostRemoveMetrics(w http.ResponseWriter, r *http.Request) {
 	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {

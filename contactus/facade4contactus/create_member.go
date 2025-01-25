@@ -11,7 +11,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-// CreateMember adds members to a team
+// CreateMember adds members to a space
 func CreateMember(
 	ctx context.Context,
 	userCtx facade.UserContext,
@@ -40,7 +40,7 @@ func CreateMember(
 		return response, fmt.Errorf("CreateContact returned nil response data")
 	}
 	if !checks4contactus.IsSpaceMember(response.Data.Roles) {
-		err = fmt.Errorf("created contact does not have team member role")
+		err = fmt.Errorf("created contact does not have space member role")
 		return response, err
 	}
 	return response, err

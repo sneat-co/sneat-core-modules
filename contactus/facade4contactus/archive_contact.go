@@ -8,7 +8,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-// ArchiveContact archives team contact - e.g., hides it from the list of contacts
+// ArchiveContact archives space contact - e.g., hides it from the list of contacts
 func ArchiveContact(ctx context.Context, userCtx facade.UserContext, request dto4contactus.ContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return

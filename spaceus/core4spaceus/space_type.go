@@ -17,8 +17,8 @@ const (
 	// SpaceTypeCompany is a "company" space type
 	SpaceTypeCompany SpaceType = "company"
 
-	// SpaceTypeTeam is a "space" space type
-	SpaceTypeTeam SpaceType = "team"
+	// SpaceTypeSpace is a "space" space type
+	SpaceTypeSpace SpaceType = "space"
 
 	// SpaceTypeClub is a "club" space type
 	SpaceTypeClub SpaceType = "club"
@@ -59,7 +59,7 @@ func NewSpaceRef(spaceType SpaceType, spaceID string) SpaceRef {
 // IsValidSpaceType checks if space has a valid/known type
 func IsValidSpaceType(v SpaceType) bool {
 	switch v {
-	case SpaceTypeFamily, SpaceTypePrivate, SpaceTypeCompany, SpaceTypeTeam, SpaceTypeClub:
+	case SpaceTypeFamily, SpaceTypePrivate, SpaceTypeCompany, SpaceTypeSpace, SpaceTypeClub:
 		return true
 	default:
 		return false

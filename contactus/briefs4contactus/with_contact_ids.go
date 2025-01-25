@@ -48,8 +48,8 @@ type WithMultiSpaceContactIDs struct {
 	WithContactIDs
 }
 
-func (v *WithMultiSpaceContactIDs) AddSpaceContactID(teamContactID dbmodels.SpaceItemID) {
-	v.ContactIDs = append(v.ContactIDs, string(teamContactID))
+func (v *WithMultiSpaceContactIDs) AddSpaceContactID(spaceContactID dbmodels.SpaceItemID) {
+	v.ContactIDs = append(v.ContactIDs, string(spaceContactID))
 }
 
 // Validate  returns error if not valid
@@ -81,6 +81,6 @@ func (v *WithMultiSpaceContactIDs) Validate() error {
 }
 
 // HasSpaceContactID check if a record has a specific contactBrief ContactID
-func (v *WithMultiSpaceContactIDs) HasSpaceContactID(teamItemID dbmodels.SpaceItemID) bool {
-	return slices.Contains(v.ContactIDs, string(teamItemID))
+func (v *WithMultiSpaceContactIDs) HasSpaceContactID(spaceItemID dbmodels.SpaceItemID) bool {
+	return slices.Contains(v.ContactIDs, string(spaceItemID))
 }

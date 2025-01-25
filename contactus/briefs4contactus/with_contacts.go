@@ -115,8 +115,8 @@ func (v *WithMultiSpaceContacts[T]) Updates(contactIDs ...dbmodels.SpaceItemID) 
 }
 
 // SetContactBrief sets contactBrief brief by ContactID
-func (v *WithMultiSpaceContacts[T]) SetContactBrief(teamID, contactID string, contactBrief T) (updates []dal.Update) {
-	id := string(dbmodels.NewSpaceItemID(teamID, contactID))
+func (v *WithMultiSpaceContacts[T]) SetContactBrief(spaceID, contactID string, contactBrief T) (updates []dal.Update) {
+	id := string(dbmodels.NewSpaceItemID(spaceID, contactID))
 	if !slices.Contains(v.ContactIDs, id) {
 		v.ContactIDs = append(v.ContactIDs, id)
 		updates = append(updates, dal.Update{
@@ -146,8 +146,8 @@ func (v *WithMultiSpaceContacts[T]) ParentContactBrief() (i int, id dbmodels.Spa
 }
 
 // GetContactBriefByID returns contactBrief brief by ContactID
-func (v *WithMultiSpaceContacts[T]) GetContactBriefByID(teamID, contactID string) (i int, brief T) {
-	id := dbmodels.NewSpaceItemID(teamID, contactID)
+func (v *WithMultiSpaceContacts[T]) GetContactBriefByID(spaceID, contactID string) (i int, brief T) {
+	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	if brief, ok := v.Contacts[string(id)]; !ok {
 		return -1, brief
 	}
@@ -164,8 +164,8 @@ func (v *WithMultiSpaceContacts[T]) GetContactBriefByUserID(userID string) (id d
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) AddContact(teamID, contactID string, c T) (updates []dal.Update) {
-	id := dbmodels.NewSpaceItemID(teamID, contactID)
+func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (updates []dal.Update) {
+	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	if !slices.Contains(v.ContactIDs, string(id)) {
 		if len(v.ContactIDs) == 0 {
 			v.ContactIDs = make([]string, 1, 2)
@@ -190,8 +190,8 @@ func (v *WithMultiSpaceContacts[T]) AddContact(teamID, contactID string, c T) (u
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) RemoveContact(teamID, contactID string) (updates []dal.Update) {
-	id := dbmodels.NewSpaceItemID(teamID, contactID)
+func (v *WithMultiSpaceContacts[T]) RemoveContact(spaceID, contactID string) (updates []dal.Update) {
+	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	contactIDs := slice.RemoveInPlaceByValue(v.ContactIDs, string(id))
 	if len(contactIDs) != len(v.ContactIDs) {
 		v.ContactIDs = contactIDs

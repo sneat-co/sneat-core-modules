@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-// httpPostRemoveSpaceMember is an API endpoint that removes a members from a team
+// httpPostRemoveSpaceMember is an API endpoint that removes a members from a space
 func httpPostRemoveSpaceMember(w http.ResponseWriter, r *http.Request) {
 	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {

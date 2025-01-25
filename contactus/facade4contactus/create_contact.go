@@ -20,7 +20,7 @@ import (
 	"slices"
 )
 
-// CreateContact creates team contact
+// CreateContact creates space contact
 func CreateContact(
 	ctx context.Context,
 	userCtx facade.UserContext,
@@ -75,7 +75,7 @@ func CreateContactTx(
 	}
 	userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(params.UserID())
 	if !userCanBeNonSpaceMember && (userContactBrief == nil || !userContactBrief.IsSpaceMember()) {
-		err = errors.New("user is not a member of the team")
+		err = errors.New("user is not a member of the space")
 		return
 	}
 	if request.Related != nil {
@@ -190,11 +190,11 @@ func CreateContactTx(
 				Value: params.SpaceModuleEntry.Data.Contacts,
 			},
 		}); err != nil {
-			return contact, fmt.Errorf("failed to update team contact briefs: %w", err)
+			return contact, fmt.Errorf("failed to update space contact briefs: %w", err)
 		}
 	} else {
 		if err = tx.Insert(ctx, params.SpaceModuleEntry.Record); err != nil {
-			return contact, fmt.Errorf("faield to insert team contacts brief record: %w", err)
+			return contact, fmt.Errorf("faield to insert space contacts brief record: %w", err)
 		}
 	}
 

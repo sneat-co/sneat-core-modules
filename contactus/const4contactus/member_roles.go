@@ -46,6 +46,6 @@ var SpaceMemberWellKnownRoles = []SpaceMemberRole{
 }
 
 // IsKnownSpaceMemberRole checks if a role has a valid value
-func IsKnownSpaceMemberRole(role SpaceMemberRole, teamRoles []SpaceMemberRole) bool {
-	return teamRoles == nil || slices.Contains(SpaceMemberWellKnownRoles, role) || slices.Contains(teamRoles, role)
+func IsKnownSpaceMemberRole(role SpaceMemberRole, spaceRoles []SpaceMemberRole) bool {
+	return spaceRoles == nil || slices.Contains(SpaceMemberWellKnownRoles, role) || slices.Contains(spaceRoles, role)
 }

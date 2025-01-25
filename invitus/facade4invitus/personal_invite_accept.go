@@ -45,7 +45,7 @@ func (v *AcceptPersonalInviteRequest) Validate() error {
 	return nil
 }
 
-// AcceptPersonalInvite accepts personal invite and joins user to a team.
+// AcceptPersonalInvite accepts personal invite and joins user to a space.
 // If needed a user record should be created
 func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, request AcceptPersonalInviteRequest) (err error) {
 	if err = request.Validate(); err != nil {
@@ -84,13 +84,13 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 
 			var spaceMember *briefs4contactus.ContactBase
 			if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceMemberID, params, request.Member); err != nil {
-				return fmt.Errorf("failed to update team record: %w", err)
+				return fmt.Errorf("failed to update space record: %w", err)
 			}
 
 			memberContext := dal4contactus.NewContactEntry(params.Space.ID, member.ID)
 
 			if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
-				return fmt.Errorf("failed to update team member record: %w", err)
+				return fmt.Errorf("failed to update space member record: %w", err)
 			}
 
 			if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, invite); err != nil {
@@ -141,12 +141,12 @@ func updateMemberRecord(
 	uid string,
 	member dal4contactus.ContactEntry,
 	requestMember *briefs4contactus.ContactBase,
-	teamMember *briefs4contactus.ContactBase,
+	spaceMember *briefs4contactus.ContactBase,
 ) (err error) {
 	updates := []dal.Update{
 		{Field: "userID", Value: uid},
 	}
-	updates = updatePersonDetails(&member.Data.ContactBase, requestMember, teamMember, updates)
+	updates = updatePersonDetails(&member.Data.ContactBase, requestMember, spaceMember, updates)
 	if err = tx.Update(ctx, member.Key, updates); err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func updateSpaceRecord(
 	uid, memberID string,
 	params *dal4contactus.ContactusSpaceWorkerParams,
 	requestMember dbmodels.DtoWithID[*briefs4contactus.ContactBase],
-) (teamMember *briefs4contactus.ContactBase, err error) {
+) (spaceMember *briefs4contactus.ContactBase, err error) {
 	if uid == "" {
 		panic("required parameter `uid` is empty string")
 	}
@@ -171,11 +171,11 @@ func updateSpaceRecord(
 			//request.ContactID.Roles = m.Roles
 			//m = request.ContactID
 			m.UserID = uid
-			teamMember = &briefs4contactus.ContactBase{
+			spaceMember = &briefs4contactus.ContactBase{
 				ContactBrief: *m,
 			}
-			//team.Members[i] = m
-			updatePersonDetails(teamMember, requestMember.Data, teamMember, nil)
+			//space.Members[i] = m
+			updatePersonDetails(spaceMember, requestMember.Data, spaceMember, nil)
 			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, params.SpaceModuleEntry.Data.AddUserID(uid)...)
 			if m.AddRole(const4contactus.SpaceMemberRoleMember) {
 				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
@@ -183,8 +183,8 @@ func updateSpaceRecord(
 			break
 		}
 	}
-	if teamMember == nil {
-		return teamMember, fmt.Errorf("space member is not found by inviteToMemberID=%s", inviteToMemberID)
+	if spaceMember == nil {
+		return spaceMember, fmt.Errorf("space member is not found by inviteToMemberID=%s", inviteToMemberID)
 	}
 
 	if params.Space.Data.HasUserID(uid) {
@@ -192,7 +192,7 @@ func updateSpaceRecord(
 	}
 	params.SpaceUpdates = append(params.SpaceUpdates, dal.Update{Field: "userIDs", Value: params.Space.Data.UserIDs})
 UserIdAdded:
-	return teamMember, err
+	return spaceMember, err
 }
 
 func createOrUpdateUserRecord(
@@ -202,16 +202,16 @@ func createOrUpdateUserRecord(
 	user dbo4userus.UserEntry,
 	request AcceptPersonalInviteRequest,
 	params *dal4contactus.ContactusSpaceWorkerParams,
-	teamMember *briefs4contactus.ContactBase,
+	spaceMember *briefs4contactus.ContactBase,
 	invite PersonalInviteEntry,
 ) (err error) {
-	if teamMember == nil {
+	if spaceMember == nil {
 		panic("spaceMember == nil")
 	}
 	existingUser := user.Record.Exists()
 	if existingUser {
-		teamInfo := user.Data.GetUserSpaceInfoByID(request.SpaceID)
-		if teamInfo != nil {
+		spaceInfo := user.Data.GetUserSpaceInfoByID(request.SpaceID)
+		if spaceInfo != nil {
 			return nil
 		}
 	}
@@ -221,7 +221,7 @@ func createOrUpdateUserRecord(
 		Roles:      invite.Data.Roles, // TODO: Validate roles?
 	}
 	if err = userSpaceInfo.Validate(); err != nil {
-		return fmt.Errorf("invalid user team info: %w", err)
+		return fmt.Errorf("invalid user space info: %w", err)
 	}
 	user.Data.Spaces[request.SpaceID] = &userSpaceInfo
 	user.Data.SpaceIDs = append(user.Data.SpaceIDs, request.SpaceID)
@@ -232,7 +232,7 @@ func createOrUpdateUserRecord(
 				Value: user.Data.Spaces,
 			},
 		}
-		userUpdates = updatePersonDetails(&user.Data.ContactBase, request.Member.Data, teamMember, userUpdates)
+		userUpdates = updatePersonDetails(&user.Data.ContactBase, request.Member.Data, spaceMember, userUpdates)
 		if err = user.Data.Validate(); err != nil {
 			return fmt.Errorf("user record prepared for update is not valid: %w", err)
 		}
@@ -245,9 +245,9 @@ func createOrUpdateUserRecord(
 		user.Data.Type = briefs4contactus.ContactTypePerson
 		user.Data.Names = request.Member.Data.Names
 		if user.Data.Names.IsEmpty() {
-			user.Data.Names = teamMember.Names
+			user.Data.Names = spaceMember.Names
 		}
-		updatePersonDetails(&user.Data.ContactBase, request.Member.Data, teamMember, nil)
+		updatePersonDetails(&user.Data.ContactBase, request.Member.Data, spaceMember, nil)
 		if user.Data.Gender == "" {
 			user.Data.Gender = "unknown"
 		}
@@ -270,7 +270,7 @@ func createOrUpdateUserRecord(
 	return err
 }
 
-func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, teamMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
+func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, spaceMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
 	if member.Names != nil {
 		if personContact.Names == nil {
 			personContact.Names = new(person.NameFields)
@@ -278,7 +278,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 		if personContact.Names.FirstName == "" {
 			name := member.Names.FirstName
 			if name == "" {
-				name = teamMember.Names.FirstName
+				name = spaceMember.Names.FirstName
 			}
 			if name != "" {
 				personContact.Names.FirstName = name
@@ -293,7 +293,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 		if personContact.Names.LastName == "" {
 			name := member.Names.LastName
 			if name == "" {
-				name = teamMember.Names.LastName
+				name = spaceMember.Names.LastName
 			}
 			if name != "" {
 				personContact.Names.LastName = name
@@ -308,7 +308,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 		if personContact.Names.FullName == "" {
 			name := member.Names.FullName
 			if name == "" {
-				name = teamMember.Names.FullName
+				name = spaceMember.Names.FullName
 			}
 			if name != "" {
 				personContact.Names.FullName = name
@@ -324,7 +324,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 	if personContact.Gender == "" || personContact.Gender == "unknown" {
 		gender := member.Gender
 		if gender == "" || gender == "unknown" {
-			gender = teamMember.Gender
+			gender = spaceMember.Gender
 		}
 		if gender == "" {
 			gender = "unknown"

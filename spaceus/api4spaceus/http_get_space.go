@@ -10,7 +10,7 @@ import (
 
 //var getSpaceByID = facade4spaceus.GetSpaceByID
 
-// httpGetSpace is an API endpoint that return team data
+// httpGetSpace is an API endpoint that return space data
 func httpGetSpace(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	verifyOptions := verify.Request(verify.AuthenticationRequired(true))

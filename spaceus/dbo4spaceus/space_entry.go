@@ -6,9 +6,9 @@ import (
 
 type SpaceEntry = record.DataWithID[string, *SpaceDbo]
 
-func NewSpaceEntry(id string) (team SpaceEntry) {
-	teamDto := new(SpaceDbo)
-	return NewSpaceEntryWithDbo(id, teamDto)
+func NewSpaceEntry(id string) (space SpaceEntry) {
+	spaceDto := new(SpaceDbo)
+	return NewSpaceEntryWithDbo(id, spaceDto)
 }
 
 func NewSpaceEntryWithDbo(id string, dbo *SpaceDbo) (space SpaceEntry) {

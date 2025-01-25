@@ -1,6 +1,6 @@
 package facade4contactus
 
-//func updateTeamDtoWithNumberOfContact(numberOfContacts int) (update dal.Update) {
+//func updateSpaceDtoWithNumberOfContact(numberOfContacts int) (update dal.Update) {
 //	var value interface{}
 //	if numberOfContacts == 0 {
 //		value = dal.DeleteField

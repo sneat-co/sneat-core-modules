@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// httpPostRefuseToJoinSpace an API endpoint that records user refusal to join a team
+// httpPostRefuseToJoinSpace an API endpoint that records user refusal to join a space
 func httpPostRefuseToJoinSpace(w http.ResponseWriter, r *http.Request) {
 	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithNoAuthRequired)
 	if err != nil {

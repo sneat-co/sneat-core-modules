@@ -6,7 +6,5 @@
 ## Core modules for Sneat apps:
 
 - [contactus](./contactus) - contacts management
-- [invitus](./invitus) - invites and referrals
-- [calendarium](./calendarium) - calendar management
-- [teamus](./teamus) - teams management
+- [spaceus](./spaceus) - spaces management
 - [userus](./userus) - users management

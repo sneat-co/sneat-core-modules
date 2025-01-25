@@ -14,7 +14,7 @@ const RelatedAsParent = "parent"
 func GetRelatedContacts(
 	ctx context.Context,
 	tx dal.ReadTransaction,
-	teamID, relatedAs string,
+	spaceID, relatedAs string,
 	deepness, maxDeepness int,
 	contacts []dal4contactus.ContactEntry,
 ) (
@@ -33,7 +33,7 @@ func GetRelatedContacts(
 				itemID := dbmodels.SpaceItemID(relatedContactID).ItemID()
 				if _, found := dal4contactus.FindContactEntryByContactID(related, itemID); !found {
 					if _, found = dal4contactus.FindContactEntryByContactID(directlyRelated, itemID); !found {
-						directlyRelated = append(related, dal4contactus.NewContactEntry(teamID, itemID))
+						directlyRelated = append(related, dal4contactus.NewContactEntry(spaceID, itemID))
 					}
 				}
 			}
@@ -49,7 +49,7 @@ func GetRelatedContacts(
 			return nil, fmt.Errorf("failed to get contacts related as %v: %w", relatedAs, err)
 		}
 		if maxDeepness < 0 || deepness < maxDeepness {
-			indirectlyRelated, err := GetRelatedContacts(ctx, tx, teamID, relatedAs, deepness+1, maxDeepness, directlyRelated)
+			indirectlyRelated, err := GetRelatedContacts(ctx, tx, spaceID, relatedAs, deepness+1, maxDeepness, directlyRelated)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get indirectly related contacts: %w", err)
 			}

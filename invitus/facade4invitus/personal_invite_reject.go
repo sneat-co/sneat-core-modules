@@ -39,12 +39,12 @@ func RejectPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 	if err = request.Validate(); err != nil {
 		return err
 	}
-	team := dbo4spaceus.NewSpaceEntry(request.SpaceID)
+	space := dbo4spaceus.NewSpaceEntry(request.SpaceID)
 	invite := NewPersonalInviteEntry(request.InviteID)
 	uid := userCtx.GetUserID()
 
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
-		records := []dal.Record{team.Record, invite.Record}
+		records := []dal.Record{space.Record, invite.Record}
 		err := tx.GetMulti(ctx, records)
 		if err != nil {
 			return err

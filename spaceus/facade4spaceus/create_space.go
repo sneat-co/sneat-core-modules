@@ -232,9 +232,9 @@ func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string)
 			return "", errors.New("too many attempts to get an unique space ContactID")
 		}
 		spaceID = strings.ToLower(spaceID)
-		teamKey := dal.NewKeyWithID(dbo4spaceus.SpacesCollection, spaceID)
-		teamRecord := dal.NewRecordWithData(teamKey, nil)
-		if err = getter.Get(ctx, teamRecord); dal.IsNotFound(err) {
+		spaceKey := dal.NewKeyWithID(dbo4spaceus.SpacesCollection, spaceID)
+		spaceRecord := dal.NewRecordWithData(spaceKey, nil)
+		if err = getter.Get(ctx, spaceRecord); dal.IsNotFound(err) {
 			return spaceID, nil
 		} else if err != nil {
 			return spaceID, err

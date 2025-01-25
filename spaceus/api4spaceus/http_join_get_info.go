@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-// httpPostGetSpaceJoinInfo is an API endpoint that return team info for user willing to join
+// httpPostGetSpaceJoinInfo is an API endpoint that return space info for user willing to join
 func httpPostGetSpaceJoinInfo(w http.ResponseWriter, r *http.Request) {
 	ctx, err := apicore.VerifyRequest(w, r, verify.DefaultJsonWithNoAuthRequired)
 	if err != nil {

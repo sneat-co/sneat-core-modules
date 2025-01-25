@@ -22,10 +22,10 @@ import (
 
 func TestHttpAddMember(t *testing.T) {
 
-	const teamID = "unit-test"
+	const spaceID = "unit-test"
 	request := dal4contactus.CreateMemberRequest{
 		SpaceRequest: dto4spaceus.SpaceRequest{
-			SpaceID: teamID,
+			SpaceID: spaceID,
 		},
 		WithRelated: dbo4linkage.WithRelated{
 			Related: dbo4linkage.RelatedByModuleID{
@@ -82,13 +82,13 @@ func TestHttpAddMember(t *testing.T) {
 
 	//t.Log(buffer.String())
 
-	req := httpmock.NewPostJSONRequest(http.MethodPost, "/v0/team/create_member", request)
+	req := httpmock.NewPostJSONRequest(http.MethodPost, "/v0/space/create_member", request)
 	req.Host = "localhost"
 	req.Header.Set("Origin", "http://localhost:3000")
 
 	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (response dto4contactus.CreateContactResponse, err error) {
-		if request.SpaceID != teamID {
-			t.Fatalf("Expected teamID=%s, got: %s", teamID, request.SpaceID)
+		if request.SpaceID != spaceID {
+			t.Fatalf("Expected spaceID=%s, got: %s", spaceID, request.SpaceID)
 		}
 		response.ID = "abc1"
 		response.Data = &dbo4contactus.ContactDbo{

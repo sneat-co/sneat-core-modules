@@ -85,7 +85,7 @@ func setContactStatusTxWorker(
 		if err := params.Space.Data.Validate(); err != nil {
 			return err
 		}
-		//params.SpaceUpdates = append(params.SpaceUpdates, updateTeamDtoWithNumberOfContact(len(params.SpaceModuleEntry.Data.Contacts)))
+		//params.SpaceUpdates = append(params.SpaceUpdates, updateSpaceDtoWithNumberOfContact(len(params.SpaceModuleEntry.Data.Contacts)))
 	}
 	if status == "active" {
 		params.SpaceModuleEntry.Data.AddContact(contact.ID, &contact.Data.ContactBrief)
@@ -93,7 +93,7 @@ func setContactStatusTxWorker(
 	if params.SpaceModuleEntry.Record.Exists() {
 		if len(params.SpaceModuleEntry.Data.Contacts) == 0 {
 			if err := tx.Delete(ctx, params.SpaceModuleEntry.Key); err != nil {
-				return fmt.Errorf("failed to delete team contacts brief record: %w", err)
+				return fmt.Errorf("failed to delete space contacts brief record: %w", err)
 			}
 		} else {
 			if err := tx.Update(ctx, params.SpaceModuleEntry.Key, []dal.Update{
@@ -102,12 +102,12 @@ func setContactStatusTxWorker(
 					Value: params.SpaceModuleEntry.Data.Contacts,
 				},
 			}); err != nil {
-				return fmt.Errorf("failed to put team contacts brief: %w", err)
+				return fmt.Errorf("failed to put space contacts brief: %w", err)
 			}
 		}
 	} else if len(params.SpaceModuleEntry.Data.Contacts) > 0 {
 		if err := tx.Insert(ctx, params.SpaceModuleEntry.Record); err != nil {
-			return fmt.Errorf("failed to insert team contacts brief record: %w", err)
+			return fmt.Errorf("failed to insert space contacts brief record: %w", err)
 		}
 	}
 	return nil

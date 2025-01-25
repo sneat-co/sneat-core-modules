@@ -19,14 +19,14 @@ const inviteEmailTemplateText = `
 </p>
 
 <p>
-	To join <b>{{.team.Title}}</b> please follow the link:
+	To join <b>{{.space.Title}}</b> please follow the link:
 </p>
 
 <p>
-	https://{{.hostPath}}/join/{{.team.Type}}?id={{.id}}#pin={{.pinCode}}
+	https://{{.hostPath}}/join/{{.space.Type}}?id={{.id}}#pin={{.pinCode}}
 </p>
 
-<p>You personal PIN code to join the team is: <b><code>{{.pinCode}}</code></b></p>
+<p>You personal PIN code to join the space is: <b><code>{{.pinCode}}</code></b></p>
 
 <p>https://sneat.app/ - A family app that saves you time & money.</p>
 

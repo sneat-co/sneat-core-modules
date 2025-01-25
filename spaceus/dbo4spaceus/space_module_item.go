@@ -6,8 +6,8 @@ import (
 )
 
 func NewSpaceModuleItemKey[K comparable](spaceID, moduleID, collection string, itemID K) *dal.Key {
-	teamModuleKey := NewSpaceModuleKey(spaceID, moduleID)
-	return dal.NewKeyWithParentAndID(teamModuleKey, collection, itemID)
+	spaceModuleKey := NewSpaceModuleKey(spaceID, moduleID)
+	return dal.NewKeyWithParentAndID(spaceModuleKey, collection, itemID)
 }
 
 func NewSpaceModuleItemKeyFromItemRef(itemRef dbo4linkage.SpaceModuleItemRef) *dal.Key {

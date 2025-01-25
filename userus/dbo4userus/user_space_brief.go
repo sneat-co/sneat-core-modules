@@ -8,14 +8,14 @@ import (
 	"github.com/strongo/validation"
 )
 
-// UserSpaceBrief hold info on a team in the UserDbo record
+// UserSpaceBrief hold info on a space in the UserDbo record
 type UserSpaceBrief struct {
 	dbo4spaceus.SpaceBrief
 
-	// UserContactID is a contact ContactID of a user in the team
+	// UserContactID is a contact ContactID of a user in the space
 	UserContactID string `json:"userContactID" firestore:"userContactID"`
 
-	// UserEntry roles in the team
+	// UserEntry roles in the space
 	Roles []string `json:"roles" firestore:"roles"`
 
 	//MemberType    string   `json:"memberType" firestore:"memberType"` // TODO: document what it is
@@ -49,7 +49,7 @@ func (v UserSpaceBrief) Validate() error {
 	//	return validation.NewErrRecordIsMissingRequiredField("memberType")
 	//}
 	if !core4spaceus.IsValidSpaceType(v.Type) {
-		return validation.NewErrBadRecordFieldValue("type", "unknown team type")
+		return validation.NewErrBadRecordFieldValue("type", "unknown space type")
 	}
 	if len(v.Roles) == 0 {
 		return validation.NewErrRecordIsMissingRequiredField("roles")

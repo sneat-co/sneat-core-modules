@@ -110,7 +110,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 	//	user     facade4debtus.User
 	//	request  dto4spaceus.SpaceRequest
 	//	moduleID string
-	//	worker   func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error)
+	//	worker   func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error)
 	//}
 	//type testCase[ModuleDbo SpaceModuleDbo] struct {
 	//	name    string
@@ -134,12 +134,12 @@ func TestRunModuleSpaceWorkerTx(t *testing.T) {
 	user := &facade.AuthUserContext{ID: "user1"}
 	spaceID := "space1"
 	const moduleID = "test_module"
-	//assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, teamWorkerParams *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
-	//	assert.NotNil(t, teamWorkerParams)
-	//	assert.NotNil(t, teamWorkerParams.SpaceModuleEntry)
-	//	assert.NotNil(t, teamWorkerParams.SpaceModuleEntry.Record)
-	//	assert.NotNil(t, teamWorkerParams.SpaceModuleEntry.Data)
-	//	assert.NotNil(t, teamWorkerParams.SpaceModuleEntry.Record.Data())
+	//assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
+	//	assert.NotNil(t, spaceWorkerParams)
+	//	assert.NotNil(t, spaceWorkerParams.SpaceModuleEntry)
+	//	assert.NotNil(t, spaceWorkerParams.SpaceModuleEntry.Record)
+	//	assert.NotNil(t, spaceWorkerParams.SpaceModuleEntry.Data)
+	//	assert.NotNil(t, spaceWorkerParams.SpaceModuleEntry.Record.Data())
 	//	return nil
 	//}
 	assert.Panics(t, func() {

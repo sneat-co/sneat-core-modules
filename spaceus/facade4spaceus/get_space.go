@@ -8,7 +8,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-// GetSpace loads team record
+// GetSpace loads space record
 func GetSpace(ctx context.Context, userCtx facade.UserContext, id string) (space dbo4spaceus.SpaceEntry, err error) {
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
@@ -39,6 +39,6 @@ func GetSpaceByID(ctx context.Context, getter dal.ReadSession, id string) (space
 }
 
 // TxGetSpaceByID returns SpaceIDs record in transaction
-func TxGetSpaceByID(ctx context.Context, tx dal.ReadwriteTransaction, id string) (team dbo4spaceus.SpaceEntry, err error) {
+func TxGetSpaceByID(ctx context.Context, tx dal.ReadwriteTransaction, id string) (space dbo4spaceus.SpaceEntry, err error) {
 	return GetSpaceByID(ctx, tx, id)
 }

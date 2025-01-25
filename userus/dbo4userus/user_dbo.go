@@ -52,7 +52,7 @@ type UserDbo struct {
 	InvitedByUserID string `firestore:"invitedByUserID,omitempty" ` // TODO: Prevent circular references! see users 6032980589936640 & 5998019824582656
 
 	IsAnonymous bool `json:"isAnonymous" firestore:"isAnonymous"` // Intentionally do not omitempty
-	//Title string `json:"title,omitempty" firestore:"title,omitempty"`
+	//Title string
 
 	Timezone *dbmodels.Timezone `json:"timezone,omitempty" firestore:"timezone,omitempty"`
 
@@ -61,9 +61,10 @@ type UserDbo struct {
 	Email         string `json:"email,omitempty"  firestore:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
 
-	// List of teams a user belongs to
-	Spaces   map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
-	SpaceIDs []string                   `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
+	// List of spaces a user belongs to
+	Spaces         map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
+	SpaceIDs       []string                   `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
+	DefaultSpaceID string                     `json:"defaultSpaceRef" firestore:"defaultSpaceRef"`
 
 	Created dbmodels.CreatedInfo `json:"created" firestore:"created"`
 
@@ -82,7 +83,7 @@ func (v *UserDbo) GetFullName() string {
 	return v.Names.GetFullName()
 }
 
-// SetSpaceBrief sets team brief and adds teamID to the list of team IDs if needed
+// SetSpaceBrief sets space brief and adds spaceID to the list of space IDs if needed
 func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates []dal.Update) {
 	if spaceID == "" {
 		panic("spaceID is empty string")
@@ -216,7 +217,7 @@ func (v *UserDbo) validateSpaces() error {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("spaces['%s']", spaceID), "holds empty id")
 			}
 			if !slices.Contains(v.SpaceIDs, spaceID) {
-				return validation.NewErrBadRecordFieldValue("spaceIDs", "missing team ContactID: "+spaceID)
+				return validation.NewErrBadRecordFieldValue("spaceIDs", "missing space ContactID: "+spaceID)
 			}
 			if err := space.Validate(); err != nil {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("spaces[%s]{title=%s}", spaceID, space.Title), err.Error())
@@ -231,10 +232,15 @@ func (v *UserDbo) validateSpaces() error {
 			spaceTitles = append(spaceTitles, space.Title)
 		}
 	}
+	if v.DefaultSpaceID != "" {
+		if !slices.Contains(v.SpaceIDs, v.DefaultSpaceID) {
+			return validation.NewErrBadRecordFieldValue("defaultSpaceID", "not in spaceIDs")
+		}
+	}
 	return nil
 }
 
-// GetUserSpaceInfoByID returns team info specific to the user by team ContactID
+// GetUserSpaceInfoByID return space info specific to the user by space ContactID
 func (v *UserDbo) GetUserSpaceInfoByID(spaceID string) *UserSpaceBrief {
 	return v.Spaces[spaceID]
 }

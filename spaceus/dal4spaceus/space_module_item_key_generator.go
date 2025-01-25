@@ -8,10 +8,10 @@ import (
 	"github.com/strongo/random"
 )
 
-func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransaction, teamID, moduleID, collection string, length, maxAttempts int) (id string, key *dal.Key, err error) {
+func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransaction, spaceID, moduleID, collection string, length, maxAttempts int) (id string, key *dal.Key, err error) {
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
-		key = dbo4spaceus.NewSpaceModuleItemKey(teamID, moduleID, collection, id)
+		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)
 		record := dal.NewRecordWithData(key, make(map[string]interface{}))
 		if err := tx.Get(ctx, record); err != nil { // TODO: use tx.Exists()
 			if dal.IsNotFound(err) {

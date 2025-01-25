@@ -11,7 +11,7 @@ import (
 	"github.com/strongo/validation"
 )
 
-// DeleteContact deletes team contact
+// DeleteContact deletes space contact
 func DeleteContact(ctx context.Context, userCtx facade.UserContext, request dto4contactus.ContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
@@ -29,7 +29,7 @@ func deleteContactTxWorker(
 	contactID string,
 ) (err error) {
 	if contactID == params.Space.ID {
-		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents team/company itself")
+		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents space/company itself")
 	}
 	contact := dal4contactus.NewContactEntry(params.Space.ID, contactID)
 	if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
@@ -49,7 +49,7 @@ func deleteContactTxWorker(
 		return err
 	}
 
-	//params.SpaceUpdates = append(params.SpaceUpdates, updateTeamDtoWithNumberOfContact(len(params.SpaceModuleEntry.Data.Contacts)))
+	//params.SpaceUpdates = append(params.SpaceUpdates, updateSpaceDtoWithNumberOfContact(len(params.SpaceModuleEntry.Data.Contacts)))
 
 	contactKeysToDelete := make([]*dal.Key, 0, len(subContacts)+1)
 	contactKeysToDelete = append(contactKeysToDelete, contact.Key)

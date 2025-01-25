@@ -45,7 +45,7 @@ func SetRelated(
 	rolesCommand dbo4linkage.RelationshipItemRolesCommand,
 ) (
 	result SetRelatedResult,
-	//teamModuleUpdates []dal.Update,
+	//spaceModuleUpdates []dal.Update,
 	err error,
 ) {
 
@@ -94,9 +94,9 @@ func SetRelated(
 
 	//for _, itemUpdate := range itemUpdates {
 	//	if strings.HasSuffix(itemUpdate.Field, "relatedIDs") {
-	//		continue // Ignore relatedIDs for teamModuleUpdates
+	//		continue // Ignore relatedIDs for spaceModuleUpdates
 	//	}
-	//	teamModuleUpdates = append(teamModuleUpdates, dal.Update{
+	//	spaceModuleUpdates = append(spaceModuleUpdates, dal.Update{
 	//		Field: fmt.Sprintf("%s.%s.%s", objectRef.Collection, objectRef.ItemID, itemUpdate.Field),
 	//		Value: itemUpdate.Value,
 	//	})

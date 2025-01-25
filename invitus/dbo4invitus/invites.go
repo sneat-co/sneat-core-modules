@@ -133,7 +133,7 @@ func (v Joiners) Validate() error {
 	return nil
 }
 
-// InviteSpace a summary on team for which an invitation has been created
+// InviteSpace a summary on space for which an invitation has been created
 type InviteSpace struct {
 	ID    string                 `json:"id,omitempty" firestore:"id,omitempty"`
 	Type  core4spaceus.SpaceType `json:"type" firestore:"type"`

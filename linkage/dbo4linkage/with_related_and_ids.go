@@ -220,13 +220,13 @@ func RemoveRelatedAndID(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs
 }
 
 const (
-	RelationshipRoleSpouse   = "spouse"
-	RelationshipRoleParent   = "parent"
-	RelationshipRoleChild    = "child"
-	RelationshipRoleCousin   = "cousin"
-	RelationshipRoleSibling  = "sibling"
-	RelationshipRolePartner  = "partner"
-	RelationshipRoleTeammate = "space-mate"
+	RelationshipRoleSpouse    = "spouse"
+	RelationshipRoleParent    = "parent"
+	RelationshipRoleChild     = "child"
+	RelationshipRoleCousin    = "cousin"
+	RelationshipRoleSibling   = "sibling"
+	RelationshipRolePartner   = "partner"
+	RelationshipRoleSpacemate = "space-mate"
 )
 
 // Should provide a way for modules to register opposite roles?
@@ -241,7 +241,7 @@ var reciprocalRoles = []string{
 	RelationshipRoleSibling,
 	RelationshipRoleCousin,
 	RelationshipRolePartner,
-	RelationshipRoleTeammate,
+	RelationshipRoleSpacemate,
 }
 
 func IsReciprocalRole(role RelationshipRoleID) bool {

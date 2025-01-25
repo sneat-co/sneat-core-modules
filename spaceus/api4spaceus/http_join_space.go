@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// httpPostJoinSpace joins a members to a team
+// httpPostJoinSpace joins a members to a space
 func httpPostJoinSpace(w http.ResponseWriter, r *http.Request) {
 	var request facade4invitus.JoinSpaceRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusOK,

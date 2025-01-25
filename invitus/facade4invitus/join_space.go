@@ -39,14 +39,14 @@ func (v *JoinSpaceRequest) Validate() error {
 }
 
 // JoinSpace joins space
-func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpaceRequest) (team *dbo4spaceus.SpaceDbo, err error) {
+func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpaceRequest) (space *dbo4spaceus.SpaceDbo, err error) {
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
 	uid := userCtx.GetUserID()
 
-	// We intentionally do not use team worker to query both team & user records in parallel
+	// We intentionally do not use space worker to query both space & user records in parallel
 	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 
 		userKey := dbo4userus.NewUserKey(uid)
@@ -84,8 +84,8 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 			return fmt.Errorf("%w: invalid PIN code", facade.ErrForbidden)
 		}
 
-		//if team.LastScrum().InviteID != "" {
-		//	if err = joinAddUserToLastScrum(ctx, tx, teamKey, *team, uid); err != nil {
+		//if space.LastScrum().InviteID != "" {
+		//	if err = joinAddUserToLastScrum(ctx, tx, spaceKey, *space, uid); err != nil {
 		//		return err
 		//	}
 		//}
@@ -109,7 +109,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 			return err
 		}
 		if err = onJoinAddSpaceToUser(
-			ctx, tx, userDto, userRecord, request.SpaceID, team, member,
+			ctx, tx, userDto, userRecord, request.SpaceID, space, member,
 		); err != nil {
 			return fmt.Errorf("failed to update user record: %w", err)
 		}
@@ -121,8 +121,8 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 	return
 }
 
-//func joinAddUserToLastScrum(ctx context.Context, tx dal.ReadwriteTransaction, teamKey *dal.Key, team dbo4spaceus.SpaceDbo, uID string) (err error) {
-//	scrumKey := dal.NewKeyWithID("scrums", team.Last.Scrum.ContactID, dal.WithParentKey(teamKey))
+//func joinAddUserToLastScrum(ctx context.Context, tx dal.ReadwriteTransaction, spaceKey *dal.Key, space dbo4spaceus.SpaceDbo, uID string) (err error) {
+//	scrumKey := dal.NewKeyWithID("scrums", space.Last.Scrum.ContactID, dal.WithParentKey(spaceKey))
 //	scrum := new(dbscrum.Scrum)
 //	scrumRecord := dal.NewRecordWithData(scrumKey, scrum)
 //	if err = tx.Get(ctx, scrumRecord); err != nil {
@@ -273,14 +273,14 @@ UserIdAddedToUserIDsField:
 			memberBrief = m
 			goto MemberAdded
 		} else if m.UserID == uid {
-			return fmt.Errorf("current user already joined this team with different contactID=%s", mID)
+			return fmt.Errorf("current user already joined this space with different contactID=%s", mID)
 		}
 		if mID == inviterMemberID {
 			isValidInviter = true
 		}
 	}
 	if !isValidInviter {
-		return fmt.Errorf("supplied inviterMemberID does not belong to the team: %s", inviterMemberID)
+		return fmt.Errorf("supplied inviterMemberID does not belong to the space: %s", inviterMemberID)
 	}
 	memberBrief = &briefs4contactus.ContactBrief{
 		Type:   briefs4contactus.ContactTypePerson,

@@ -28,7 +28,7 @@ type BoolMetric struct {
 type SpaceMetric struct {
 	ID      string      `json:"id" firestore:"id"`
 	Title   string      `json:"title" firestore:"title"`
-	Mode    string      `json:"mode" firestore:"mode"` // Possible values: personal, team
+	Mode    string      `json:"mode" firestore:"mode"` // Possible values: personal, space
 	Type    string      `json:"type" firestore:"type"` // Possible values: bool, int, str
 	Min     *int        `json:"min,omitempty" firestore:"min,omitempty"`
 	Max     *int        `json:"max,omitempty" firestore:"max,omitempty"`
@@ -122,10 +122,10 @@ func (v SpaceBrief) Validate() error {
 		if v.Title == "" {
 			return validation.NewErrBadRecordFieldValue("type", "unknown value")
 		}
-		return validation.NewErrBadRecordFieldValue("type", "unknown value for team:"+v.Title)
+		return validation.NewErrBadRecordFieldValue("type", "unknown value for space:"+v.Title)
 	}
 	if v.Title == "" && v.Type != core4spaceus.SpaceTypeFamily && v.Type != core4spaceus.SpaceTypePrivate {
-		return errors.New("non family team is required to have a title")
+		return errors.New("non family space is required to have a title")
 	}
 	if v.Status == "" {
 		return validation.NewErrRequestIsMissingRequiredField("status")
@@ -235,7 +235,7 @@ func (v *SpaceDbo) Validate() error {
 	return nil
 }
 
-// HasUser checks if team has a user with given ContactID
+// HasUser checks if space has a user with given ContactID
 func (v *SpaceDbo) HasUser(uid string) bool {
 	return slice.Index(v.UserIDs, uid) >= 0
 }

@@ -5,8 +5,11 @@ import (
 	"strings"
 )
 
-// NewSpaceRequest creates new team request
+// NewSpaceRequest creates new space request
 func NewSpaceRequest(spaceID string) SpaceRequest {
+	if spaceID == "" {
+		panic("spaceID is required")
+	}
 	return SpaceRequest{SpaceID: spaceID}
 }
 
@@ -16,7 +19,7 @@ type SpaceRequest struct {
 }
 
 // Validate validates request
-func (v *SpaceRequest) Validate() error {
+func (v SpaceRequest) Validate() error {
 	if strings.TrimSpace(v.SpaceID) == "" {
 		return validation.NewErrRecordIsMissingRequiredField("spaceID")
 	}

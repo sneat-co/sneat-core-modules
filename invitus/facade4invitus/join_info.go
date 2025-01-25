@@ -114,7 +114,7 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 	if inviteDto.To.MemberID != "" {
 		member = dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.MemberID)
 		if err = db.Get(ctx, member.Record); err != nil {
-			err = fmt.Errorf("failed to get team member's contact record: %w", err)
+			err = fmt.Errorf("failed to get space member's contact record: %w", err)
 			return
 		}
 	}

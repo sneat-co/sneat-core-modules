@@ -13,8 +13,8 @@ import (
 type ContactusSpaceWorkerParams = dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]
 
 func NewContactusSpaceWorkerParams(userCtx facade.UserContext, spaceID string) *ContactusSpaceWorkerParams {
-	teamWorkerParams := dal4spaceus.NewSpaceWorkerParams(userCtx, spaceID)
-	return dal4spaceus.NewSpaceModuleWorkerParams(const4contactus.ModuleID, teamWorkerParams, new(dbo4contactus.ContactusSpaceDbo))
+	spaceWorkerParams := dal4spaceus.NewSpaceWorkerParams(userCtx, spaceID)
+	return dal4spaceus.NewSpaceModuleWorkerParams(const4contactus.ModuleID, spaceWorkerParams, new(dbo4contactus.ContactusSpaceDbo))
 }
 
 func RunReadonlyContactusSpaceWorker(

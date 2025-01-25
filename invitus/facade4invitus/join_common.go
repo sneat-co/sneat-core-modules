@@ -20,11 +20,11 @@ package facade4invitus
 //func verifyPin(spaceID string, pin int32, members []*briefs4memberus.MemberBrief) (role string, inviter *briefs4memberus.MemberBrief) {
 //	for _, m := range members {
 //		if m.UserID != "" {
-//			if pin == getPin(spaceID, briefs4memberus.TeamMemberRoleContributor, m.UserID) {
-//				return briefs4memberus.TeamMemberRoleContributor, m
+//			if pin == getPin(spaceID, briefs4memberus.SpaceMemberRoleContributor, m.UserID) {
+//				return briefs4memberus.SpaceMemberRoleContributor, m
 //			}
-//			if pin == getPin(spaceID, briefs4memberus.TeamMemberRoleSpectator, m.UserID) {
-//				return briefs4memberus.TeamMemberRoleSpectator, m
+//			if pin == getPin(spaceID, briefs4memberus.SpaceMemberRoleSpectator, m.UserID) {
+//				return briefs4memberus.SpaceMemberRoleSpectator, m
 //			}
 //		}
 //	}

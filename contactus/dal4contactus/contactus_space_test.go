@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewContactusSpaceModuleKey(t *testing.T) {
-	t.Run("panic_on_empty_team_id", func(t *testing.T) {
+	t.Run("panic_on_empty_space_id", func(t *testing.T) {
 		assert.Panics(t, func() {
 			NewContactusSpaceKey("")
 		})

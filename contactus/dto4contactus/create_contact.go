@@ -31,7 +31,7 @@ type CreateContactRequest struct {
 	dbo4linkage.WithRelated
 
 	// Used for situation when we want a hard-coded contact number
-	// (e.g. a self-contact for a company team).
+	// (e.g. a self-contact for a company space).
 	// Can not be used from client side
 	ContactID string `json:"-"`
 }

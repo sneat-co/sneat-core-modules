@@ -79,7 +79,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		assert.Equal(t, "", result.ContactusSpace.ID)
 	})
 
-	t.Run("user's 1st team", func(t *testing.T) {
+	t.Run("user's 1st space", func(t *testing.T) {
 		setupMockDb()
 
 		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{Type: core4spaceus.SpaceTypeFamily})
@@ -99,7 +99,7 @@ func Test_getUniqueSpaceID(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	readSession := mocks4dal.NewMockReadSession(mockCtrl)
 	readSession.EXPECT().Get(gomock.Any(), gomock.Any()).Return(dal.ErrRecordNotFound)
-	teamID, err := getUniqueSpaceID(ctx, readSession, "TestCompany LTD")
+	spaceID, err := getUniqueSpaceID(ctx, readSession, "TestCompany LTD")
 	assert.NoError(t, err)
-	assert.Equal(t, "testcompanyltd", teamID)
+	assert.Equal(t, "testcompanyltd", spaceID)
 }

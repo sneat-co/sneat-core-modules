@@ -1,7 +1,3 @@
-# teams package
+# spaces package
 
 ## Depends on packages
-
-## Related packages
-
-- [../companies](../companies)

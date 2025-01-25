@@ -31,6 +31,18 @@ type SpaceModuleItemRef struct { // TODO: Move to sneat-go-core or document why 
 }
 
 func NewSpaceModuleItemRef(space, module, collection, itemID string) SpaceModuleItemRef {
+	if space == "" {
+		panic("space is required")
+	}
+	if module == "" {
+		panic("module is required")
+	}
+	if collection == "" {
+		panic("collection is required")
+	}
+	if itemID == "" {
+		panic("itemID is required")
+	}
 	return SpaceModuleItemRef{
 		Space:      space,
 		Module:     module,

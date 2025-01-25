@@ -5,6 +5,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 )
 
-func NewContactFullRef(teamID, contactID string) dbo4linkage.SpaceModuleItemRef {
-	return dbo4linkage.NewSpaceModuleItemRef(teamID, const4contactus.ModuleID, const4contactus.ContactsCollection, contactID)
+func NewContactFullRef(spaceID, contactID string) dbo4linkage.SpaceModuleItemRef {
+	return dbo4linkage.NewSpaceModuleItemRef(spaceID, const4contactus.ModuleID, const4contactus.ContactsCollection, contactID)
 }

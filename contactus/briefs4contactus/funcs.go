@@ -1,14 +1,14 @@
 package briefs4contactus
 
 // GetFullContactID returns full member ContactID
-func GetFullContactID(teamID, memberID string) string {
-	if teamID == "" {
+func GetFullContactID(spaceID, memberID string) string {
+	if spaceID == "" {
 		panic("spaceID is required parameter")
 	}
 	if memberID == "" {
 		panic("memberID is required parameter")
 	}
-	return teamID + ":" + memberID
+	return spaceID + ":" + memberID
 }
 
 // IsUniqueShortTitle checks if a given value is an unique member title

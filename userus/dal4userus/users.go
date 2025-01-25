@@ -57,11 +57,11 @@ func GetUserSpaceContactID(ctx context.Context, tx dal.ReadSession, userID strin
 	userSpaceBrief := user.Data.Spaces[spaceID]
 
 	if userSpaceBrief == nil {
-		return "", errors.New("user's team brief is not found in user record")
+		return "", errors.New("user's space brief is not found in user record")
 	}
 
 	if userSpaceBrief.UserContactID == "" {
-		return "", errors.New("user's team brief has no value in 'userContactID' field")
+		return "", errors.New("user's space brief has no value in 'userContactID' field")
 	}
 
 	return userSpaceBrief.UserContactID, nil

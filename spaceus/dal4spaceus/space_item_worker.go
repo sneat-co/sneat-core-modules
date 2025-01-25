@@ -46,7 +46,7 @@ type Brief = interface {
 // BriefsAdapter is an interface for a briefs adapter
 type BriefsAdapter[ModuleDbo SpaceModuleDbo] interface {
 	DeleteBrief(space ModuleDbo, id string) ([]dal.Update, error)
-	GetBriefsCount(team ModuleDbo) int
+	GetBriefsCount(space ModuleDbo) int
 }
 
 type mapBriefsAdapter[ModuleDbo SpaceModuleDbo] struct {
@@ -54,17 +54,17 @@ type mapBriefsAdapter[ModuleDbo SpaceModuleDbo] struct {
 	deleteBrief    func(space ModuleDbo, id string) ([]dal.Update, error)
 }
 
-func (v mapBriefsAdapter[ModuleDbo]) DeleteBrief(teamModuleDbo ModuleDbo, id string) ([]dal.Update, error) {
-	return v.deleteBrief(teamModuleDbo, id)
+func (v mapBriefsAdapter[ModuleDbo]) DeleteBrief(spaceModuleDbo ModuleDbo, id string) ([]dal.Update, error) {
+	return v.deleteBrief(spaceModuleDbo, id)
 }
 
-func (v mapBriefsAdapter[ModuleDbo]) GetBriefsCount(teamModuleDbo ModuleDbo) int {
-	return v.getBriefsCount(teamModuleDbo)
+func (v mapBriefsAdapter[ModuleDbo]) GetBriefsCount(spaceModuleDbo ModuleDbo) int {
+	return v.getBriefsCount(spaceModuleDbo)
 }
 
 func NewMapBriefsAdapter[ModuleDbo SpaceModuleDbo](
-	getBriefsCount func(teamModuleDbo ModuleDbo) int,
-	deleteBrief func(teamModuleDbo ModuleDbo, id string) ([]dal.Update, error),
+	getBriefsCount func(spaceModuleDbo ModuleDbo) int,
+	deleteBrief func(spaceModuleDbo ModuleDbo, id string) ([]dal.Update, error),
 ) BriefsAdapter[ModuleDbo] {
 	return mapBriefsAdapter[ModuleDbo]{
 		getBriefsCount: getBriefsCount,
@@ -72,7 +72,7 @@ func NewMapBriefsAdapter[ModuleDbo SpaceModuleDbo](
 	}
 }
 
-// SpaceItemWorkerParams defines params for team item worker
+// SpaceItemWorkerParams defines params for space item worker
 type SpaceItemWorkerParams[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo] struct {
 	*ModuleSpaceWorkerParams[ModuleDbo]
 	SpaceItem        record.DataWithID[string, ItemDbo]
@@ -92,17 +92,17 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 ) (err error) {
 	return RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, request.SpaceID, moduleID, spaceModuleData,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, moduleSpaceWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error) {
-			teamItemKey := dal.NewKeyWithParentAndID(moduleSpaceWorkerParams.SpaceModuleEntry.Key, spaceItemCollection, request.ID)
+			spaceItemKey := dal.NewKeyWithParentAndID(moduleSpaceWorkerParams.SpaceModuleEntry.Key, spaceItemCollection, request.ID)
 			params := SpaceItemWorkerParams[ModuleDbo, ItemDbo]{
 				ModuleSpaceWorkerParams: moduleSpaceWorkerParams,
-				SpaceItem:               record.NewDataWithID(request.ID, teamItemKey, spaceItemDbo),
+				SpaceItem:               record.NewDataWithID(request.ID, spaceItemKey, spaceItemDbo),
 			}
 			if err = worker(ctx, tx, &params); err != nil {
 				return err
 			}
 			if len(params.SpaceItemUpdates) > 0 {
-				if err = tx.Update(ctx, teamItemKey, params.SpaceItemUpdates); err != nil {
-					return fmt.Errorf("failed to update team item record: %w", err)
+				if err = tx.Update(ctx, spaceItemKey, params.SpaceItemUpdates); err != nil {
+					return fmt.Errorf("failed to update space item record: %w", err)
 				}
 			}
 			return nil
@@ -110,21 +110,21 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	)
 }
 
-// DeleteSpaceItem deletes team item
+// DeleteSpaceItem deletes space item
 func DeleteSpaceItem[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request SpaceItemRequest,
 	moduleID string,
 	moduleData ModuleDbo,
-	teamItemCollection string,
-	teamItemDbo ItemDbo,
+	spaceItemCollection string,
+	spaceItemDbo ItemDbo,
 	briefsAdapter BriefsAdapter[ModuleDbo],
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
 ) (err error) {
-	return RunSpaceItemWorker(ctx, userCtx, request, moduleID, moduleData, teamItemCollection, teamItemDbo,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, teamItemWorkerParams *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error) {
-			return deleteSpaceItemTxWorker[ModuleDbo](ctx, tx, teamItemWorkerParams, briefsAdapter, worker)
+	return RunSpaceItemWorker(ctx, userCtx, request, moduleID, moduleData, spaceItemCollection, spaceItemDbo,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, spaceItemWorkerParams *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error) {
+			return deleteSpaceItemTxWorker[ModuleDbo](ctx, tx, spaceItemWorkerParams, briefsAdapter, worker)
 		},
 	)
 }
@@ -147,7 +147,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	}
 	if worker != nil {
 		if err = worker(ctx, tx, params); err != nil {
-			return fmt.Errorf("failed to execute teamItemWorker: %w", err)
+			return fmt.Errorf("failed to execute spaceItemWorker: %w", err)
 		}
 	}
 	//if err = decrementCounter(&params); err != nil {
@@ -155,7 +155,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	//}
 	if len(params.SpaceUpdates) > 0 {
 		if err = TxUpdateSpace(ctx, tx, params.Started, params.Space, params.SpaceUpdates); err != nil {
-			return fmt.Errorf("failed to update team record: %w", err)
+			return fmt.Errorf("failed to update space record: %w", err)
 		}
 	}
 	var spaceModuleUpdates []dal.Update
@@ -167,15 +167,15 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 
 	if params.SpaceItem.Record.Exists() {
 		if err = tx.Delete(ctx, params.SpaceItem.Key); err != nil {
-			return fmt.Errorf("failed to delete team item record by key=%v: %w", params.SpaceItem.Key, err)
+			return fmt.Errorf("failed to delete space item record by key=%v: %w", params.SpaceItem.Key, err)
 		}
 	}
 	return err
 }
 
-func deleteBrief[D SpaceModuleDbo](teamModuleEntry record.DataWithID[string, D], itemID string, adapter BriefsAdapter[D], updates []dal.Update) ([]dal.Update, error) {
+func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[string, D], itemID string, adapter BriefsAdapter[D], updates []dal.Update) ([]dal.Update, error) {
 	if adapter == nil {
 		return updates, nil
 	}
-	return adapter.DeleteBrief(teamModuleEntry.Data, itemID)
+	return adapter.DeleteBrief(spaceModuleEntry.Data, itemID)
 }

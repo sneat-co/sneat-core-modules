@@ -32,7 +32,7 @@ func updateRelatedItem(
 			return recordsUpdates, validation.NewErrBadRequestFieldValue("itemRef", fmt.Sprintf("objectRef and itemRef are the same: %+v", objectRef))
 		}
 		/*
-			if itemUpdates, teamModuleUpdates, err := facade4linkage.SetRelated(ctx, tx, relatableAdapted, params.DebtusSpaceContactEntry, objectRef, itemRef, *itemRolesCommand); err != nil {
+			if itemUpdates, spaceModuleUpdates, err := facade4linkage.SetRelated(ctx, tx, relatableAdapted, params.DebtusSpaceContactEntry, objectRef, itemRef, *itemRolesCommand); err != nil {
 				return err
 			}
 		*/

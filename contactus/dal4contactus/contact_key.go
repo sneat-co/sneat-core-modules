@@ -10,10 +10,10 @@ import (
 )
 
 // NewContactKey creates a new contact's key in format "spaceID:memberID"
-func NewContactKey(teamID, contactID string) *dal.Key {
+func NewContactKey(spaceID, contactID string) *dal.Key {
 	if !core.IsAlphanumericOrUnderscore(contactID) {
 		panic(fmt.Errorf("contactID should be alphanumeric, got: [%s]", contactID))
 	}
-	teamModuleKey := dbo4spaceus.NewSpaceModuleKey(teamID, const4contactus.ModuleID)
-	return dal.NewKeyWithParentAndID(teamModuleKey, dbo4contactus.SpaceContactsCollection, contactID)
+	spaceModuleKey := dbo4spaceus.NewSpaceModuleKey(spaceID, const4contactus.ModuleID)
+	return dal.NewKeyWithParentAndID(spaceModuleKey, dbo4contactus.SpaceContactsCollection, contactID)
 }

@@ -14,7 +14,7 @@ import (
 	"slices"
 )
 
-// RemoveSpaceMember removes members from a team
+// RemoveSpaceMember removes members from a space
 func RemoveSpaceMember(ctx context.Context, userCtx facade.UserContext, request dto4contactus.ContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return err

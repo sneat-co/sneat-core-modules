@@ -28,7 +28,7 @@ type ContactBrief struct {
 	ShortTitle string             `json:"shortTitle,omitempty" firestore:"shortTitle,omitempty"` // Not supposed to be used in dbo4contactus.ContactDto
 	ParentID   string             `json:"parentID" firestore:"parentID"`                         // Intentionally not adding `omitempty` so we can search root contacts only
 
-	// Number of active invites to join a team
+	// Number of active invites to join a space
 	InvitesCount int `json:"activeInvitesCount,omitempty" firestore:"activeInvitesCount,omitempty"`
 
 	// AgeGroup is deprecated?

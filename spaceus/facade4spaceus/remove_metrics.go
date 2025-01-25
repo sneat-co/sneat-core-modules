@@ -17,11 +17,11 @@ func RemoveMetrics(ctx context.Context, userCtx facade.UserContext, request dto4
 	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
 			changed := false
-			team := params.Space
+			space := params.Space
 
-			metrics := make([]*dbo4spaceus.SpaceMetric, 0, len(team.Data.Metrics))
+			metrics := make([]*dbo4spaceus.SpaceMetric, 0, len(space.Data.Metrics))
 		Metrics:
-			for _, metric := range team.Data.Metrics {
+			for _, metric := range space.Data.Metrics {
 				for i, metricID := range request.Metrics {
 					if metric.ID == metricID {
 						changed = true

@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-// httpPostCreateSpace is an API endpoint that creates a new team
+// httpPostCreateSpace is an API endpoint that creates a new space
 func httpPostCreateSpace(w http.ResponseWriter, r *http.Request) {
 	var request dto4spaceus.CreateSpaceRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
