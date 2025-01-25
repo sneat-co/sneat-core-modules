@@ -3,7 +3,7 @@ module github.com/sneat-co/sneat-core-modules
 go 1.22.3
 
 require (
-	github.com/bots-go-framework/bots-fw-store v0.9.0
+	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
 	github.com/dal-go/dalgo v0.14.2
 	github.com/dal-go/mocks4dalgo v0.1.28
@@ -11,7 +11,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.42.0
+	github.com/sneat-co/sneat-go-core v0.45.0
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
