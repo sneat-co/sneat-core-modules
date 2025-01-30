@@ -60,6 +60,15 @@ func updateContactTxWorker(
 
 	contactBrief := params.SpaceModuleEntry.Data.Contacts[request.ContactID]
 
+	updateContactBriefField := func(field string, value any) {
+		params.SpaceModuleEntry.Record.MarkAsChanged()
+		params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
+			dal.Update{
+				Field: fmt.Sprintf("contacts.%s.%s", request.ContactID, field),
+				Value: value,
+			})
+	}
+
 	var updatedContactFields []string
 
 	if request.Address != nil {
@@ -82,6 +91,9 @@ func updateContactTxWorker(
 		updatedContactFields = append(updatedContactFields, "gender")
 		contact.Data.Gender = request.Gender
 		params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "gender", Value: request.Gender})
+		if contactBrief != nil && contactBrief.Gender != request.Gender {
+			updateContactBriefField("gender", contact.Data.Gender)
+		}
 	}
 
 	if request.AgeGroup != "" {
@@ -91,12 +103,7 @@ func updateContactTxWorker(
 			params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "ageGroup", Value: contact.Data.AgeGroup})
 		}
 		if contactBrief != nil && contactBrief.AgeGroup != request.AgeGroup {
-			params.SpaceModuleEntry.Record.MarkAsChanged()
-			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
-				dal.Update{
-					Field: fmt.Sprintf("contacts.%s.ageGroup", request.ContactID),
-					Value: contact.Data.AgeGroup,
-				})
+			updateContactBriefField("ageGroup", contact.Data.AgeGroup)
 		}
 	}
 
