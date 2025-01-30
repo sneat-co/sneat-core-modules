@@ -22,7 +22,7 @@ func (v UpdateContactRequest) Validate() error {
 	if err := v.ContactRequest.Validate(); err != nil {
 		return err
 	}
-	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.Related == nil && v.VatNumber == nil {
+	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.Related == nil && v.VatNumber == nil && v.Gender == "" {
 		return validation.NewBadRequestError(errors.New("at least one of contact fields must be provided for an update"))
 	}
 	if v.Address != nil {
