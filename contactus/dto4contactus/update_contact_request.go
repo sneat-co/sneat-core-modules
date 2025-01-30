@@ -15,6 +15,7 @@ type UpdateContactRequest struct {
 	AgeGroup  string            `json:"ageGroup,omitempty"`
 	Roles     *SetRolesRequest  `json:"roles,omitempty"`
 	VatNumber *string           `json:"vatNumber,omitempty"`
+	Gender    dbmodels.Gender   `json:"gender,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
@@ -48,6 +49,9 @@ func (v UpdateContactRequest) Validate() error {
 		if err := v.UpdateRelatedFieldRequest.Validate(); err != nil {
 			return err
 		}
+	}
+	if v.Gender != "" && dbmodels.IsKnownGender(v.Gender) {
+		return validation.NewErrBadRequestFieldValue("gender", "unknown value")
 	}
 	return nil
 }

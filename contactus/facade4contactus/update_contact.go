@@ -76,6 +76,12 @@ func updateContactTxWorker(
 		}
 	}
 
+	if request.Gender != "" {
+		updatedContactFields = append(updatedContactFields, "gender")
+		contact.Data.Gender = request.Gender
+		params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "gender", Value: request.Gender})
+	}
+
 	if request.AgeGroup != "" {
 		if request.AgeGroup != contact.Data.AgeGroup {
 			updatedContactFields = append(updatedContactFields, "ageGroup")
