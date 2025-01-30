@@ -51,7 +51,7 @@ func (v UpdateContactRequest) Validate() error {
 		}
 	}
 	if v.Gender != "" && !dbmodels.IsKnownGender(v.Gender) {
-		return validation.NewErrBadRequestFieldValue("gender", "unknown value")
+		return validation.NewErrBadRequestFieldValue("gender", "unknown value: "+v.Gender)
 	}
 	return nil
 }
