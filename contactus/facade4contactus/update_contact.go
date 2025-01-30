@@ -19,11 +19,13 @@ func UpdateContact(
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request dto4contactus.UpdateContactRequest,
-) (err error) {
-	return dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
+) (contact dal4contactus.ContactEntry, err error) {
+	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
+			contact = params.Contact
 			return UpdateContactTx(ctx, tx, request, params)
 		})
+	return
 }
 
 // UpdateContactTx sets contact fields
