@@ -27,14 +27,14 @@ const (
 type SpaceRef string
 
 func (v SpaceRef) SpaceType() SpaceType {
-	if i := strings.Index(string(v), SpaceRefSeparator); i > 0 {
+	if i := strings.Index(string(v), SpaceRefSeparator); i >= 0 {
 		return SpaceType(v[:i])
 	}
 	return ""
 }
 
 func (v SpaceRef) SpaceID() string {
-	if i := strings.Index(string(v), SpaceRefSeparator); i > 0 {
+	if i := strings.Index(string(v), SpaceRefSeparator); i >= 0 {
 		return string(v[i+1:])
 	}
 	return ""

@@ -60,7 +60,10 @@ func TestSpaceRef_SpaceID(t *testing.T) {
 		v    SpaceRef
 		want string
 	}{
-		{"ShouldPass", "private!foo", "foo"},
+		{"full", "private!foo", "foo"},
+		{"no_spaceType", "!foo", "foo"},
+		{"no_spaceID", "private!", ""},
+		{"empty", "", ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -77,7 +80,10 @@ func TestSpaceRef_SpaceType(t *testing.T) {
 		v    SpaceRef
 		want SpaceType
 	}{
-		{"ShouldPass", "private!foo", "private"},
+		{"full", "private!foo", "private"},
+		{"no_spaceID", "private!", "private"},
+		{"no_spaceType", "!foo", ""},
+		{"empty", "", ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
