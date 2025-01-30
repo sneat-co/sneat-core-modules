@@ -30,12 +30,18 @@ func (v SpaceRef) SpaceType() SpaceType {
 	if i := strings.Index(string(v), SpaceRefSeparator); i >= 0 {
 		return SpaceType(v[:i])
 	}
+	if IsValidSpaceType(SpaceType(v)) {
+		return SpaceType(v)
+	}
 	return ""
 }
 
 func (v SpaceRef) SpaceID() string {
 	if i := strings.Index(string(v), SpaceRefSeparator); i >= 0 {
 		return string(v[i+1:])
+	}
+	if !IsValidSpaceType(SpaceType(v)) {
+		return string(v)
 	}
 	return ""
 }
@@ -54,6 +60,10 @@ func NewSpaceRef(spaceType SpaceType, spaceID string) SpaceRef {
 		panic("spaceID is an empty string")
 	}
 	return SpaceRef(string(spaceType) + SpaceRefSeparator + spaceID)
+}
+
+func NewWeakSpaceRef(spaceType SpaceType) SpaceRef {
+	return SpaceRef(spaceType)
 }
 
 // IsValidSpaceType checks if space has a valid/known type

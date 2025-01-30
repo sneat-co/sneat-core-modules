@@ -110,3 +110,27 @@ func TestSpaceRef_UrlPath(t *testing.T) {
 		})
 	}
 }
+
+func TestNewWeakSpaceRef(t *testing.T) {
+	type args struct {
+		spaceType SpaceType
+	}
+	tests := []struct {
+		name string
+		args args
+		want SpaceRef
+	}{
+		{
+			name: "ShouldPass",
+			args: args{SpaceTypePrivate},
+			want: "private",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewWeakSpaceRef(tt.args.spaceType); got != tt.want {
+				t.Errorf("NewWeakSpaceRef() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
