@@ -17,6 +17,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
+	"reflect"
 	"slices"
 )
 
@@ -77,6 +78,30 @@ func CreateContactTx(
 	if !userCanBeNonSpaceMember && (userContactBrief == nil || !userContactBrief.IsSpaceMember()) {
 		err = errors.New("user is not a member of the space")
 		return
+	}
+	if len(request.Accounts) > 0 {
+		recordMaker := func() dal.Record {
+			return dal.NewRecordWithData(dal.NewIncompleteKey(const4contactus.ContactsCollection, reflect.String, params.Space.Key), new(dbo4contactus.ContactDbo))
+		}
+		query := dal.
+			From(dal.NewCollectionRef(const4contactus.ContactsCollection, "c", params.Space.Key)).
+			WhereField("accounts", dal.Equal, request.Accounts[0]).
+			Limit(1).
+			SelectInto(recordMaker)
+		var reader dal.Reader
+		if reader, err = tx.QueryReader(ctx, query); err != nil {
+			err = fmt.Errorf("failed to query contacts by account: %w", err)
+			return
+		}
+		var contactRecords []dal.Record
+		if contactRecords, err = dal.ReadAll(ctx, reader, 0); err != nil {
+			err = fmt.Errorf("failed to load contacts records by account ID: %w", err)
+			return
+		}
+		if len(contactRecords) > 0 { // TODO: Handle gracefully
+			err = fmt.Errorf("contact with the account=%s already exists", request.Accounts[0])
+			return
+		}
 	}
 	if request.Related != nil {
 		relatedByCollection := request.Related[const4contactus.ModuleID]
@@ -168,6 +193,9 @@ func CreateContactTx(
 	}
 	if contactDbo.Address != nil {
 		contactDbo.CountryID = contactDbo.Address.CountryID
+	}
+	if len(request.AccountsOfUser.Accounts) > 0 {
+		contactDbo.Accounts = request.AccountsOfUser.Accounts
 	}
 	contactDbo.ShortTitle = contactDbo.DetermineShortTitle(request.Person.Title, params.SpaceModuleEntry.Data.Contacts)
 	var contactID string

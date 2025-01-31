@@ -26,7 +26,7 @@ func SaveUserBrowser(ctx context.Context, userID string, userAgent string) (user
 		return
 	}
 	const limit = 1
-	q := dal.From(models4auth.UserBrowserKind).
+	q := dal.From(dal.NewRootCollectionRef(models4auth.UserBrowserKind, "")).
 		WhereField("AppUserIntID", dal.Equal, userID).
 		WhereField("UserAgent", dal.Equal, userAgent)
 	query := q.Limit(limit).SelectInto(models4auth.NewUserBrowserRecord)

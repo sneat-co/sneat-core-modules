@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 )
@@ -22,6 +23,8 @@ type CreateContactRequest struct {
 	// Duplicate also in CreatePersonRequest throw briefs4contactus.ContactBase,
 	// but not in CreateCompanyRequest & CreateLocationRequest
 	Status string `json:"status"`
+
+	appuser.AccountsOfUser
 
 	Person   *CreatePersonRequest       `json:"person,omitempty"`
 	Company  *CreateCompanyRequest      `json:"company,omitempty"`
@@ -101,6 +104,13 @@ func (v CreateContactRequest) Validate() error {
 	}
 	if err := v.WithRelated.Validate(); err != nil {
 		return err
+	}
+	for i, a := range v.Accounts {
+		if ak, err := appuser.ParseUserAccount(a); err != nil {
+			return validation.NewErrBadRequestFieldValue("accounts", fmt.Sprintf("invalid account: %v", err))
+		} else if err = ak.Validate(); err != nil {
+			return validation.NewErrBadRequestFieldValue(fmt.Sprintf("accounts[%d]", i), "invalid account: "+err.Error())
+		}
 	}
 	return nil
 }
