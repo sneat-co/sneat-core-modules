@@ -103,7 +103,7 @@ func CreateContactTx(
 			return
 		}
 		if len(contactRecords) > 0 { // TODO: Handle gracefully?
-			err = fmt.Errorf("%s: %s", ErrContactWithSameAccountKeyAlreadyExists, request.Accounts[0])
+			err = fmt.Errorf("%w: %s", ErrContactWithSameAccountKeyAlreadyExists, request.Accounts[0])
 			return
 		}
 	}
