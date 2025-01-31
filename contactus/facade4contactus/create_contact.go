@@ -13,6 +13,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -80,12 +81,13 @@ func CreateContactTx(
 		return
 	}
 	if len(request.Accounts) > 0 {
+		spaceContactusModuleKey := dbo4spaceus.NewSpaceModuleKey(params.Space.ID, const4contactus.ModuleID)
 		recordMaker := func() dal.Record {
-			return dal.NewRecordWithData(dal.NewIncompleteKey(const4contactus.ContactsCollection, reflect.String, params.Space.Key), new(dbo4contactus.ContactDbo))
+			return dal.NewRecordWithData(dal.NewIncompleteKey(const4contactus.ContactsCollection, reflect.String, spaceContactusModuleKey), new(dbo4contactus.ContactDbo))
 		}
 		query := dal.
-			From(dal.NewCollectionRef(const4contactus.ContactsCollection, "c", params.Space.Key)).
-			WhereField("accounts", dal.Equal, request.Accounts[0]).
+			From(dal.NewCollectionRef(const4contactus.ContactsCollection, "c", spaceContactusModuleKey)).
+			WhereInArrayField("accounts", request.Accounts[0]).
 			Limit(1).
 			SelectInto(recordMaker)
 		var reader dal.Reader
