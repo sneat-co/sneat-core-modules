@@ -22,6 +22,8 @@ import (
 	"slices"
 )
 
+var ErrContactWithSameAccountKeyAlreadyExists = errors.New("contact with the same account key already exists")
+
 // CreateContact creates space contact
 func CreateContact(
 	ctx context.Context,
@@ -100,8 +102,8 @@ func CreateContactTx(
 			err = fmt.Errorf("failed to load contacts records by account ID: %w", err)
 			return
 		}
-		if len(contactRecords) > 0 { // TODO: Handle gracefully
-			err = fmt.Errorf("contact with the account=%s already exists", request.Accounts[0])
+		if len(contactRecords) > 0 { // TODO: Handle gracefully?
+			err = fmt.Errorf("%s: %s", ErrContactWithSameAccountKeyAlreadyExists, request.Accounts[0])
 			return
 		}
 	}
