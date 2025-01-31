@@ -117,6 +117,9 @@ func (v *ContactBrief) Validate() error {
 			return validation.NewErrBadRecordFieldValue("species", "unknown value: "+v.PetKind)
 		}
 	}
+	if err := v.AccountsOfUser.Validate(); err != nil {
+		return err
+	}
 	return nil
 }
 

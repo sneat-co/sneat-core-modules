@@ -5,7 +5,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/with"
 )
 
@@ -19,8 +18,6 @@ type ContactDbo struct {
 	//dbmodels.WithUserIDs
 
 	briefs4contactus.ContactBase
-
-	appuser.AccountsOfUser
 
 	dbo4linkage.WithRelatedAndIDs
 	with.CreatedFields
@@ -49,9 +46,5 @@ func (v ContactDbo) Validate() error {
 	if err := v.WithRelatedAndIDs.Validate(); err != nil {
 		return err
 	}
-	if err := v.AccountsOfUser.Validate(); err != nil {
-		return err
-	}
-
 	return nil
 }
