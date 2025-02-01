@@ -17,11 +17,11 @@ func CreateMember(
 	userCtx facade.UserContext,
 	request dal4contactus.CreateMemberRequest,
 ) (
-	response dto4contactus.CreateContactResponse,
+	contact dal4contactus.ContactEntry,
 	err error,
 ) {
 	if err = request.Validate(); err != nil {
-		return response, fmt.Errorf("invalid CreateMemberRequest: %w", err)
+		return contact, fmt.Errorf("invalid CreateMemberRequest: %w", err)
 	}
 	createContactRequest := dto4contactus.CreateContactRequest{
 		SpaceRequest: request.SpaceRequest,
@@ -33,15 +33,15 @@ func CreateMember(
 	if !checks4contactus.IsSpaceMember(request.Roles) {
 		createContactRequest.Roles = append(createContactRequest.Roles, const4contactus.SpaceMemberRoleMember)
 	}
-	if response, err = CreateContact(ctx, userCtx, false, createContactRequest); err != nil {
-		return response, err
+	if contact, err = CreateContact(ctx, userCtx, false, createContactRequest); err != nil {
+		return contact, err
 	}
-	if response.Data == nil {
-		return response, fmt.Errorf("CreateContact returned nil response data")
+	if contact.Data == nil {
+		return contact, fmt.Errorf("CreateContact returned nil response data")
 	}
-	if !checks4contactus.IsSpaceMember(response.Data.Roles) {
+	if !checks4contactus.IsSpaceMember(contact.Data.Roles) {
 		err = fmt.Errorf("created contact does not have space member role")
-		return response, err
+		return contact, err
 	}
-	return response, err
+	return contact, err
 }

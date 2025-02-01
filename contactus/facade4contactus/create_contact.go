@@ -31,24 +31,19 @@ func CreateContact(
 	userCanBeNonSpaceMember bool,
 	request dto4contactus.CreateContactRequest,
 ) (
-	response dto4contactus.CreateContactResponse,
+	contact dal4contactus.ContactEntry,
 	err error,
 ) {
 	if err = request.Validate(); err != nil {
-		return response, fmt.Errorf("invalid CreateContactRequest: %w", err)
+		return contact, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
 
 	err = dal4spaceus.CreateSpaceItem(ctx, userCtx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
-			var contact dal4contactus.ContactEntry
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
 				return err
 			}
-			response = dto4contactus.CreateContactResponse{
-				ID:   contact.ID,
-				Data: contact.Data,
-			}
-			if response.Data == nil {
+			if contact.Data == nil {
 				return errors.New("CreateContactTx returned nil contact data")
 			}
 			return err

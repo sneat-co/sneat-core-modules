@@ -86,12 +86,12 @@ func TestHttpAddMember(t *testing.T) {
 	req.Host = "localhost"
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (response dto4contactus.CreateContactResponse, err error) {
+	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (contact dal4contactus.ContactEntry, err error) {
 		if request.SpaceID != spaceID {
 			t.Fatalf("Expected spaceID=%s, got: %s", spaceID, request.SpaceID)
 		}
-		response.ID = "abc1"
-		response.Data = &dbo4contactus.ContactDbo{
+		contact.ID = "abc1"
+		contact.Data = &dbo4contactus.ContactDbo{
 			ContactBase: briefs4contactus.ContactBase{
 				ContactBrief: briefs4contactus.ContactBrief{
 					Type:  briefs4contactus.ContactTypeCompany,
@@ -109,8 +109,8 @@ func TestHttpAddMember(t *testing.T) {
 				//},
 			},
 		}
-		response.Data = &dbo4contactus.ContactDbo{
-			ContactBase: response.Data.ContactBase,
+		contact.Data = &dbo4contactus.ContactDbo{
+			ContactBase: contact.Data.ContactBase,
 		}
 		return
 	}
