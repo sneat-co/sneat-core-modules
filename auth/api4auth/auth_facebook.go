@@ -9,8 +9,8 @@ import (
 	"context"
 )
 
-func HandleSignedWithFacebook(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
-	logus.Debugf(ctx, "api4debtus.HandleSignedWithFacebook()")
+func handleSignedWithFacebook(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+	logus.Debugf(ctx, "api4debtus.handleSignedWithFacebook()")
 	fbUserID := r.PostFormValue("fbUserID")
 	fbAppID := r.PostFormValue("fbAppID")
 	if fbUserID == "" {

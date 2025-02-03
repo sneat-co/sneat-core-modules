@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func HandleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+func handleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
 	query := r.URL.Query()
 	channel := query.Get("channel")
 	var (

@@ -27,7 +27,8 @@ type GoogleAuthData struct {
 	IdToken        string `json:"idToken" firestore:"idToken"`
 }
 
-func HandleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+func handleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+	_, _, _, _ = ctx, w, r, authInfo
 	panic("Not implemented")
 	//decoder := ffjson.NewDecoder()
 	//googleAuthData := GoogleAuthData{}

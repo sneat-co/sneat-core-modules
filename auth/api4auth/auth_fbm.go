@@ -9,8 +9,8 @@ import (
 	"context"
 )
 
-func HandleSignInWithFbm(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
-	logus.Debugf(ctx, "api4debtus.HandleSignInWithFbm()")
+func handleSignInWithFbm(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+	logus.Debugf(ctx, "api4debtus.handleSignInWithFbm()")
 
 	threadID := r.PostFormValue("tid")
 	threadType := r.PostFormValue("thread_type")

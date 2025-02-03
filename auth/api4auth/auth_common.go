@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-func HandleDisconnect(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+func handleDisconnect(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
 	provider := r.URL.Query().Get("provider")
 
 	userCtx := facade.NewUserContext(authInfo.UserID)

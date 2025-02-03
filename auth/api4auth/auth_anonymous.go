@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func HandleSignUpAnonymously(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func handleSignUpAnonymously(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	if user, err := unsorted4auth.User.CreateAnonymousUser(ctx); err != nil {
 		common4all.ErrorAsJson(ctx, w, http.StatusInternalServerError, err)
 	} else {
@@ -23,7 +23,7 @@ func HandleSignUpAnonymously(ctx context.Context, w http.ResponseWriter, r *http
 	}
 }
 
-func HandleSignInAnonymous(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func handleSignInAnonymous(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	userID := r.PostFormValue("user")
 	if userID == "" {
 		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("required parameter user is empty"))

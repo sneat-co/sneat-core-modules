@@ -8,7 +8,8 @@ import (
 
 //const VK_USER_ALEXT = 7631716
 
-func HandleSignedWithVK(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+func handleSignedWithVK(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+	_, _, _, _ = ctx, w, r, authInfo
 	panic("disabled")
 	//err := r.ParseForm()
 	//if err != nil {

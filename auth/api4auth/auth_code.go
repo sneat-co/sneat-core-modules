@@ -14,7 +14,7 @@ import (
 )
 
 // TODO: Obsolete - migrate to HandleSignInWithPin
-func HandleSignInWithCode(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
+func handleSignInWithCode(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {
 	code := r.PostFormValue("code")
 	if code == "" {
 		common4all.BadRequestMessage(ctx, w, "Missing required attribute: code")

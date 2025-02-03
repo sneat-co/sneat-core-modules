@@ -101,7 +101,7 @@ import (
 //	ReturnToken(ctx, w, r, userEmail.Data.AppUserID, r.Referer() /*, userEmail.ID == "alexander.trakhimenok@gmail.com"*/)
 //}
 
-func HandleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func handleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	email := r.PostFormValue("email")
 	userEmail, err := unsorted4auth.UserEmail.GetUserEmailByID(ctx, nil, email)
 	if dal.IsNotFound(err) {
@@ -127,7 +127,7 @@ func HandleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *h
 	}
 }
 
-func HandleChangePasswordAndSignIn(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func handleChangePasswordAndSignIn2(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	var (
 		err           error
 		passwordReset models4auth.PasswordReset
@@ -196,7 +196,7 @@ func HandleChangePasswordAndSignIn(ctx context.Context, w http.ResponseWriter, r
 
 var errInvalidEmailConformationPin = errors.New("email confirmation pin is not valid")
 
-func HandleConfirmEmailAndSignIn(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+func handleConfirmEmailAndSignIn2(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	var (
 		err       error
 		userEmail models4auth.UserEmailEntry
