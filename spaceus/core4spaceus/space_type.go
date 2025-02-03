@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// SpaceType is a type of a space, e.g. "private", "family", "company", "space", "club", etc.
 type SpaceType string
 
 const (
@@ -24,6 +25,9 @@ const (
 	SpaceTypeClub SpaceType = "club"
 )
 
+const FamilyWeekSpaceRef = SpaceRef(SpaceTypeFamily)
+const PrivateWeekSpaceRef = SpaceRef(SpaceTypePrivate)
+
 type SpaceRef string
 
 func (v SpaceRef) SpaceType() SpaceType {
@@ -36,6 +40,7 @@ func (v SpaceRef) SpaceType() SpaceType {
 	return ""
 }
 
+// SpaceID returns space ID from the space reference
 func (v SpaceRef) SpaceID() string {
 	if i := strings.Index(string(v), SpaceRefSeparator); i >= 0 {
 		return string(v[i+1:])
@@ -46,12 +51,14 @@ func (v SpaceRef) SpaceID() string {
 	return ""
 }
 
+// UrlPath returns a URL path for the space reference
 func (v SpaceRef) UrlPath() string {
 	return fmt.Sprintf("%s/%s", v.SpaceType(), v.SpaceID())
 }
 
 const SpaceRefSeparator = "!"
 
+// NewSpaceRef creates a new SpaceRef
 func NewSpaceRef(spaceType SpaceType, spaceID string) SpaceRef {
 	if !IsValidSpaceType(spaceType) {
 		panic(fmt.Errorf("invalid space type: %v", spaceType))
@@ -62,8 +69,14 @@ func NewSpaceRef(spaceType SpaceType, spaceID string) SpaceRef {
 	return SpaceRef(string(spaceType) + SpaceRefSeparator + spaceID)
 }
 
+// NewWeakSpaceRef creates a new weak SpaceRef, e.g. only with space type, no space ID
 func NewWeakSpaceRef(spaceType SpaceType) SpaceRef {
-	return SpaceRef(spaceType)
+	switch spaceType {
+	case SpaceTypeFamily, SpaceTypePrivate:
+		return SpaceRef(spaceType)
+	default:
+		panic(fmt.Sprintf("only 'family' and 'private' space types are supported for weak space referencing at the moment, got: %s", spaceType))
+	}
 }
 
 // IsValidSpaceType checks if space has a valid/known type

@@ -1,6 +1,9 @@
 package core4spaceus
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestIsValidSpaceType(t *testing.T) {
 	type args struct {
@@ -116,20 +119,64 @@ func TestNewWeakSpaceRef(t *testing.T) {
 		spaceType SpaceType
 	}
 	tests := []struct {
-		name string
-		args args
-		want SpaceRef
+		name        string
+		args        args
+		want        SpaceRef
+		expectPanic []string
 	}{
 		{
-			name: "ShouldPass",
+			name: "private",
 			args: args{SpaceTypePrivate},
-			want: "private",
+			want: SpaceRef(SpaceTypePrivate),
+		},
+		{
+			name: "family",
+			args: args{SpaceTypeFamily},
+			want: SpaceRef(SpaceTypeFamily),
+		},
+		{
+			name:        "empty",
+			args:        args{""},
+			expectPanic: []string{"family", "private"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if len(tt.expectPanic) > 0 {
+				defer func() {
+					if r := recover(); r == nil {
+						t.Errorf("NewWeakSpaceRef() did not panic")
+					} else {
+						s := r.(string)
+						for _, expected := range tt.expectPanic {
+							if !strings.Contains(s, expected) {
+								t.Errorf("expected '%s' to be in panic message", expected)
+							}
+						}
+					}
+
+				}()
+			}
 			if got := NewWeakSpaceRef(tt.args.spaceType); got != tt.want {
 				t.Errorf("NewWeakSpaceRef() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestWeakSpaceRef(t *testing.T) {
+	tests := []struct {
+		name     string
+		spaceRef SpaceRef
+		want     SpaceRef
+	}{
+		{"family", FamilyWeekSpaceRef, SpaceRef(SpaceTypeFamily)},
+		{"private", PrivateWeekSpaceRef, SpaceRef(SpaceTypePrivate)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.spaceRef != tt.want {
+				t.Errorf("WeakSpaceRef() = %v, want %v", tt.spaceRef, tt.want)
 			}
 		})
 	}
