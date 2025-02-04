@@ -34,6 +34,20 @@ func CreateContact(
 	contact dal4contactus.ContactEntry,
 	err error,
 ) {
+
+	// De-normalize create person request if required
+	if request.Type == briefs4contactus.ContactTypePerson && request.Person != nil {
+		if request.Person.Type == "" {
+			request.Person.Type = request.Type
+		}
+		if request.Person.Gender == "" {
+			request.Person.Gender = dbmodels.GenderUnknown
+		}
+		if request.Person.AgeGroup == "" {
+			request.Person.AgeGroup = dbmodels.AgeGroupUnknown
+		}
+	}
+
 	if err = request.Validate(); err != nil {
 		return contact, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
