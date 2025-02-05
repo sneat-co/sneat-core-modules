@@ -17,6 +17,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp/person"
 	"reflect"
 	"slices"
@@ -55,16 +56,20 @@ func CreateContact(
 	err = dal4spaceus.CreateSpaceItem(ctx, userCtx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
-				return err
+				return fmt.Errorf("failed in CreateContactTx(): %w", err)
 			}
+			if contact.ID == "" {
+				return errors.New("function CreateContactTx returned empty contact.ID")
+			}
+			logus.Debugf(ctx, "Created contact: %s", contact.Key.String())
 			if contact.Data == nil {
-				return errors.New("CreateContactTx returned nil contact data")
+				return errors.New("function CreateContactTx returned nil contact data")
 			}
 			return err
 		},
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to create a new contact: %w", err)
+		err = fmt.Errorf("failed in dal4spaceus.CreateSpaceItem(): %w", err)
 		return
 	}
 	return

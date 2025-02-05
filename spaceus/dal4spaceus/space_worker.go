@@ -116,12 +116,6 @@ var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, space
 
 func RunSpaceWorkerTx(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, spaceID string, worker spaceWorker) (err error) {
 	params := NewSpaceWorkerParams(userCtx, spaceID)
-	//beforeWorker := func(ctx context.Context) error {
-	//	if err = tx.Get(ctx, params.Space.Record); err != nil {
-	//		return fmt.Errorf("failed to load space record: %w", err)
-	//	}
-	//	return nil
-	//}
 	return runSpaceWorkerTx(ctx, tx, params, nil, worker)
 }
 
@@ -134,7 +128,7 @@ func runSpaceWorkerTx(
 ) (err error) {
 	if beforeWorker != nil {
 		if err = beforeWorker(ctx); err != nil {
-			return err
+			return fmt.Errorf("failed to run beforeWorker: %w", err)
 		}
 	}
 	if err = worker(ctx, tx, params); err != nil {
@@ -216,10 +210,8 @@ func applySpaceModuleUpdates[D SpaceModuleDbo](
 		} else if err = txUpdateSpaceModule(ctx, tx, params.Started, params.SpaceModuleEntry, params.SpaceModuleUpdates); err != nil {
 			return fmt.Errorf("failed to update space module record: %w", err)
 		}
-	} else {
-		if err = tx.Insert(ctx, params.SpaceModuleEntry.Record); err != nil {
-			return fmt.Errorf("failed to insert space module record: %w", err)
-		}
+	} else if err = tx.Insert(ctx, params.SpaceModuleEntry.Record); err != nil {
+		return fmt.Errorf("failed to insert space module record: %w", err)
 	}
 	return
 }
@@ -245,14 +237,9 @@ func CreateSpaceItem[D SpaceModuleDbo](
 	}
 	err = RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, spaceRequest.SpaceID, moduleID, data,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[D]) (err error) {
-			if err := worker(ctx, tx, params); err != nil {
+			if err = worker(ctx, tx, params); err != nil {
 				return fmt.Errorf("failed to execute space worker passed to CreateSpaceItem: %w", err)
 			}
-			//if counter != "" {
-			//	if err = incrementCounter(params.SpaceWorkerParams, moduleID, counter); err != nil {
-			//		return fmt.Errorf("failed to increment spaces counter=%s: %w", counter, err)
-			//	}
-			//}
 			if err = params.Space.Data.Validate(); err != nil {
 				return fmt.Errorf("space record is not valid after performing worker: %w", err)
 			}

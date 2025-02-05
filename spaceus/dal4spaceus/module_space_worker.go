@@ -89,12 +89,15 @@ func runModuleSpaceWorkerReadwriteTx[D SpaceModuleDbo](
 	if err = worker(ctx, tx, params); err != nil {
 		return fmt.Errorf("failed to execute module space worker inside runModuleSpaceWorkerReadwriteTx: %w", err)
 	}
-	if err = applySpaceUpdates(ctx, tx, params.SpaceWorkerParams); err != nil {
-		return fmt.Errorf("space module worker failed to apply space record updates: %w", err)
-	}
 	if err = applySpaceModuleUpdates(ctx, tx, params); err != nil {
 		return fmt.Errorf("space module worker failed to apply space module record updates: %w", err)
 	}
+
+	// This should be called in runSpaceWorkerTx() instead
+	//if err = applySpaceUpdates(ctx, tx, params.SpaceWorkerParams); err != nil {
+	//	return fmt.Errorf("space module worker failed to apply space record updates: %w", err)
+	//}
+
 	return nil
 }
 
@@ -121,19 +124,26 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	data D,
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
+	//const singleCall = "singleCall"
+	//if ctx.Value(singleCall) != nil {
+	//	panic("duplicate call")
+	//}
+	//ctx = context.WithValue(ctx, singleCall, true)
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 		spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
 		moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
-		return runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil, func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
-			return runModuleSpaceWorkerReadwriteTx(ctx, tx, moduleWorkerParams, worker)
-		})
+		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil,
+			func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
+				if err = runModuleSpaceWorkerReadwriteTx(ctx, tx, moduleWorkerParams, worker); err != nil {
+					return fmt.Errorf("failed in runModuleSpaceWorkerReadwriteTx(): %w", err)
+				}
+				return nil
+			}); err != nil {
+			return fmt.Errorf("failed in runSpaceWorkerTx(): %w", err)
+		}
+		//logus.Debugf(ctx, "RunModuleSpaceWorkerWithUserCtx() completed, err = nil")
+		return
 	})
-	//return RunSpaceWorkerWithUserContext(ctx, userCtx, spaceID,
-	//	func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
-	//		params := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
-	//		return runModuleSpaceWorkerReadwriteTx(ctx, tx, params, worker)
-	//	},
-	//)
 }
 
 func RunModuleSpaceWorkerTx[D SpaceModuleDbo](
