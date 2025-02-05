@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/mocks4dalgo/mocks4dal"
-	"github.com/golang/mock/gomock"
+	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
 )
@@ -55,7 +55,7 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockController := gomock.NewController(t)
-			tx := mocks4dal.NewMockReadTransaction(mockController)
+			tx := mock_dal.NewMockReadTransaction(mockController)
 
 			// Assert that GetMulti is called with the records
 			tx.EXPECT().

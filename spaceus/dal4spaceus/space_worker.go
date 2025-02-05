@@ -240,7 +240,7 @@ func CreateSpaceItem[D SpaceModuleDbo](
 	if worker == nil {
 		panic("worker is nil")
 	}
-	if err := spaceRequest.Validate(); err != nil {
+	if err = spaceRequest.Validate(); err != nil {
 		return err
 	}
 	err = RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, spaceRequest.SpaceID, moduleID, data,

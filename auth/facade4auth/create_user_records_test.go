@@ -3,8 +3,7 @@ package facade4auth
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/mocks4dalgo/mocks4dal"
-	"github.com/golang/mock/gomock"
+	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/dto4auth"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -13,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/person"
+	"go.uber.org/mock/gomock"
 	"testing"
 )
 
@@ -56,16 +56,17 @@ func Test_InitUserRecord(t *testing.T) {
 
 			// SETUP MOCKS BEGINS
 
-			db := mocks4dal.NewMockDatabase(gomock.NewController(t))
+			db := mock_dal.NewMockDB(gomock.NewController(t))
 			facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 				return db, nil
 			}
 
 			db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
 				mockCtrl := gomock.NewController(t)
-				tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
+				tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
 				tx.EXPECT().Get(ctx, gomock.Any()).Return(dal.ErrRecordNotFound).AnyTimes() // TODO: Assert gets
-				tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil).AnyTimes()                // TODO: Assert inserts
+				tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil)                           // TODO: Assert inserts
+				tx.EXPECT().InsertMulti(ctx, gomock.Any()).Return(nil)                      // TODO: Assert inserts
 				return f(ctx, tx)
 			})
 

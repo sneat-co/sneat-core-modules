@@ -3,8 +3,7 @@ package facade4invitus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/mocks4dalgo/mocks4dal"
-	"github.com/golang/mock/gomock"
+	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
@@ -17,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
+	"go.uber.org/mock/gomock"
 	"slices"
 	"testing"
 	"time"
@@ -168,7 +168,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			tt.args.space.Record.SetError(tt.args.spaceRecordError)
 			tt.args.invite.Record.SetError(tt.args.inviteRecordError)
 			//
-			tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
+			tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
 			if tt.args.userRecordError == nil && tt.args.spaceRecordError == nil && tt.args.inviteRecordError == nil {
 				tx.EXPECT().Insert(gomock.Any(), tt.args.user.Record).Return(nil)
 			}
@@ -255,7 +255,7 @@ func Test_updateInviteRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockCtrl := gomock.NewController(t)
-			tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
+			tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
 			tx.EXPECT().Update(ctx, tt.args.invite.Key, gomock.Any()).Return(nil)
 			assert.Equal(t, "", tt.args.invite.Data.To.UserID)
 			if err := updateInviteRecord(ctx, tx, tt.args.uid, now, tt.args.invite, tt.args.status); (err != nil) != tt.wantErr {
@@ -327,7 +327,7 @@ func Test_updateSpaceRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			//mockCtrl := gomock.NewController(t)
-			//tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
+			//tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
 			//tx.EXPECT().Update(gomock.Any(), tt.args.space.Key, gomock.Any()).Return(nil)
 			//tx.EXPECT().Update(gomock.Any(), tt.args.contactusSpace.Key, gomock.Any()).Return(nil)
 			tt.args.contactusSpace.Record.SetError(tt.spaceRecordErr)

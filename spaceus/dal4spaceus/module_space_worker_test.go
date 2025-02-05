@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/mocks4dalgo/mocks4dal"
-	"github.com/golang/mock/gomock"
+	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
 )
@@ -43,11 +43,11 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 	}
 	facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 		ctrl := gomock.NewController(t)
-		db := mocks4dal.NewMockDatabase(ctrl)
+		db := mock_dal.NewMockDB(ctrl)
 		//var db2 dal.DB
 		//db2.RunReadwriteTransaction()
 		db.EXPECT().RunReadwriteTransaction(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, worker dal.RWTxWorker, options ...dal.TransactionOption) error {
-			tx := mocks4dal.NewMockReadwriteTransaction(ctrl)
+			tx := mock_dal.NewMockReadwriteTransaction(ctrl)
 			//tx.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			//	switch key := record.Key(); key.Collection() {
 			//	case "spaces":

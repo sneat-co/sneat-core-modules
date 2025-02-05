@@ -3,8 +3,7 @@ package facade4spaceus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/mocks4dalgo/mocks4dal"
-	"github.com/golang/mock/gomock"
+	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
@@ -13,23 +12,27 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/strongoapp/person"
+	"go.uber.org/mock/gomock"
 	"testing"
 )
 
 func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	ctx := context.Background()
 	user := facade.NewUserContext("TestUser")
-	//userKey := dbo4userus.NewUserKey(user.GetID())
 
-	setupMockDb := func() {
+	setupMockDb := func(insertMultiTimes int) {
 		mockCtrl := gomock.NewController(t)
-		db := mocks4dal.NewMockDatabase(mockCtrl)
+		db := mock_dal.NewMockDB(mockCtrl)
 		facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 			return db, nil
 		}
 
-		tx := mocks4dal.NewMockReadwriteTransaction(mockCtrl)
-		tx.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
+		tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
+		assertContextWithDeadLine := gomock.Cond(func(x context.Context) bool {
+			_, ok := x.Deadline()
+			return ok
+		})
+		tx.EXPECT().Get(assertContextWithDeadLine, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			switch record.Key().Collection() {
 			case dbo4userus.UsersCollection:
 				record.SetError(nil)
@@ -56,13 +59,18 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 				return err
 			}
 		}).AnyTimes()
-		tx.EXPECT().Insert(ctx, gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+		tx.EXPECT().Insert(assertContextWithDeadLine, gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
 			return nil
 		}).AnyTimes()
-		tx.EXPECT().Update(ctx, gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, key *dal.Key, updates []dal.Update, preconditions ...dal.Precondition) error {
+		if insertMultiTimes > 0 {
+			tx.EXPECT().InsertMulti(assertContextWithDeadLine, gomock.Any()).DoAndReturn(func(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) error {
+				return nil
+			}).Times(insertMultiTimes)
+		}
+		tx.EXPECT().Update(assertContextWithDeadLine, gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, key *dal.Key, updates []dal.Update, preconditions ...dal.Precondition) error {
 			return nil
 		}).AnyTimes()
-		db.EXPECT().RunReadwriteTransaction(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, worker func(ctx context.Context, tx dal.ReadwriteTransaction) error, o ...dal.TransactionOption) error {
+		db.EXPECT().RunReadwriteTransaction(assertContextWithDeadLine, gomock.Any()).DoAndReturn(func(ctx context.Context, worker func(ctx context.Context, tx dal.ReadwriteTransaction) error, o ...dal.TransactionOption) error {
 			return worker(ctx, tx)
 		}).AnyTimes()
 
@@ -72,7 +80,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	}
 
 	t.Run("error on bad request", func(t *testing.T) {
-		setupMockDb()
+		setupMockDb(0)
 		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{})
 		assert.Error(t, err)
 		assert.Equal(t, "", result.Space.ID)
@@ -80,7 +88,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	})
 
 	t.Run("user's 1st space", func(t *testing.T) {
-		setupMockDb()
+		setupMockDb(1)
 
 		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{Type: core4spaceus.SpaceTypeFamily})
 		assert.Nil(t, err)
@@ -97,7 +105,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 func Test_getUniqueSpaceID(t *testing.T) {
 	ctx := context.Background()
 	mockCtrl := gomock.NewController(t)
-	readSession := mocks4dal.NewMockReadSession(mockCtrl)
+	readSession := mock_dal.NewMockReadSession(mockCtrl)
 	readSession.EXPECT().Get(gomock.Any(), gomock.Any()).Return(dal.ErrRecordNotFound)
 	spaceID, err := getUniqueSpaceID(ctx, readSession, "TestCompany LTD")
 	assert.NoError(t, err)
