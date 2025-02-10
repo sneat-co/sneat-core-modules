@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"slices"
 )
 
 // ModuleSpaceWorkerParams passes data to a space worker
@@ -129,8 +130,23 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	//	panic("duplicate call")
 	//}
 	//ctx = context.WithValue(ctx, singleCall, true)
+
+	spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
+	var db dal.DB
+	if db, err = facade.GetSneatDB(ctx); err != nil {
+		return
+	}
+	if err = db.Get(ctx, spaceWorkerParams.Space.Record); err != nil {
+		return fmt.Errorf("failed to get space record outside of transaction: %w", err)
+	}
+	if userCtx != nil {
+		if userID := userCtx.GetUserID(); userID != "" {
+			if !slices.Contains(spaceWorkerParams.Space.Data.UserIDs, userID) {
+				return fmt.Errorf("user is not a member of the space")
+			}
+		}
+	}
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
 		moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
 		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil,
 			func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
