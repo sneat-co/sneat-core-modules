@@ -14,7 +14,7 @@ func httpUpdateContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.UpdateContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent,
 		func(ctx context.Context, userCtx facade.UserContext) (body interface{}, err error) {
-			_, err = facade4contactus.UpdateContact(ctx, userCtx, request)
+			_, _, _, err = facade4contactus.UpdateContact(ctx, userCtx, request)
 			return nil, err
 		})
 }

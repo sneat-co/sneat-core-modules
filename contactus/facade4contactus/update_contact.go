@@ -10,6 +10,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
@@ -19,10 +20,17 @@ func UpdateContact(
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request dto4contactus.UpdateContactRequest,
-) (contact dal4contactus.ContactEntry, err error) {
+) (
+	contact dal4contactus.ContactEntry,
+	contactusSpace dal4contactus.ContactusSpaceEntry,
+	space dbo4spaceus.SpaceEntry,
+	err error,
+) {
 	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			contact = params.Contact
+			contactusSpace = params.SpaceModuleEntry
+			space = params.Space
 			return UpdateContactTx(ctx, tx, request, params)
 		})
 	return
