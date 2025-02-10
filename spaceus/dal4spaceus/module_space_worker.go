@@ -146,7 +146,7 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 			}
 		}
 	}
-	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
+	return facade.RunReadwriteTransactionWithDB(ctx, db, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 		moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
 		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil,
 			func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {

@@ -44,9 +44,15 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 	facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 		ctrl := gomock.NewController(t)
 		db := mock_dal.NewMockDB(ctrl)
+		db.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
+			record.SetError(nil)
+			spaceDbo := record.Data().(*dbo4spaceus.SpaceDbo)
+			spaceDbo.UserIDs = []string{user.ID}
+			return nil
+		})
 		//var db2 dal.DB
 		//db2.RunReadwriteTransaction()
-		db.EXPECT().RunReadwriteTransaction(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, worker dal.RWTxWorker, options ...dal.TransactionOption) error {
+		db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, worker dal.RWTxWorker, options ...dal.TransactionOption) error {
 			tx := mock_dal.NewMockReadwriteTransaction(ctrl)
 			//tx.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			//	switch key := record.Key(); key.Collection() {
