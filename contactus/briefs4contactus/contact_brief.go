@@ -21,6 +21,9 @@ type ContactBrief struct {
 	with.RolesField
 	appuser.AccountsOfUser
 
+	// Joined is true if a user has joined a space or a creator of the space
+	Joined bool `json:"joined,omitempty" firestore:"joined,omitempty"`
+
 	Type       ContactType        `json:"type" firestore:"type"` // "person", "company", "location"
 	Gender     dbmodels.Gender    `json:"gender,omitempty" firestore:"gender,omitempty"`
 	Names      *person.NameFields `json:"names,omitempty" firestore:"names,omitempty"`

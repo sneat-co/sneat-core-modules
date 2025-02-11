@@ -35,9 +35,11 @@ func CreateContact(
 	contact dal4contactus.ContactEntry,
 	err error,
 ) {
-
-	// De-normalize create person request if required
+	// De-normalize & sanitize request if required
 	if request.Type == briefs4contactus.ContactTypePerson && request.Person != nil {
+		if request.Person.Joined {
+			request.Person.Joined = false
+		}
 		if request.Person.Type == "" {
 			request.Person.Type = request.Type
 		}

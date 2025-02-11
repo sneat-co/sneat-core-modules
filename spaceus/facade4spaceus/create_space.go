@@ -156,6 +156,7 @@ func CreateSpaceTxWorker(
 	params.ContactusSpace = dal4contactus.NewContactusSpaceEntry(spaceID)
 
 	spaceContactBrief := params.User.Data.ContactBrief // This should copy data from user's contact brief as it's not a pointer
+	spaceContactBrief.Joined = true
 
 	spaceContactBrief.UserID = params.User.ID
 
