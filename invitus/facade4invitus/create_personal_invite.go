@@ -37,9 +37,8 @@ func createInviteForMember(
 	remoteClient dbmodels.RemoteClientInfo,
 	space dbo4invitus.InviteSpace,
 	from dbo4invitus.InviteFrom,
-	to dbo4invitus.InviteToMember,
+	to dbo4invitus.InviteTo,
 	composeOnly bool,
-	inviterUserID,
 	message string,
 	toAvatar *dbprofile.Avatar,
 ) (id string, personalInvite *dbo4invitus.PersonalInviteDbo, err error) {
@@ -99,9 +98,9 @@ func createInviteForMember(
 			Message: message,
 			Roles:   []string{"contributor"},
 		},
-		Address:         toAddressLower,
-		ToSpaceMemberID: briefs4contactus.GetFullContactID(spaceID, to.MemberID),
-		ToAvatar:        toAvatar,
+		Address:          toAddressLower,
+		ToSpaceContactID: briefs4contactus.GetFullContactID(spaceID, to.ContactID),
+		ToAvatar:         toAvatar,
 	}
 	id = randomInviteID()
 	inviteKey := NewInviteKey(id)

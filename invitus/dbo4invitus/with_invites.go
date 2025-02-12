@@ -22,9 +22,9 @@ func (v WithInvites) Validate() error {
 	return nil
 }
 
-func (v WithInvites) GetInviteBriefByChannelAndToMemberID(channel, toMemberID string) *MemberInviteBrief {
+func (v WithInvites) GetInviteBriefByChannelAndToContactID(channel, toContactID string) *MemberInviteBrief {
 	for _, mi := range v.Invites {
-		if mi.To.Channel == channel && mi.To.MemberID == toMemberID {
+		if mi.To.Channel == channel && mi.To.ContactID == toContactID {
 			return mi
 		}
 	}

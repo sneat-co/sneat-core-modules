@@ -37,8 +37,8 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 		// TODO(deprecate): httpserver.HandleError(nil, validation.NewErrRequestIsMissingRequiredField("space"), "httpGetOrCreateInviteLink", w, r)
 		return
 	}
-	if request.To.MemberID = q.Get("member"); request.To.MemberID == "" {
-		apicore.ReturnError(r.Context(), w, r, validation.NewErrRequestIsMissingRequiredField("member"))
+	if request.To.ContactID = q.Get("contact"); request.To.ContactID == "" {
+		apicore.ReturnError(r.Context(), w, r, validation.NewErrRequestIsMissingRequiredField("contact"))
 		return
 	}
 

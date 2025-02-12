@@ -210,8 +210,8 @@ func Test_updateInviteRecord(t *testing.T) {
 			args: args{
 				status: "accepted",
 				invite: NewPersonalInviteEntryWithDto("test_invite_id1", &dbo4invitus.PersonalInviteDbo{
-					ToSpaceMemberID: "to_member_id2",
-					Address:         "to.test.user@example.com",
+					ToSpaceContactID: "to_member_id2",
+					Address:          "to.test.user@example.com",
 					InviteDbo: dbo4invitus.InviteDbo{
 						Pin:     "1234",
 						SpaceID: "testspaceid1",
@@ -232,17 +232,17 @@ func Test_updateInviteRecord(t *testing.T) {
 							Channel: "email",
 							From: dbo4invitus.InviteFrom{
 								InviteContact: dbo4invitus.InviteContact{
-									UserID:   "from_user_id1",
-									MemberID: "from_member_id1",
-									Title:    "From ContactID 1",
+									UserID:    "from_user_id1",
+									ContactID: "from_contact_id1",
+									Title:     "From ContactID 1",
 								},
 							},
 							To: &dbo4invitus.InviteTo{
 								InviteContact: dbo4invitus.InviteContact{
-									Title:    "To ContactID 2",
-									MemberID: "to_member_id2",
-									Channel:  "email",
-									Address:  "to.test.user@example.com",
+									Title:     "To ContactID 2",
+									ContactID: "to_contact_id2",
+									Channel:   "email",
+									Address:   "to.test.user@example.com",
 								},
 							},
 						},

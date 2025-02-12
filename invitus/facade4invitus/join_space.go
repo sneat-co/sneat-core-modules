@@ -90,7 +90,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 		//	}
 		//}
 
-		member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.MemberID)
+		member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.ContactID)
 		if err = tx.Get(ctx, member.Record); err != nil {
 			return fmt.Errorf("failed to get member record: %w", err)
 		}
@@ -104,7 +104,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 		}
 
 		if err = onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
-			ctx, tx, params, inviteDto.From.MemberID, member, uid, userDto,
+			ctx, tx, params, inviteDto.From.ContactID, member, uid, userDto,
 		); err != nil {
 			return err
 		}

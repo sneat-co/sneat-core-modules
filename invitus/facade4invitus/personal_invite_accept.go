@@ -83,7 +83,7 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 			}
 
 			var spaceMember *briefs4contactus.ContactBase
-			if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceMemberID, params, request.Member); err != nil {
+			if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceContactID, params, request.Member); err != nil {
 				return fmt.Errorf("failed to update space record: %w", err)
 			}
 

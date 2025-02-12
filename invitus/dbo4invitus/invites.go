@@ -18,7 +18,6 @@ type InviteContact struct {
 	Address   string `json:"address,omitempty" firestore:"address,omitempty"`
 	Title     string `json:"title,omitempty" firestore:"title,omitempty"`
 	UserID    string `json:"userID,omitempty" firestore:"userID,omitempty"`
-	MemberID  string `json:"memberID,omitempty" firestore:"memberID,omitempty"`
 	ContactID string `json:"contactID,omitempty" firestore:"contactID,omitempty"`
 }
 
@@ -28,7 +27,8 @@ func ValidateChannel(v string, required bool) error {
 		if required {
 			return validation.NewErrRecordIsMissingRequiredField("channel")
 		}
-	case "email", "sms", "link": // known channels
+	case "email", "sms", "link", "telegram":
+		// known channels
 	default:
 		return validation.NewErrBadRecordFieldValue("channel", fmt.Sprintf("unsupported value: [%s]", v))
 	}
@@ -58,8 +58,8 @@ func (v InviteFrom) Validate() error {
 	if v.UserID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("userID")
 	}
-	if v.MemberID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("memberID")
+	if v.ContactID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("contactID")
 	}
 	if err := v.InviteContact.Validate(); err != nil {
 		return err
@@ -100,23 +100,7 @@ func (v InviteTo) Validate() error {
 	return nil
 }
 
-// InviteToMember an invitation to a member, member ContactID is validated
-type InviteToMember struct {
-	InviteTo
-}
-
-// Validate returns error if not valid
-func (v InviteToMember) Validate() error {
-	if v.MemberID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("memberID")
-	}
-	if err := v.InviteTo.Validate(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Joiners defines fields for how many can join and how manu already joined
+// Joiners define fields for how many can join and how manu already joined
 type Joiners struct {
 	Limit  int `json:"limit" firestore:"limit"`
 	Joined int `json:"joined" firestore:"joined"`
@@ -306,7 +290,7 @@ type PersonalInviteDbo struct {
 	Address string `json:"address,omitempty" firestore:"address,omitempty"` // Can be empty for a channel=link
 
 	// in format "<TEAM_ID>:<MEMBER_ID>"
-	ToSpaceMemberID string `json:"toSpaceMemberId" firestore:"toSpaceMemberId"`
+	ToSpaceContactID string `json:"toSpaceMemberId" firestore:"toSpaceMemberId"`
 
 	ToAvatar *dbprofile.Avatar `json:"toAvatar,omitempty" firestore:"toAvatar,omitempty"`
 	Attempts int               `json:"attempts,omitempty" firestore:"attempts,omitempty"`
@@ -320,14 +304,14 @@ func (v PersonalInviteDbo) Validate() error {
 	if err := v.InviteDbo.validateType("personal"); err != nil {
 		return err
 	}
-	if v.ToSpaceMemberID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("ToSpaceMemberID")
+	if v.ToSpaceContactID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("toSpaceContactID")
 	}
-	if v.ToSpaceMemberID[0] == ':' {
-		return validation.NewErrBadRecordFieldValue("memberID", "starts with ':'")
+	if v.ToSpaceContactID[0] == ':' {
+		return validation.NewErrBadRecordFieldValue("toSpaceContactID", "starts with ':'")
 	}
-	if v.ToSpaceMemberID[len(v.ToSpaceMemberID)-1] == ':' {
-		return validation.NewErrBadRecordFieldValue("memberID", "ends with ':'")
+	if v.ToSpaceContactID[len(v.ToSpaceContactID)-1] == ':' {
+		return validation.NewErrBadRecordFieldValue("toSpaceContactID", "ends with ':'")
 	}
 	switch v.Channel {
 	case "":

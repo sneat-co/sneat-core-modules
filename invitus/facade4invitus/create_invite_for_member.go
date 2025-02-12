@@ -2,6 +2,7 @@ package facade4invitus
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -17,8 +18,8 @@ type InviteMemberRequest struct {
 	dto4spaceus.SpaceRequest
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
 
-	To    dbo4invitus.InviteToMember `json:"to"`
-	Roles []string                   `json:"roles,omitempty"`
+	To    dbo4invitus.InviteTo `json:"to"`
+	Roles []string             `json:"roles,omitempty"`
 	//
 	Send    bool   `json:"send,omitempty"`
 	Message string `json:"message,omitempty"`
@@ -78,7 +79,7 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 			if err = tx.Get(ctx, fromContact.Record); err != nil {
 				return err
 			}
-			memberInviteBrief := fromContact.Data.GetInviteBriefByChannelAndToMemberID(request.To.Channel, request.To.MemberID)
+			memberInviteBrief := fromContact.Data.GetInviteBriefByChannelAndToContactID(request.To.Channel, request.To.ContactID)
 			if memberInviteBrief != nil {
 				personalInvite, _, err = GetPersonalInviteByID(ctx, tx, memberInviteBrief.ID)
 				if err != nil {
@@ -131,21 +132,21 @@ func createPersonalInvite(
 	inviteID string, personalInvite *dbo4invitus.PersonalInviteDbo, err error,
 ) {
 
-	toMember := param.SpaceModuleEntry.Data.Contacts[request.To.MemberID]
-	if toMember == nil {
-		err = fmt.Errorf("space has no 'to' member with id=%s", request.To.MemberID)
+	toContactID := param.SpaceModuleEntry.Data.Contacts[request.To.ContactID]
+	if toContactID == nil {
+		err = errors.New("space has no 'to' contact with id=" + request.To.ContactID)
 		return
 	}
-	request.To.Title = toMember.GetTitle()
+	request.To.Title = toContactID.GetTitle()
 	from := dbo4invitus.InviteFrom{
 		InviteContact: dbo4invitus.InviteContact{
-			UserID:   uid,
-			MemberID: fromMember.ID,
-			Title:    fromMember.Data.GetTitle(),
+			UserID:    uid,
+			ContactID: fromMember.ID,
+			Title:     fromMember.Data.GetTitle(),
 		},
 	}
 	to := request.To
-	to.Title = toMember.GetTitle()
+	to.Title = toContactID.GetTitle()
 	if !param.Space.Record.Exists() {
 		err = fmt.Errorf("space record should not exist before creating a personal invite")
 		return
@@ -164,9 +165,8 @@ func createPersonalInvite(
 		from,
 		to,
 		!request.Send,
-		uid,
 		request.Message,
-		toMember.Avatar,
+		toContactID.Avatar,
 	)
 	if err != nil {
 		err = fmt.Errorf("failed to create an invite record for a member: %w", err)

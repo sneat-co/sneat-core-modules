@@ -25,17 +25,17 @@ func TestCreateMassInvite(t *testing.T) {
 	}
 	invite.From = dbo4invitus.InviteFrom{
 		InviteContact: dbo4invitus.InviteContact{
-			Channel:  "email",
-			Address:  "from@example.com",
-			Title:    "From Title",
-			MemberID: "f1",
+			Channel:   "email",
+			Address:   "from@example.com",
+			Title:     "From Title",
+			ContactID: "f1",
 		},
 	}
 	//invite.To = &dbo4invitus.InviteTo{
 	//	Channel:      "email",
 	//	Address:      "to@example.com",
 	//	Title:        "To Title",
-	//	ToSpaceMemberID: "t1",
+	//	ToSpaceContactID: "t1",
 	//}
 	invite.SpaceID = spaceID
 	invite.Space.Type = "family"
