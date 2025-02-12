@@ -14,14 +14,14 @@ import (
 
 // InviteContact holds invitation contact data
 type InviteContact struct {
-	Channel   string `json:"channel,omitempty" firestore:"channel,omitempty"`
-	Address   string `json:"address,omitempty" firestore:"address,omitempty"`
-	Title     string `json:"title,omitempty" firestore:"title,omitempty"`
-	UserID    string `json:"userID,omitempty" firestore:"userID,omitempty"`
-	ContactID string `json:"contactID,omitempty" firestore:"contactID,omitempty"`
+	Channel   InviteChannel `json:"channel,omitempty" firestore:"channel,omitempty"`
+	Address   string        `json:"address,omitempty" firestore:"address,omitempty"`
+	Title     string        `json:"title,omitempty" firestore:"title,omitempty"`
+	UserID    string        `json:"userID,omitempty" firestore:"userID,omitempty"`
+	ContactID string        `json:"contactID,omitempty" firestore:"contactID,omitempty"`
 }
 
-func ValidateChannel(v string, required bool) error {
+func ValidateChannel(v InviteChannel, required bool) error {
 	switch v {
 	case "":
 		if required {
@@ -143,13 +143,15 @@ func (v InviteSpace) Validate() error {
 	return nil
 }
 
+type InviteChannel string
+
 // InviteBase base data about invite to be used in InviteBrief & InviteDbo
 type InviteBase struct {
-	Type        string     `json:"type" firestore:"type"` // either "personal" or "mass"
-	Channel     string     `json:"channel" firestore:"channel"`
-	ComposeOnly bool       `json:"composeOnly" firestore:"composeOnly"`
-	From        InviteFrom `json:"from" firestore:"from"`
-	To          *InviteTo  `json:"to" firestore:"to"`
+	Type        string        `json:"type" firestore:"type"` // either "personal" or "mass"
+	Channel     InviteChannel `json:"channel" firestore:"channel"`
+	ComposeOnly bool          `json:"composeOnly" firestore:"composeOnly"`
+	From        InviteFrom    `json:"from" firestore:"from"`
+	To          *InviteTo     `json:"to" firestore:"to"`
 }
 
 // Validate returns error if not valid
@@ -328,7 +330,7 @@ func (v PersonalInviteDbo) Validate() error {
 		}
 	case "link", "sms":
 	default:
-		return validation.NewErrBadRecordFieldValue("channel", "unknown value: "+v.Channel)
+		return validation.NewErrBadRecordFieldValue("channel", "unknown value: "+string(v.Channel))
 	}
 	if !v.ComposeOnly && v.Address == "" {
 		return validation.NewErrRecordIsMissingRequiredField("address")

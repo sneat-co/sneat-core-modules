@@ -5,6 +5,8 @@ import (
 	"github.com/strongo/validation"
 )
 
+// WithInvites holds a list of active invites the member has created.
+// Obsolete: use InviteChannel instead
 type WithInvites struct {
 	// Holds a list of active invites the member has created.
 	Invites []*MemberInviteBrief `json:"invites" firestore:"invites,omitempty"`
@@ -22,7 +24,7 @@ func (v WithInvites) Validate() error {
 	return nil
 }
 
-func (v WithInvites) GetInviteBriefByChannelAndToContactID(channel, toContactID string) *MemberInviteBrief {
+func (v WithInvites) GetInviteBriefByChannelAndToContactID(channel InviteChannel, toContactID string) *MemberInviteBrief {
 	for _, mi := range v.Invites {
 		if mi.To.Channel == channel && mi.To.ContactID == toContactID {
 			return mi

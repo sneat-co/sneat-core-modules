@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -79,9 +80,9 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 			if err = tx.Get(ctx, fromContact.Record); err != nil {
 				return err
 			}
-			memberInviteBrief := fromContact.Data.GetInviteBriefByChannelAndToContactID(request.To.Channel, request.To.ContactID)
+			inviteID, memberInviteBrief := fromContact.Data.GetInviteBriefByChannelAndToContactID(request.To.Channel)
 			if memberInviteBrief != nil {
-				personalInvite, _, err = GetPersonalInviteByID(ctx, tx, memberInviteBrief.ID)
+				personalInvite, _, err = GetPersonalInviteByID(ctx, tx, inviteID)
 				if err != nil {
 					if dal.IsNotFound(err) {
 						err = nil
@@ -90,16 +91,9 @@ func CreateOrReuseInviteForMember(ctx context.Context, userCtx facade.UserContex
 					}
 				}
 				if personalInvite.Status == "active" {
-					inviteID = memberInviteBrief.ID
+					//inviteID = memberInviteBrief.ID
 				} else {
-					personalInvite = nil
-					inviteBriefs := make([]*dbo4invitus.MemberInviteBrief, 0, len(fromContact.Data.Invites)-1)
-					for _, mi := range fromContact.Data.Invites {
-						if mi.ID != memberInviteBrief.ID {
-							inviteBriefs = append(inviteBriefs, mi)
-						}
-					}
-					fromContact.Data.Invites = inviteBriefs
+					delete(fromContact.Data.Invites, inviteID)
 				}
 			}
 			if personalInvite == nil {
@@ -186,11 +180,10 @@ func createPersonalInvite(
 			return inviteID, personalInvite, err
 		}
 	}
-	fromMember.Data.Invites = append(fromMember.Data.Invites, &dbo4invitus.MemberInviteBrief{
-		ID:         inviteID,
-		To:         *personalInvite.To,
-		CreateTime: personalInvite.CreatedAt,
-	})
+	fromMember.Data.Invites[inviteID] = dbo4contactus.InviteToContactBrief{
+		CreatedTime:     personalInvite.CreatedAt,
+		CreatedByUserID: uid,
+	}
 	memberKey := dal4contactus.NewContactKey(request.SpaceID, fromMember.ID)
 	if err = tx.Update(ctx, memberKey, []dal.Update{
 		{Field: "invites", Value: fromMember.Data.Invites},
