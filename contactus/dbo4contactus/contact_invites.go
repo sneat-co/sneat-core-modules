@@ -28,7 +28,7 @@ type WithInvitesToContactBriefs struct {
 	Invites map[string]InviteToContactBrief `json:"invites,omitempty" firestore:"invites,omitempty"`
 }
 
-func (v WithInvitesToContactBriefs) Validate() error {
+func (v *WithInvitesToContactBriefs) Validate() error {
 	for id, brief := range v.Invites {
 		if err := brief.Validate(); err != nil {
 			return validation.NewErrBadRecordFieldValue("invites["+id+"]", err.Error())
@@ -37,7 +37,7 @@ func (v WithInvitesToContactBriefs) Validate() error {
 	return nil
 }
 
-func (v WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(channel dbo4invitus.InviteChannel, creatorUserID string) (id string, brief *InviteToContactBrief) {
+func (v *WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(channel dbo4invitus.InviteChannel, creatorUserID string) (id string, brief *InviteToContactBrief) {
 	var b InviteToContactBrief
 	for id, b = range v.Invites {
 		if b.CreatedByUserID == creatorUserID && b.Channel == channel {
@@ -47,7 +47,7 @@ func (v WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(chan
 	return "", nil
 }
 
-func (v WithInvitesToContactBriefs) DeleteInviteBrief(id string) dal.Update {
+func (v *WithInvitesToContactBriefs) DeleteInviteBrief(id string) dal.Update {
 	delete(v.Invites, id)
 	return dal.Update{
 		Field: "invites." + id,
@@ -55,13 +55,17 @@ func (v WithInvitesToContactBriefs) DeleteInviteBrief(id string) dal.Update {
 	}
 }
 
-func (v WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) dal.Update {
+func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) dal.Update {
 	brief := InviteToContactBrief{
 		Channel:         channel,
 		CreatedTime:     createdTime,
 		CreatedByUserID: createdByUserID,
 	}
-	v.Invites[inviteID] = brief
+	if v.Invites == nil {
+		v.Invites = map[string]InviteToContactBrief{inviteID: brief}
+	} else {
+		v.Invites[inviteID] = brief
+	}
 	return dal.Update{
 		Field: "invites." + inviteID,
 		Value: brief,

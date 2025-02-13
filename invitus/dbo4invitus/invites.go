@@ -315,9 +315,8 @@ func (v PersonalInviteDbo) Validate() error {
 	if v.ToSpaceContactID[len(v.ToSpaceContactID)-1] == ':' {
 		return validation.NewErrBadRecordFieldValue("toSpaceContactID", "ends with ':'")
 	}
+
 	switch v.Channel {
-	case "":
-		return validation.NewErrRecordIsMissingRequiredField("channel")
 	case "email":
 		if v.Address != "" {
 			if address, err := mail.ParseAddress(v.Address); err != nil {
@@ -328,9 +327,10 @@ func (v PersonalInviteDbo) Validate() error {
 				return validation.NewErrBadRecordFieldValue("address", "should be in lower case")
 			}
 		}
-	case "link", "sms":
 	default:
-		return validation.NewErrBadRecordFieldValue("channel", "unknown value: "+string(v.Channel))
+		if ValidateChannel(v.Channel, true) != nil {
+			return validation.NewErrBadRecordFieldValue("channel", "unknown channel value: "+string(v.Channel))
+		}
 	}
 	if !v.ComposeOnly && v.Address == "" {
 		return validation.NewErrRecordIsMissingRequiredField("address")

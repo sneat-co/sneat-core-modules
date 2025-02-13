@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
@@ -85,7 +84,7 @@ func CreateOrReuseInviteToContact(
 				return errors.New("private space does not support invites")
 			}
 			userID := params.UserID()
-			fromContactID, fromContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
+			_, fromContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 			if fromContactBrief == nil {
 				return fmt.Errorf(
 					"%w: current user does not belong to the space: user={id=%s}, space={id=%s,type=%s}",
@@ -98,17 +97,17 @@ func CreateOrReuseInviteToContact(
 			invite.ID, _ = contact.Data.WithInvitesToContactBriefs.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
-				if invite.Data.Status == "active" {
+				if invite.Data.Status == "active" || invite.Data.Status == "" {
+					inviteBrief = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
 					return
 				}
+				invite.Data = nil
 				params.ContactUpdates = append(params.ContactUpdates, contact.Data.DeleteInviteBrief(invite.ID))
 				return
 			}
 
 			if invite.Data == nil {
-				fromMember := dal4contactus.NewContactEntry(request.SpaceID, fromContactID)
-
-				if invite, err = createPersonalInvite(ctx, tx, userID, request, params, fromMember, getRemoteClientInfo); err != nil {
+				if invite, err = createPersonalInvite(ctx, tx, userID, request, params, getRemoteClientInfo); err != nil {
 					return fmt.Errorf("failed to create personal invite record: %w", err)
 				}
 			}
@@ -125,7 +124,6 @@ func createPersonalInvite(
 	uid string,
 	request InviteContactRequest,
 	params *dal4contactus.ContactWorkerParams,
-	fromMember dal4contactus.ContactEntry,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
 	invite PersonalInviteEntry, err error,
@@ -137,11 +135,14 @@ func createPersonalInvite(
 		return
 	}
 	request.To.Title = toContactID.GetTitle()
+
+	fromContactID, fromBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(uid)
+
 	from := dbo4invitus.InviteFrom{
 		InviteContact: dbo4invitus.InviteContact{
 			UserID:    uid,
-			ContactID: fromMember.ID,
-			Title:     fromMember.Data.GetTitle(),
+			ContactID: fromContactID,
+			Title:     fromBrief.GetTitle(),
 		},
 	}
 	to := request.To
@@ -185,12 +186,10 @@ func createPersonalInvite(
 			return
 		}
 	}
-	params.Contact.Data.Invites[invite.ID] = dbo4contactus.InviteToContactBrief{
-		CreatedTime:     invite.Data.CreatedAt,
-		CreatedByUserID: uid,
-	}
+
 	params.ContactUpdates = append(
 		params.ContactUpdates,
-		params.Contact.Data.AddInviteBrief(invite.ID, uid, request.To.Channel, invite.Data.CreatedAt))
+		params.Contact.Data.AddInviteBrief(invite.ID, uid, request.To.Channel, invite.Data.CreatedAt),
+	)
 	return
 }
