@@ -52,6 +52,13 @@ func (v InviteContactRequest) Validate() error {
 	return nil
 }
 
+type CreateInviteResponse struct {
+	Invite         dbo4invitus.InviteBrief
+	Contact        dal4contactus.ContactEntry
+	ContactusSpace dal4contactus.ContactusSpaceEntry
+	Space          dbo4spaceus.SpaceEntry
+}
+
 // CreateOrReuseInviteToContact creates or reuses an invitation for a member
 func CreateOrReuseInviteToContact(
 	ctx context.Context,
@@ -59,9 +66,7 @@ func CreateOrReuseInviteToContact(
 	request InviteContactRequest,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
-	inviteBrief dbo4invitus.InviteBrief,
-	contact dal4contactus.ContactEntry,
-	space dbo4spaceus.SpaceEntry,
+	response CreateInviteResponse,
 	err error,
 ) {
 	if userCtx == nil || userCtx.GetUserID() == "" {
@@ -74,8 +79,9 @@ func CreateOrReuseInviteToContact(
 	}
 	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
-			contact = params.Contact
-			space = params.Space
+			response.Contact = params.Contact
+			response.ContactusSpace = params.SpaceModuleEntry
+			response.Space = params.Space
 			if err = tx.GetMulti(ctx, []dal.Record{
 				params.Space.Record,
 				params.Contact.Record,
@@ -97,15 +103,15 @@ func CreateOrReuseInviteToContact(
 			var invite PersonalInviteEntry
 
 			//var inviteToContactBrief *dbo4contactus.InviteToContactBrief
-			invite.ID, _ = contact.Data.WithInvitesToContactBriefs.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
+			invite.ID, _ = params.Contact.Data.WithInvitesToContactBriefs.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
 				if invite.Data.Status == "active" || invite.Data.Status == "" {
-					inviteBrief = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
+					response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
 					return
 				}
 				invite.Data = nil
-				params.ContactUpdates = append(params.ContactUpdates, contact.Data.DeleteInviteBrief(invite.ID))
+				params.ContactUpdates = append(params.ContactUpdates, params.Contact.Data.DeleteInviteBrief(invite.ID))
 				return
 			}
 
@@ -114,7 +120,7 @@ func CreateOrReuseInviteToContact(
 					return fmt.Errorf("failed to create personal invite record: %w", err)
 				}
 			}
-			inviteBrief = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
+			response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
 			return
 		},
 	)

@@ -3,7 +3,6 @@ package api4invitus
 import (
 	"context"
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
@@ -22,10 +21,12 @@ func httpPostCreateOrReuseInviteForMember(w http.ResponseWriter, r *http.Request
 			if request.To.Channel == "link" {
 				return nil, fmt.Errorf("%w: link invites should be requested via GET", facade.ErrBadRequest)
 			}
-			inviteID, _, _, err := facade4invitus.CreateOrReuseInviteToContact(ctx, userCtx, request, func() dbmodels.RemoteClientInfo {
+			var resp facade4invitus.CreateInviteResponse
+			var err error
+			resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userCtx, request, func() dbmodels.RemoteClientInfo {
 				return apicore.GetRemoteClientInfo(r)
 			})
-			return inviteID, err
+			return resp.Invite.ID, err
 		})
 }
 
@@ -53,13 +54,13 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 		httpserver.HandleError(ctx, err, "VerifyRequestAndCreateUserContext", w, r)
 		return
 	}
-	var inviteBrief dbo4invitus.InviteBrief
-	inviteBrief, _, _, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userContext, request, func() dbmodels.RemoteClientInfo {
+	var resp facade4invitus.CreateInviteResponse
+	resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userContext, request, func() dbmodels.RemoteClientInfo {
 		return apicore.GetRemoteClientInfo(r)
 	})
 	if err != nil {
 		apicore.ReturnError(ctx, w, r, err)
 		return
 	}
-	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, inviteBrief.ID)
+	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, resp.Invite.ID)
 }
