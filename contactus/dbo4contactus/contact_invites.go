@@ -1,6 +1,7 @@
 package dbo4contactus
 
 import (
+	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/strongo/validation"
 	"time"
@@ -36,12 +37,33 @@ func (v WithInvitesToContactBriefs) Validate() error {
 	return nil
 }
 
-func (v WithInvitesToContactBriefs) GetInviteBriefByChannelAndToContactID(channel dbo4invitus.InviteChannel) (id string, brief *InviteToContactBrief) {
+func (v WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(channel dbo4invitus.InviteChannel, creatorUserID string) (id string, brief *InviteToContactBrief) {
 	var b InviteToContactBrief
 	for id, b = range v.Invites {
-		if b.Channel == channel {
+		if b.CreatedByUserID == creatorUserID && b.Channel == channel {
 			return id, &b
 		}
 	}
 	return "", nil
+}
+
+func (v WithInvitesToContactBriefs) DeleteInviteBrief(id string) dal.Update {
+	delete(v.Invites, id)
+	return dal.Update{
+		Field: "invites." + id,
+		Value: dal.DeleteField,
+	}
+}
+
+func (v WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) dal.Update {
+	brief := InviteToContactBrief{
+		Channel:         channel,
+		CreatedTime:     createdTime,
+		CreatedByUserID: createdByUserID,
+	}
+	v.Invites[inviteID] = brief
+	return dal.Update{
+		Field: "invites." + inviteID,
+		Value: brief,
+	}
 }

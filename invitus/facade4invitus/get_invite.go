@@ -14,8 +14,7 @@ func GetInviteByID(ctx context.Context, getter dal.ReadSession, id string) (invi
 }
 
 // GetPersonalInviteByID returns an invitation record by ContactID
-func GetPersonalInviteByID(ctx context.Context, getter dal.ReadSession, id string) (inviteDto *dbo4invitus.PersonalInviteDbo, inviteRecord dal.Record, err error) {
-	inviteDto = new(dbo4invitus.PersonalInviteDbo)
-	inviteRecord = dal.NewRecordWithData(NewInviteKey(id), inviteDto)
-	return inviteDto, inviteRecord, getter.Get(ctx, inviteRecord)
+func GetPersonalInviteByID(ctx context.Context, getter dal.ReadSession, id string) (invite PersonalInviteEntry, err error) {
+	invite = NewPersonalInviteEntry(id)
+	return invite, getter.Get(ctx, invite.Record)
 }

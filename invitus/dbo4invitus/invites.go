@@ -203,11 +203,11 @@ func (v InviteBrief) Validate() error {
 	return nil
 }
 
-// NewInviteBriefFromDto creates brief from DTO
-func NewInviteBriefFromDto(id string, dto InviteDbo) InviteBrief {
+// NewInviteBriefFromDbo creates brief from DTO
+func NewInviteBriefFromDbo(id string, dto InviteDbo) InviteBrief {
 	from := dto.From
 	to := *dto.To
-	return InviteBrief{ID: id, From: &from, To: &to}
+	return InviteBrief{ID: id, From: &from, To: &to, Pin: dto.Pin}
 }
 
 // InviteDbo record - used in PersonalInviteDbo and MassInvite

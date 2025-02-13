@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/capturer"
 	"github.com/sneat-co/sneat-go-core/emails"
@@ -35,8 +34,8 @@ const inviteEmailTemplateText = `
 
 var inviteEmailTemplate = template.Must(template.New("inviteEmail").Parse(inviteEmailTemplateText))
 
-func sendInviteEmail(ctx context.Context, id string, invite *dbo4invitus.PersonalInviteDbo) (messageID string, err error) {
-	if invite.To.Address == "" {
+func sendInviteEmail(ctx context.Context, invite PersonalInviteEntry) (messageID string, err error) {
+	if invite.Data.To.Address == "" {
 		return "", errors.New("missing required field: invite.To.Address")
 	}
 	templateData := make(map[string]interface{})
@@ -45,24 +44,24 @@ func sendInviteEmail(ctx context.Context, id string, invite *dbo4invitus.Persona
 	} else {
 		templateData["hostPath"] = "localhost:4200"
 	}
-	templateData["id"] = id
-	if invite.From.Address == "" {
-		templateData["fromHTML"] = invite.From.Title
+	templateData["id"] = invite.ID
+	if invite.Data.From.Address == "" {
+		templateData["fromHTML"] = invite.Data.From.Title
 	} else {
-		templateData["fromHTML"] = fmt.Sprintf(`<a href="mailto:%s">%s</a>`, invite.From.Address, invite.From.Title)
+		templateData["fromHTML"] = fmt.Sprintf(`<a href="mailto:%s">%s</a>`, invite.Data.From.Address, invite.Data.From.Title)
 	}
 	templateData["invite"] = invite
-	templateData["space"] = invite.Space
-	templateData["pinCode"] = invite.Pin
+	templateData["space"] = invite.Data.Space
+	templateData["pinCode"] = invite.Data.Pin
 	buf := new(bytes.Buffer)
 	if err := inviteEmailTemplate.Execute(buf, templateData); err != nil {
 		return "", fmt.Errorf("failed to create email message body: %w", err)
 	}
 
 	msg := emails.Email{
-		From:    fmt.Sprintf(`"%s" <inviter@sneat.app>`, mime.QEncoding.Encode("utf-8", invite.From.Title)),
-		To:      []string{invite.To.Address},
-		Subject: fmt.Sprintf("You are invited by %s to join %s", invite.From.Title, invite.Space.Title),
+		From:    fmt.Sprintf(`"%s" <inviter@sneat.app>`, mime.QEncoding.Encode("utf-8", invite.Data.From.Title)),
+		To:      []string{invite.Data.To.Address},
+		Subject: fmt.Sprintf("You are invited by %s to join %s", invite.Data.From.Title, invite.Data.Space.Title),
 		HTML:    buf.String(),
 		//ReplyTo: nil,
 	}

@@ -19,10 +19,6 @@ func NewInviteKey(inviteID string) *dal.Key {
 	return dal.NewKeyWithID(InvitesCollection, inviteID)
 }
 
-var randomInviteID = func() string {
-	return random.ID(6)
-}
-
 var randomPinCode = func() string {
 	return random.Digits(4)
 }
@@ -30,7 +26,7 @@ var randomPinCode = func() string {
 // FailedToSendEmail error message
 const FailedToSendEmail = "failed to send email"
 
-func createInviteForMember(
+func createInviteToContactTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	uid string,
@@ -41,7 +37,7 @@ func createInviteForMember(
 	composeOnly bool,
 	message string,
 	toAvatar *dbprofile.Avatar,
-) (id string, personalInvite *dbo4invitus.PersonalInviteDbo, err error) {
+) (invite PersonalInviteEntry, err error) {
 	if err = space.Validate(); err != nil {
 		err = fmt.Errorf("parameter 'space' is not valid: %w", err)
 		return
@@ -76,7 +72,7 @@ func createInviteForMember(
 		toAddressLower = strings.ToLower(toAddress.Address)
 	}
 	from.UserID = uid
-	personalInvite = &dbo4invitus.PersonalInviteDbo{
+	inviteDbo := &dbo4invitus.PersonalInviteDbo{
 		InviteDbo: dbo4invitus.InviteDbo{
 			Status:  "active",
 			Pin:     randomPinCode(),
@@ -102,13 +98,20 @@ func createInviteForMember(
 		ToSpaceContactID: briefs4contactus.GetFullContactID(spaceID, to.ContactID),
 		ToAvatar:         toAvatar,
 	}
-	id = randomInviteID()
-	inviteKey := NewInviteKey(id)
-	if err = personalInvite.Validate(); err != nil {
+	if err = inviteDbo.Validate(); err != nil {
 		err = fmt.Errorf("personal invite record data are not valid: %w", err)
 		return
 	}
-	inviteRecord := dal.NewRecordWithData(inviteKey, personalInvite)
+
+	var inviteKey *dal.Key
+	if inviteKey, err = dal.NewKeyWithOptions(InvitesCollection, dal.WithRandomStringID(dal.RandomLength(6))); err != nil {
+		return
+	}
+	inviteRecord := dal.NewRecordWithData(inviteKey, inviteDbo)
+	//invite.ID = randomInviteID()
+	//inviteKey := NewInviteKey(invite.ID)
+	//inviteRecord := dal.NewRecordWithData(inviteKey, personalInvite)
+
 	if err = tx.Insert(ctx, inviteRecord); err != nil {
 		err = fmt.Errorf("failed to insert a new invite record into database: %w", err)
 		return
