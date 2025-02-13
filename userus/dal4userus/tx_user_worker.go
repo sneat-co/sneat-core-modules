@@ -19,14 +19,20 @@ type UserWorkerParams struct {
 type userWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) (err error)
 
 var RunUserWorker = func(ctx context.Context, userCtx facade.UserContext, userRecordMustExists bool, worker userWorker) (err error) {
+	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
+		return RunUserWorkerTx(ctx, tx, userCtx, userRecordMustExists, worker)
+	})
+}
+
+var RunUserWorkerTx = func(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, userRecordMustExists bool, worker userWorker) (err error) {
 	if userCtx == nil {
 		panic("userCtx == nil")
 	}
-	params := UserWorkerParams{
-		User:    dbo4userus.NewUserEntry(userCtx.GetUserID()),
-		Started: time.Now(),
-	}
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
+		params := UserWorkerParams{
+			User:    dbo4userus.NewUserEntry(userCtx.GetUserID()),
+			Started: time.Now(),
+		}
 		if err = tx.Get(ctx, params.User.Record); err != nil {
 			if dal.IsNotFound(err) && !userRecordMustExists {
 				params.User.Record.SetError(dal.ErrRecordNotFound)

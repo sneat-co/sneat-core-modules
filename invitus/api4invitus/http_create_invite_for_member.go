@@ -22,7 +22,7 @@ func httpPostCreateOrReuseInviteForMember(w http.ResponseWriter, r *http.Request
 			if request.To.Channel == "link" {
 				return nil, fmt.Errorf("%w: link invites should be requested via GET", facade.ErrBadRequest)
 			}
-			inviteID, _, err := facade4invitus.CreateOrReuseInviteToContact(ctx, userCtx, request, func() dbmodels.RemoteClientInfo {
+			inviteID, _, _, err := facade4invitus.CreateOrReuseInviteToContact(ctx, userCtx, request, func() dbmodels.RemoteClientInfo {
 				return apicore.GetRemoteClientInfo(r)
 			})
 			return inviteID, err
@@ -54,7 +54,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var inviteBrief dbo4invitus.InviteBrief
-	inviteBrief, _, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userContext, request, func() dbmodels.RemoteClientInfo {
+	inviteBrief, _, _, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userContext, request, func() dbmodels.RemoteClientInfo {
 		return apicore.GetRemoteClientInfo(r)
 	})
 	if err != nil {

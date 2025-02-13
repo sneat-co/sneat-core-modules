@@ -9,6 +9,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -60,6 +61,7 @@ func CreateOrReuseInviteToContact(
 ) (
 	inviteBrief dbo4invitus.InviteBrief,
 	contact dal4contactus.ContactEntry,
+	space dbo4spaceus.SpaceEntry,
 	err error,
 ) {
 	if userCtx == nil || userCtx.GetUserID() == "" {
@@ -73,6 +75,7 @@ func CreateOrReuseInviteToContact(
 	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			contact = params.Contact
+			space = params.Space
 			if err = tx.GetMulti(ctx, []dal.Record{
 				params.Space.Record,
 				params.Contact.Record,
