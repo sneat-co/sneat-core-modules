@@ -56,19 +56,20 @@ func Test_InitUserRecord(t *testing.T) {
 
 			// SETUP MOCKS BEGINS
 
-			db := mock_dal.NewMockDB(gomock.NewController(t))
+			mockCtrl := gomock.NewController(t)
+			db := mock_dal.NewMockDB(mockCtrl)
 			facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 				return db, nil
 			}
 
-			db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
-				mockCtrl := gomock.NewController(t)
-				tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
-				tx.EXPECT().Get(ctx, gomock.Any()).Return(dal.ErrRecordNotFound).AnyTimes() // TODO: Assert gets
-				tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil)                           // TODO: Assert inserts
-				tx.EXPECT().InsertMulti(ctx, gomock.Any()).Return(nil)                      // TODO: Assert inserts
-				return f(ctx, tx)
-			})
+			db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any(), gomock.Any()).
+				DoAndReturn(func(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
+					tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
+					tx.EXPECT().Get(ctx, gomock.Any()).Return(dal.ErrRecordNotFound).AnyTimes() // TODO: Assert gets
+					tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil)                           // TODO: Assert inserts
+					tx.EXPECT().InsertMulti(ctx, gomock.Any()).Return(nil)                      // TODO: Assert inserts
+					return f(ctx, tx)
+				})
 
 			sneatauth.GetUserInfo = func(ctx context.Context, uid string) (authUser *sneatauth.AuthUserInfo, err error) {
 				authUser = &sneatauth.AuthUserInfo{
