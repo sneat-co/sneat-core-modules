@@ -26,7 +26,7 @@ func TestAcceptPersonalInvite(t *testing.T) {
 	type args struct {
 		ctx     context.Context
 		userCtx facade.UserContext
-		request AcceptPersonalInviteRequest
+		request ClaimPersonalInviteRequest
 	}
 	ctx := context.Background()
 	tests := []struct {
@@ -42,8 +42,8 @@ func TestAcceptPersonalInvite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := AcceptPersonalInvite(tt.args.ctx, tt.args.userCtx, tt.args.request); (err != nil) != tt.wantErr {
-				t.Errorf("AcceptPersonalInvite() error = %v, wantErr %v", err, tt.wantErr)
+			if err := ClaimPersonalInvite(tt.args.ctx, tt.args.userCtx, tt.args.request); (err != nil) != tt.wantErr {
+				t.Errorf("ClaimPersonalInvite() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -66,7 +66,7 @@ func TestAcceptPersonalInviteRequest_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &AcceptPersonalInviteRequest{
+			v := &ClaimPersonalInviteRequest{
 				InviteRequest: tt.fields.InviteRequest,
 				Member:        tt.fields.Member,
 			}
@@ -84,7 +84,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 		userRecordError   error
 		spaceRecordError  error
 		inviteRecordError error
-		request           AcceptPersonalInviteRequest
+		request           ClaimPersonalInviteRequest
 		space             dbo4spaceus.SpaceEntry
 		spaceMember       dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 		invite            PersonalInviteEntry
@@ -129,7 +129,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						Roles: []string{"contributor"},
 					},
 				}),
-				request: AcceptPersonalInviteRequest{
+				request: ClaimPersonalInviteRequest{
 					RemoteClient: dbmodels.RemoteClientInfo{
 						HostOrApp:  "unit-test",
 						RemoteAddr: "localhost",
@@ -197,7 +197,7 @@ func Test_updateInviteRecord(t *testing.T) {
 	type args struct {
 		uid    string
 		invite PersonalInviteEntry
-		status string
+		status dbo4invitus.InviteStatus
 	}
 	now := time.Now()
 	tests := []struct {
@@ -208,7 +208,7 @@ func Test_updateInviteRecord(t *testing.T) {
 		{
 			name: "should_pass",
 			args: args{
-				status: "accepted",
+				status: dbo4invitus.InviteStatusAccepted,
 				invite: NewPersonalInviteEntryWithDto("test_invite_id1", &dbo4invitus.PersonalInviteDbo{
 					ToSpaceContactID: "to_member_id2",
 					Address:          "to.test.user@example.com",

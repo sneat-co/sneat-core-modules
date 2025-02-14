@@ -36,11 +36,11 @@ func (v *JoinInfoRequest) Validate() error {
 }
 
 type InviteInfo struct {
-	Created time.Time              `json:"created"`
-	Status  string                 `json:"status"`
-	From    dbo4invitus.InviteFrom `json:"from"`
-	To      *dbo4invitus.InviteTo  `json:"to"`
-	Message string                 `json:"message,omitempty"`
+	Created time.Time                `json:"created"`
+	Status  dbo4invitus.InviteStatus `json:"status"`
+	From    dbo4invitus.InviteFrom   `json:"from"`
+	To      *dbo4invitus.InviteTo    `json:"to"`
+	Message string                   `json:"message,omitempty"`
 }
 
 func (v InviteInfo) Validate() error {
@@ -92,18 +92,18 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 		return
 	}
 
-	var inviteDto *dbo4invitus.InviteDbo
-	inviteDto, _, err = GetInviteByID(ctx, db, request.InviteID)
+	var inviteDbo *dbo4invitus.InviteDbo
+	inviteDbo, _, err = GetInviteByID(ctx, db, request.InviteID)
 	if err != nil {
 		err = fmt.Errorf("failed to get invite record by ID=%s: %w", request.InviteID, err)
 		return
 	}
-	if inviteDto == nil {
+	if inviteDbo == nil {
 		err = errors.New("invite record not found by ContactID: " + request.InviteID)
 		return
 	}
 
-	if inviteDto.Pin != request.Pin {
+	if inviteDbo.Pin != request.Pin {
 		err = fmt.Errorf("%v: %w",
 			validation.NewErrBadRequestFieldValue("pin", "invalid pin"),
 			facade.ErrForbidden,
@@ -111,23 +111,23 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 		return
 	}
 	var member dal4contactus.ContactEntry
-	if inviteDto.To.ContactID != "" {
-		member = dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.ContactID)
+	if inviteDbo.To.ContactID != "" {
+		member = dal4contactus.NewContactEntry(inviteDbo.SpaceID, inviteDbo.To.ContactID)
 		if err = db.Get(ctx, member.Record); err != nil {
 			err = fmt.Errorf("failed to get space member's contact record: %w", err)
 			return
 		}
 	}
-	response.Space = inviteDto.Space
-	response.Space.ID = inviteDto.SpaceID
-	response.Invite.Status = inviteDto.Status
-	response.Invite.Created = inviteDto.CreatedAt
-	response.Invite.From = inviteDto.From
-	response.Invite.To = inviteDto.To
-	response.Invite.Message = inviteDto.Message
-	if inviteDto.To.ContactID != "" {
+	response.Space = inviteDbo.Space
+	response.Space.ID = inviteDbo.SpaceID
+	response.Invite.Status = inviteDbo.Status
+	response.Invite.Created = inviteDbo.CreatedAt
+	response.Invite.From = inviteDbo.From
+	response.Invite.To = inviteDbo.To
+	response.Invite.Message = inviteDbo.Message
+	if inviteDbo.To.ContactID != "" {
 		response.Member = &dbmodels.DtoWithID[*briefs4contactus.ContactBrief]{
-			ID:   inviteDto.To.ContactID,
+			ID:   inviteDbo.To.ContactID,
 			Data: &member.Data.ContactBrief,
 		}
 	}

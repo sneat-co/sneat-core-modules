@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -18,36 +19,51 @@ import (
 	"time"
 )
 
-// AcceptPersonalInviteRequest holds parameters for accepting a personal invite
-type AcceptPersonalInviteRequest struct {
+type InviteClaimOperation string
+
+const (
+	InviteClaimOperationAccept  InviteClaimOperation = "accept"
+	InviteClaimOperationDecline InviteClaimOperation = "decline"
+)
+
+// ClaimPersonalInviteRequest holds parameters for accepting a personal invite
+type ClaimPersonalInviteRequest struct {
 	InviteRequest
+	Operation InviteClaimOperation `json:"operation"`
+
+	NoPinRequired bool `json:"noPinRequired"`
+
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
-	MemberID     string
-	Member       dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
+
+	// TODO: Document why we need this and why it's called 'member'?
+	Member dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
+
 	//FullName string                      `json:"fullName"`
 	//Email    string                      `json:"email"`
 }
 
 // Validate validates request
-func (v *AcceptPersonalInviteRequest) Validate() error {
+func (v *ClaimPersonalInviteRequest) Validate() error {
 	if err := v.InviteRequest.Validate(); err != nil {
 		return err
+	}
+	switch v.Operation {
+	case "":
+		return validation.NewErrRecordIsMissingRequiredField("operation")
+	case InviteClaimOperationAccept, InviteClaimOperationDecline:
+		// OK
+	default:
+		return validation.NewErrBadRequestFieldValue("operation", "invalid value: "+string(v.Operation))
 	}
 	if err := v.Member.Validate(); err != nil {
 		return validation.NewErrBadRequestFieldValue("member", err.Error())
 	}
-	//if v.FullName == "" {
-	//	return validation.NewErrRecordIsMissingRequiredField("FullName")
-	//}
-	//if v.Email == "" {
-	//	return validation.NewErrRecordIsMissingRequiredField("Email")
-	//}
 	return nil
 }
 
-// AcceptPersonalInvite accepts personal invite and joins user to a space.
-// If needed a user record should be created
-func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, request AcceptPersonalInviteRequest) (err error) {
+// ClaimPersonalInvite accepts personal invite and joins user to a space.
+// If needed, a user record should be created
+func ClaimPersonalInvite(ctx context.Context, userCtx facade.UserContext, request ClaimPersonalInviteRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return err
 	}
@@ -78,25 +94,30 @@ func AcceptPersonalInvite(ctx context.Context, userCtx facade.UserContext, reque
 
 			now := time.Now()
 
-			if err = updateInviteRecord(ctx, tx, uid, now, invite, "accepted"); err != nil {
+			var newInviteStatus dbo4invitus.InviteStatus
+			switch request.Operation {
+			case InviteClaimOperationAccept:
+				newInviteStatus = dbo4invitus.InviteStatusAccepted
+				var spaceMember *briefs4contactus.ContactBase
+				if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceContactID, params, request.Member); err != nil {
+					return fmt.Errorf("failed to update space record: %w", err)
+				}
+
+				memberContext := dal4contactus.NewContactEntry(params.Space.ID, member.ID)
+
+				if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
+					return fmt.Errorf("failed to update space member record: %w", err)
+				}
+
+				if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, invite); err != nil {
+					return fmt.Errorf("failed to create or update user record: %w", err)
+				}
+			case InviteClaimOperationDecline:
+				newInviteStatus = dbo4invitus.InviteStatusDeclined
+			}
+			if err = updateInviteRecord(ctx, tx, uid, now, invite, newInviteStatus); err != nil {
 				return fmt.Errorf("failed to update invite record: %w", err)
 			}
-
-			var spaceMember *briefs4contactus.ContactBase
-			if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceContactID, params, request.Member); err != nil {
-				return fmt.Errorf("failed to update space record: %w", err)
-			}
-
-			memberContext := dal4contactus.NewContactEntry(params.Space.ID, member.ID)
-
-			if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
-				return fmt.Errorf("failed to update space member record: %w", err)
-			}
-
-			if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, invite); err != nil {
-				return fmt.Errorf("failed to create or update user record: %w", err)
-			}
-
 			return err
 		})
 }
@@ -107,7 +128,7 @@ func updateInviteRecord(
 	uid string,
 	now time.Time,
 	invite PersonalInviteEntry,
-	status string,
+	status dbo4invitus.InviteStatus,
 ) (err error) {
 	invite.Data.Status = status
 	invite.Data.To.UserID = uid
@@ -200,7 +221,7 @@ func createOrUpdateUserRecord(
 	tx dal.ReadwriteTransaction,
 	now time.Time,
 	user dbo4userus.UserEntry,
-	request AcceptPersonalInviteRequest,
+	request ClaimPersonalInviteRequest,
 	params *dal4contactus.ContactusSpaceWorkerParams,
 	spaceMember *briefs4contactus.ContactBase,
 	invite PersonalInviteEntry,

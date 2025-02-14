@@ -210,10 +210,20 @@ func NewInviteBriefFromDbo(id string, dto InviteDbo) InviteBrief {
 	return InviteBrief{ID: id, From: &from, To: &to, Pin: dto.Pin}
 }
 
+type InviteStatus string
+
+const (
+	InviteStatusPending  InviteStatus = "pending"
+	InviteStatusActive   InviteStatus = "active"
+	InviteStatusAccepted InviteStatus = "accepted"
+	InviteStatusDeclined InviteStatus = "declined"
+	InviteStatusExpired  InviteStatus = "expired"
+)
+
 // InviteDbo record - used in PersonalInviteDbo and MassInvite
 type InviteDbo struct {
 	InviteBase
-	Status    string               `json:"status" firestore:"status" `
+	Status    InviteStatus         `json:"status" firestore:"status" `
 	Pin       string               `json:"pin,omitempty" firestore:"pin,omitempty"`
 	SpaceID   string               `json:"spaceID" firestore:"spaceID"`
 	MessageID string               `json:"messageId" firestore:"messageId"` // e.g. email message ContactID from AWS SES
@@ -239,9 +249,9 @@ func (v InviteDbo) Validate() error {
 	switch v.Status {
 	case "":
 		return validation.NewErrRecordIsMissingRequiredField("status")
-	case "active", "accepted", "expired", "rejected": // known statuses
+	case InviteStatusPending, InviteStatusActive, InviteStatusAccepted, InviteStatusDeclined, InviteStatusExpired: // known statuses
 	default:
-		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+v.Status)
+		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+string(v.Status))
 	}
 	if v.SpaceID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("spaceID")

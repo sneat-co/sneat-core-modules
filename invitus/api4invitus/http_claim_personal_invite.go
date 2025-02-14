@@ -7,21 +7,21 @@ import (
 	"net/http"
 )
 
-// httpPostAcceptPersonalInvite is an API endpoint that marks a personal invite as accepted
-func httpPostAcceptPersonalInvite(w http.ResponseWriter, r *http.Request) {
+// httpPostClaimPersonalInvite is an API endpoint that marks a personal invite as accepted
+func httpPostClaimPersonalInvite(w http.ResponseWriter, r *http.Request) {
 	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}
-	request := facade4invitus.AcceptPersonalInviteRequest{}
+
+	var request facade4invitus.ClaimPersonalInviteRequest
 	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
 		return
 	}
+
 	request.RemoteClient = apicore.GetRemoteClientInfo(r)
-	if err = facade4invitus.AcceptPersonalInvite(ctx, userContext, request); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
-		return
-	}
+
+	err = facade4invitus.ClaimPersonalInvite(ctx, userContext, request)
+
 	apicore.IfNoErrorReturnOK(ctx, w, r, err)
 }
