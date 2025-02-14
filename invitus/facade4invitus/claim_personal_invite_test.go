@@ -68,7 +68,6 @@ func TestAcceptPersonalInviteRequest_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			v := &ClaimPersonalInviteRequest{
 				InviteRequest: tt.fields.InviteRequest,
-				Member:        tt.fields.Member,
 			}
 			if err := v.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -141,20 +140,6 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						InviteID: "test_personal_invite_id",
 						Pin:      "1234",
 					},
-					Member: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
-						ID: "test_member_id",
-						Data: &briefs4contactus.ContactBase{
-							ContactBrief: briefs4contactus.ContactBrief{
-								Type:     briefs4contactus.ContactTypePerson,
-								Gender:   "unknown",
-								AgeGroup: "unknown",
-							},
-							Status: "active",
-							//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
-							//	CountryID: dbmodels.UnknownCountryID,
-							//},
-						},
-					},
 				},
 			},
 			wantErr: true,
@@ -174,7 +159,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			}
 			now := time.Now()
 			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.space.ID)
-			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, params, tt.args.spaceMember.Data, tt.args.invite); err != nil {
+			var member dal4contactus.ContactEntry
+			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, member, params, tt.args.spaceMember.Data, tt.args.invite); err != nil {
 				if !tt.wantErr {
 					t.Errorf("createOrUpdateUserRecord() error = %v, wantErr %v", err, tt.wantErr)
 				}
@@ -182,7 +168,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			}
 			userDto := tt.args.user.Data
 			assert.Equal(t, now, userDto.CreatedAt, "CreatedAt")
-			assert.Equal(t, tt.args.request.Member.Data.Gender, userDto.Gender, "Gender")
+			assert.Equal(t, member.Data.Gender, userDto.Gender, "Gender")
 			assert.Equal(t, 1, len(userDto.Spaces), "len(Spaces)")
 			assert.Equal(t, 1, len(userDto.SpaceIDs), "len(SpaceIDs)")
 			assert.True(t, slices.Contains(userDto.SpaceIDs, tt.args.request.SpaceID), "SpaceIDs contains tt.args.request.Space")
@@ -335,7 +321,8 @@ func Test_updateSpaceRecord(t *testing.T) {
 			params.SpaceModuleEntry.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
 			params.SpaceModuleEntry.Data.AddUserID(tt.args.uid)
 			params.Space.Data.AddUserID(tt.args.uid)
-			gotSpaceMember, err := updateSpaceRecord(tt.args.uid, tt.args.memberID, params, tt.args.requestMember)
+			member := dal4contactus.NewContactEntry(tt.args.space.ID, "member1")
+			gotSpaceMember, err := updateContactusSpaceRecord(tt.args.uid, tt.args.memberID, params, member)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("updateSpaceRecord() error = %v, wantErr %v", err, tt.wantErr)
 				return

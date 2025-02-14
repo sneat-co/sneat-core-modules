@@ -38,7 +38,7 @@ type PersonalInviteResponse struct {
 	Members map[string]*briefs4contactus.ContactBrief `json:"members,omitempty"`
 }
 
-func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusSpaceWorkerParams, inviteID, memberID string) (
+func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusSpaceWorkerParams, inviteID string) (
 	invite PersonalInviteEntry,
 	member dal4contactus.ContactEntry,
 	err error,
@@ -50,10 +50,6 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 	invite = NewPersonalInviteEntry(inviteID)
 
 	records := []dal.Record{invite.Record}
-	if memberID != "" {
-		member = dal4contactus.NewContactEntry(params.Space.ID, memberID)
-		records = append(records, member.Record)
-	}
 	if err = params.GetRecords(ctx, getter, records...); err != nil {
 		return
 	}
@@ -64,12 +60,19 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 		)
 		return
 	}
+
 	if !invite.Record.Exists() {
 		err = validation.NewErrBadRequestFieldValue("inviteID",
 			fmt.Sprintf("invite record not found in database by key=%v: record.Error=%v",
 				invite.Record.Key(), invite.Record.Error()))
 		return
 	}
+
+	member = dal4contactus.NewContactEntry(invite.Data.SpaceID, invite.Data.To.ContactID)
+	if err = getter.Get(ctx, member.Record); err != nil {
+		return
+	}
+
 	if member.Record != nil && !member.Record.Exists() {
 		err = validation.NewErrBadRequestFieldValue("memberID",
 			fmt.Sprintf("member record not found in database by key=%v: record.Error=%v",
@@ -85,7 +88,7 @@ func GetPersonal(ctx context.Context, userCtx facade.UserContext, request GetPer
 		return
 	}
 	return response, dal4contactus.RunReadonlyContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
-		invite, _, err := getPersonalInviteRecords(ctx, tx, params, request.InviteID, "")
+		invite, _, err := getPersonalInviteRecords(ctx, tx, params, request.InviteID)
 		if err != nil {
 			return err
 		}

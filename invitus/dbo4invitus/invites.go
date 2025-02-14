@@ -241,6 +241,10 @@ type InviteDbo struct {
 	Message string `json:"message,omitempty" firestore:"message,omitempty"`
 }
 
+func (v InviteDbo) IsClaimed() bool {
+	return v.Claimed != nil || v.Status == InviteStatusAccepted || v.Status == InviteStatusDeclined
+}
+
 // Validate validates record
 func (v InviteDbo) Validate() error {
 	if err := v.InviteBase.Validate(); err != nil {

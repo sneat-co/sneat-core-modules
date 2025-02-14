@@ -27,6 +27,12 @@ const (
 	InviteClaimOperationDecline InviteClaimOperation = "decline"
 )
 
+var (
+	ErrInvitePinDoesNotMatch = fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
+	ErrInviteExpired         = fmt.Errorf("invite is expired")
+	ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
+)
+
 // ClaimPersonalInviteRequest holds parameters for accepting a personal invite
 type ClaimPersonalInviteRequest struct {
 	InviteRequest
@@ -37,7 +43,7 @@ type ClaimPersonalInviteRequest struct {
 	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
 
 	// TODO: Document why we need this and why it's called 'member'?
-	Member dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
+	//Member dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
 
 	//FullName string                      `json:"fullName"`
 	//Email    string                      `json:"email"`
@@ -56,9 +62,9 @@ func (v *ClaimPersonalInviteRequest) Validate() error {
 	default:
 		return validation.NewErrBadRequestFieldValue("operation", "invalid value: "+string(v.Operation))
 	}
-	if err := v.Member.Validate(); err != nil {
-		return validation.NewErrBadRequestFieldValue("member", err.Error())
-	}
+	//if err := v.Member.Validate(); err != nil {
+	//	return validation.NewErrBadRequestFieldValue("member", err.Error())
+	//}
 	return nil
 }
 
@@ -86,15 +92,12 @@ func ClaimPersonalInvite(
 			response.Space = params.Space
 			response.ContactusSpace = params.SpaceModuleEntry
 
-			if response.Invite, response.Contact, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID, request.Member.ID); err != nil {
+			if response.Invite, response.Contact, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID); err != nil {
 				return err
-			}
-			if response.Invite.Data.Status != "active" {
-				return fmt.Errorf("invite status is not equal to 'active', got '%s'", response.Invite.Data.Status)
 			}
 
 			if response.Invite.Data.Pin != request.Pin {
-				return fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
+				return ErrInvitePinDoesNotMatch
 			}
 
 			user := dbo4userus.NewUserEntry(uid)
@@ -106,29 +109,33 @@ func ClaimPersonalInvite(
 
 			now := time.Now()
 
+			var oldInviteStatus = response.Invite.Data.Status
 			var newInviteStatus dbo4invitus.InviteStatus
 			switch request.Operation {
 			case InviteClaimOperationAccept:
-				newInviteStatus = dbo4invitus.InviteStatusAccepted
-				var spaceMember *briefs4contactus.ContactBase
-				if spaceMember, err = updateSpaceRecord(uid, response.Invite.Data.ToSpaceContactID, params, request.Member); err != nil {
-					return fmt.Errorf("failed to update space record: %w", err)
-				}
+				if newInviteStatus = dbo4invitus.InviteStatusAccepted; oldInviteStatus != newInviteStatus {
+					var spaceMember *briefs4contactus.ContactBase
+					if spaceMember, err = updateContactusSpaceRecord(uid, response.Invite.Data.ToSpaceContactID, params, response.Contact); err != nil {
+						return fmt.Errorf("failed to update space record: %w", err)
+					}
 
-				memberContext := dal4contactus.NewContactEntry(params.Space.ID, response.Contact.ID)
+					memberContext := dal4contactus.NewContactEntry(params.Space.ID, response.Contact.ID)
 
-				if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
-					return fmt.Errorf("failed to update space member record: %w", err)
-				}
+					if err = updateMemberRecord(ctx, tx, uid, memberContext, &response.Contact.Data.ContactBase, spaceMember); err != nil {
+						return fmt.Errorf("failed to update space member record: %w", err)
+					}
 
-				if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, response.Invite); err != nil {
-					return fmt.Errorf("failed to create or update user record: %w", err)
+					if err = createOrUpdateUserRecord(ctx, tx, now, user, request, response.Contact, params, spaceMember, response.Invite); err != nil {
+						return fmt.Errorf("failed to create or update user record: %w", err)
+					}
 				}
 			case InviteClaimOperationDecline:
 				newInviteStatus = dbo4invitus.InviteStatusDeclined
 			}
-			if err = updateInviteRecord(ctx, tx, uid, now, response.Invite, newInviteStatus); err != nil {
-				return fmt.Errorf("failed to update invite record: %w", err)
+			if newInviteStatus != oldInviteStatus {
+				if err = updateInviteRecord(ctx, tx, uid, now, response.Invite, newInviteStatus); err != nil {
+					return fmt.Errorf("failed to update invite record: %w", err)
+				}
 			}
 			return err
 		})
@@ -143,6 +150,9 @@ func updateInviteRecord(
 	invite PersonalInviteEntry,
 	status dbo4invitus.InviteStatus,
 ) (err error) {
+	if invite.Data.Status == dbo4invitus.InviteStatusAccepted && status == dbo4invitus.InviteStatusDeclined {
+		return ErrInviteAlreadyAccepted
+	}
 	invite.Data.Status = status
 	invite.Data.To.UserID = uid
 	inviteUpdates := []dal.Update{
@@ -150,17 +160,19 @@ func updateInviteRecord(
 		{Field: "to.userID", Value: uid},
 	}
 	switch status {
-	case "active":
+	case dbo4invitus.InviteStatusActive:
 		if invite.Data.Claimed != nil {
 			invite.Data.Claimed = nil
 			inviteUpdates = append(inviteUpdates, dal.Update{Field: "claimed", Value: dal.DeleteField})
 		}
-	case "expired": // Do nothing
+	case dbo4invitus.InviteStatusExpired: // Do nothing
+		err = fmt.Errorf("%w: expiration time %s", ErrInviteExpired, invite.Data.Expires)
+		return
 	default:
 		invite.Data.Claimed = &now
 		inviteUpdates = append(inviteUpdates, dal.Update{Field: "claimed", Value: now})
 	}
-	if err := invite.Data.Validate(); err != nil {
+	if err = invite.Data.Validate(); err != nil {
 		return fmt.Errorf("personal invite record is not valid: %w", err)
 	}
 	if err = tx.Update(ctx, invite.Key, inviteUpdates); err != nil {
@@ -187,10 +199,10 @@ func updateMemberRecord(
 	return err
 }
 
-func updateSpaceRecord(
+func updateContactusSpaceRecord(
 	uid, memberID string,
 	params *dal4contactus.ContactusSpaceWorkerParams,
-	requestMember dbmodels.DtoWithID[*briefs4contactus.ContactBase],
+	requestMember dal4contactus.ContactEntry,
 ) (spaceMember *briefs4contactus.ContactBase, err error) {
 	if uid == "" {
 		panic("required parameter `uid` is empty string")
@@ -209,7 +221,7 @@ func updateSpaceRecord(
 				ContactBrief: *m,
 			}
 			//space.Members[i] = m
-			updatePersonDetails(spaceMember, requestMember.Data, spaceMember, nil)
+			updatePersonDetails(spaceMember, &requestMember.Data.ContactBase, spaceMember, nil)
 			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, params.SpaceModuleEntry.Data.AddUserID(uid)...)
 			if m.AddRole(const4contactus.SpaceMemberRoleMember) {
 				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
@@ -235,6 +247,7 @@ func createOrUpdateUserRecord(
 	now time.Time,
 	user dbo4userus.UserEntry,
 	request ClaimPersonalInviteRequest,
+	member dal4contactus.ContactEntry,
 	params *dal4contactus.ContactusSpaceWorkerParams,
 	spaceMember *briefs4contactus.ContactBase,
 	invite PersonalInviteEntry,
@@ -266,7 +279,7 @@ func createOrUpdateUserRecord(
 				Value: user.Data.Spaces,
 			},
 		}
-		userUpdates = updatePersonDetails(&user.Data.ContactBase, request.Member.Data, spaceMember, userUpdates)
+		userUpdates = updatePersonDetails(&user.Data.ContactBase, &member.Data.ContactBase, spaceMember, userUpdates)
 		if err = user.Data.Validate(); err != nil {
 			return fmt.Errorf("user record prepared for update is not valid: %w", err)
 		}
@@ -277,22 +290,22 @@ func createOrUpdateUserRecord(
 		user.Data.CreatedAt = now
 		user.Data.Created.Client = request.RemoteClient
 		user.Data.Type = briefs4contactus.ContactTypePerson
-		user.Data.Names = request.Member.Data.Names
+		user.Data.Names = member.Data.Names
 		if user.Data.Names.IsEmpty() {
 			user.Data.Names = spaceMember.Names
 		}
-		updatePersonDetails(&user.Data.ContactBase, request.Member.Data, spaceMember, nil)
+		updatePersonDetails(&user.Data.ContactBase, &member.Data.ContactBase, spaceMember, nil)
 		if user.Data.Gender == "" {
 			user.Data.Gender = "unknown"
 		}
 		if user.Data.CountryID == "" {
 			user.Data.CountryID = with.UnknownCountryID
 		}
-		if len(request.Member.Data.Emails) > 0 {
-			user.Data.Emails = request.Member.Data.Emails
+		if len(member.Data.Emails) > 0 {
+			user.Data.Emails = member.Data.Emails
 		}
-		if len(request.Member.Data.Phones) > 0 {
-			user.Data.Phones = request.Member.Data.Phones
+		if len(member.Data.Phones) > 0 {
+			user.Data.Phones = member.Data.Phones
 		}
 		if err = user.Data.Validate(); err != nil {
 			return fmt.Errorf("user record prepared for insert is not valid: %w", err)

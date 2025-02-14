@@ -77,6 +77,18 @@ func (v WithContactsBase[T]) GetContactBriefsByRoles(roles ...string) map[string
 	return result
 }
 
+func (v WithContactsBase[T]) GetSortedContactBriefsByRoles(roles ...string) (contacts []T) {
+	for _, c := range v.Contacts {
+		for _, role := range roles {
+			if c.HasRole(role) {
+				contacts = append(contacts, c)
+				break
+			}
+		}
+	}
+	return
+}
+
 func (v WithContactsBase[T]) GetContactsCount(roles ...string) (count int) {
 	for _, c := range v.Contacts {
 		for _, role := range roles {
