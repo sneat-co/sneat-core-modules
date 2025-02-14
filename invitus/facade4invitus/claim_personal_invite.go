@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -61,27 +62,38 @@ func (v *ClaimPersonalInviteRequest) Validate() error {
 	return nil
 }
 
+type ClaimPersonalInviteResponse struct {
+	Invite         PersonalInviteEntry
+	Space          dbo4spaceus.SpaceEntry
+	Contact        dal4contactus.ContactEntry
+	ContactusSpace dal4contactus.ContactusSpaceEntry
+}
+
 // ClaimPersonalInvite accepts personal invite and joins user to a space.
 // If needed, a user record should be created
-func ClaimPersonalInvite(ctx context.Context, userCtx facade.UserContext, request ClaimPersonalInviteRequest) (err error) {
+func ClaimPersonalInvite(
+	ctx context.Context, userCtx facade.UserContext, request ClaimPersonalInviteRequest,
+) (
+	response ClaimPersonalInviteResponse, err error,
+) {
 	if err = request.Validate(); err != nil {
-		return err
+		return
 	}
 	uid := userCtx.GetUserID()
 
-	return dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
-			var invite PersonalInviteEntry
-			var member dal4contactus.ContactEntry
+			response.Space = params.Space
+			response.ContactusSpace = params.SpaceModuleEntry
 
-			if invite, member, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID, request.Member.ID); err != nil {
+			if response.Invite, response.Contact, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID, request.Member.ID); err != nil {
 				return err
 			}
-			if invite.Data.Status != "active" {
-				return fmt.Errorf("invite status is not equal to 'active', got '%s'", invite.Data.Status)
+			if response.Invite.Data.Status != "active" {
+				return fmt.Errorf("invite status is not equal to 'active', got '%s'", response.Invite.Data.Status)
 			}
 
-			if invite.Data.Pin != request.Pin {
+			if response.Invite.Data.Pin != request.Pin {
 				return fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
 			}
 
@@ -99,27 +111,28 @@ func ClaimPersonalInvite(ctx context.Context, userCtx facade.UserContext, reques
 			case InviteClaimOperationAccept:
 				newInviteStatus = dbo4invitus.InviteStatusAccepted
 				var spaceMember *briefs4contactus.ContactBase
-				if spaceMember, err = updateSpaceRecord(uid, invite.Data.ToSpaceContactID, params, request.Member); err != nil {
+				if spaceMember, err = updateSpaceRecord(uid, response.Invite.Data.ToSpaceContactID, params, request.Member); err != nil {
 					return fmt.Errorf("failed to update space record: %w", err)
 				}
 
-				memberContext := dal4contactus.NewContactEntry(params.Space.ID, member.ID)
+				memberContext := dal4contactus.NewContactEntry(params.Space.ID, response.Contact.ID)
 
 				if err = updateMemberRecord(ctx, tx, uid, memberContext, request.Member.Data, spaceMember); err != nil {
 					return fmt.Errorf("failed to update space member record: %w", err)
 				}
 
-				if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, invite); err != nil {
+				if err = createOrUpdateUserRecord(ctx, tx, now, user, request, params, spaceMember, response.Invite); err != nil {
 					return fmt.Errorf("failed to create or update user record: %w", err)
 				}
 			case InviteClaimOperationDecline:
 				newInviteStatus = dbo4invitus.InviteStatusDeclined
 			}
-			if err = updateInviteRecord(ctx, tx, uid, now, invite, newInviteStatus); err != nil {
+			if err = updateInviteRecord(ctx, tx, uid, now, response.Invite, newInviteStatus); err != nil {
 				return fmt.Errorf("failed to update invite record: %w", err)
 			}
 			return err
 		})
+	return
 }
 
 func updateInviteRecord(

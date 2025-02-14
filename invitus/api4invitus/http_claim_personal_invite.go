@@ -21,7 +21,7 @@ func httpPostClaimPersonalInvite(w http.ResponseWriter, r *http.Request) {
 
 	request.RemoteClient = apicore.GetRemoteClientInfo(r)
 
-	err = facade4invitus.ClaimPersonalInvite(ctx, userContext, request)
+	_, err = facade4invitus.ClaimPersonalInvite(ctx, userContext, request)
 
 	apicore.IfNoErrorReturnOK(ctx, w, r, err)
 }

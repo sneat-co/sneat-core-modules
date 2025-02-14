@@ -42,7 +42,7 @@ func TestAcceptPersonalInvite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := ClaimPersonalInvite(tt.args.ctx, tt.args.userCtx, tt.args.request); (err != nil) != tt.wantErr {
+			if _, err := ClaimPersonalInvite(tt.args.ctx, tt.args.userCtx, tt.args.request); (err != nil) != tt.wantErr {
 				t.Errorf("ClaimPersonalInvite() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
