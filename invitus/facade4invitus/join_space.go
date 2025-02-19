@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
@@ -96,9 +97,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 		}
 
 		member.Data.UserID = uid
-		memberUpdates := []dal.Update{
-			{Field: "userID", Value: uid},
-		}
+		memberUpdates := []update.Update{update.ByFieldName("userID", uid)}
 		if err = tx.Update(ctx, member.Key, memberUpdates); err != nil {
 			return fmt.Errorf("failed to update member record")
 		}
@@ -134,7 +133,7 @@ func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpac
 //		}
 //	}
 //	scrum.UserIDs = append(scrum.UserIDs, uID)
-//	if err = tx.Update(ctx, scrumKey, []dal.Update{{
+//	if err = tx.Update(ctx, scrumKey, []update.Update{{
 //		Field: "userIDs",
 //		Value: scrum.UserIDs,
 //	}}); err != nil {
@@ -154,10 +153,10 @@ func onJoinUpdateInvite(
 	if err = inviteDto.Validate(); err != nil {
 		return fmt.Errorf("invite record is not valid: %w", err)
 	}
-	inviteUpdates := []dal.Update{
-		{Field: "status", Value: "claimed"},
-		{Field: "claimed", Value: time.Now()},
-		{Field: "toUserID", Value: uid},
+	inviteUpdates := []update.Update{
+		update.ByFieldName("status", "claimed"),
+		update.ByFieldName("claimed", time.Now()),
+		update.ByFieldName("toUserID", uid),
 	}
 	if err = tx.Update(ctx, inviteKey, inviteUpdates); err != nil {
 		return fmt.Errorf("failed to update invite record: %w", err)
@@ -173,7 +172,7 @@ func onJoinAddSpaceToUser(
 	space *dbo4spaceus.SpaceDbo,
 	member dal4contactus.ContactEntry,
 ) (err error) {
-	var updates []dal.Update
+	var updates []update.Update
 	if userDto == nil {
 		panic("required parameter 'userDto' is nil")
 	}
@@ -204,15 +203,9 @@ func onJoinAddSpaceToUser(
 			}
 		}
 	}
-	updates = []dal.Update{
-		{
-			Field: dbo4spaceus.SpacesFiled,
-			Value: userDto.Spaces,
-		},
-		{
-			Field: "spaceIDs",
-			Value: userDto.SpaceIDs,
-		},
+	updates = []update.Update{
+		update.ByFieldName(dbo4spaceus.SpacesFiled, userDto.Spaces),
+		update.ByFieldName("spaceIDs", userDto.SpaceIDs),
 	}
 	if len(updates) > 0 {
 		if err = userDto.Validate(); err != nil {
@@ -240,7 +233,7 @@ func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	uid string,
 	user *dbo4userus.UserDbo,
 ) (err error) {
-	//var updates []dal.Update
+	//var updates []update.Update
 	if strings.TrimSpace(uid) == "" {
 		panic("missing required parameter 'uid'")
 	}
@@ -250,7 +243,7 @@ func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	if member.Data.UserID != uid {
 		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ContactID as current user, got: {uid=%s, member.Data.UserID=%s}", uid, member.Data.UserID))
 	}
-	//updates = make([]dal.Update, 0, 2)
+	//updates = make([]update.Update, 0, 2)
 	for _, userID := range params.SpaceModuleEntry.Data.UserIDs {
 		if userID == uid {
 			goto UserIdAddedToUserIDsField
@@ -305,7 +298,7 @@ MemberAdded:
 	case "":
 		panic("not implemented")
 		//memberBrief.UserID = uid
-		//updates = append(updates, dal.Update{
+		//updates = append(updates, update.Update{
 		//	Field: "members",
 		//	Value: params.Space.Members,
 		//})

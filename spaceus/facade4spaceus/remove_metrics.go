@@ -3,6 +3,7 @@ package facade4spaceus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
@@ -32,15 +33,11 @@ func RemoveMetrics(ctx context.Context, userCtx facade.UserContext, request dto4
 				metrics = append(metrics, metric)
 			}
 			if changed {
-				var updates []dal.Update
+				var updates []update.Update
 				if len(metrics) == 0 {
-					updates = []dal.Update{
-						{Field: "metrics", Value: dal.DeleteField},
-					}
+					updates = []update.Update{update.ByFieldName("metrics", update.DeleteField)}
 				} else {
-					updates = []dal.Update{
-						{Field: "metrics", Value: metrics},
-					}
+					updates = []update.Update{update.ByFieldName("metrics", metrics)}
 				}
 				if err = dal4spaceus.TxUpdateSpace(ctx, tx, params.Started, params.Space, updates); err != nil {
 					return err

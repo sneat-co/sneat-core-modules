@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -45,16 +46,16 @@ type Brief = interface {
 
 // BriefsAdapter is an interface for a briefs adapter
 type BriefsAdapter[ModuleDbo SpaceModuleDbo] interface {
-	DeleteBrief(space ModuleDbo, id string) ([]dal.Update, error)
+	DeleteBrief(space ModuleDbo, id string) ([]update.Update, error)
 	GetBriefsCount(space ModuleDbo) int
 }
 
 type mapBriefsAdapter[ModuleDbo SpaceModuleDbo] struct {
 	getBriefsCount func(space ModuleDbo) int
-	deleteBrief    func(space ModuleDbo, id string) ([]dal.Update, error)
+	deleteBrief    func(space ModuleDbo, id string) ([]update.Update, error)
 }
 
-func (v mapBriefsAdapter[ModuleDbo]) DeleteBrief(spaceModuleDbo ModuleDbo, id string) ([]dal.Update, error) {
+func (v mapBriefsAdapter[ModuleDbo]) DeleteBrief(spaceModuleDbo ModuleDbo, id string) ([]update.Update, error) {
 	return v.deleteBrief(spaceModuleDbo, id)
 }
 
@@ -64,7 +65,7 @@ func (v mapBriefsAdapter[ModuleDbo]) GetBriefsCount(spaceModuleDbo ModuleDbo) in
 
 func NewMapBriefsAdapter[ModuleDbo SpaceModuleDbo](
 	getBriefsCount func(spaceModuleDbo ModuleDbo) int,
-	deleteBrief func(spaceModuleDbo ModuleDbo, id string) ([]dal.Update, error),
+	deleteBrief func(spaceModuleDbo ModuleDbo, id string) ([]update.Update, error),
 ) BriefsAdapter[ModuleDbo] {
 	return mapBriefsAdapter[ModuleDbo]{
 		getBriefsCount: getBriefsCount,
@@ -76,7 +77,7 @@ func NewMapBriefsAdapter[ModuleDbo SpaceModuleDbo](
 type SpaceItemWorkerParams[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo] struct {
 	*ModuleSpaceWorkerParams[ModuleDbo]
 	SpaceItem        record.DataWithID[string, ItemDbo]
-	SpaceItemUpdates []dal.Update
+	SpaceItemUpdates []update.Update
 }
 
 // RunSpaceItemWorker runs space item worker
@@ -158,7 +159,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 			return fmt.Errorf("failed to update space record: %w", err)
 		}
 	}
-	var spaceModuleUpdates []dal.Update
+	var spaceModuleUpdates []update.Update
 	if spaceModuleUpdates, err = deleteBrief[ModuleDbo](params.SpaceModuleEntry, params.SpaceItem.ID, briefsAdapter, params.SpaceModuleUpdates); err != nil {
 		return err
 	} else {
@@ -173,7 +174,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	return err
 }
 
-func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[string, D], itemID string, adapter BriefsAdapter[D], updates []dal.Update) ([]dal.Update, error) {
+func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[string, D], itemID string, adapter BriefsAdapter[D], updates []update.Update) ([]update.Update, error) {
 	if adapter == nil {
 		return updates, nil
 	}

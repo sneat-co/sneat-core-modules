@@ -169,12 +169,12 @@ type SpaceDbo struct {
 	Metrics []*SpaceMetric `json:"metrics,omitempty" firestore:"metrics,omitempty"`
 }
 
-//func (v *SpaceDbo) SetNumberOf(name string, value int) (update dal.Update) {
+//func (v *SpaceDbo) SetNumberOf(name string, value int) (update update.Update) {
 //	if v.NumberOf == nil {
 //		v.NumberOf = make(map[string]int)
 //	}
 //	v.NumberOf[name] = value
-//	return dal.Update{
+//	return update.Update{
 //		Field: "numberOf." + name,
 //		Value: value,
 //	}
@@ -244,9 +244,9 @@ func (v *SpaceDbo) HasUser(uid string) bool {
 //	return "numberOf." + name
 //}
 
-//func (v *SpaceDbo) UpdateNumberOf(name string, value int) dal.Update {
+//func (v *SpaceDbo) UpdateNumberOf(name string, value int) update.Update {
 //	v.NumberOf[name] = value
-//	return dal.Update{
+//	return update.Update{
 //		Field: NumberOfUpdateField(name),
 //		Value: value,
 //	}

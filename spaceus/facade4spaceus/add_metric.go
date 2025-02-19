@@ -3,6 +3,7 @@ package facade4spaceus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/gosimple/slug"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
@@ -43,8 +44,8 @@ func AddMetric(ctx context.Context, userCtx facade.UserContext, request AddSpace
 			}
 		}
 		params.Space.Data.Metrics = append(params.Space.Data.Metrics, &request.Metric)
-		if err = dal4spaceus.TxUpdateSpace(ctx, tx, params.Started, params.Space, []dal.Update{
-			{Field: "metrics", Value: params.Space.Data.Metrics},
+		if err = dal4spaceus.TxUpdateSpace(ctx, tx, params.Started, params.Space, []update.Update{
+			update.ByFieldName("metrics", params.Space.Data.Metrics),
 		}); err != nil {
 			return err
 		}

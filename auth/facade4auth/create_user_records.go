@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -181,7 +182,7 @@ func updateUserRecordWithInitData(userToCreate dto4auth.DataToCreateUser, params
 			name.FullName = name.GetFullName()
 		}
 		if !name.IsEmpty() {
-			params.UserUpdates = append(params.UserUpdates, dal.Update{Field: "name", Value: name})
+			params.UserUpdates = append(params.UserUpdates, update.ByFieldName("name", name))
 			params.User.Record.MarkAsChanged()
 		}
 		params.User.Data.Names = &name
@@ -192,12 +193,12 @@ func updateUserRecordWithInitData(userToCreate dto4auth.DataToCreateUser, params
 			params.User.Data.Timezone = &dbmodels.Timezone{}
 		}
 		params.User.Data.Timezone.Iana = userToCreate.IanaTimezone
-		params.UserUpdates = append(params.UserUpdates, dal.Update{Field: "timezone.iana", Value: userToCreate.IanaTimezone})
+		params.UserUpdates = append(params.UserUpdates, update.ByFieldName("timezone.iana", userToCreate.IanaTimezone))
 		params.User.Record.MarkAsChanged()
 	}
 	if params.User.Data.Title == params.User.Data.Email && params.User.Data.Names != nil && !params.User.Data.Names.IsEmpty() {
 		params.User.Data.Title = ""
-		params.UserUpdates = append(params.UserUpdates, dal.Update{Field: "title", Value: dal.DeleteField})
+		params.UserUpdates = append(params.UserUpdates, update.ByFieldName("title", update.DeleteField))
 		params.User.Record.MarkAsChanged()
 	}
 	return nil

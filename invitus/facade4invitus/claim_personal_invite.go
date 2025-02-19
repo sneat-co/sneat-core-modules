@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -155,22 +156,22 @@ func updateInviteRecord(
 	}
 	invite.Data.Status = status
 	invite.Data.To.UserID = uid
-	inviteUpdates := []dal.Update{
-		{Field: "status", Value: status},
-		{Field: "to.userID", Value: uid},
+	inviteUpdates := []update.Update{
+		update.ByFieldName("status", status),
+		update.ByFieldName("to.userID", uid),
 	}
 	switch status {
 	case dbo4invitus.InviteStatusActive:
 		if invite.Data.Claimed != nil {
 			invite.Data.Claimed = nil
-			inviteUpdates = append(inviteUpdates, dal.Update{Field: "claimed", Value: dal.DeleteField})
+			inviteUpdates = append(inviteUpdates, update.ByFieldName("claimed", update.DeleteField))
 		}
 	case dbo4invitus.InviteStatusExpired: // Do nothing
 		err = fmt.Errorf("%w: expiration time %s", ErrInviteExpired, invite.Data.Expires)
 		return
 	default:
 		invite.Data.Claimed = &now
-		inviteUpdates = append(inviteUpdates, dal.Update{Field: "claimed", Value: now})
+		inviteUpdates = append(inviteUpdates, update.ByFieldName("claimed", now))
 	}
 	if err = invite.Data.Validate(); err != nil {
 		return fmt.Errorf("personal invite record is not valid: %w", err)
@@ -189,9 +190,7 @@ func updateMemberRecord(
 	requestMember *briefs4contactus.ContactBase,
 	spaceMember *briefs4contactus.ContactBase,
 ) (err error) {
-	updates := []dal.Update{
-		{Field: "userID", Value: uid},
-	}
+	updates := []update.Update{update.ByFieldName("userID", uid)}
 	updates = updatePersonDetails(&member.Data.ContactBase, requestMember, spaceMember, updates)
 	if err = tx.Update(ctx, member.Key, updates); err != nil {
 		return err
@@ -224,7 +223,7 @@ func updateContactusSpaceRecord(
 			updatePersonDetails(spaceMember, &requestMember.Data.ContactBase, spaceMember, nil)
 			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, params.SpaceModuleEntry.Data.AddUserID(uid)...)
 			if m.AddRole(const4contactus.SpaceMemberRoleMember) {
-				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "contacts." + contactID + ".roles", Value: m.Roles})
+				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+contactID+".roles", m.Roles))
 			}
 			break
 		}
@@ -236,7 +235,7 @@ func updateContactusSpaceRecord(
 	if params.Space.Data.HasUserID(uid) {
 		goto UserIdAdded
 	}
-	params.SpaceUpdates = append(params.SpaceUpdates, dal.Update{Field: "userIDs", Value: params.Space.Data.UserIDs})
+	params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("userIDs", params.Space.Data.UserIDs))
 UserIdAdded:
 	return spaceMember, err
 }
@@ -273,11 +272,8 @@ func createOrUpdateUserRecord(
 	user.Data.Spaces[request.SpaceID] = &userSpaceInfo
 	user.Data.SpaceIDs = append(user.Data.SpaceIDs, request.SpaceID)
 	if existingUser {
-		userUpdates := []dal.Update{
-			{
-				Field: "spaces",
-				Value: user.Data.Spaces,
-			},
+		userUpdates := []update.Update{
+			update.ByFieldName("spaces", user.Data.Spaces),
 		}
 		userUpdates = updatePersonDetails(&user.Data.ContactBase, &member.Data.ContactBase, spaceMember, userUpdates)
 		if err = user.Data.Validate(); err != nil {
@@ -317,7 +313,7 @@ func createOrUpdateUserRecord(
 	return err
 }
 
-func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, spaceMember *briefs4contactus.ContactBase, updates []dal.Update) []dal.Update {
+func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *briefs4contactus.ContactBase, spaceMember *briefs4contactus.ContactBase, updates []update.Update) []update.Update {
 	if member.Names != nil {
 		if personContact.Names == nil {
 			personContact.Names = new(person.NameFields)
@@ -330,10 +326,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 			if name != "" {
 				personContact.Names.FirstName = name
 				if updates != nil {
-					updates = append(updates, dal.Update{
-						Field: "name.first",
-						Value: name,
-					})
+					updates = append(updates, update.ByFieldName("name.first", name))
 				}
 			}
 		}
@@ -345,10 +338,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 			if name != "" {
 				personContact.Names.LastName = name
 				if updates != nil {
-					updates = append(updates, dal.Update{
-						Field: "name.last",
-						Value: name,
-					})
+					updates = append(updates, update.ByFieldName("name.last", name))
 				}
 			}
 		}
@@ -360,10 +350,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 			if name != "" {
 				personContact.Names.FullName = name
 				if updates != nil {
-					updates = append(updates, dal.Update{
-						Field: "name.full",
-						Value: name,
-					})
+					updates = append(updates, update.ByFieldName("name.full", name))
 				}
 			}
 		}
@@ -379,10 +366,7 @@ func updatePersonDetails(personContact *briefs4contactus.ContactBase, member *br
 		if personContact.Gender == "" || gender != "unknown" {
 			personContact.Gender = member.Gender
 			if updates != nil {
-				updates = append(updates, dal.Update{
-					Field: "gender",
-					Value: gender,
-				})
+				updates = append(updates, update.ByFieldName("gender", gender))
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
@@ -34,10 +35,10 @@ func txUpdateItemRelationships(
 	if err = tx.Get(ctx, item.Record); err != nil {
 		return item, err
 	}
-	var itemUpdates []dal.Update
+	var itemUpdates []update.Update
 	params.RecordUpdates, err = UpdateRelatedField(ctx, tx,
 		request.SpaceModuleItemRef, request.UpdateRelatedFieldRequest, item.Data,
-		func(updates []dal.Update) {
+		func(updates []update.Update) {
 			itemUpdates = append(itemUpdates, updates...)
 		})
 	if err != nil {

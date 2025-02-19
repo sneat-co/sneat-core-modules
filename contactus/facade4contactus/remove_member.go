@@ -3,6 +3,7 @@ package facade4contactus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
@@ -61,9 +62,8 @@ func removeSpaceMemberTx(
 			return
 		}
 
-		update := updateUserRecordOnSpaceMemberRemoved(memberUser.Data, request.SpaceID)
-		if update != nil {
-			if err = txUpdate(ctx, tx, userRef, []dal.Update{*update}); err != nil {
+		if u := updateUserRecordOnSpaceMemberRemoved(memberUser.Data, request.SpaceID); u != nil {
+			if err = txUpdate(ctx, tx, userRef, []update.Update{u}); err != nil {
 				return err
 			}
 		}
@@ -71,13 +71,10 @@ func removeSpaceMemberTx(
 	return
 }
 
-func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID string) *dal.Update {
+func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID string) update.Update {
 	delete(user.Spaces, spaceID)
 	user.SpaceIDs = slice.RemoveInPlaceByValue(user.SpaceIDs, spaceID)
-	return &dal.Update{
-		Field: "spaces",
-		Value: user.Spaces,
-	}
+	return update.ByFieldName("spaces", user.Spaces)
 }
 
 func removeMemberFromSpaceRecord(
@@ -87,7 +84,7 @@ func removeMemberFromSpaceRecord(
 ) {
 	if contactUserID != "" && slices.Contains(params.Space.Data.UserIDs, contactUserID) {
 		params.Space.Data.UserIDs = slice.RemoveInPlaceByValue(params.Space.Data.UserIDs, contactUserID)
-		params.SpaceUpdates = append(params.SpaceUpdates, dal.Update{Field: "userIDs", Value: params.Space.Data.UserIDs})
+		params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("userIDs", params.Space.Data.UserIDs))
 	}
 	//if params.Space.Data.NumberOf[dbo4spaceus.NumberOfMembersFieldName] != membersCount {
 	//	params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.SetNumberOf(dbo4spaceus.NumberOfMembersFieldName, membersCount))
@@ -106,7 +103,7 @@ func removeContactBrief(
 				userIDs := slice.RemoveInPlaceByValue(params.SpaceModuleEntry.Data.UserIDs, contactBrief.UserID)
 				if len(userIDs) != len(params.SpaceModuleEntry.Data.UserIDs) {
 					params.SpaceModuleEntry.Data.UserIDs = userIDs
-					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "userIDs", Value: userIDs})
+					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("userIDs", userIDs))
 				}
 			}
 			break

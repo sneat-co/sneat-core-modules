@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -30,7 +31,7 @@ type SpaceWorkerParams struct {
 	Started time.Time
 	//
 	Space         dbo4spaceus.SpaceEntry
-	SpaceUpdates  []dal.Update
+	SpaceUpdates  []update.Update
 	RecordUpdates []record.Updates
 }
 
@@ -149,11 +150,11 @@ func applyRecordUpdates(ctx context.Context, tx dal.ReadwriteTransaction, record
 		if err := tx.Update(ctx, key, rec.Updates); err != nil {
 			updateFieldNames := make([]string, len(rec.Updates))
 			for _, u := range rec.Updates {
-				updateField := u.Field
-				if updateField == "" {
-					updateField = strings.Join(u.FieldPath, ".")
+				fieldName := u.FieldName()
+				if fieldName == "" {
+					fieldName = strings.Join(u.FieldPath(), ".")
 				}
-				updateFieldNames = append(updateFieldNames, updateField)
+				updateFieldNames = append(updateFieldNames, fieldName)
 			}
 			return fmt.Errorf(
 				"failed to apply record updates (key=%s, updateFieldNames: %s): %w",

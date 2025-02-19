@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
@@ -14,7 +15,7 @@ type UserModuleDbo = interface {
 
 type UserModuleWorkerParams[T any] struct {
 	UserModule        record.DataWithID[string, *T]
-	UserModuleUpdates []dal.Update
+	UserModuleUpdates []update.Update
 }
 
 func RunUserModuleWorker[T any](

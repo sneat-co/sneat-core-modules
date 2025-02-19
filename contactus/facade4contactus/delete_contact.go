@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -57,14 +58,9 @@ func deleteContactTxWorker(
 		subContact.Data.Status = dbmodels.StatusDeleted
 		contactKeysToDelete = append(contactKeysToDelete, subContact.Key)
 	}
-	contactsUpdates := []dal.Update{
-		{
-			Field: "status",
-			Value: dbmodels.StatusDeleted,
-		},
-	}
+	contactsUpdates := []update.Update{update.ByFieldName("status", dbmodels.StatusDeleted)}
 	if err = tx.UpdateMulti(ctx, contactKeysToDelete, contactsUpdates); err != nil {
-		return fmt.Errorf("failed to set contacts status to %v: %w", contactsUpdates[0].Value, err)
+		return fmt.Errorf("failed to set contacts status to %v: %w", contactsUpdates[0].Value(), err)
 	}
 	//if err = tx.DeleteMulti(ctx, contactKeysToDelete); err != nil {
 	//	return fmt.Errorf("failed to delete contacts: %w", err)

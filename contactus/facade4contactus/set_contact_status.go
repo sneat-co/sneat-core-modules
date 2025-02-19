@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
@@ -67,8 +68,8 @@ func setContactStatusTxWorker(
 		}
 	}
 	if len(contactKeys) > 0 {
-		if err := tx.UpdateMulti(ctx, contactKeys, []dal.Update{
-			{Field: "status", Value: status},
+		if err := tx.UpdateMulti(ctx, contactKeys, []update.Update{
+			update.ByFieldName("status", status),
 		}); err != nil {
 			return fmt.Errorf("failed to update contact records to set status to %v: %w", status, err)
 		}
@@ -96,11 +97,8 @@ func setContactStatusTxWorker(
 				return fmt.Errorf("failed to delete space contacts brief record: %w", err)
 			}
 		} else {
-			if err := tx.Update(ctx, params.SpaceModuleEntry.Key, []dal.Update{
-				{
-					Field: const4contactus.ContactsField,
-					Value: params.SpaceModuleEntry.Data.Contacts,
-				},
+			if err := tx.Update(ctx, params.SpaceModuleEntry.Key, []update.Update{
+				update.ByFieldName(const4contactus.ContactsField, params.SpaceModuleEntry.Data.Contacts),
 			}); err != nil {
 				return fmt.Errorf("failed to put space contacts brief: %w", err)
 			}

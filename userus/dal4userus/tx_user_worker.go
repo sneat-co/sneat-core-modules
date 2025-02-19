@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"time"
@@ -13,7 +14,7 @@ import (
 type UserWorkerParams struct {
 	Started     time.Time
 	User        dbo4userus.UserEntry
-	UserUpdates []dal.Update
+	UserUpdates []update.Update
 }
 
 type userWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) (err error)

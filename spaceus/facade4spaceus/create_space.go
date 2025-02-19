@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/gosimple/slug"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -26,7 +27,7 @@ import (
 
 // CreateSpaceParams is a result of CreateSpace
 type CreateSpaceParams struct {
-	UserUpdates    []dal.Update
+	UserUpdates    []update.Update
 	User           dbo4userus.UserEntry
 	Space          dbo4spaceus.SpaceEntry
 	ContactusSpace dal4contactus.ContactusSpaceEntry
@@ -210,7 +211,7 @@ func CreateSpaceTxWorker(
 	return
 }
 
-func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID, userSpaceContactID string, spaceBrief dbo4spaceus.SpaceBrief, spaceUserRoles []string) (updates []dal.Update) {
+func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID, userSpaceContactID string, spaceBrief dbo4spaceus.SpaceBrief, spaceUserRoles []string) (updates []update.Update) {
 	userSpaceBrief := dbo4userus.UserSpaceBrief{
 		SpaceBrief:    spaceBrief,
 		UserContactID: userSpaceContactID,

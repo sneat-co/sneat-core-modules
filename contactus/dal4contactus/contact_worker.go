@@ -3,6 +3,7 @@ package dal4contactus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/facade"
 )
@@ -10,7 +11,7 @@ import (
 type ContactWorkerParams struct {
 	*ContactusSpaceWorkerParams
 	Contact        ContactEntry
-	ContactUpdates []dal.Update
+	ContactUpdates []update.Update
 }
 
 func (v ContactWorkerParams) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {

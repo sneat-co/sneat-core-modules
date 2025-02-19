@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
@@ -188,9 +189,7 @@ func createPersonalInvite(
 			return invite, err
 		}
 		if err = tx.Update(ctx, invite.Key,
-			[]dal.Update{
-				{Field: "messageId", Value: invite.Data.MessageID},
-			}); err != nil {
+			[]update.Update{update.ByFieldName("messageId", invite.Data.MessageID)}); err != nil {
 			err = fmt.Errorf("failed to update invite record with message ContactID: %w", err)
 			return
 		}

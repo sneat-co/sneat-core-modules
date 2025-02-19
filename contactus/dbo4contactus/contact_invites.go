@@ -1,7 +1,7 @@
 package dbo4contactus
 
 import (
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/strongo/validation"
 	"time"
@@ -47,15 +47,12 @@ func (v *WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(cha
 	return "", nil
 }
 
-func (v *WithInvitesToContactBriefs) DeleteInviteBrief(id string) dal.Update {
+func (v *WithInvitesToContactBriefs) DeleteInviteBrief(id string) update.Update {
 	delete(v.Invites, id)
-	return dal.Update{
-		Field: "invites." + id,
-		Value: dal.DeleteField,
-	}
+	return update.ByFieldName("invites."+id, update.DeleteField)
 }
 
-func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) dal.Update {
+func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) update.Update {
 	brief := InviteToContactBrief{
 		Channel:         channel,
 		CreatedTime:     createdTime,
@@ -66,8 +63,5 @@ func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID st
 	} else {
 		v.Invites[inviteID] = brief
 	}
-	return dal.Update{
-		Field: "invites." + inviteID,
-		Value: brief,
-	}
+	return update.ByFieldName("invites."+inviteID, brief)
 }

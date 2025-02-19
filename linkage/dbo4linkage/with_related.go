@@ -2,7 +2,7 @@ package dbo4linkage
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/strongo/validation"
 	"slices"
@@ -174,7 +174,7 @@ func (v *WithRelated) Validate() error {
 
 // RemoveRelatedItem removes all relationships to a given item
 // TODO(help-wanted): needs 100% code coverage by tests
-func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []dal.Update) {
+func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []update.Update) {
 	collectionsRelated := v.Related[ref.Module]
 	if collectionsRelated == nil {
 		return
@@ -201,28 +201,19 @@ relatedItemCycle:
 			if len(collectionsRelated) == 0 {
 				delete(v.Related, ref.Module)
 				if len(v.Related) == 0 {
-					updates = append(updates, dal.Update{
-						Field: relatedField,
-						Value: dal.DeleteField,
-					})
+					updates = append(updates, update.ByFieldName(
+						relatedField, update.DeleteField))
 				} else {
-					updates = append(updates, dal.Update{
-						Field: fmt.Sprintf("%s.%s", relatedField, ref.Module),
-						Value: dal.DeleteField,
-					})
+					updates = append(updates, update.ByFieldName(
+						fmt.Sprintf("%s.%s", relatedField, ref.Module),
+						update.DeleteField))
 				}
 			} else {
-				updates = append(updates, dal.Update{
-					Field: field,
-					Value: dal.DeleteField,
-				})
+				updates = append(updates, update.ByFieldName(field, update.DeleteField))
 			}
 		} else {
 			collectionsRelated[ref.Collection] = newRelatedItems
-			updates = append(updates, dal.Update{
-				Field: field,
-				Value: newRelatedItems,
-			})
+			updates = append(updates, update.ByFieldName(field, newRelatedItems))
 		}
 	}
 	return updates
@@ -260,7 +251,7 @@ func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) e
 	return nil
 }
 
-func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand RelationshipItemRolesCommand) (updates []dal.Update, err error) {
+func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand RelationshipItemRolesCommand) (updates []update.Update, err error) {
 	if err := rolesCommand.Validate(); err != nil {
 		return nil, err
 	}
@@ -325,10 +316,9 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 		relatedItem.RolesToItem = addRelationship("rolesToItem", rolesCommand.Add.RolesToItem, relatedItem.RolesToItem)
 	}
 
-	updates = append(updates, dal.Update{
-		Field: fmt.Sprintf("related.%s", itemRef.ModuleCollectionPath()),
-		Value: relatedItems,
-	})
+	updates = append(updates, update.ByFieldName(
+		fmt.Sprintf("related.%s", itemRef.ModuleCollectionPath()),
+		relatedItems))
 
 	return updates, nil
 }
@@ -337,7 +327,7 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 //	userID string,
 //	link RelationshipItemRolesCommand,
 //	now time.Time,
-//) (updates []dal.Update, err error) {
+//) (updates []update.Update, err error) {
 //	if err = link.Validate(); err != nil {
 //		return nil, fmt.Errorf("failed to validate link: %w", err)
 //	}
@@ -390,7 +380,7 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 //	//addIfNeeded("rolesOfItem", relatedItem.RolesOfItem, link.RolesOfItem)
 //	//addIfNeeded("rolesToItem", relatedItem.RolesToItem, link.RolesToItem)
 //
-//	var relationshipUpdate []dal.Update
+//	var relationshipUpdate []update.Update
 //	if relationshipUpdate, err = v.AddRelationshipAndID(userID, link, now); err != nil {
 //		return updates, err
 //	}

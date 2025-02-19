@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -144,11 +145,8 @@ func CreateContactTx(
 							case dbmodels.RelationshipSpouse, dbmodels.RelationshipChild:
 								userContactBrief.AgeGroup = dbmodels.AgeGroupAdult
 								userContactKey := dal4contactus.NewContactKey(request.SpaceID, userContactID)
-								if err = tx.Update(ctx, userContactKey, []dal.Update{
-									{
-										Field: "ageGroup",
-										Value: userContactBrief.AgeGroup,
-									},
+								if err = tx.Update(ctx, userContactKey, []update.Update{
+									update.ByFieldName("ageGroup", userContactBrief.AgeGroup),
 								}); err != nil {
 									err = fmt.Errorf("failed to update member record: %w", err)
 									return
@@ -232,11 +230,8 @@ func CreateContactTx(
 	}
 	params.SpaceModuleEntry.Data.AddContact(contactID, &contactDbo.ContactBrief)
 	if params.SpaceModuleEntry.Record.Exists() {
-		if err = tx.Update(ctx, params.SpaceModuleEntry.Key, []dal.Update{
-			{
-				Field: const4contactus.ContactsField,
-				Value: params.SpaceModuleEntry.Data.Contacts,
-			},
+		if err = tx.Update(ctx, params.SpaceModuleEntry.Key, []update.Update{
+			update.ByFieldName(const4contactus.ContactsField, params.SpaceModuleEntry.Data.Contacts),
 		}); err != nil {
 			return contact, fmt.Errorf("failed to update space contact briefs: %w", err)
 		}

@@ -3,6 +3,7 @@ package facade4spaceus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
@@ -67,7 +68,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 				return nil
 			}).Times(insertMultiTimes)
 		}
-		tx.EXPECT().Update(assertContextWithDeadLine, gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, key *dal.Key, updates []dal.Update, preconditions ...dal.Precondition) error {
+		tx.EXPECT().Update(assertContextWithDeadLine, gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, key *dal.Key, updates []update.Update, preconditions ...dal.Precondition) error {
 			return nil
 		}).AnyTimes()
 		db.EXPECT().RunReadwriteTransaction(assertContextWithDeadLine, gomock.Any()).DoAndReturn(func(ctx context.Context, worker func(ctx context.Context, tx dal.ReadwriteTransaction) error, o ...dal.TransactionOption) error {

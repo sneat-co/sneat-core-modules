@@ -3,7 +3,7 @@ package dbo4userus
 import (
 	"fmt"
 	"github.com/bots-go-framework/bots-fw-store/botsfwmodels"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
@@ -84,7 +84,7 @@ func (v *UserDbo) GetFullName() string {
 }
 
 // SetSpaceBrief sets space brief and adds spaceID to the list of space IDs if needed
-func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates []dal.Update) {
+func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates []update.Update) {
 	if spaceID == "" {
 		panic("spaceID is empty string")
 	}
@@ -95,10 +95,10 @@ func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates 
 		v.Spaces = make(map[string]*UserSpaceBrief, 1)
 	}
 	v.Spaces[spaceID] = brief
-	updates = append(updates, dal.Update{Field: "spaces." + spaceID, Value: brief})
+	updates = append(updates, update.ByFieldName("spaces."+spaceID, brief))
 	if !slices.Contains(v.SpaceIDs, spaceID) {
 		v.SpaceIDs = append(v.SpaceIDs, spaceID)
-		updates = append(updates, dal.Update{Field: "spaceIDs", Value: v.SpaceIDs})
+		updates = append(updates, update.ByFieldName("spaceIDs", v.SpaceIDs))
 	}
 	return
 }

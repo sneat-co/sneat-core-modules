@@ -2,7 +2,7 @@ package dbo4linkage
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"slices"
@@ -138,7 +138,7 @@ func (v *WithRelatedAndIDs) AddRelationshipsAndIDs(
 	itemRef SpaceModuleItemRef,
 	rolesOfItem RelationshipRoles,
 	rolesToItem RelationshipRoles, // TODO: needs implementation
-) (updates []dal.Update, err error) {
+) (updates []update.Update, err error) {
 	link := RelationshipItemRolesCommand{}
 	if len(rolesOfItem) > 0 {
 		if link.Add == nil {
@@ -160,7 +160,7 @@ func (v *WithRelatedAndIDs) AddRelationshipsAndIDs(
 	//return nil, errors.New("not implemented yet - AddRelationshipsAndIDs")
 }
 
-func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []dal.Update) {
+func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
 	searchIndex := []string{AnyRelatedID}
 	withRelatedIDs.RelatedIDs = make([]string, 0)
 	for moduleID, relatedByCollectionID := range withRelated.Related {
@@ -185,10 +185,10 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 	}
 	if len(withRelatedIDs.RelatedIDs) == 0 {
 		withRelatedIDs.RelatedIDs = []string{NoRelatedID}
-		updates = append(updates, dal.Update{Field: "relatedIDs", Value: dal.DeleteField})
+		updates = append(updates, update.ByFieldName("relatedIDs", update.DeleteField))
 	} else {
 		withRelatedIDs.RelatedIDs = append(searchIndex, withRelatedIDs.RelatedIDs...)
-		updates = append(updates, dal.Update{Field: "relatedIDs", Value: withRelatedIDs.RelatedIDs})
+		updates = append(updates, update.ByFieldName("relatedIDs", withRelatedIDs.RelatedIDs))
 	}
 	return
 }
@@ -196,7 +196,7 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 func (v *WithRelatedAndIDs) AddRelationshipAndID(
 	itemRef SpaceModuleItemRef,
 	link RelationshipItemRolesCommand,
-) (updates []dal.Update, err error) {
+) (updates []update.Update, err error) {
 	updates, err = v.WithRelated.AddRelationship(itemRef, link)
 	updates = append(updates, UpdateRelatedIDs(&v.WithRelated, &v.WithRelatedIDs)...)
 	return
@@ -207,13 +207,13 @@ func AddRelationshipAndID(
 	withRelatedIDs *WithRelatedIDs,
 	itemRef SpaceModuleItemRef,
 	link RelationshipItemRolesCommand,
-) (updates []dal.Update, err error) {
+) (updates []update.Update, err error) {
 	updates, err = withRelated.AddRelationship(itemRef, link)
 	updates = append(updates, UpdateRelatedIDs(withRelated, withRelatedIDs)...)
 	return
 }
 
-func RemoveRelatedAndID(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref SpaceModuleItemRef) (updates []dal.Update) {
+func RemoveRelatedAndID(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref SpaceModuleItemRef) (updates []update.Update) {
 	updates = withRelated.RemoveRelatedItem(ref)
 	updates = append(updates, UpdateRelatedIDs(withRelated, withRelatedIDs)...)
 	return updates

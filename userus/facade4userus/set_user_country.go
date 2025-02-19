@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -37,7 +38,7 @@ func SetUserCountry(ctx context.Context, userCtx facade.UserContext, request Set
 
 type RecordToUpdate struct {
 	Key     *dal.Key
-	Updates []dal.Update
+	Updates []update.Update
 }
 
 func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, request SetUserCountryRequest, params *dal4userus.UserWorkerParams) (err error) {
@@ -45,7 +46,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 		params.User.Data.CountryID = request.CountryID
 		params.User.Record.MarkAsChanged()
 		params.UserUpdates = append(params.UserUpdates,
-			dal.Update{Field: "countryID", Value: request.CountryID})
+			update.ByFieldName("countryID", request.CountryID))
 	}
 
 	recordsToUpdate := make([]RecordToUpdate, 0, len(params.User.Data.Spaces))
@@ -53,7 +54,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 	for spaceID, spaceBrief := range params.User.Data.Spaces {
 		if IsUnknownCountryID(spaceBrief.CountryID) && spaceBrief.Type == core4spaceus.SpaceTypeFamily || spaceBrief.Type == core4spaceus.SpaceTypePrivate {
 			spaceBrief.CountryID = request.CountryID
-			params.UserUpdates = append(params.UserUpdates, dal.Update{Field: fmt.Sprintf("spaces.%s.countryID", spaceID), Value: request.CountryID})
+			params.UserUpdates = append(params.UserUpdates, update.ByFieldName(fmt.Sprintf("spaces.%s.countryID", spaceID), request.CountryID))
 		}
 		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, spaceID,
 			func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
@@ -62,13 +63,13 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 				}
 				if IsUnknownCountryID(params.Space.Data.CountryID) {
 					params.Space.Data.CountryID = request.CountryID
-					params.SpaceUpdates = append(params.SpaceUpdates, dal.Update{Field: "countryID", Value: request.CountryID})
+					params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("countryID", request.CountryID))
 					params.Space.Record.MarkAsChanged()
 				}
 				userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userCtx.GetUserID())
 				if userContactBrief != nil && IsUnknownCountryID(userContactBrief.CountryID) {
 					userContactBrief.CountryID = request.CountryID
-					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{Field: "contacts." + userContactID + ".countryID", Value: request.CountryID})
+					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+userContactID+".countryID", request.CountryID))
 					params.SpaceModuleEntry.Record.MarkAsChanged()
 					userContact := dal4contactus.NewContactEntry(spaceID, userContactID)
 					if err = tx.Get(ctx, userContact.Record); err != nil {
@@ -76,7 +77,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 					}
 					if IsUnknownCountryID(userContact.Data.CountryID) {
 						userContact.Data.CountryID = request.CountryID
-						recordsToUpdate = append(recordsToUpdate, RecordToUpdate{Key: userContact.Key, Updates: []dal.Update{{Field: "countryID", Value: request.CountryID}}})
+						recordsToUpdate = append(recordsToUpdate, RecordToUpdate{Key: userContact.Key, Updates: []update.Update{update.ByFieldName("countryID", request.CountryID)}})
 					}
 				}
 				if params.Space.Record.HasChanged() && len(params.SpaceUpdates) > 0 {

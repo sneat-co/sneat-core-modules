@@ -3,6 +3,7 @@ package facade4linkage
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"slices"
@@ -37,12 +38,12 @@ func updateUserWithRelatedTx(
 
 	userRelated := dbo4linkage.GetRelatedItemByRef(user.Data.Related, itemRef, true)
 
-	var updates []dal.Update
+	var updates []update.Update
 
 	for roleID, role := range relatedItem.RolesToItem {
 		if userRelated.RolesOfItem[roleID] != role {
 			userRelated.RolesOfItem[roleID] = role
-			updates = append(updates, dal.Update{Field: "related." + itemRef.ID() + ".rolesOfItem." + roleID, Value: role})
+			updates = append(updates, update.ByFieldName("related."+itemRef.ID()+".rolesOfItem."+roleID, role))
 		}
 	}
 

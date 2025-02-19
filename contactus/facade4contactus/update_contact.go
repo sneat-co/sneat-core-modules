@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
@@ -71,10 +72,9 @@ func updateContactTxWorker(
 	updateContactBriefField := func(field string, value any) {
 		params.SpaceModuleEntry.Record.MarkAsChanged()
 		params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
-			dal.Update{
-				Field: fmt.Sprintf("contacts.%s.%s", request.ContactID, field),
-				Value: value,
-			})
+			update.ByFieldName(
+				fmt.Sprintf("contacts.%s.%s", request.ContactID, field),
+				value))
 	}
 
 	var updatedContactFields []string
@@ -83,7 +83,7 @@ func updateContactTxWorker(
 		if *request.Address != *contact.Data.Address {
 			updatedContactFields = append(updatedContactFields, "address")
 			contact.Data.Address = request.Address
-			params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "address", Value: request.Address})
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("address", request.Address))
 		}
 	}
 
@@ -91,14 +91,14 @@ func updateContactTxWorker(
 		if vat := *request.VatNumber; vat != contact.Data.VATNumber {
 			updatedContactFields = append(updatedContactFields, "vatNumber")
 			contact.Data.VATNumber = vat
-			params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "vatNumber", Value: vat})
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("vatNumber", vat))
 		}
 	}
 
 	if request.Gender != "" {
 		updatedContactFields = append(updatedContactFields, "gender")
 		contact.Data.Gender = request.Gender
-		params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "gender", Value: request.Gender})
+		params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("gender", request.Gender))
 		if contactBrief != nil && contactBrief.Gender != request.Gender {
 			updateContactBriefField("gender", contact.Data.Gender)
 		}
@@ -108,7 +108,7 @@ func updateContactTxWorker(
 		if request.AgeGroup != contact.Data.AgeGroup {
 			updatedContactFields = append(updatedContactFields, "ageGroup")
 			contact.Data.AgeGroup = request.AgeGroup
-			params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "ageGroup", Value: contact.Data.AgeGroup})
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("ageGroup", contact.Data.AgeGroup))
 		}
 		if contactBrief != nil && contactBrief.AgeGroup != request.AgeGroup {
 			updateContactBriefField("ageGroup", contact.Data.AgeGroup)
@@ -136,7 +136,7 @@ func updateContactTxWorker(
 				WithUserID:        dbmodels.WithUserID{UserID: params.Contact.Data.UserID},
 				WithRelatedAndIDs: &params.Contact.Data.WithRelatedAndIDs,
 			},
-			func(updates []dal.Update) {
+			func(updates []update.Update) {
 				params.ContactUpdates = append(params.ContactUpdates, updates...)
 			})
 		if err != nil {

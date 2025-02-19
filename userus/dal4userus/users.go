@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"time"
@@ -15,7 +16,7 @@ var TxUpdateUser = func(
 	transaction dal.ReadwriteTransaction,
 	timestamp time.Time,
 	userKey *dal.Key,
-	data []dal.Update,
+	data []update.Update,
 	opts ...dal.Precondition,
 ) error {
 	if transaction == nil {
@@ -25,7 +26,7 @@ var TxUpdateUser = func(
 		panic("userKey == nil")
 	}
 	data = append(data,
-		dal.Update{Field: "timestamp", Value: timestamp},
+		update.ByFieldName("timestamp", timestamp),
 	)
 	return transaction.Update(ctx, userKey, data, opts...)
 }

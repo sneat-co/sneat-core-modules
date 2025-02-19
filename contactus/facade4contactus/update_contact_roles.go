@@ -2,7 +2,7 @@ package facade4contactus
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
@@ -24,12 +24,9 @@ func updateContactRoles(params *dal4contactus.ContactWorkerParams, roles dto4con
 	}
 	if removedCount > 0 || addedCount > 0 {
 		updatedContactFields = append(updatedContactFields, "roles")
-		params.ContactUpdates = append(params.ContactUpdates, dal.Update{Field: "roles", Value: params.Contact.Data.Roles})
+		params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("roles", params.Contact.Data.Roles))
 		params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
-			dal.Update{
-				Field: fmt.Sprintf("contacts.%s.roles", params.Contact.ID),
-				Value: params.Contact.Data.Roles,
-			})
+			update.ByFieldName(fmt.Sprintf("contacts.%s.roles", params.Contact.ID), params.Contact.Data.Roles))
 	}
 
 	return updatedContactFields, err
@@ -39,11 +36,10 @@ func removeContactRoles(params *dal4contactus.ContactWorkerParams) {
 	contact := params.Contact
 	contactBrief := params.SpaceModuleEntry.Data.GetContactBriefByContactID(contact.ID)
 	if contactBrief != nil {
-		for _, update := range contactBrief.RemoveRole(const4contactus.SpaceMemberRoleMember) {
-			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, dal.Update{
-				Field: fmt.Sprintf("contacts.%s.roles.%s", contact.ID, update.Field),
-				Value: contact.Data.Roles,
-			})
+		for _, u := range contactBrief.RemoveRole(const4contactus.SpaceMemberRoleMember) {
+			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName(
+				fmt.Sprintf("contacts.%s.roles.%s", contact.ID, u.FieldName()),
+				contact.Data.Roles))
 		}
 	}
 }

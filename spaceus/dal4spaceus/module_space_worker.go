@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -15,10 +16,10 @@ import (
 type ModuleSpaceWorkerParams[D SpaceModuleDbo] struct {
 	*SpaceWorkerParams
 	SpaceModuleEntry   record.DataWithID[string, D]
-	SpaceModuleUpdates []dal.Update
+	SpaceModuleUpdates []update.Update
 }
 
-func (v *ModuleSpaceWorkerParams[D]) AddSpaceModuleUpdates(updates ...dal.Update) {
+func (v *ModuleSpaceWorkerParams[D]) AddSpaceModuleUpdates(updates ...update.Update) {
 	if len(updates) > 0 {
 		v.SpaceModuleUpdates = append(v.SpaceModuleUpdates, updates...)
 		v.SpaceModuleEntry.Record.MarkAsChanged()

@@ -2,7 +2,7 @@ package briefs4contactus
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
@@ -52,23 +52,17 @@ func (v *WithSingleSpaceContactsWithoutContactIDs[T]) HasContact(contactID strin
 	return ok
 }
 
-func (v *WithSingleSpaceContactsWithoutContactIDs[T]) AddContact(contactID string, contact T) dal.Update {
+func (v *WithSingleSpaceContactsWithoutContactIDs[T]) AddContact(contactID string, contact T) update.Update {
 	if v.Contacts == nil {
 		v.Contacts = make(map[string]T)
 	}
 	v.Contacts[contactID] = contact
-	return dal.Update{
-		Field: "contacts." + contactID,
-		Value: contact,
-	}
+	return update.ByFieldName("contacts."+contactID, contact)
 }
 
-func (v *WithSingleSpaceContactsWithoutContactIDs[T]) RemoveContact(contactID string) dal.Update {
+func (v *WithSingleSpaceContactsWithoutContactIDs[T]) RemoveContact(contactID string) update.Update {
 	delete(v.Contacts, contactID)
-	return dal.Update{
-		Field: "contacts." + contactID,
-		Value: dal.DeleteField,
-	}
+	return update.ByFieldName("contacts."+contactID, update.DeleteField)
 }
 
 // WithMultiSpaceContacts mixin that adds WithMultiSpaceContactIDs.ContactIDs & Contacts fields
@@ -91,45 +85,28 @@ func (v *WithMultiSpaceContacts[T]) Validate() error {
 	return dbmodels.ValidateWithIdsAndBriefs("contactIDs", const4contactus.ContactsField, v.ContactIDs, v.Contacts)
 }
 
-func (v *WithMultiSpaceContacts[T]) Updates(contactIDs ...dbmodels.SpaceItemID) (updates []dal.Update) {
-	updates = append(updates,
-		dal.Update{
-			Field: "contactIDs",
-			Value: v.ContactIDs,
-		},
-	)
+func (v *WithMultiSpaceContacts[T]) Updates(contactIDs ...dbmodels.SpaceItemID) (updates []update.Update) {
+	updates = append(updates, update.ByFieldName("contactIDs", v.ContactIDs))
 	if len(contactIDs) == 0 {
-		updates = append(updates, dal.Update{
-			Field: const4contactus.ContactsField,
-			Value: v.Contacts,
-		})
+		updates = append(updates, update.ByFieldName(const4contactus.ContactsField, v.Contacts))
 	} else {
 		for _, id := range contactIDs {
-			updates = append(updates, dal.Update{
-				Field: const4contactus.ContactsField + "." + string(id),
-				Value: v.Contacts[string(id)],
-			})
+			updates = append(updates, update.ByFieldName(const4contactus.ContactsField+"."+string(id), v.Contacts[string(id)]))
 		}
 	}
 	return
 }
 
 // SetContactBrief sets contactBrief brief by ContactID
-func (v *WithMultiSpaceContacts[T]) SetContactBrief(spaceID, contactID string, contactBrief T) (updates []dal.Update) {
+func (v *WithMultiSpaceContacts[T]) SetContactBrief(spaceID, contactID string, contactBrief T) (updates []update.Update) {
 	id := string(dbmodels.NewSpaceItemID(spaceID, contactID))
 	if !slices.Contains(v.ContactIDs, id) {
 		v.ContactIDs = append(v.ContactIDs, id)
-		updates = append(updates, dal.Update{
-			Field: "contactIDs",
-			Value: v.ContactIDs,
-		})
+		updates = append(updates, update.ByFieldName("contactIDs", v.ContactIDs))
 	}
 	if currentBrief, ok := v.Contacts[id]; !ok || !currentBrief.Equal(contactBrief) {
 		v.Contacts[id] = contactBrief
-		updates = append(updates, dal.Update{
-			Field: const4contactus.ContactsField + "." + string(id),
-			Value: contactBrief,
-		})
+		updates = append(updates, update.ByFieldName(const4contactus.ContactsField+"."+id, contactBrief))
 	}
 	return
 }
@@ -164,7 +141,7 @@ func (v *WithMultiSpaceContacts[T]) GetContactBriefByUserID(userID string) (id d
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (updates []dal.Update) {
+func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (updates []update.Update) {
 	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	if !slices.Contains(v.ContactIDs, string(id)) {
 		if len(v.ContactIDs) == 0 {
@@ -172,16 +149,10 @@ func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (
 			v.ContactIDs[0] = "*"
 		}
 		v.ContactIDs = append(v.ContactIDs, string(id))
-		updates = append(updates, dal.Update{
-			Field: "contactIDs",
-			Value: v.ContactIDs,
-		})
+		updates = append(updates, update.ByFieldName("contactIDs", v.ContactIDs))
 	}
 	if _, ok := v.Contacts[string(id)]; !ok {
-		updates = append(updates, dal.Update{
-			Field: "contacts." + string(id),
-			Value: c,
-		})
+		updates = append(updates, update.ByFieldName(const4contactus.ContactsField+"."+string(id), c))
 	}
 	if v.Contacts == nil {
 		v.Contacts = make(map[string]T)
@@ -190,22 +161,16 @@ func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) RemoveContact(spaceID, contactID string) (updates []dal.Update) {
+func (v *WithMultiSpaceContacts[T]) RemoveContact(spaceID, contactID string) (updates []update.Update) {
 	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	contactIDs := slice.RemoveInPlaceByValue(v.ContactIDs, string(id))
 	if len(contactIDs) != len(v.ContactIDs) {
 		v.ContactIDs = contactIDs
-		updates = append(updates, dal.Update{
-			Field: "contactIDs",
-			Value: v.ContactIDs,
-		})
+		updates = append(updates, update.ByFieldName("contactIDs", v.ContactIDs))
 	}
 	if _, ok := v.Contacts[string(id)]; ok {
 		delete(v.Contacts, string(id))
-		updates = append(updates, dal.Update{
-			Field: "contacts." + string(id),
-			Value: dal.DeleteField,
-		})
+		updates = append(updates, update.ByFieldName(const4contactus.ContactsField+"."+string(id), update.DeleteField))
 	}
 	return
 }

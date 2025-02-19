@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 )
 
@@ -32,7 +33,7 @@ import (
 //}
 
 type SetRelatedResult struct {
-	ItemUpdates []dal.Update
+	ItemUpdates []update.Update
 }
 
 // SetRelated updates related records to define relationships
@@ -45,7 +46,7 @@ func SetRelated(
 	rolesCommand dbo4linkage.RelationshipItemRolesCommand,
 ) (
 	result SetRelatedResult,
-	//spaceModuleUpdates []dal.Update,
+	//spaceModuleUpdates []update.Update,
 	err error,
 ) {
 
@@ -60,7 +61,7 @@ func SetRelated(
 		}
 	}
 
-	var relUpdates []dal.Update
+	var relUpdates []update.Update
 
 	objectWithRelated := object.GetRelated()
 	if objectWithRelated.Related == nil {
@@ -96,7 +97,7 @@ func SetRelated(
 	//	if strings.HasSuffix(itemUpdate.Field, "relatedIDs") {
 	//		continue // Ignore relatedIDs for spaceModuleUpdates
 	//	}
-	//	spaceModuleUpdates = append(spaceModuleUpdates, dal.Update{
+	//	spaceModuleUpdates = append(spaceModuleUpdates, update.Update{
 	//		Field: fmt.Sprintf("%s.%s.%s", objectRef.Collection, objectRef.ItemID, itemUpdate.Field),
 	//		Value: itemUpdate.Value,
 	//	})
