@@ -210,6 +210,7 @@ func Test_updateInviteRecord(t *testing.T) {
 							RemoteAddr: "127.0.0.1",
 						},
 					},
+					FromUserID: "from_user_id1",
 					InviteBase: dbo4invitus.InviteBase{
 						Type:    "personal",
 						Channel: "email",

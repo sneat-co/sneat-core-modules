@@ -30,6 +30,7 @@ func TestCreateMassInvite(t *testing.T) {
 			Address:   "from@example.com",
 			Title:     "From Title",
 			ContactID: "f1",
+			UserID:    "u1",
 		},
 	}
 	//invite.To = &dbo4invitus.InviteTo{
@@ -38,6 +39,7 @@ func TestCreateMassInvite(t *testing.T) {
 	//	Title:        "To Title",
 	//	ToSpaceContactID: "t1",
 	//}
+	invite.FromUserID = "u1"
 	invite.SpaceID = spaceID
 	invite.Space.Type = "family"
 	invite.Space.Title = "Unit Test"
