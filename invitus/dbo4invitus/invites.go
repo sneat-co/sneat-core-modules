@@ -112,6 +112,9 @@ func (v InviteSpace) Validate() error {
 	//if v.InviteID == "" {
 	//	return validation.NewErrRecordIsMissingRequiredField("id")
 	//}
+	//if v.ID == "" {
+	//	return validation.NewErrRecordIsMissingRequiredField("id")
+	//}
 	if v.Type == "" {
 		return validation.NewErrRecordIsMissingRequiredField("type")
 	}
@@ -212,6 +215,8 @@ type InviteStatus string
 
 const (
 	InviteStatusPending  InviteStatus = "pending"
+	InviteStatusSending  InviteStatus = "sending"
+	InviteStatusSent     InviteStatus = "sent"
 	InviteStatusActive   InviteStatus = "active"
 	InviteStatusAccepted InviteStatus = "accepted"
 	InviteStatusDeclined InviteStatus = "declined"
@@ -221,19 +226,21 @@ const (
 // InviteDbo record - used in PersonalInviteDbo and MassInviteDbo
 type InviteDbo struct {
 	InviteBase
-	Status    InviteStatus         `json:"status" firestore:"status" `
-	Pin       string               `json:"pin,omitempty" firestore:"pin,omitempty"`
-	SpaceID   string               `json:"spaceID" firestore:"spaceID"`
-	MessageID string               `json:"messageId" firestore:"messageId"` // e.g. email message ContactID from AWS SES
-	CreatedAt time.Time            `json:"createdAt" firestore:"createdAt"`
-	Created   dbmodels.CreatedInfo `json:"created" firestore:"created"`
-	Claimed   *time.Time           `json:"claimed,omitempty" firestore:"claimed,omitempty"`
-	Revoked   *time.Time           `json:"revoked" firestore:"revoked,omitempty"`
-	Sending   *time.Time           `json:"sending,omitempty" firestore:"sending,omitempty"`
-	Sent      *time.Time           `json:"sent,omitempty" firestore:"sent,omitempty"`
-	Expires   *time.Time           `json:"expires,omitempty" firestore:"expires,omitempty"`
-	Space     InviteSpace          `json:"space" firestore:"space"`
-	Roles     []string             `json:"roles,omitempty" firestore:"roles,omitempty"`
+	Status     InviteStatus         `json:"status" firestore:"status" `
+	Pin        string               `json:"pin,omitempty" firestore:"pin,omitempty"`
+	SpaceID    string               `json:"spaceID" firestore:"spaceID"`
+	TargetType string               `json:"targetType,omitempty" firestore:"targetType,omitempty"`
+	TargetID   string               `json:"targetID,omitempty" firestore:"targetID,omitempty"`
+	MessageID  string               `json:"messageID" firestore:"messageID"` // e.g. email message ContactID from AWS SES
+	CreatedAt  time.Time            `json:"createdAt" firestore:"createdAt"`
+	Created    dbmodels.CreatedInfo `json:"created" firestore:"created"`
+	Claimed    *time.Time           `json:"claimed,omitempty" firestore:"claimed,omitempty"`
+	Revoked    *time.Time           `json:"revoked" firestore:"revoked,omitempty"`
+	Sending    *time.Time           `json:"sending,omitempty" firestore:"sending,omitempty"`
+	Sent       *time.Time           `json:"sent,omitempty" firestore:"sent,omitempty"`
+	Expires    *time.Time           `json:"expires,omitempty" firestore:"expires,omitempty"`
+	Space      InviteSpace          `json:"space" firestore:"space"`
+	Roles      []string             `json:"roles,omitempty" firestore:"roles,omitempty"`
 	//FromUserID string     `json:"fromUserID" firestore:"fromUserID"`
 	//ToUserID   string     `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
 	Message string `json:"message,omitempty" firestore:"message,omitempty"`
@@ -256,18 +263,43 @@ func (v InviteDbo) IsClaimed() bool {
 	return v.Claimed != nil || v.Status == InviteStatusAccepted || v.Status == InviteStatusDeclined
 }
 
+func IsKnownInviteStatus(s InviteStatus) bool {
+	return s == InviteStatusPending ||
+		s == InviteStatusSending ||
+		s == InviteStatusSent ||
+		s == InviteStatusActive ||
+		s == InviteStatusAccepted ||
+		s == InviteStatusDeclined ||
+		s == InviteStatusExpired
+}
+
 // Validate validates record
 func (v InviteDbo) Validate() error {
 	if err := v.InviteBase.Validate(); err != nil {
 		return err
 	}
-	switch v.Status {
-	case "":
+
+	if v.Status == "" {
 		return validation.NewErrRecordIsMissingRequiredField("status")
-	case InviteStatusPending, InviteStatusActive, InviteStatusAccepted, InviteStatusDeclined, InviteStatusExpired: // known statuses
-	default:
+	} else if !IsKnownInviteStatus(v.Status) {
 		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+string(v.Status))
 	}
+
+	if v.TargetType == "" && v.TargetID != "" {
+		return validation.NewErrRecordIsMissingRequiredField("targetType")
+	}
+	if v.TargetID == "" && v.TargetType != "" {
+		return validation.NewErrRecordIsMissingRequiredField("targetId")
+	}
+	switch v.TargetType {
+	case "", "tracker": // known values
+	default:
+		return validation.NewErrBadRecordFieldValue("targetType", "unknown value: "+v.TargetType)
+	}
+	if strings.TrimSpace(v.TargetID) != v.TargetID {
+		return validation.NewErrBadRecordFieldValue("targetID", "should not have leading/trailing spaces")
+	}
+
 	if v.SpaceID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("spaceID")
 	}
