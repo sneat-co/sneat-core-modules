@@ -230,7 +230,7 @@ type InviteDbo struct {
 	Pin        string               `json:"pin,omitempty" firestore:"pin,omitempty"`
 	SpaceID    string               `json:"spaceID" firestore:"spaceID"`
 	TargetType string               `json:"targetType,omitempty" firestore:"targetType,omitempty"`
-	TargetID   string               `json:"targetID,omitempty" firestore:"targetID,omitempty"`
+	TargetIDs  []string             `json:"targetIDs,omitempty" firestore:"targetIDs,omitempty"`
 	MessageID  string               `json:"messageID" firestore:"messageID"` // e.g. email message ContactID from AWS SES
 	CreatedAt  time.Time            `json:"createdAt" firestore:"createdAt"`
 	Created    dbmodels.CreatedInfo `json:"created" firestore:"created"`
@@ -241,9 +241,9 @@ type InviteDbo struct {
 	Expires    *time.Time           `json:"expires,omitempty" firestore:"expires,omitempty"`
 	Space      InviteSpace          `json:"space" firestore:"space"`
 	Roles      []string             `json:"roles,omitempty" firestore:"roles,omitempty"`
-	//FromUserID string     `json:"fromUserID" firestore:"fromUserID"`
-	//ToUserID   string     `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
-	Message string `json:"message,omitempty" firestore:"message,omitempty"`
+	FromUserID string               `json:"fromUserID" firestore:"fromUserID"`
+	ToUserID   string               `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
+	Message    string               `json:"message,omitempty" firestore:"message,omitempty"`
 
 	// TODO: Document purpose
 	Attempts int `json:"attempts,omitempty" firestore:"attempts,omitempty"`
@@ -285,19 +285,30 @@ func (v InviteDbo) Validate() error {
 		return validation.NewErrBadRecordFieldValue("status", "unknown value: "+string(v.Status))
 	}
 
-	if v.TargetType == "" && v.TargetID != "" {
+	if v.TargetType == "" && len(v.TargetIDs) > 0 {
 		return validation.NewErrRecordIsMissingRequiredField("targetType")
 	}
-	if v.TargetID == "" && v.TargetType != "" {
-		return validation.NewErrRecordIsMissingRequiredField("targetId")
+	if v.FromUserID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("fromUserID")
+	}
+	if v.From.UserID != v.FromUserID {
+		return validation.NewErrBadRecordFieldValue("fromUserID", "does not match from.UserID")
+	}
+	if len(v.TargetIDs) == 0 && v.TargetType != "" {
+		return validation.NewErrRecordIsMissingRequiredField("targetIDs")
 	}
 	switch v.TargetType {
 	case "", "tracker": // known values
 	default:
 		return validation.NewErrBadRecordFieldValue("targetType", "unknown value: "+v.TargetType)
 	}
-	if strings.TrimSpace(v.TargetID) != v.TargetID {
-		return validation.NewErrBadRecordFieldValue("targetID", "should not have leading/trailing spaces")
+	for i, targetID := range v.TargetIDs {
+		if targetID == "" {
+			return validation.NewErrRecordIsMissingRequiredField(fmt.Sprintf("targetIDs[%d]", i))
+		}
+		if strings.TrimSpace(targetID) != targetID {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("targetIDs[%d]", i), "should not have leading or trailing spaces")
+		}
 	}
 
 	if v.SpaceID == "" {
