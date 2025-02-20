@@ -237,6 +237,19 @@ type InviteDbo struct {
 	//FromUserID string     `json:"fromUserID" firestore:"fromUserID"`
 	//ToUserID   string     `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
 	Message string `json:"message,omitempty" firestore:"message,omitempty"`
+
+	// TODO: Document purpose
+	Attempts int `json:"attempts,omitempty" firestore:"attempts,omitempty"`
+
+	// Personal invite fields
+	Address          string            `json:"address,omitempty" firestore:"address,omitempty"` // Can be empty for a channel=link
+	ToSpaceContactID string            `json:"toSpaceContactId" firestore:"toSpaceContactId"`   // in format "<SPACE_ID>:<MEMBER_ID>"
+	ToAvatar         *dbprofile.Avatar `json:"toAvatar,omitempty" firestore:"toAvatar,omitempty"`
+
+	// Mass invite fields
+	Limit         int `json:"limit,omitempty" firestore:"limit,omitempty"`
+	AcceptedCount int `json:"acceptedCount,omitempty" firestore:"acceptedCount,omitempty"`
+	DeclinedCount int `json:"declinedCount,omitempty" firestore:"declinedCount,omitempty"`
 }
 
 func (v InviteDbo) IsClaimed() bool {
@@ -283,49 +296,19 @@ func (v InviteDbo) Validate() error {
 			return validation.NewErrRecordIsMissingRequiredField(fmt.Sprintf("roles[%d]", i))
 		}
 	}
-	return nil
-}
-
-func (v InviteDbo) validateType(expected InviteType) error {
-	if v.Type == "" {
-		return validation.NewErrRecordIsMissingRequiredField("type")
-	}
-	if v.Type != expected {
-		return validation.NewErrBadRecordFieldValue("type", fmt.Sprintf("expected to have value '%s', got: %s", expected, v.Type))
-	}
-	return nil
-}
-
-var _ core.Validatable = (*InviteDbo)(nil)
-
-// PersonalInviteDbo record
-type PersonalInviteDbo struct {
-	InviteDbo
-	Address string `json:"address,omitempty" firestore:"address,omitempty"` // Can be empty for a channel=link
-
-	// in format "<SPACE_ID>:<MEMBER_ID>"
-	ToSpaceContactID string `json:"toSpaceContactId" firestore:"toSpaceContactId"`
-
-	ToAvatar *dbprofile.Avatar `json:"toAvatar,omitempty" firestore:"toAvatar,omitempty"`
-	Attempts int               `json:"attempts,omitempty" firestore:"attempts,omitempty"`
-}
-
-// Validate validates record
-func (v PersonalInviteDbo) Validate() error {
-	if err := v.InviteDbo.Validate(); err != nil {
+	if err := v.validateType(v.Type); err != nil {
 		return err
 	}
-	if err := v.InviteDbo.validateType(InviteTypePersonal); err != nil {
-		return err
-	}
-	if v.ToSpaceContactID == "" {
+	if v.Type == InviteTypePersonal && v.ToSpaceContactID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("toSpaceContactID")
 	}
-	if v.ToSpaceContactID[0] == ':' {
-		return validation.NewErrBadRecordFieldValue("toSpaceContactID", "starts with ':'")
-	}
-	if v.ToSpaceContactID[len(v.ToSpaceContactID)-1] == ':' {
-		return validation.NewErrBadRecordFieldValue("toSpaceContactID", "ends with ':'")
+	if v.ToSpaceContactID != "" {
+		if v.ToSpaceContactID[0] == ':' {
+			return validation.NewErrBadRecordFieldValue("toSpaceContactID", "starts with ':'")
+		}
+		if v.ToSpaceContactID[len(v.ToSpaceContactID)-1] == ':' {
+			return validation.NewErrBadRecordFieldValue("toSpaceContactID", "ends with ':'")
+		}
 	}
 
 	switch v.Channel {
@@ -344,7 +327,7 @@ func (v PersonalInviteDbo) Validate() error {
 			return validation.NewErrBadRecordFieldValue("channel", "unknown channel value: "+string(v.Channel))
 		}
 	}
-	if !v.ComposeOnly && v.Address == "" {
+	if !v.ComposeOnly && v.Type == InviteTypePersonal && v.Address == "" {
 		return validation.NewErrRecordIsMissingRequiredField("address")
 	}
 	if v.Pin == "" {
@@ -353,30 +336,17 @@ func (v PersonalInviteDbo) Validate() error {
 	return nil
 }
 
-// MassInviteDbo record
-type MassInviteDbo struct {
-	InviteDbo
-	Limit         int `json:"limit,omitempty" firestore:"limit,omitempty"`
-	AcceptedCount int `json:"acceptedCount,omitempty" firestore:"acceptedCount,omitempty"`
-	DeclinedCount int `json:"declinedCount,omitempty" firestore:"declinedCount,omitempty"`
-}
-
-// Validate returns error if not valid
-func (v MassInviteDbo) Validate() error {
-	if err := v.InviteDbo.Validate(); err != nil {
-		return err
+func (v InviteDbo) validateType(expected InviteType) error {
+	if v.Type == "" {
+		return validation.NewErrRecordIsMissingRequiredField("type")
 	}
-	if err := v.InviteDbo.validateType(InviteTypeMass); err != nil {
-		return err
-	}
-	if v.Limit < 0 {
-		return validation.NewErrBadRecordFieldValue("limit", "should be >= 0")
-	}
-	if v.AcceptedCount < 0 {
-		return validation.NewErrBadRecordFieldValue("joined", "should be >= 0")
+	if v.Type != expected {
+		return validation.NewErrBadRecordFieldValue("type", fmt.Sprintf("expected to have value '%s', got: %s", expected, v.Type))
 	}
 	return nil
 }
+
+var _ core.Validatable = (*InviteDbo)(nil)
 
 // InviteClaim record
 type InviteClaim struct {

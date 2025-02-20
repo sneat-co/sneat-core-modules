@@ -34,12 +34,12 @@ func (v *GetPersonalInviteRequest) Validate() error {
 
 // PersonalInviteResponse holds response data for created personal invite
 type PersonalInviteResponse struct {
-	Invite  *dbo4invitus.PersonalInviteDbo            `json:"invite,omitempty"`
+	Invite  *dbo4invitus.InviteDbo                    `json:"invite,omitempty"`
 	Members map[string]*briefs4contactus.ContactBrief `json:"members,omitempty"`
 }
 
 func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusSpaceWorkerParams, inviteID string) (
-	invite PersonalInviteEntry,
+	invite InviteEntry,
 	member dal4contactus.ContactEntry,
 	err error,
 ) {
@@ -47,7 +47,7 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 		err = validation.NewErrRequestIsMissingRequiredField("inviteID")
 		return
 	}
-	invite = NewPersonalInviteEntry(inviteID)
+	invite = NewInviteEntry(inviteID)
 
 	records := []dal.Record{invite.Record}
 	if err = params.GetRecords(ctx, getter, records...); err != nil {

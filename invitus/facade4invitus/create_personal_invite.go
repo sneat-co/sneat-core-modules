@@ -37,7 +37,7 @@ func createInviteToContactTx(
 	composeOnly bool,
 	message string,
 	toAvatar *dbprofile.Avatar,
-) (invite PersonalInviteEntry, err error) {
+) (invite InviteEntry, err error) {
 	if err = space.Validate(); err != nil {
 		err = fmt.Errorf("parameter 'space' is not valid: %w", err)
 		return
@@ -72,29 +72,26 @@ func createInviteToContactTx(
 		toAddressLower = strings.ToLower(toAddress.Address)
 	}
 	from.UserID = uid
-	inviteDbo := &dbo4invitus.PersonalInviteDbo{
-		InviteDbo: dbo4invitus.InviteDbo{
-			Status:  "active",
-			Pin:     randomPinCode(),
-			SpaceID: spaceID,
-			InviteBase: dbo4invitus.InviteBase{
-				Type:    "personal",
-				Channel: to.Channel,
-				From:    from, // TODO: get user email
-				To: &dbo4invitus.InviteTo{
-					InviteContact: to.InviteContact,
-				},
-				ComposeOnly: composeOnly,
+	inviteDbo := &dbo4invitus.InviteDbo{
+		Status:  "active",
+		Pin:     randomPinCode(),
+		SpaceID: spaceID,
+		InviteBase: dbo4invitus.InviteBase{
+			Type:    "personal",
+			Channel: to.Channel,
+			From:    from, // TODO: get user email
+			To: &dbo4invitus.InviteTo{
+				InviteContact: to.InviteContact,
 			},
-			CreatedAt: time.Now(),
-			Created: dbmodels.CreatedInfo{
-				Client: remoteClient,
-			},
-			Space:   space,
-			Message: message,
-			Roles:   []string{"contributor"},
+			ComposeOnly: composeOnly,
 		},
-		Address:          toAddressLower,
+		CreatedAt: time.Now(),
+		Created: dbmodels.CreatedInfo{
+			Client: remoteClient,
+		},
+		Space:   space,
+		Message: message,
+		Roles:   []string{"contributor"}, Address: toAddressLower,
 		ToSpaceContactID: briefs4contactus.GetFullContactID(spaceID, to.ContactID),
 		ToAvatar:         toAvatar,
 	}
@@ -116,6 +113,6 @@ func createInviteToContactTx(
 		err = fmt.Errorf("failed to insert a new invite record into database: %w", err)
 		return
 	}
-	invite = NewPersonalInviteEntryWithDbo(inviteKey.ID.(string), inviteDbo)
+	invite = NewInviteEntryWithDbo(inviteKey.ID.(string), inviteDbo)
 	return
 }

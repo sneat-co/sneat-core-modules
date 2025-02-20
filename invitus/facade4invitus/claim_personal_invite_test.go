@@ -86,7 +86,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 		request           ClaimPersonalInviteRequest
 		space             dbo4spaceus.SpaceEntry
 		spaceMember       dbmodels.DtoWithID[*briefs4contactus.ContactBase]
-		invite            PersonalInviteEntry
+		invite            InviteEntry
 	}
 
 	tests := []struct {
@@ -123,10 +123,8 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
 					},
 				},
-				invite: NewPersonalInviteEntryWithDbo("test_personal_invite_id", &dbo4invitus.PersonalInviteDbo{
-					InviteDbo: dbo4invitus.InviteDbo{
-						Roles: []string{"contributor"},
-					},
+				invite: NewInviteEntryWithDbo("test_personal_invite_id", &dbo4invitus.InviteDbo{
+					Roles: []string{"contributor"},
 				}),
 				request: ClaimPersonalInviteRequest{
 					RemoteClient: dbmodels.RemoteClientInfo{
@@ -182,7 +180,7 @@ func Test_updateInviteRecord(t *testing.T) {
 	ctx := context.Background()
 	type args struct {
 		uid    string
-		invite PersonalInviteEntry
+		invite InviteEntry
 		status dbo4invitus.InviteStatus
 	}
 	now := time.Now()
@@ -195,46 +193,43 @@ func Test_updateInviteRecord(t *testing.T) {
 			name: "should_pass",
 			args: args{
 				status: dbo4invitus.InviteStatusAccepted,
-				invite: NewPersonalInviteEntryWithDbo("test_invite_id1", &dbo4invitus.PersonalInviteDbo{
+				invite: NewInviteEntryWithDbo("test_invite_id1", &dbo4invitus.InviteDbo{
 					ToSpaceContactID: "to_member_id2",
 					Address:          "to.test.user@example.com",
-					InviteDbo: dbo4invitus.InviteDbo{
-						Pin:     "1234",
-						SpaceID: "testspaceid1",
-						Space: dbo4invitus.InviteSpace{
-							ID:    "testspaceid1",
-							Type:  "family",
-							Title: "Family",
-						},
-						CreatedAt: time.Now(),
-						Created: dbmodels.CreatedInfo{
-							Client: dbmodels.RemoteClientInfo{
-								HostOrApp:  "unit-test",
-								RemoteAddr: "127.0.0.1",
-							},
-						},
-						InviteBase: dbo4invitus.InviteBase{
-							Type:    "personal",
-							Channel: "email",
-							From: dbo4invitus.InviteFrom{
-								InviteContact: dbo4invitus.InviteContact{
-									UserID:    "from_user_id1",
-									ContactID: "from_contact_id1",
-									Title:     "From ContactID 1",
-								},
-							},
-							To: &dbo4invitus.InviteTo{
-								InviteContact: dbo4invitus.InviteContact{
-									Title:     "To ContactID 2",
-									ContactID: "to_contact_id2",
-									Channel:   "email",
-									Address:   "to.test.user@example.com",
-								},
-							},
-						},
-						Roles: []string{"contributor"},
+					Pin:              "1234",
+					SpaceID:          "testspaceid1",
+					Space: dbo4invitus.InviteSpace{
+						ID:    "testspaceid1",
+						Type:  "family",
+						Title: "Family",
 					},
-				}),
+					CreatedAt: time.Now(),
+					Created: dbmodels.CreatedInfo{
+						Client: dbmodels.RemoteClientInfo{
+							HostOrApp:  "unit-test",
+							RemoteAddr: "127.0.0.1",
+						},
+					},
+					InviteBase: dbo4invitus.InviteBase{
+						Type:    "personal",
+						Channel: "email",
+						From: dbo4invitus.InviteFrom{
+							InviteContact: dbo4invitus.InviteContact{
+								UserID:    "from_user_id1",
+								ContactID: "from_contact_id1",
+								Title:     "From ContactID 1",
+							},
+						},
+						To: &dbo4invitus.InviteTo{
+							InviteContact: dbo4invitus.InviteContact{
+								Title:     "To ContactID 2",
+								ContactID: "to_contact_id2",
+								Channel:   "email",
+								Address:   "to.test.user@example.com",
+							},
+						},
+					},
+					Roles: []string{"contributor"}}),
 			},
 		},
 	}

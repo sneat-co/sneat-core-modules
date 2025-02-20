@@ -17,7 +17,7 @@ import (
 
 func TestCreateMassInvite(t *testing.T) {
 	const spaceID = "unit-test"
-	var invite dbo4invitus.MassInviteDbo
+	var invite dbo4invitus.InviteDbo
 	invite.Type = dbo4invitus.InviteTypeMass
 	invite.Channel = "email"
 	invite.Roles = []string{
@@ -46,6 +46,7 @@ func TestCreateMassInvite(t *testing.T) {
 	invite.CreatedAt = time.Now()
 	invite.From.UserID = "u1"
 	invite.Status = "active"
+	invite.Pin = "123456"
 
 	buffer := new(bytes.Buffer)
 	encoder := json.NewEncoder(buffer)

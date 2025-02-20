@@ -9,14 +9,13 @@ import (
 // InvitesCollection table name
 const InvitesCollection = "invites"
 
-type PersonalInviteEntry = record.DataWithID[string, *dbo4invitus.PersonalInviteDbo]
-type MassInviteEntry = record.DataWithID[string, *dbo4invitus.MassInviteDbo]
+type InviteEntry = record.DataWithID[string, *dbo4invitus.InviteDbo]
 
-func NewPersonalInviteEntry(id string) (invite PersonalInviteEntry) {
-	return NewPersonalInviteEntryWithDbo(id, new(dbo4invitus.PersonalInviteDbo))
+func NewInviteEntry(id string) (invite InviteEntry) {
+	return NewInviteEntryWithDbo(id, new(dbo4invitus.InviteDbo))
 }
 
-func NewPersonalInviteEntryWithDbo(id string, dbo *dbo4invitus.PersonalInviteDbo) (invite PersonalInviteEntry) {
+func NewInviteEntryWithDbo(id string, dbo *dbo4invitus.InviteDbo) (invite InviteEntry) {
 	invite.ID = id
 	invite.Key = NewInviteKey(id)
 	invite.Data = dbo
@@ -24,11 +23,11 @@ func NewPersonalInviteEntryWithDbo(id string, dbo *dbo4invitus.PersonalInviteDbo
 	return
 }
 
-func NewMassInviteEntry(id string) (invite MassInviteEntry) {
-	return NewMassInviteEntryWithDbo(id, new(dbo4invitus.MassInviteDbo))
+func NewMassInviteEntry(id string) (invite InviteEntry) {
+	return NewMassInviteEntryWithDbo(id, new(dbo4invitus.InviteDbo))
 }
 
-func NewMassInviteEntryWithDbo(id string, dbo *dbo4invitus.MassInviteDbo) (invite MassInviteEntry) {
+func NewMassInviteEntryWithDbo(id string, dbo *dbo4invitus.InviteDbo) (invite InviteEntry) {
 	invite.ID = id
 	invite.Key = NewInviteKey(id)
 	invite.Data = dbo

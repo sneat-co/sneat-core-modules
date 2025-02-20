@@ -101,14 +101,14 @@ func CreateOrReuseInviteToContact(
 					facade.ErrUnauthorized, userID, params.Space.ID, params.Space.Data.Type)
 			}
 
-			var invite PersonalInviteEntry
+			var invite InviteEntry
 
 			//var inviteToContactBrief *dbo4contactus.InviteToContactBrief
 			invite.ID, _ = params.Contact.Data.WithInvitesToContactBriefs.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
 				if invite.Data.Status == "active" || invite.Data.Status == "" {
-					response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
+					response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, *invite.Data)
 					return
 				}
 				invite.Data = nil
@@ -121,7 +121,7 @@ func CreateOrReuseInviteToContact(
 					return fmt.Errorf("failed to create personal invite record: %w", err)
 				}
 			}
-			response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, invite.Data.InviteDbo)
+			response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, *invite.Data)
 			return
 		},
 	)
@@ -136,7 +136,7 @@ func createPersonalInvite(
 	params *dal4contactus.ContactWorkerParams,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
-	invite PersonalInviteEntry, err error,
+	invite InviteEntry, err error,
 ) {
 
 	toContactID := params.SpaceModuleEntry.Data.Contacts[request.To.ContactID]

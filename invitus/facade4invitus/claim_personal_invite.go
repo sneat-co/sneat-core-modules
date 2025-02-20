@@ -70,7 +70,7 @@ func (v *ClaimPersonalInviteRequest) Validate() error {
 }
 
 type ClaimPersonalInviteResponse struct {
-	Invite         PersonalInviteEntry
+	Invite         InviteEntry
 	Space          dbo4spaceus.SpaceEntry
 	Contact        dal4contactus.ContactEntry
 	ContactusSpace dal4contactus.ContactusSpaceEntry
@@ -148,7 +148,7 @@ func updateInviteRecord(
 	tx dal.ReadwriteTransaction,
 	uid string,
 	now time.Time,
-	invite PersonalInviteEntry,
+	invite InviteEntry,
 	status dbo4invitus.InviteStatus,
 ) (err error) {
 	if invite.Data.Status == dbo4invitus.InviteStatusAccepted && status == dbo4invitus.InviteStatusDeclined {
@@ -249,7 +249,7 @@ func createOrUpdateUserRecord(
 	member dal4contactus.ContactEntry,
 	params *dal4contactus.ContactusSpaceWorkerParams,
 	spaceMember *briefs4contactus.ContactBase,
-	invite PersonalInviteEntry,
+	invite InviteEntry,
 ) (err error) {
 	if spaceMember == nil {
 		panic("spaceMember == nil")

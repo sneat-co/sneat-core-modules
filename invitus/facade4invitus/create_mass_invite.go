@@ -12,7 +12,7 @@ import (
 
 // CreateMassInviteRequest parameters for creating a mass invite
 type CreateMassInviteRequest struct {
-	Invite dbo4invitus.MassInviteDbo `json:"invite"`
+	Invite dbo4invitus.InviteDbo `json:"invite"`
 }
 
 // Validate validates parameters for creating a mass invite
@@ -22,7 +22,7 @@ func (request *CreateMassInviteRequest) Validate() error {
 
 // CreateMassInviteResponse creating a mass invite
 type CreateMassInviteResponse struct {
-	Invite MassInviteEntry
+	Invite InviteEntry
 }
 
 // CreateMassInvite creates a mass invite
