@@ -123,7 +123,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 						//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
 					},
 				},
-				invite: NewPersonalInviteEntryWithDto("test_personal_invite_id", &dbo4invitus.PersonalInviteDbo{
+				invite: NewPersonalInviteEntryWithDbo("test_personal_invite_id", &dbo4invitus.PersonalInviteDbo{
 					InviteDbo: dbo4invitus.InviteDbo{
 						Roles: []string{"contributor"},
 					},
@@ -195,7 +195,7 @@ func Test_updateInviteRecord(t *testing.T) {
 			name: "should_pass",
 			args: args{
 				status: dbo4invitus.InviteStatusAccepted,
-				invite: NewPersonalInviteEntryWithDto("test_invite_id1", &dbo4invitus.PersonalInviteDbo{
+				invite: NewPersonalInviteEntryWithDbo("test_invite_id1", &dbo4invitus.PersonalInviteDbo{
 					ToSpaceContactID: "to_member_id2",
 					Address:          "to.test.user@example.com",
 					InviteDbo: dbo4invitus.InviteDbo{

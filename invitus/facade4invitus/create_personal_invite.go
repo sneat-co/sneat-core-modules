@@ -116,6 +116,6 @@ func createInviteToContactTx(
 		err = fmt.Errorf("failed to insert a new invite record into database: %w", err)
 		return
 	}
-	invite = NewPersonalInviteEntryWithDto(inviteKey.ID.(string), inviteDbo)
+	invite = NewPersonalInviteEntryWithDbo(inviteKey.ID.(string), inviteDbo)
 	return
 }

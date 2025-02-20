@@ -7,18 +7,19 @@ import (
 	"net/http"
 )
 
-var createMassInvite = facade4invitus.CreateMassInvite
+var createMassInviteFunc = facade4invitus.CreateMassInvite
 
 // httpPostCreateMassInvite is an API endpoint to create a mass-invite
 func httpPostCreateMassInvite(w http.ResponseWriter, r *http.Request) {
-	ctx, err := apicore.VerifyRequest(w, r, verify.DefaultJsonWithAuthRequired)
+
+	var request facade4invitus.CreateMassInviteRequest
+	ctx, userCtx, err := apicore.VerifyAuthenticatedRequestAndDecodeBody(w, r, verify.DefaultJsonWithAuthRequired, &request)
 	if err != nil {
 		return
 	}
-	var request facade4invitus.CreateMassInviteRequest
-	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
-		return
-	}
-	response, err := createMassInvite(ctx, request)
+
+	var response facade4invitus.CreateMassInviteResponse
+	response, err = createMassInviteFunc(ctx, userCtx, request)
+
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, response)
 }

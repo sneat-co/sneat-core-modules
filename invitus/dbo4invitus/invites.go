@@ -36,7 +36,7 @@ func ValidateChannel(v InviteChannel, required bool) error {
 }
 
 // Validate returns error if not valid
-func (v InviteContact) Validate() error {
+func (v *InviteContact) Validate() error {
 	if err := ValidateChannel(v.Channel, false); err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ type InviteTo struct {
 }
 
 // Validate returns error if not valid
-func (v InviteTo) Validate() error {
+func (v *InviteTo) Validate() error {
 	if err := v.InviteContact.Validate(); err != nil {
 		return err
 	}
@@ -97,23 +97,6 @@ func (v InviteTo) Validate() error {
 	//if strings.TrimSpace(v.Title) == "" {
 	//	return validation.NewErrRecordIsMissingRequiredField("Title")
 	//}
-	return nil
-}
-
-// Joiners define fields for how many can join and how manu already joined
-type Joiners struct {
-	Limit  int `json:"limit" firestore:"limit"`
-	Joined int `json:"joined" firestore:"joined"`
-}
-
-// Validate returns error if not valid
-func (v Joiners) Validate() error {
-	if v.Limit < 0 {
-		return validation.NewErrBadRecordFieldValue("limit", "should be >= 0")
-	}
-	if v.Joined < 0 {
-		return validation.NewErrBadRecordFieldValue("joined", "should be >= 0")
-	}
 	return nil
 }
 
@@ -145,9 +128,17 @@ func (v InviteSpace) Validate() error {
 
 type InviteChannel string
 
+type InviteType string
+
+const (
+	InviteTypePersonal InviteType = "personal" // To a specific person
+	InviteTypePrivate  InviteType = "private"  // To a single person
+	InviteTypeMass     InviteType = "mass"     // To a group of people
+)
+
 // InviteBase base data about invite to be used in InviteBrief & InviteDbo
 type InviteBase struct {
-	Type        string        `json:"type" firestore:"type"` // either "personal" or "mass"
+	Type        InviteType    `json:"type" firestore:"type"` // either "personal" or "mass"
 	Channel     InviteChannel `json:"channel" firestore:"channel"`
 	ComposeOnly bool          `json:"composeOnly" firestore:"composeOnly"`
 	From        InviteFrom    `json:"from" firestore:"from"`
@@ -159,19 +150,26 @@ func (v InviteBase) Validate() error {
 	switch v.Type {
 	case "":
 		return validation.NewErrRecordIsMissingRequiredField("type")
-	case "personal":
+	case InviteTypePrivate:
 		if v.To == nil {
 			return fmt.Errorf("%w: expected to be either 'personal' or 'mass'", validation.NewErrRecordIsMissingRequiredField("to"))
 		}
+	case InviteTypePersonal:
+		if v.To == nil {
+			return fmt.Errorf("%w: expected to be either 'personal' or 'mass'", validation.NewErrRecordIsMissingRequiredField("to"))
+		}
+		if err := v.To.Validate(); err != nil {
+			return err
+		}
 		// known values
-	case "mass":
+	case InviteTypeMass:
 		if v.To != nil {
 			// TODO: we might want to change this to store a distribution channel?
 			return validation.NewErrBadRecordFieldValue("to", "mass invite can not have 'to' value for now")
 		}
 		// known
 	default:
-		return validation.NewErrBadRecordFieldValue("type", "unknown invite type: "+v.Type)
+		return validation.NewErrBadRecordFieldValue("type", "unknown invite type: "+string(v.Type))
 	}
 	if err := ValidateChannel(v.Channel, true); err != nil {
 		return err
@@ -220,7 +218,7 @@ const (
 	InviteStatusExpired  InviteStatus = "expired"
 )
 
-// InviteDbo record - used in PersonalInviteDbo and MassInvite
+// InviteDbo record - used in PersonalInviteDbo and MassInviteDbo
 type InviteDbo struct {
 	InviteBase
 	Status    InviteStatus         `json:"status" firestore:"status" `
@@ -288,12 +286,12 @@ func (v InviteDbo) Validate() error {
 	return nil
 }
 
-func (v InviteDbo) validateType(expected string) error {
+func (v InviteDbo) validateType(expected InviteType) error {
 	if v.Type == "" {
 		return validation.NewErrRecordIsMissingRequiredField("type")
 	}
 	if v.Type != expected {
-		return validation.NewErrBadRecordFieldValue("type", "expected to have value 'mass', got: "+expected)
+		return validation.NewErrBadRecordFieldValue("type", fmt.Sprintf("expected to have value '%s', got: %s", expected, v.Type))
 	}
 	return nil
 }
@@ -305,8 +303,8 @@ type PersonalInviteDbo struct {
 	InviteDbo
 	Address string `json:"address,omitempty" firestore:"address,omitempty"` // Can be empty for a channel=link
 
-	// in format "<TEAM_ID>:<MEMBER_ID>"
-	ToSpaceContactID string `json:"toSpaceMemberId" firestore:"toSpaceMemberId"`
+	// in format "<SPACE_ID>:<MEMBER_ID>"
+	ToSpaceContactID string `json:"toSpaceContactId" firestore:"toSpaceContactId"`
 
 	ToAvatar *dbprofile.Avatar `json:"toAvatar,omitempty" firestore:"toAvatar,omitempty"`
 	Attempts int               `json:"attempts,omitempty" firestore:"attempts,omitempty"`
@@ -317,7 +315,7 @@ func (v PersonalInviteDbo) Validate() error {
 	if err := v.InviteDbo.Validate(); err != nil {
 		return err
 	}
-	if err := v.InviteDbo.validateType("personal"); err != nil {
+	if err := v.InviteDbo.validateType(InviteTypePersonal); err != nil {
 		return err
 	}
 	if v.ToSpaceContactID == "" {
@@ -355,22 +353,27 @@ func (v PersonalInviteDbo) Validate() error {
 	return nil
 }
 
-// MassInvite record
-type MassInvite struct {
+// MassInviteDbo record
+type MassInviteDbo struct {
 	InviteDbo
-	Joiners Joiners `json:"joiners" firestore:"joiners"`
+	Limit         int `json:"limit,omitempty" firestore:"limit,omitempty"`
+	AcceptedCount int `json:"acceptedCount,omitempty" firestore:"acceptedCount,omitempty"`
+	DeclinedCount int `json:"declinedCount,omitempty" firestore:"declinedCount,omitempty"`
 }
 
 // Validate returns error if not valid
-func (v MassInvite) Validate() error {
+func (v MassInviteDbo) Validate() error {
 	if err := v.InviteDbo.Validate(); err != nil {
 		return err
 	}
-	if err := v.InviteDbo.validateType("mass"); err != nil {
+	if err := v.InviteDbo.validateType(InviteTypeMass); err != nil {
 		return err
 	}
-	if err := v.Joiners.Validate(); err != nil {
-		return validation.NewErrBadRecordFieldValue("joiners", err.Error())
+	if v.Limit < 0 {
+		return validation.NewErrBadRecordFieldValue("limit", "should be >= 0")
+	}
+	if v.AcceptedCount < 0 {
+		return validation.NewErrBadRecordFieldValue("joined", "should be >= 0")
 	}
 	return nil
 }

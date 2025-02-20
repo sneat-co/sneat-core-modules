@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
+	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"net/http"
 	"net/http/httptest"
@@ -16,8 +17,8 @@ import (
 
 func TestCreateMassInvite(t *testing.T) {
 	const spaceID = "unit-test"
-	var invite dbo4invitus.MassInvite
-	invite.Type = "mass"
+	var invite dbo4invitus.MassInviteDbo
+	invite.Type = dbo4invitus.InviteTypeMass
 	invite.Channel = "email"
 	invite.Roles = []string{
 		"contributor",
@@ -59,8 +60,8 @@ func TestCreateMassInvite(t *testing.T) {
 	}
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMassInvite = func(ctx context.Context, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateMassInviteResponse, err error) {
-		response.ID = "test-id"
+	createMassInviteFunc = func(ctx context.Context, _ facade.UserContext, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateMassInviteResponse, err error) {
+		response.Invite.ID = "test-id"
 		return
 	}
 
@@ -87,7 +88,7 @@ func TestCreateMassInvite(t *testing.T) {
 	if err = json.NewDecoder(rr.Body).Decode(&response); err != nil {
 		t.Fatal(err, responseBody)
 	}
-	if response.ID == "" {
-		t.Fatal("Response is missing ContactID of created invite")
+	if response.Invite.ID == "" {
+		t.Fatal("Response is missing invite ID")
 	}
 }
