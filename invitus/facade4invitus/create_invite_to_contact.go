@@ -10,7 +10,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -51,13 +50,6 @@ func (v InviteContactRequest) Validate() error {
 		return fmt.Errorf("%w: at the moment invites can be sent only by email, channel='%s'", facade.ErrBadRequest, v.To.Channel)
 	}
 	return nil
-}
-
-type CreateInviteResponse struct {
-	Invite         dbo4invitus.InviteBrief
-	Contact        dal4contactus.ContactEntry
-	ContactusSpace dal4contactus.ContactusSpaceEntry
-	Space          dbo4spaceus.SpaceEntry
 }
 
 // CreateOrReuseInviteToContact creates or reuses an invitation for a member
@@ -108,7 +100,7 @@ func CreateOrReuseInviteToContact(
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
 				if invite.Data.Status == "active" || invite.Data.Status == "" {
-					response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, *invite.Data)
+					response.Invite = invite
 					return
 				}
 				invite.Data = nil
@@ -121,7 +113,7 @@ func CreateOrReuseInviteToContact(
 					return fmt.Errorf("failed to create personal invite record: %w", err)
 				}
 			}
-			response.Invite = dbo4invitus.NewInviteBriefFromDbo(invite.ID, *invite.Data)
+			response.Invite = invite
 			return
 		},
 	)

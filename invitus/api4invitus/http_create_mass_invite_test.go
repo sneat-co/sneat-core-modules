@@ -61,7 +61,7 @@ func TestCreateMassInvite(t *testing.T) {
 	}
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMassInviteFunc = func(ctx context.Context, _ facade.UserContext, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateMassInviteResponse, err error) {
+	createMassInviteFunc = func(ctx context.Context, _ facade.UserContext, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateInviteResponse, err error) {
 		response.Invite.ID = "test-id"
 		return
 	}
@@ -85,7 +85,7 @@ func TestCreateMassInvite(t *testing.T) {
 		)
 	}
 
-	var response facade4invitus.CreateMassInviteResponse
+	var response facade4invitus.CreateInviteResponse
 	if err = json.NewDecoder(rr.Body).Decode(&response); err != nil {
 		t.Fatal(err, responseBody)
 	}

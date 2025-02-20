@@ -20,13 +20,8 @@ func (request *CreateMassInviteRequest) Validate() error {
 	return request.Invite.Validate()
 }
 
-// CreateMassInviteResponse creating a mass invite
-type CreateMassInviteResponse struct {
-	Invite InviteEntry
-}
-
 // CreateMassInvite creates a mass invite
-func CreateMassInvite(ctx context.Context, userCtx facade.UserContext, request CreateMassInviteRequest) (response CreateMassInviteResponse, err error) {
+func CreateMassInvite(ctx context.Context, userCtx facade.UserContext, request CreateMassInviteRequest) (response CreateInviteResponse, err error) {
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
@@ -49,7 +44,7 @@ func CreateMassInvite(ctx context.Context, userCtx facade.UserContext, request C
 func createMassInviteTx(
 	ctx context.Context, tx dal.ReadwriteTransaction, request CreateMassInviteRequest,
 ) (
-	response CreateMassInviteResponse, err error,
+	response CreateInviteResponse, err error,
 ) {
 	invite := NewMassInviteEntryWithDbo(random.ID(7), &request.Invite)
 	response.Invite = invite

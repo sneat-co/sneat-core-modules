@@ -18,7 +18,7 @@ func httpPostCreateMassInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response facade4invitus.CreateMassInviteResponse
+	var response facade4invitus.CreateInviteResponse
 	response, err = createMassInviteFunc(ctx, userCtx, request)
 
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, response)
