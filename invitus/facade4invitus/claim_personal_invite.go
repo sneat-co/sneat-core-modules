@@ -30,9 +30,9 @@ const (
 
 var (
 	ErrInvitePinDoesNotMatch = fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
-	//ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
-	ErrInviteIsRevoked = fmt.Errorf("invite is revoked")
-	ErrInviteExpired   = fmt.Errorf("invite is expired")
+	ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
+	ErrInviteIsRevoked       = fmt.Errorf("invite is revoked")
+	ErrInviteExpired         = fmt.Errorf("invite is expired")
 )
 
 // ClaimPersonalInviteRequest holds parameters for accepting a personal invite

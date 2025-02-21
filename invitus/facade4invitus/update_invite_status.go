@@ -56,7 +56,7 @@ func updateInviteStatus(
 			err = fmt.Errorf("revoked invite can not be accepted: %w", ErrInviteIsRevoked)
 			return
 		case dbo4invitus.InviteStatusAccepted:
-			return // Nothing to do
+			return ErrInviteAlreadyAccepted
 		}
 	case dbo4invitus.InviteStatusDeclined:
 		switch invite.Data.Status {
