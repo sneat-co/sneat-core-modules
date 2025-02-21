@@ -30,8 +30,9 @@ const (
 
 var (
 	ErrInvitePinDoesNotMatch = fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
-	ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
-	ErrInviteIsRevoked       = fmt.Errorf("invite is revoked")
+	//ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
+	ErrInviteIsRevoked = fmt.Errorf("invite is revoked")
+	ErrInviteExpired   = fmt.Errorf("invite is expired")
 )
 
 // ClaimPersonalInviteRequest holds parameters for accepting a personal invite
@@ -157,6 +158,11 @@ func updateInviteRecord(
 		(status == dbo4invitus.InviteStatusSending || status == dbo4invitus.InviteStatusPending) {
 		err = fmt.Errorf("claimed invite can not be moved to status %s", status)
 		return err
+	}
+
+	if !invite.Data.Expires.IsZero() && invite.Data.Expires.Before(now) {
+		err = fmt.Errorf("%w: expired at: %s", ErrInviteExpired, invite.Data.Expires)
+		return
 	}
 
 	switch status {
