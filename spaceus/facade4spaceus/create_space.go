@@ -74,7 +74,7 @@ func CreateSpaceTxWorker(
 ) (
 	err error,
 ) {
-	if request.Title == "" {
+	if request.Title == "" && (request.Type == core4spaceus.SpaceTypeFamily || request.Type == core4spaceus.SpaceTypePrivate) {
 		params.Space.ID, _ = params.User.Data.GetFirstSpaceBriefBySpaceType(request.Type)
 		if params.Space.ID != "" {
 			params.Space = dbo4spaceus.NewSpaceEntry(params.Space.ID)

@@ -15,6 +15,8 @@ const (
 	// SpaceTypeFamily is a "family" space type
 	SpaceTypeFamily SpaceType = "family"
 
+	SpaceTypeGroup = "group"
+
 	// SpaceTypeCompany is a "company" space type
 	SpaceTypeCompany SpaceType = "company"
 
@@ -82,7 +84,7 @@ func NewWeakSpaceRef(spaceType SpaceType) SpaceRef {
 // IsValidSpaceType checks if space has a valid/known type
 func IsValidSpaceType(v SpaceType) bool {
 	switch v {
-	case SpaceTypeFamily, SpaceTypePrivate, SpaceTypeCompany, SpaceTypeSpace, SpaceTypeClub:
+	case SpaceTypeFamily, SpaceTypePrivate, SpaceTypeGroup, SpaceTypeCompany, SpaceTypeSpace, SpaceTypeClub:
 		return true
 	default:
 		return false

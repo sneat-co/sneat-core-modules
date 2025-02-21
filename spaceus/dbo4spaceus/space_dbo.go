@@ -1,7 +1,6 @@
 package dbo4spaceus
 
 import (
-	"errors"
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -124,8 +123,11 @@ func (v SpaceBrief) Validate() error {
 		}
 		return validation.NewErrBadRecordFieldValue("type", "unknown value for space:"+v.Title)
 	}
-	if v.Title == "" && v.Type != core4spaceus.SpaceTypeFamily && v.Type != core4spaceus.SpaceTypePrivate {
-		return errors.New("non family space is required to have a title")
+	if v.Title == "" &&
+		v.Type != core4spaceus.SpaceTypeFamily &&
+		v.Type != core4spaceus.SpaceTypePrivate &&
+		v.Type != core4spaceus.SpaceTypeGroup {
+		return fmt.Errorf("space with type %s is required to have a title", v.Type)
 	}
 	if v.Status == "" {
 		return validation.NewErrRequestIsMissingRequiredField("status")
