@@ -25,7 +25,7 @@ func updateInviteStatus(
 		return err
 	}
 
-	if !invite.Data.Expires.IsZero() && invite.Data.Expires.Before(now) {
+	if invite.Data.Expires != nil && invite.Data.Expires.Before(now) {
 		err = fmt.Errorf("%w: expired at: %s", ErrInviteExpired, invite.Data.Expires)
 		return
 	}
