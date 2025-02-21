@@ -217,9 +217,9 @@ const (
 	InviteStatusPending  InviteStatus = "pending"
 	InviteStatusSending  InviteStatus = "sending"
 	InviteStatusSent     InviteStatus = "sent"
-	InviteStatusActive   InviteStatus = "active"
 	InviteStatusAccepted InviteStatus = "accepted"
 	InviteStatusDeclined InviteStatus = "declined"
+	InviteStatusRevoked  InviteStatus = "revoked"
 	InviteStatusExpired  InviteStatus = "expired"
 )
 
@@ -267,9 +267,9 @@ func IsKnownInviteStatus(s InviteStatus) bool {
 	return s == InviteStatusPending ||
 		s == InviteStatusSending ||
 		s == InviteStatusSent ||
-		s == InviteStatusActive ||
 		s == InviteStatusAccepted ||
 		s == InviteStatusDeclined ||
+		s == InviteStatusRevoked ||
 		s == InviteStatusExpired
 }
 

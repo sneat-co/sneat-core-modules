@@ -30,8 +30,8 @@ const (
 
 var (
 	ErrInvitePinDoesNotMatch = fmt.Errorf("%w: pin code does not match", facade.ErrBadRequest)
-	ErrInviteExpired         = fmt.Errorf("invite is expired")
 	ErrInviteAlreadyAccepted = fmt.Errorf("invite is already accepted")
+	ErrInviteIsRevoked       = fmt.Errorf("invite is revoked")
 )
 
 // ClaimPersonalInviteRequest holds parameters for accepting a personal invite
@@ -151,27 +151,72 @@ func updateInviteRecord(
 	invite InviteEntry,
 	status dbo4invitus.InviteStatus,
 ) (err error) {
-	if invite.Data.Status == dbo4invitus.InviteStatusAccepted && status == dbo4invitus.InviteStatusDeclined {
-		return ErrInviteAlreadyAccepted
+	var inviteUpdates []update.Update
+
+	if invite.Data.Claimed != nil &&
+		(status == dbo4invitus.InviteStatusSending || status == dbo4invitus.InviteStatusPending) {
+		err = fmt.Errorf("claimed invite can not be moved to status %s", status)
+		return err
 	}
-	invite.Data.Status = status
-	invite.Data.To.UserID = uid
-	inviteUpdates := []update.Update{
-		update.ByFieldName("status", status),
-		update.ByFieldName("to.userID", uid),
-	}
+
 	switch status {
-	case dbo4invitus.InviteStatusActive:
-		if invite.Data.Claimed != nil {
-			invite.Data.Claimed = nil
-			inviteUpdates = append(inviteUpdates, update.ByFieldName("claimed", update.DeleteField))
+	case dbo4invitus.InviteStatusPending:
+		err = fmt.Errorf("not allowed to move invite to pending status")
+		return err
+	case dbo4invitus.InviteStatusSending:
+		if invite.Data.Status != dbo4invitus.InviteStatusPending {
+			err = fmt.Errorf("only pending invites can be moved to sending status, current invite status is: %s", invite.Data.Status)
+			return err
 		}
-	case dbo4invitus.InviteStatusExpired: // Do nothing
-		err = fmt.Errorf("%w: expiration time %s", ErrInviteExpired, invite.Data.Expires)
+	case dbo4invitus.InviteStatusSent:
+		switch invite.Data.Status {
+		case dbo4invitus.InviteStatusPending, dbo4invitus.InviteStatusSending: // OK
+		default:
+			err = fmt.Errorf(
+				"only invite in status %s|%s can be moved to %s status, current invite status is: %s",
+				dbo4invitus.InviteStatusPending, dbo4invitus.InviteStatusSending,
+				status,
+				invite.Data.Status)
+			return err
+		}
+	case dbo4invitus.InviteStatusAccepted:
+		switch invite.Data.Status {
+		case dbo4invitus.InviteStatusRevoked:
+			err = fmt.Errorf("revoked invite can not be accepted: %w", ErrInviteIsRevoked)
+			return
+		case dbo4invitus.InviteStatusAccepted:
+			return // Nothing to do
+		}
+	case dbo4invitus.InviteStatusDeclined:
+		switch invite.Data.Status {
+		case dbo4invitus.InviteStatusRevoked:
+			err = fmt.Errorf("revoked invite can not be declined: %w", ErrInviteIsRevoked)
+			return
+		case dbo4invitus.InviteStatusDeclined:
+			return // Nothing to do
+		}
+	case dbo4invitus.InviteStatusExpired:
+		switch invite.Data.Status {
+		case dbo4invitus.InviteStatusAccepted:
+			err = fmt.Errorf("not allowed to expire an already claimed invite")
+			return
+		case dbo4invitus.InviteStatusDeclined:
+			err = fmt.Errorf("not allowed to expire an already declined invite")
+			return
+		case dbo4invitus.InviteStatusRevoked:
+			err = fmt.Errorf("not allowed to expire a revoked invite")
+			return
+		}
 		return
 	default:
 		invite.Data.Claimed = &now
 		inviteUpdates = append(inviteUpdates, update.ByFieldName("claimed", now))
+	}
+	invite.Data.Status = status
+	invite.Data.To.UserID = uid
+	inviteUpdates = append(inviteUpdates, update.ByFieldName("status", status))
+	if invite.Data.To.UserID == "" && (invite.Data.Type == dbo4invitus.InviteTypePersonal || invite.Data.Type == dbo4invitus.InviteTypePrivate) {
+		inviteUpdates = append(inviteUpdates, update.ByFieldName("to.userID", uid))
 	}
 	if err = invite.Data.Validate(); err != nil {
 		return fmt.Errorf("personal invite record is not valid: %w", err)

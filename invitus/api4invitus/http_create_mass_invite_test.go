@@ -47,7 +47,7 @@ func TestCreateMassInvite(t *testing.T) {
 	invite.Created.Client.RemoteAddr = "127.0.0.1"
 	invite.CreatedAt = time.Now()
 	invite.From.UserID = "u1"
-	invite.Status = "active"
+	invite.Status = dbo4invitus.InviteStatusPending
 	invite.Pin = "123456"
 
 	buffer := new(bytes.Buffer)

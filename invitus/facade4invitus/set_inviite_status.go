@@ -27,9 +27,14 @@ func SetInviteStatus(ctx context.Context, inviteID string, currentStatus, newSta
 		}
 		if invite.Data.Status != "" {
 			switch newStatus {
-			case dbo4invitus.InviteStatusActive:
-				if invite.Data.Status != dbo4invitus.InviteStatusPending {
-					return fmt.Errorf("only pending invites can be moved to active status, current invite status is: %s", invite.Data.Status)
+			case dbo4invitus.InviteStatusSent:
+				if invite.Data.Status != dbo4invitus.InviteStatusPending &&
+					invite.Data.Status != dbo4invitus.InviteStatusSending {
+					return fmt.Errorf(
+						"only invite in status %s|%s can be moved to %s status, current invite status is: %s",
+						dbo4invitus.InviteStatusPending, dbo4invitus.InviteStatusSending,
+						dbo4invitus.InviteStatusSent,
+						invite.Data.Status)
 				}
 			}
 		}
