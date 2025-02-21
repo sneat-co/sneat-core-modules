@@ -240,8 +240,8 @@ func Test_updateInviteRecord(t *testing.T) {
 			tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
 			tx.EXPECT().Update(ctx, tt.args.invite.Key, gomock.Any()).Return(nil)
 			assert.Equal(t, "", tt.args.invite.Data.To.UserID)
-			if err := updateInviteRecord(ctx, tx, tt.args.uid, now, tt.args.invite, tt.args.status); (err != nil) != tt.wantErr {
-				t.Errorf("updateInviteRecord() error = %v, wantErr %v", err, tt.wantErr)
+			if err := updateInviteStatus(ctx, tx, tt.args.uid, now, tt.args.invite, tt.args.status); (err != nil) != tt.wantErr {
+				t.Errorf("updateInviteStatus() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			assert.Equal(t, tt.args.status, tt.args.invite.Data.Status)
 			assert.Equal(t, tt.args.uid, tt.args.invite.Data.To.UserID)
