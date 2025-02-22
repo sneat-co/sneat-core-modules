@@ -1,6 +1,8 @@
 module github.com/sneat-co/sneat-core-modules
 
-go 1.22.3
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
@@ -21,7 +23,7 @@ require (
 	github.com/strongo/strongoapp v0.26.2
 	github.com/strongo/validation v0.0.7
 	go.uber.org/mock v0.5.0
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.34.0
 	golang.org/x/net v0.35.0
 )
 
