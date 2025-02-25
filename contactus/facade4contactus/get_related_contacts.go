@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
@@ -14,7 +16,7 @@ const RelatedAsParent = "parent"
 func GetRelatedContacts(
 	ctx context.Context,
 	tx dal.ReadTransaction,
-	spaceID, relatedAs string,
+	spaceID coretypes.SpaceID, relatedAs string,
 	deepness, maxDeepness int,
 	contacts []dal4contactus.ContactEntry,
 ) (

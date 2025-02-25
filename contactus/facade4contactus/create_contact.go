@@ -12,10 +12,10 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/logus"
@@ -225,7 +225,7 @@ func CreateContactTx(
 	} else {
 		contactID = request.ContactID
 	}
-	if contactDbo.CountryID == "" && params.Space.Data.CountryID != "" && params.Space.Data.Type == core4spaceus.SpaceTypeFamily {
+	if contactDbo.CountryID == "" && params.Space.Data.CountryID != "" && params.Space.Data.Type == coretypes.SpaceTypeFamily {
 		contactDbo.CountryID = params.Space.Data.CountryID
 	}
 	params.SpaceModuleEntry.Data.AddContact(contactID, &contactDbo.ContactBrief)
@@ -244,7 +244,7 @@ func CreateContactTx(
 	//params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.SpaceModuleEntry.Data.Contacts)))
 
 	if request.Related != nil {
-		if err = updateRelationshipsInRelatedItems(ctx, tx, params.UserID(), userContactID, params.Space.ID, contactID, params.SpaceModuleEntry, contactDbo, request.Related); err != nil {
+		if err = updateRelationshipsInRelatedItems(ctx, tx, params.Space.ID, params.UserID(), userContactID, contactID, params.SpaceModuleEntry, contactDbo, request.Related); err != nil {
 			err = fmt.Errorf("failed to update relationships in related items: %w", err)
 			return
 		}
@@ -268,7 +268,8 @@ func CreateContactTx(
 }
 
 func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransaction,
-	userID, userContactID, spaceID, contactID string,
+	spaceID coretypes.SpaceID,
+	userID, userContactID, contactID string,
 	contactusSpaceEntry dal4contactus.ContactusSpaceEntry,
 	contactDbo *dbo4contactus.ContactDbo,
 	related dbo4linkage.RelatedByModuleID,
@@ -280,7 +281,7 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 			return
 		}
 		if userContactID == "" {
-			err = errors.New("user is not associated with the spaceID=" + spaceID)
+			err = errors.New("user is not associated with the spaceID=" + string(spaceID))
 			return
 		}
 	}

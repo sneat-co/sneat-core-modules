@@ -11,11 +11,11 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/random"
@@ -74,7 +74,7 @@ func CreateSpaceTxWorker(
 ) (
 	err error,
 ) {
-	if request.Title == "" && (request.Type == core4spaceus.SpaceTypeFamily || request.Type == core4spaceus.SpaceTypePrivate) {
+	if request.Title == "" && (request.Type == coretypes.SpaceTypeFamily || request.Type == coretypes.SpaceTypePrivate) {
 		params.Space.ID, _ = params.User.Data.GetFirstSpaceBriefBySpaceType(request.Type)
 		if params.Space.ID != "" {
 			params.Space = dbo4spaceus.NewSpaceEntry(params.Space.ID)
@@ -141,7 +141,7 @@ func CreateSpaceTxWorker(
 		return
 	}
 
-	var spaceID string
+	var spaceID coretypes.SpaceID
 	title := request.Title
 	if request.Type == "family" {
 		title = ""
@@ -167,7 +167,7 @@ func CreateSpaceTxWorker(
 		const4contactus.SpaceMemberRoleOwner,
 		const4contactus.SpaceMemberRoleContributor,
 	}
-	if request.Type == core4spaceus.SpaceTypeFamily {
+	if request.Type == coretypes.SpaceTypeFamily {
 		roles = append(roles, const4contactus.SpaceMemberRoleAdult)
 	}
 	spaceContactBrief.Roles = roles
@@ -211,7 +211,7 @@ func CreateSpaceTxWorker(
 	return
 }
 
-func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID, userSpaceContactID string, spaceBrief dbo4spaceus.SpaceBrief, spaceUserRoles []string) (updates []update.Update) {
+func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID coretypes.SpaceID, userSpaceContactID string, spaceBrief dbo4spaceus.SpaceBrief, spaceUserRoles []string) (updates []update.Update) {
 	userSpaceBrief := dbo4userus.UserSpaceBrief{
 		SpaceBrief:    spaceBrief,
 		UserContactID: userSpaceContactID,
@@ -222,18 +222,18 @@ func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID, userSpaceConta
 	return
 }
 
-func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string) (spaceID string, err error) {
+func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string) (spaceID coretypes.SpaceID, err error) {
 	if title == "" || const4contactus.IsKnownSpaceMemberRole(title, []string{}) {
-		spaceID = random.ID(5)
+		spaceID = coretypes.SpaceID(random.ID(5))
 	} else {
-		spaceID = strings.Replace(slug.Make(title), "-", "", -1)
+		spaceID = coretypes.SpaceID(strings.Replace(slug.Make(title), "-", "", -1))
 	}
 	const maxAttemptsCount = 9
 	for i := 0; i <= maxAttemptsCount; i++ {
 		if i == maxAttemptsCount {
 			return "", errors.New("too many attempts to get an unique space ContactID")
 		}
-		spaceID = strings.ToLower(spaceID)
+		spaceID = coretypes.SpaceID(strings.ToLower(string(spaceID)))
 		spaceKey := dal.NewKeyWithID(dbo4spaceus.SpacesCollection, spaceID)
 		spaceRecord := dal.NewRecordWithData(spaceKey, nil)
 		if err = getter.Get(ctx, spaceRecord); dal.IsNotFound(err) {
@@ -244,7 +244,7 @@ func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string)
 		if i == 0 && title != "" {
 			spaceID += "_"
 		}
-		spaceID += random.ID(1)
+		spaceID += coretypes.SpaceID(random.ID(1))
 	}
 	return spaceID, nil
 }

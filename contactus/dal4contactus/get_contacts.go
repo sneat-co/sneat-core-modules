@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-func NewContacts(spaceID string, contactIDs ...string) (contacts []ContactEntry) {
+func NewContacts(spaceID coretypes.SpaceID, contactIDs ...string) (contacts []ContactEntry) {
 	contacts = make([]ContactEntry, len(contactIDs))
 	for i, id := range contactIDs {
 		if id == "" {
@@ -26,7 +28,7 @@ func ContactRecords(contacts []ContactEntry) (records []dal.Record) {
 	return
 }
 
-func GetContactsByIDs(ctx context.Context, tx dal.ReadSession, spaceID string, contactsIDs []string) (contacts []ContactEntry, err error) {
+func GetContactsByIDs(ctx context.Context, tx dal.ReadSession, spaceID coretypes.SpaceID, contactsIDs []string) (contacts []ContactEntry, err error) {
 	if tx == nil {
 		if tx, err = facade.GetSneatDB(ctx); err != nil {
 			return

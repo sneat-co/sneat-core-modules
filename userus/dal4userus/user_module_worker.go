@@ -6,6 +6,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
@@ -20,7 +22,8 @@ type UserModuleWorkerParams[T any] struct {
 
 func RunUserModuleWorker[T any](
 	ctx context.Context,
-	userID, moduleID string,
+	userID string,
+	moduleID coretypes.ModuleID,
 	userModuleDbo *T,
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, param *UserModuleWorkerParams[T]) error,
 ) (err error) {

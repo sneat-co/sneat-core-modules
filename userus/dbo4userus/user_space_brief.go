@@ -3,8 +3,8 @@ package dbo4userus
 import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
 )
 
@@ -48,7 +48,7 @@ func (v UserSpaceBrief) Validate() error {
 	//if v.MemberType == "" {
 	//	return validation.NewErrRecordIsMissingRequiredField("memberType")
 	//}
-	if !core4spaceus.IsValidSpaceType(v.Type) {
+	if !coretypes.IsValidSpaceType(v.Type) {
 		return validation.NewErrBadRecordFieldValue("type", "unknown space type")
 	}
 	if len(v.Roles) == 0 {

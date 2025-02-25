@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
@@ -71,7 +71,7 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 						records[i].SetError(nil)
 					}
 					if tt.params.Space.Data != nil {
-						tt.params.Space.Data.Type = core4spaceus.SpaceTypePrivate
+						tt.params.Space.Data.Type = coretypes.SpaceTypePrivate
 						tt.params.Space.Data.Status = dbmodels.StatusActive
 						tt.params.Space.Data.UserIDs = []string{userID}
 						tt.params.Space.Data.CreatedBy = userID

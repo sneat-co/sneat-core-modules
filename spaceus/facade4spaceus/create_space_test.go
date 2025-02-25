@@ -6,9 +6,9 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
@@ -84,21 +84,21 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		setupMockDb(0)
 		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{})
 		assert.Error(t, err)
-		assert.Equal(t, "", result.Space.ID)
-		assert.Equal(t, "", result.ContactusSpace.ID)
+		assert.Equal(t, coretypes.SpaceID(""), result.Space.ID)
+		assert.Equal(t, coretypes.ModuleID(""), result.ContactusSpace.ID)
 	})
 
 	t.Run("user's 1st space", func(t *testing.T) {
 		setupMockDb(1)
 
-		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{Type: core4spaceus.SpaceTypeFamily})
+		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{Type: coretypes.SpaceTypeFamily})
 		assert.Nil(t, err)
 
-		assert.NotEqual(t, "", result.Space.ID)
+		assert.NotEqual(t, coretypes.SpaceID(""), result.Space.ID)
 		assert.Nil(t, result.Space.Data.Validate())
 		assert.Equal(t, 1, len(result.Space.Data.UserIDs))
 		assert.Equal(t, 1, result.Space.Data.Version)
-		assert.Equal(t, "contactus", result.ContactusSpace.ID)
+		assert.Equal(t, coretypes.ModuleID("contactus"), result.ContactusSpace.ID)
 	})
 
 }
@@ -110,5 +110,5 @@ func Test_getUniqueSpaceID(t *testing.T) {
 	readSession.EXPECT().Get(gomock.Any(), gomock.Any()).Return(dal.ErrRecordNotFound)
 	spaceID, err := getUniqueSpaceID(ctx, readSession, "TestCompany LTD")
 	assert.NoError(t, err)
-	assert.Equal(t, "testcompanyltd", spaceID)
+	assert.Equal(t, coretypes.SpaceID("testcompanyltd"), spaceID)
 }

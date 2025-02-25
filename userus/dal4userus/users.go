@@ -6,6 +6,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"time"
 )
@@ -53,7 +55,7 @@ func GetUserSpaceContactID(ctx context.Context, tx dal.ReadSession, userID strin
 		return "", err
 	}
 
-	spaceID := contactusSpaceEntry.Key.Parent().ID.(string)
+	spaceID := contactusSpaceEntry.Key.Parent().ID.(coretypes.SpaceID)
 
 	userSpaceBrief := user.Data.Spaces[spaceID]
 

@@ -2,6 +2,7 @@ package dbo4linkage
 
 import (
 	"fmt"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/validation"
 	"slices"
@@ -9,8 +10,8 @@ import (
 )
 
 type ShortSpaceModuleDocRef struct {
-	ID      string `json:"id" firestore:"id"`
-	SpaceID string `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
+	ID      string            `json:"id" firestore:"id"`
+	SpaceID coretypes.SpaceID `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
 }
 
 func (v *ShortSpaceModuleDocRef) Validate() error {
@@ -24,15 +25,15 @@ func (v *ShortSpaceModuleDocRef) Validate() error {
 }
 
 type SpaceModuleItemRef struct { // TODO: Move to sneat-go-core or document why not
-	Space      string `json:"space" firestore:"space"`
-	Module     string `json:"module" firestore:"module"`
-	Collection string `json:"collection" firestore:"collection"`
-	ItemID     string `json:"itemID" firestore:"itemID"`
+	Space      coretypes.SpaceID  `json:"space" firestore:"space"`
+	Module     coretypes.ModuleID `json:"module" firestore:"module"`
+	Collection string             `json:"collection" firestore:"collection"`
+	ItemID     string             `json:"itemID" firestore:"itemID"`
 }
 
-func NewSpaceModuleItemRef(space, module, collection, itemID string) SpaceModuleItemRef {
-	if space == "" {
-		panic("space is required")
+func NewSpaceModuleItemRef(spaceID coretypes.SpaceID, module coretypes.ModuleID, collection, itemID string) SpaceModuleItemRef {
+	if spaceID == "" {
+		panic("spaceID is required")
 	}
 	if module == "" {
 		panic("module is required")
@@ -44,7 +45,7 @@ func NewSpaceModuleItemRef(space, module, collection, itemID string) SpaceModule
 		panic("itemID is required")
 	}
 	return SpaceModuleItemRef{
-		Space:      space,
+		Space:      spaceID,
 		Module:     module,
 		Collection: collection,
 		ItemID:     itemID,
@@ -59,11 +60,11 @@ func NewSpaceModuleItemRefFromString(id string) (itemRef SpaceModuleItemRef, err
 	for i, s := range ids {
 		switch s[0] {
 		case 'm':
-			itemRef.Module = s[2:]
+			itemRef.Module = coretypes.ModuleID(s[2:])
 		case 'c':
 			itemRef.Collection = s[2:]
 		case 's':
-			itemRef.Space = s[2:]
+			itemRef.Space = coretypes.SpaceID(s[2:])
 		case 'i':
 			itemRef.ItemID = s[2:]
 		default:

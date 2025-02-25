@@ -4,11 +4,17 @@ import (
 	"context"
 	"errors"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/strongo/random"
 )
 
-func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransaction, spaceID, moduleID, collection string, length, maxAttempts int) (id string, key *dal.Key, err error) {
+func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransaction,
+	spaceID coretypes.SpaceID, moduleID coretypes.ModuleID, collection string, length, maxAttempts int,
+) (
+	id string, key *dal.Key, err error,
+) {
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
 		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)

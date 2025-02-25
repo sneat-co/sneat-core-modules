@@ -6,6 +6,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/logus"
 )
 
@@ -21,7 +22,7 @@ func updateParentContact(
 		Names:  contact.Data.Names,
 	}
 	contactBrief.RelatedAs = RelatedAsChild
-	updates := parent.Data.SetContactBrief(contact.Key.Parent().ID.(string), contact.ID, contactBrief)
+	updates := parent.Data.SetContactBrief(contact.Key.Parent().ID.(coretypes.SpaceID), contact.ID, contactBrief)
 	if err := parent.Data.Validate(); err != nil {
 		return fmt.Errorf("parent contact DBO validation error: %w", err)
 	}

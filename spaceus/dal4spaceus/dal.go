@@ -7,6 +7,7 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade/db"
 	"time"
 )
@@ -27,7 +28,8 @@ func txUpdateSpace(ctx context.Context, tx dal.ReadwriteTransaction, timestamp t
 	return txUpdate(ctx, tx, space.Key, data, opts...)
 }
 
-func txUpdateSpaceModule[D SpaceModuleDbo](ctx context.Context, tx dal.ReadwriteTransaction, _ time.Time, spaceModule record.DataWithID[string, D], data []update.Update, opts ...dal.Precondition) error {
+func txUpdateSpaceModule[D SpaceModuleDbo](ctx context.Context, tx dal.ReadwriteTransaction, _ time.Time,
+	spaceModule record.DataWithID[coretypes.ModuleID, D], data []update.Update, opts ...dal.Precondition) error {
 	if !spaceModule.Record.Exists() {
 		return fmt.Errorf("an attempt to update a space module record that does not exist: %s", spaceModule.Key.String())
 	}

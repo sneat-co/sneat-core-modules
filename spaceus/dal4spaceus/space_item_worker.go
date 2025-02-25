@@ -6,6 +6,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -85,7 +87,7 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request SpaceItemRequest,
-	moduleID string,
+	moduleID coretypes.ModuleID,
 	spaceModuleData ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
@@ -116,7 +118,7 @@ func DeleteSpaceItem[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request SpaceItemRequest,
-	moduleID string,
+	moduleID coretypes.ModuleID,
 	moduleData ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
@@ -174,7 +176,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	return err
 }
 
-func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[string, D], itemID string, adapter BriefsAdapter[D], updates []update.Update) ([]update.Update, error) {
+func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[coretypes.ModuleID, D], itemID string, adapter BriefsAdapter[D], updates []update.Update) ([]update.Update, error) {
 	if adapter == nil {
 		return updates, nil
 	}

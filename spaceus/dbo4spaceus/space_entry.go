@@ -2,16 +2,17 @@ package dbo4spaceus
 
 import (
 	"github.com/dal-go/dalgo/record"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
-type SpaceEntry = record.DataWithID[string, *SpaceDbo]
+type SpaceEntry = record.DataWithID[coretypes.SpaceID, *SpaceDbo]
 
-func NewSpaceEntry(id string) (space SpaceEntry) {
+func NewSpaceEntry(id coretypes.SpaceID) (space SpaceEntry) {
 	spaceDto := new(SpaceDbo)
 	return NewSpaceEntryWithDbo(id, spaceDto)
 }
 
-func NewSpaceEntryWithDbo(id string, dbo *SpaceDbo) (space SpaceEntry) {
+func NewSpaceEntryWithDbo(id coretypes.SpaceID, dbo *SpaceDbo) (space SpaceEntry) {
 	if dbo == nil {
 		panic("required parameter dbo is nil")
 	}

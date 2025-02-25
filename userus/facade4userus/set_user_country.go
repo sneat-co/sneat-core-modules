@@ -6,8 +6,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
@@ -52,7 +52,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 	recordsToUpdate := make([]RecordToUpdate, 0, len(params.User.Data.Spaces))
 
 	for spaceID, spaceBrief := range params.User.Data.Spaces {
-		if IsUnknownCountryID(spaceBrief.CountryID) && spaceBrief.Type == core4spaceus.SpaceTypeFamily || spaceBrief.Type == core4spaceus.SpaceTypePrivate {
+		if IsUnknownCountryID(spaceBrief.CountryID) && spaceBrief.Type == coretypes.SpaceTypeFamily || spaceBrief.Type == coretypes.SpaceTypePrivate {
 			spaceBrief.CountryID = request.CountryID
 			params.UserUpdates = append(params.UserUpdates, update.ByFieldName(fmt.Sprintf("spaces.%s.countryID", spaceID), request.CountryID))
 		}

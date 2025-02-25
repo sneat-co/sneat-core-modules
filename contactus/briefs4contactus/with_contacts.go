@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/slice"
@@ -98,7 +99,7 @@ func (v *WithMultiSpaceContacts[T]) Updates(contactIDs ...dbmodels.SpaceItemID) 
 }
 
 // SetContactBrief sets contactBrief brief by ContactID
-func (v *WithMultiSpaceContacts[T]) SetContactBrief(spaceID, contactID string, contactBrief T) (updates []update.Update) {
+func (v *WithMultiSpaceContacts[T]) SetContactBrief(spaceID coretypes.SpaceID, contactID string, contactBrief T) (updates []update.Update) {
 	id := string(dbmodels.NewSpaceItemID(spaceID, contactID))
 	if !slices.Contains(v.ContactIDs, id) {
 		v.ContactIDs = append(v.ContactIDs, id)
@@ -123,7 +124,7 @@ func (v *WithMultiSpaceContacts[T]) ParentContactBrief() (i int, id dbmodels.Spa
 }
 
 // GetContactBriefByID returns contactBrief brief by ContactID
-func (v *WithMultiSpaceContacts[T]) GetContactBriefByID(spaceID, contactID string) (i int, brief T) {
+func (v *WithMultiSpaceContacts[T]) GetContactBriefByID(spaceID coretypes.SpaceID, contactID string) (i int, brief T) {
 	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	if brief, ok := v.Contacts[string(id)]; !ok {
 		return -1, brief
@@ -141,7 +142,7 @@ func (v *WithMultiSpaceContacts[T]) GetContactBriefByUserID(userID string) (id d
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (updates []update.Update) {
+func (v *WithMultiSpaceContacts[T]) AddContact(spaceID coretypes.SpaceID, contactID string, c T) (updates []update.Update) {
 	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	if !slices.Contains(v.ContactIDs, string(id)) {
 		if len(v.ContactIDs) == 0 {
@@ -161,7 +162,7 @@ func (v *WithMultiSpaceContacts[T]) AddContact(spaceID, contactID string, c T) (
 	return
 }
 
-func (v *WithMultiSpaceContacts[T]) RemoveContact(spaceID, contactID string) (updates []update.Update) {
+func (v *WithMultiSpaceContacts[T]) RemoveContact(spaceID coretypes.SpaceID, contactID string) (updates []update.Update) {
 	id := dbmodels.NewSpaceItemID(spaceID, contactID)
 	contactIDs := slice.RemoveInPlaceByValue(v.ContactIDs, string(id))
 	if len(contactIDs) != len(v.ContactIDs) {

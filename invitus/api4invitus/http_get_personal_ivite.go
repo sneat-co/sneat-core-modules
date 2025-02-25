@@ -2,6 +2,8 @@ package api4invitus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
@@ -18,7 +20,7 @@ func httpGetPersonal(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	request := facade4invitus.GetPersonalInviteRequest{
 		SpaceRequest: dto4spaceus.SpaceRequest{
-			SpaceID: strings.TrimSpace(q.Get("spaceID")),
+			SpaceID: coretypes.SpaceID(strings.TrimSpace(q.Get("spaceID"))),
 		},
 		InviteID: strings.TrimSpace(q.Get("inviteID")),
 	}

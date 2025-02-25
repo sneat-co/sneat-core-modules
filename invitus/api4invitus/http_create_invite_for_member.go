@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -35,7 +37,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 	var request facade4invitus.InviteContactRequest
 	q := r.URL.Query()
 
-	if request.SpaceID = q.Get("space"); request.SpaceID == "" {
+	if request.SpaceID = coretypes.SpaceID(q.Get("space")); request.SpaceID == "" {
 		apicore.ReturnError(r.Context(), w, r, validation.NewErrRequestIsMissingRequiredField("space"))
 		// TODO(deprecate): httpserver.HandleError(nil, validation.NewErrRequestIsMissingRequiredField("space"), "httpGetOrCreateInviteLink", w, r)
 		return

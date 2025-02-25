@@ -2,8 +2,8 @@ package dbo4invitus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-go-core"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/validation"
@@ -102,9 +102,9 @@ func (v *InviteTo) Validate() error {
 
 // InviteSpace a summary on space for which an invitation has been created
 type InviteSpace struct {
-	ID    string                 `json:"id,omitempty" firestore:"id,omitempty"`
-	Type  core4spaceus.SpaceType `json:"type" firestore:"type"`
-	Title string                 `json:"title,omitempty" firestore:"title,omitempty"`
+	ID    coretypes.SpaceID   `json:"id,omitempty" firestore:"id,omitempty"`
+	Type  coretypes.SpaceType `json:"type" firestore:"type"`
+	Title string              `json:"title,omitempty" firestore:"title,omitempty"`
 }
 
 // Validate returns error if not valid
@@ -228,7 +228,7 @@ type InviteDbo struct {
 	InviteBase
 	Status     InviteStatus         `json:"status" firestore:"status" `
 	Pin        string               `json:"pin,omitempty" firestore:"pin,omitempty"`
-	SpaceID    string               `json:"spaceID" firestore:"spaceID"`
+	SpaceID    coretypes.SpaceID    `json:"spaceID" firestore:"spaceID"`
 	TargetType string               `json:"targetType,omitempty" firestore:"targetType,omitempty"`
 	TargetIDs  []string             `json:"targetIDs,omitempty" firestore:"targetIDs,omitempty"`
 	MessageID  string               `json:"messageID" firestore:"messageID"` // e.g. email message ContactID from AWS SES

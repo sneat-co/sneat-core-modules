@@ -6,13 +6,15 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"time"
 )
 
 // NewMemberContactEntryFromContactBrief creates a member record from member's brief
 func NewMemberContactEntryFromContactBrief(
-	spaceID string,
+	spaceID coretypes.SpaceID,
 	contactID string,
 	memberBrief briefs4contactus.ContactBrief,
 	now time.Time,

@@ -7,6 +7,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -17,7 +19,7 @@ import (
 
 type spaceWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceWorkerParams) (err error)
 
-func NewSpaceWorkerParams(userCtx facade.UserContext, spaceID string) *SpaceWorkerParams {
+func NewSpaceWorkerParams(userCtx facade.UserContext, spaceID coretypes.SpaceID) *SpaceWorkerParams {
 	return &SpaceWorkerParams{
 		UserCtx: userCtx,
 		Space:   dbo4spaceus.NewSpaceEntry(spaceID),
@@ -84,8 +86,8 @@ func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.MultiGetter, r
 }
 
 // RunSpaceWorkerWithUserContext executes a space worker
-var RunSpaceWorkerWithUserContext = func(ctx context.Context, userCtx facade.UserContext, spaceID string, worker spaceWorker) (err error) {
-	if strings.TrimSpace(spaceID) == "" {
+var RunSpaceWorkerWithUserContext = func(ctx context.Context, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+	if strings.TrimSpace(string(spaceID)) == "" {
 		return fmt.Errorf("required parameter `spaceID` of RunSpaceWorkerWithUserContext() is an empty string")
 	}
 	if userCtx == nil {
@@ -99,15 +101,15 @@ var RunSpaceWorkerWithUserContext = func(ctx context.Context, userCtx facade.Use
 }
 
 // RunSpaceWorkerWithoutUserContext executes a space worker without user context
-var RunSpaceWorkerWithoutUserContext = func(ctx context.Context, spaceID string, worker spaceWorker) (err error) {
-	if strings.TrimSpace(spaceID) == "" {
+var RunSpaceWorkerWithoutUserContext = func(ctx context.Context, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+	if strings.TrimSpace(string(spaceID)) == "" {
 		return fmt.Errorf("required parameter `spaceID` of RunSpaceWorkerWithoutUserContext() is an empty string")
 	}
 	return runSpaceWorker(ctx, nil, spaceID, worker)
 }
 
-var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, spaceID string, worker spaceWorker) (err error) {
-	if strings.TrimSpace(spaceID) == "" {
+var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+	if strings.TrimSpace(string(spaceID)) == "" {
 		return fmt.Errorf("required parameter `spaceID` of runSpaceWorker() is an empty string")
 	}
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
@@ -115,7 +117,7 @@ var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, space
 	})
 }
 
-func RunSpaceWorkerTx(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, spaceID string, worker spaceWorker) (err error) {
+func RunSpaceWorkerTx(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
 	params := NewSpaceWorkerParams(userCtx, spaceID)
 	return runSpaceWorkerTx(ctx, tx, params, nil, worker)
 }
@@ -222,7 +224,7 @@ func CreateSpaceItem[D SpaceModuleDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
 	spaceRequest dto4spaceus.SpaceRequest,
-	moduleID string,
+	moduleID coretypes.ModuleID,
 	data D,
 	worker func(
 		ctx context.Context,

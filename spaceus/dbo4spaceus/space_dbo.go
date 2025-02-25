@@ -2,7 +2,7 @@ package dbo4spaceus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
 	"github.com/strongo/strongoapp/with"
@@ -100,9 +100,9 @@ type SpaceMeetings struct {
 
 // SpaceBrief is a base class for SpaceDbo
 type SpaceBrief struct {
-	Type   core4spaceus.SpaceType `json:"type" firestore:"type"`
-	Title  string                 `json:"title" firestore:"title"`
-	Status dbmodels.Status        `json:"status" firestore:"status"`
+	Type   coretypes.SpaceType `json:"type" firestore:"type"`
+	Title  string              `json:"title" firestore:"title"`
+	Status dbmodels.Status     `json:"status" firestore:"status"`
 
 	Modules []string `json:"modules,omitempty" firestore:"modules,omitempty"`
 
@@ -117,16 +117,16 @@ func (v SpaceBrief) Validate() error {
 	if v.Type == "" {
 		return validation.NewErrRecordIsMissingRequiredField("type")
 	}
-	if !core4spaceus.IsValidSpaceType(v.Type) {
+	if !coretypes.IsValidSpaceType(v.Type) {
 		if v.Title == "" {
 			return validation.NewErrBadRecordFieldValue("type", "unknown value")
 		}
 		return validation.NewErrBadRecordFieldValue("type", "unknown value for space:"+v.Title)
 	}
 	if v.Title == "" &&
-		v.Type != core4spaceus.SpaceTypeFamily &&
-		v.Type != core4spaceus.SpaceTypePrivate &&
-		v.Type != core4spaceus.SpaceTypeGroup {
+		v.Type != coretypes.SpaceTypeFamily &&
+		v.Type != coretypes.SpaceTypePrivate &&
+		v.Type != coretypes.SpaceTypeGroup {
 		return fmt.Errorf("space with type %s is required to have a title", v.Type)
 	}
 	if v.Status == "" {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
@@ -62,7 +62,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 			//		spaceDbo.CreatedAt = time.Now()
 			//		spaceDbo.CreatedBy = "test"
 			//		spaceDbo.IncreaseVersion(spaceDbo.CreatedAt, spaceDbo.CreatedBy)
-			//		spaceDbo.Type = core4spaceus.SpaceTypeFamily
+			//		spaceDbo.Type = coretypes.SpaceTypeFamily
 			//		spaceDbo.CountryID = "UK"
 			//		spaceDbo.Status = dbmodels.StatusActive
 			//		spaceDbo.UserIDs = []string{user.ID}
@@ -92,7 +92,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 						spaceDbo.CreatedAt = time.Now()
 						spaceDbo.CreatedBy = "test"
 						spaceDbo.IncreaseVersion(spaceDbo.CreatedAt, spaceDbo.CreatedBy)
-						spaceDbo.Type = core4spaceus.SpaceTypeFamily
+						spaceDbo.Type = coretypes.SpaceTypeFamily
 						spaceDbo.CountryID = "UK"
 						spaceDbo.Status = dbmodels.StatusActive
 						spaceDbo.UserIDs = []string{user.ID}
@@ -138,7 +138,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 func TestRunModuleSpaceWorkerTx(t *testing.T) {
 	ctx := context.Background()
 	user := &facade.AuthUserContext{ID: "user1"}
-	spaceID := "space1"
+	var spaceID coretypes.SpaceID = "space1"
 	const moduleID = "test_module"
 	//assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
 	//	assert.NotNil(t, spaceWorkerParams)

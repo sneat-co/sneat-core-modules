@@ -3,6 +3,7 @@ package dbo4linkage
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"slices"
@@ -164,10 +165,10 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 	searchIndex := []string{AnyRelatedID}
 	withRelatedIDs.RelatedIDs = make([]string, 0)
 	for moduleID, relatedByCollectionID := range withRelated.Related {
-		searchIndex = append(searchIndex, "m="+moduleID)
+		searchIndex = append(searchIndex, "m="+string(moduleID))
 		for collectionID, relatedItems := range relatedByCollectionID {
 			searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s", moduleID, collectionID))
-			spaceIDs := make([]string, 0, len(relatedItems))
+			spaceIDs := make([]coretypes.SpaceID, 0, len(relatedItems))
 			for _, relatedItem := range relatedItems {
 				for _, k := range relatedItem.Keys {
 					if !slices.Contains(spaceIDs, k.SpaceID) {

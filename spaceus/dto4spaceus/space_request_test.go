@@ -1,12 +1,13 @@
 package dto4spaceus
 
 import (
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"testing"
 )
 
 func TestNewSpaceRequest(t *testing.T) {
 	type args struct {
-		spaceID string
+		spaceID coretypes.SpaceID
 	}
 	tests := []struct {
 		name string

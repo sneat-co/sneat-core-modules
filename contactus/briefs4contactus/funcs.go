@@ -1,14 +1,18 @@
 package briefs4contactus
 
+import (
+	"github.com/sneat-co/sneat-go-core/coretypes"
+)
+
 // GetFullContactID returns full member ContactID
-func GetFullContactID(spaceID, memberID string) string {
+func GetFullContactID(spaceID coretypes.SpaceID, memberID string) string {
 	if spaceID == "" {
 		panic("spaceID is required parameter")
 	}
 	if memberID == "" {
 		panic("memberID is required parameter")
 	}
-	return spaceID + ":" + memberID
+	return string(spaceID) + ":" + memberID
 }
 
 // IsUniqueShortTitle checks if a given value is an unique member title

@@ -8,6 +8,8 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
@@ -168,7 +170,7 @@ func onJoinAddSpaceToUser(
 	tx dal.ReadwriteTransaction,
 	userDto *dbo4userus.UserDbo,
 	userRecord dal.Record,
-	spaceID string,
+	spaceID coretypes.SpaceID,
 	space *dbo4spaceus.SpaceDbo,
 	member dal4contactus.ContactEntry,
 ) (err error) {
@@ -176,7 +178,7 @@ func onJoinAddSpaceToUser(
 	if userDto == nil {
 		panic("required parameter 'userDto' is nil")
 	}
-	if strings.TrimSpace(spaceID) == "" {
+	if strings.TrimSpace(string(spaceID)) == "" {
 		panic("required parameter 'spaceID' is empty")
 	}
 	if space == nil {

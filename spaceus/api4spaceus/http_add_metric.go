@@ -4,6 +4,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"net/http"
 	"strings"
 )
@@ -15,7 +16,8 @@ func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var request facade4spaceus.AddSpaceMetricRequest
-	if request.SpaceID = r.URL.Query().Get("id"); strings.TrimSpace(request.SpaceID) == "" {
+	q := r.URL.Query()
+	if request.SpaceID = coretypes.SpaceID(q.Get("id")); strings.TrimSpace(string(request.SpaceID)) == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte("space 'id' should be passed as query parameter"))
 		return

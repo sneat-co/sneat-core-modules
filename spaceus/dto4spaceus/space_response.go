@@ -2,10 +2,11 @@ package dto4spaceus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
 type spaceRecord struct {
-	ID  string               `json:"id"`
+	ID  coretypes.SpaceID    `json:"id"`
 	Dbo dbo4spaceus.SpaceDbo `json:"dbo"`
 }
 

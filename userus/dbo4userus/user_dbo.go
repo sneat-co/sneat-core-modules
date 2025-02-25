@@ -7,8 +7,8 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/with"
@@ -62,9 +62,9 @@ type UserDbo struct {
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
 
 	// List of spaces a user belongs to
-	Spaces         map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
-	SpaceIDs       []string                   `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
-	DefaultSpaceID string                     `json:"defaultSpaceRef" firestore:"defaultSpaceRef"`
+	Spaces         map[coretypes.SpaceID]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
+	SpaceIDs       []coretypes.SpaceID                   `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
+	DefaultSpaceID coretypes.SpaceID                     `json:"defaultSpaceRef" firestore:"defaultSpaceRef"`
 
 	Created dbmodels.CreatedInfo `json:"created" firestore:"created"`
 
@@ -84,7 +84,7 @@ func (v *UserDbo) GetFullName() string {
 }
 
 // SetSpaceBrief sets space brief and adds spaceID to the list of space IDs if needed
-func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates []update.Update) {
+func (v *UserDbo) SetSpaceBrief(spaceID coretypes.SpaceID, brief *UserSpaceBrief) (updates []update.Update) {
 	if spaceID == "" {
 		panic("spaceID is empty string")
 	}
@@ -92,10 +92,10 @@ func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates 
 		panic("brief is nil")
 	}
 	if v.Spaces == nil {
-		v.Spaces = make(map[string]*UserSpaceBrief, 1)
+		v.Spaces = make(map[coretypes.SpaceID]*UserSpaceBrief, 1)
 	}
 	v.Spaces[spaceID] = brief
-	updates = append(updates, update.ByFieldName("spaces."+spaceID, brief))
+	updates = append(updates, update.ByFieldName("spaces."+string(spaceID), brief))
 	if !slices.Contains(v.SpaceIDs, spaceID) {
 		v.SpaceIDs = append(v.SpaceIDs, spaceID)
 		updates = append(updates, update.ByFieldName("spaceIDs", v.SpaceIDs))
@@ -103,17 +103,17 @@ func (v *UserDbo) SetSpaceBrief(spaceID string, brief *UserSpaceBrief) (updates 
 	return
 }
 
-func (v *UserDbo) GetFamilySpaceID() string {
-	id, _ := v.GetFirstSpaceBriefBySpaceType(core4spaceus.SpaceTypeFamily)
+func (v *UserDbo) GetFamilySpaceID() coretypes.SpaceID {
+	id, _ := v.GetFirstSpaceBriefBySpaceType(coretypes.SpaceTypeFamily)
 	return id
 }
 
 // GetSpaceBriefsByType returns the all spaces matching a specific type
-func (v *UserDbo) GetSpaceBriefsByType(t core4spaceus.SpaceType) (spaces map[string]*UserSpaceBrief) {
+func (v *UserDbo) GetSpaceBriefsByType(t coretypes.SpaceType) (spaces map[coretypes.SpaceID]*UserSpaceBrief) {
 	for id, brief := range v.Spaces {
 		if brief.Type == t {
 			if spaces == nil {
-				spaces = make(map[string]*UserSpaceBrief)
+				spaces = make(map[coretypes.SpaceID]*UserSpaceBrief)
 			}
 			spaces[id] = brief
 		}
@@ -121,7 +121,7 @@ func (v *UserDbo) GetSpaceBriefsByType(t core4spaceus.SpaceType) (spaces map[str
 	return
 }
 
-func (v *UserDbo) GetFirstSpaceBriefBySpaceType(spaceType core4spaceus.SpaceType) (spaceID string, spaceBrief *UserSpaceBrief) {
+func (v *UserDbo) GetFirstSpaceBriefBySpaceType(spaceType coretypes.SpaceType) (spaceID coretypes.SpaceID, spaceBrief *UserSpaceBrief) {
 	for id, space := range v.Spaces {
 		if space.Type == spaceType {
 			return id, space
@@ -210,14 +210,14 @@ func (v *UserDbo) validateSpaces() error {
 			fmt.Sprintf("len(v.Spaces) != len(v.SpaceIDs): %d != %d", len(v.Spaces), len(v.SpaceIDs)))
 	}
 	if len(v.Spaces) > 0 {
-		spaceIDs := make([]string, 0, len(v.Spaces))
+		spaceIDs := make([]coretypes.SpaceID, 0, len(v.Spaces))
 		spaceTitles := make([]string, 0, len(v.Spaces))
 		for spaceID, space := range v.Spaces {
 			if spaceID == "" {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("spaces['%s']", spaceID), "holds empty id")
 			}
 			if !slices.Contains(v.SpaceIDs, spaceID) {
-				return validation.NewErrBadRecordFieldValue("spaceIDs", "missing space ContactID: "+spaceID)
+				return validation.NewErrBadRecordFieldValue("spaceIDs", "missing space ContactID: "+string(spaceID))
 			}
 			if err := space.Validate(); err != nil {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("spaces[%s]{title=%s}", spaceID, space.Title), err.Error())
@@ -241,7 +241,7 @@ func (v *UserDbo) validateSpaces() error {
 }
 
 // GetUserSpaceInfoByID return space info specific to the user by space ContactID
-func (v *UserDbo) GetUserSpaceInfoByID(spaceID string) *UserSpaceBrief {
+func (v *UserDbo) GetUserSpaceInfoByID(spaceID coretypes.SpaceID) *UserSpaceBrief {
 	return v.Spaces[spaceID]
 }
 

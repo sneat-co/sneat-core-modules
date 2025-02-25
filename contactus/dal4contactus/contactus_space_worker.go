@@ -5,6 +5,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -12,7 +14,7 @@ import (
 
 type ContactusSpaceWorkerParams = dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]
 
-func NewContactusSpaceWorkerParams(userCtx facade.UserContext, spaceID string) *ContactusSpaceWorkerParams {
+func NewContactusSpaceWorkerParams(userCtx facade.UserContext, spaceID coretypes.SpaceID) *ContactusSpaceWorkerParams {
 	spaceWorkerParams := dal4spaceus.NewSpaceWorkerParams(userCtx, spaceID)
 	return dal4spaceus.NewSpaceModuleWorkerParams(const4contactus.ModuleID, spaceWorkerParams, new(dbo4contactus.ContactusSpaceDbo))
 }
@@ -41,7 +43,7 @@ func RunContactusSpaceWorkerTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	userCtx facade.UserContext,
-	spaceID string,
+	spaceID coretypes.SpaceID,
 	worker ContactusModuleWorker,
 ) error {
 	return dal4spaceus.RunModuleSpaceWorkerTx(ctx, tx, userCtx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
@@ -51,7 +53,7 @@ func RunContactusSpaceWorkerNoUpdate(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	userCtx facade.UserContext,
-	spaceID string,
+	spaceID coretypes.SpaceID,
 	worker ContactusModuleWorker,
 ) error {
 	return dal4spaceus.RunModuleSpaceWorkerNoUpdates(ctx, tx, userCtx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)

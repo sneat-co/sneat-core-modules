@@ -2,13 +2,15 @@ package dbo4spaceus
 
 import (
 	"github.com/dal-go/dalgo/dal"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"reflect"
 	"testing"
 )
 
 func TestNewSpaceKey(t *testing.T) {
 	type args struct {
-		id string
+		id coretypes.SpaceID
 	}
 	t.Run("should_panic_on_empty_id", func(t *testing.T) {
 		defer func() {

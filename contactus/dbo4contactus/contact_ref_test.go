@@ -2,12 +2,14 @@ package dbo4contactus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"testing"
 )
 
 func TestNewContactFullRef(t *testing.T) {
 	type args struct {
-		spaceID   string
+		spaceID   coretypes.SpaceID
 		contactID string
 	}
 	tests := []struct {

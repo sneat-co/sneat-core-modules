@@ -7,6 +7,8 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
@@ -71,7 +73,7 @@ func removeSpaceMemberTx(
 	return
 }
 
-func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID string) update.Update {
+func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID coretypes.SpaceID) update.Update {
 	delete(user.Spaces, spaceID)
 	user.SpaceIDs = slice.RemoveInPlaceByValue(user.SpaceIDs, spaceID)
 	return update.ByFieldName("spaces", user.Spaces)

@@ -1,12 +1,13 @@
 package dto4spaceus
 
 import (
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
 	"strings"
 )
 
 // NewSpaceRequest creates new space request
-func NewSpaceRequest(spaceID string) SpaceRequest {
+func NewSpaceRequest(spaceID coretypes.SpaceID) SpaceRequest {
 	if spaceID == "" {
 		panic("spaceID is required")
 	}
@@ -15,12 +16,12 @@ func NewSpaceRequest(spaceID string) SpaceRequest {
 
 // SpaceRequest request
 type SpaceRequest struct {
-	SpaceID string `json:"spaceID"`
+	SpaceID coretypes.SpaceID `json:"spaceID"`
 }
 
 // Validate validates request
 func (v SpaceRequest) Validate() error {
-	if strings.TrimSpace(v.SpaceID) == "" {
+	if strings.TrimSpace(string(v.SpaceID)) == "" {
 		return validation.NewErrRecordIsMissingRequiredField("spaceID")
 	}
 	return nil

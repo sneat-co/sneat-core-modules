@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
 	"slices"
 	"strings"
@@ -23,8 +24,8 @@ func (v RelationshipRole) Validate() error {
 type RelationshipRoles = map[RelationshipRoleID]*RelationshipRole
 
 type RelatedItemKey struct {
-	SpaceID string `json:"spaceID" firestore:"spaceID"`
-	ItemID  string `json:"itemID" firestore:"itemID"`
+	SpaceID coretypes.SpaceID `json:"spaceID" firestore:"spaceID"`
+	ItemID  string            `json:"itemID" firestore:"itemID"`
 }
 
 func (v RelatedItemKey) String() string {
@@ -152,7 +153,7 @@ func (*RelatedItem) validateRelationships(related RelationshipRoles) error {
 }
 
 type RelatedByCollectionID = map[string][]*RelatedItem
-type RelatedByModuleID = map[string]RelatedByCollectionID
+type RelatedByModuleID = map[coretypes.ModuleID]RelatedByCollectionID
 
 const relatedField = "related"
 

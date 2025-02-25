@@ -29,7 +29,7 @@ func deleteContactTxWorker(
 	ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams,
 	contactID string,
 ) (err error) {
-	if contactID == params.Space.ID {
+	if contactID == string(params.Space.ID) {
 		return validation.NewErrBadRequestFieldValue("contactID", "cannot delete contact that represents space/company itself")
 	}
 	contact := dal4contactus.NewContactEntry(params.Space.ID, contactID)

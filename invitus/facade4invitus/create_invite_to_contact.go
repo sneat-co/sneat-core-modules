@@ -9,7 +9,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/core4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -82,7 +82,7 @@ func CreateOrReuseInviteToContact(
 			}); err != nil {
 				return
 			}
-			if params.Space.Data.Type == core4spaceus.SpaceTypePrivate {
+			if params.Space.Data.Type == coretypes.SpaceTypePrivate {
 				return errors.New("private space does not support invites")
 			}
 			userID := params.UserID()
