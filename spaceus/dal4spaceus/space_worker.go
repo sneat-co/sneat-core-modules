@@ -195,9 +195,9 @@ func applySpaceModuleUpdates[D SpaceModuleDbo](
 	params *ModuleSpaceWorkerParams[D],
 ) (err error) {
 	if len(params.SpaceModuleUpdates) == 0 && !params.SpaceModuleEntry.Record.HasChanged() {
-		return
+		return nil
 	}
-	if err = params.SpaceModuleEntry.Record.Error(); err != nil {
+	if err = params.SpaceModuleEntry.Record.Error(); err != nil && !dal.IsNotFound(err) {
 		return fmt.Errorf("an attempt to update a space module record that has an error: %w", err)
 	}
 	if !params.SpaceModuleEntry.Record.HasChanged() {
@@ -209,7 +209,9 @@ func applySpaceModuleUpdates[D SpaceModuleDbo](
 
 	if params.SpaceModuleEntry.Record.Exists() {
 		if len(params.SpaceModuleUpdates) == 0 {
-			return tx.Set(ctx, params.SpaceModuleEntry.Record)
+			if err = tx.Set(ctx, params.SpaceModuleEntry.Record); err != nil {
+				return fmt.Errorf("failed to set space module record: %w", err)
+			}
 		} else if err = txUpdateSpaceModule(ctx, tx, params.Started, params.SpaceModuleEntry, params.SpaceModuleUpdates); err != nil {
 			return fmt.Errorf("failed to update space module record: %w", err)
 		}

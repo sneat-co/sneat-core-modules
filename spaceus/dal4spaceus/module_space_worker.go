@@ -97,12 +97,6 @@ func runModuleSpaceWorkerReadwriteTx[D SpaceModuleDbo](
 	if err = applySpaceModuleUpdates(ctx, tx, params); err != nil {
 		return fmt.Errorf("space module worker failed to apply space module record updates: %w", err)
 	}
-
-	// This should be called in runSpaceWorkerTx() instead
-	//if err = applySpaceUpdates(ctx, tx, params.SpaceWorkerParams); err != nil {
-	//	return fmt.Errorf("space module worker failed to apply space record updates: %w", err)
-	//}
-
 	return nil
 }
 
@@ -151,20 +145,23 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 			}
 		}
 	}
-	return facade.RunReadwriteTransactionWithDB(ctx, db, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
-		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil,
-			func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
-				if err = runModuleSpaceWorkerReadwriteTx(ctx, tx, moduleWorkerParams, worker); err != nil {
-					return fmt.Errorf("failed in runModuleSpaceWorkerReadwriteTx(): %w", err)
-				}
-				return nil
-			}); err != nil {
+	err = facade.RunReadwriteTransactionWithDB(ctx, db, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
+		txSpaceWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
+			moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
+			if err = runModuleSpaceWorkerReadwriteTx(ctx, tx, moduleWorkerParams, worker); err != nil {
+				return fmt.Errorf("failed in runModuleSpaceWorkerReadwriteTx(): %w", err)
+			}
+			return nil
+		}
+		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil, txSpaceWorker); err != nil {
 			return fmt.Errorf("failed in runSpaceWorkerTx(): %w", err)
 		}
-		//logus.Debugf(ctx, "RunModuleSpaceWorkerWithUserCtx() completed, err = nil")
 		return
 	})
+	if err != nil {
+		err = fmt.Errorf("failed in RunReadwriteTransactionWithDB(): %w", err)
+	}
+	return err
 }
 
 func RunModuleSpaceWorkerTx[D SpaceModuleDbo](
