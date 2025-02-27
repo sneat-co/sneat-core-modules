@@ -56,7 +56,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 			spaceBrief.CountryID = request.CountryID
 			params.UserUpdates = append(params.UserUpdates, update.ByFieldName(fmt.Sprintf("spaces.%s.countryID", spaceID), request.CountryID))
 		}
-		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, spaceID,
+		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, coretypes.SpaceID(spaceID),
 			func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 				if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
 					return
@@ -71,7 +71,7 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 					userContactBrief.CountryID = request.CountryID
 					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+userContactID+".countryID", request.CountryID))
 					params.SpaceModuleEntry.Record.MarkAsChanged()
-					userContact := dal4contactus.NewContactEntry(spaceID, userContactID)
+					userContact := dal4contactus.NewContactEntry(coretypes.SpaceID(spaceID), userContactID)
 					if err = tx.Get(ctx, userContact.Record); err != nil {
 						return
 					}

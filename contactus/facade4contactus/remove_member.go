@@ -74,8 +74,8 @@ func removeSpaceMemberTx(
 }
 
 func updateUserRecordOnSpaceMemberRemoved(user *dbo4userus.UserDbo, spaceID coretypes.SpaceID) update.Update {
-	delete(user.Spaces, spaceID)
-	user.SpaceIDs = slice.RemoveInPlaceByValue(user.SpaceIDs, spaceID)
+	delete(user.Spaces, string(spaceID))
+	user.SpaceIDs = slice.RemoveInPlaceByValue(user.SpaceIDs, string(spaceID))
 	return update.ByFieldName("spaces", user.Spaces)
 }
 
@@ -88,6 +88,7 @@ func removeMemberFromSpaceRecord(
 		params.Space.Data.UserIDs = slice.RemoveInPlaceByValue(params.Space.Data.UserIDs, contactUserID)
 		params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("userIDs", params.Space.Data.UserIDs))
 	}
+	_ = membersCount
 	//if params.Space.Data.NumberOf[dbo4spaceus.NumberOfMembersFieldName] != membersCount {
 	//	params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.SetNumberOf(dbo4spaceus.NumberOfMembersFieldName, membersCount))
 	//}

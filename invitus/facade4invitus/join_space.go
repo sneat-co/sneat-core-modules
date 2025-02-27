@@ -191,8 +191,8 @@ func onJoinAddSpaceToUser(
 			Roles:      member.Data.Roles,
 			//MemberType:   "", // TODO: populate?
 		}
-		userDto.Spaces[spaceID] = spaceInfo
-		userDto.SpaceIDs = append(userDto.SpaceIDs, spaceID)
+		userDto.Spaces[string(spaceID)] = spaceInfo
+		userDto.SpaceIDs = append(userDto.SpaceIDs, string(spaceID))
 	} else {
 		for _, role := range member.Data.Roles {
 			hasRole := spaceInfo.HasRole(role)

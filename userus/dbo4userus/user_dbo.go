@@ -23,11 +23,11 @@ type WithUserIDs struct {
 	UserIDs map[string]string `json:"userIDs,omitempty" firestore:"userIDs,omitempty"`
 }
 
-func (v *WithUserIDs) SetUserID(spaceID string, userID string) {
+func (v *WithUserIDs) SetUserID(spaceID coretypes.SpaceID, userID string) {
 	if v.UserIDs == nil {
-		v.UserIDs = map[string]string{spaceID: userID}
+		v.UserIDs = map[string]string{string(spaceID): userID}
 	} else {
-		v.UserIDs[spaceID] = userID
+		v.UserIDs[string(spaceID)] = userID
 	}
 }
 
@@ -62,9 +62,10 @@ type UserDbo struct {
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
 
 	// List of spaces a user belongs to
-	Spaces         map[coretypes.SpaceID]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
-	SpaceIDs       []coretypes.SpaceID                   `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
-	DefaultSpaceID coretypes.SpaceID                     `json:"defaultSpaceRef" firestore:"defaultSpaceRef"`
+	Spaces map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
+
+	SpaceIDs       []string `json:"spaceIDs,omitempty" firestore:"spaceIDs,omitempty"`
+	DefaultSpaceID string   `json:"defaultSpaceRef" firestore:"defaultSpaceRef"`
 
 	Created dbmodels.CreatedInfo `json:"created" firestore:"created"`
 
@@ -92,12 +93,12 @@ func (v *UserDbo) SetSpaceBrief(spaceID coretypes.SpaceID, brief *UserSpaceBrief
 		panic("brief is nil")
 	}
 	if v.Spaces == nil {
-		v.Spaces = make(map[coretypes.SpaceID]*UserSpaceBrief, 1)
+		v.Spaces = make(map[string]*UserSpaceBrief, 1)
 	}
-	v.Spaces[spaceID] = brief
+	v.Spaces[string(spaceID)] = brief
 	updates = append(updates, update.ByFieldName("spaces."+string(spaceID), brief))
-	if !slices.Contains(v.SpaceIDs, spaceID) {
-		v.SpaceIDs = append(v.SpaceIDs, spaceID)
+	if !slices.Contains(v.SpaceIDs, string(spaceID)) {
+		v.SpaceIDs = append(v.SpaceIDs, string(spaceID))
 		updates = append(updates, update.ByFieldName("spaceIDs", v.SpaceIDs))
 	}
 	return
@@ -109,11 +110,11 @@ func (v *UserDbo) GetFamilySpaceID() coretypes.SpaceID {
 }
 
 // GetSpaceBriefsByType returns the all spaces matching a specific type
-func (v *UserDbo) GetSpaceBriefsByType(t coretypes.SpaceType) (spaces map[coretypes.SpaceID]*UserSpaceBrief) {
+func (v *UserDbo) GetSpaceBriefsByType(t coretypes.SpaceType) (spaces map[string]*UserSpaceBrief) {
 	for id, brief := range v.Spaces {
 		if brief.Type == t {
 			if spaces == nil {
-				spaces = make(map[coretypes.SpaceID]*UserSpaceBrief)
+				spaces = make(map[string]*UserSpaceBrief)
 			}
 			spaces[id] = brief
 		}
@@ -124,7 +125,7 @@ func (v *UserDbo) GetSpaceBriefsByType(t coretypes.SpaceType) (spaces map[corety
 func (v *UserDbo) GetFirstSpaceBriefBySpaceType(spaceType coretypes.SpaceType) (spaceID coretypes.SpaceID, spaceBrief *UserSpaceBrief) {
 	for id, space := range v.Spaces {
 		if space.Type == spaceType {
-			return id, space
+			return coretypes.SpaceID(id), space
 		}
 	}
 	return "", nil
@@ -228,7 +229,7 @@ func (v *UserDbo) validateSpaces() error {
 						fmt.Sprintf("at least 2 spaces (%s & %s) with same title: '%s'", spaceID, spaceIDs[i], space.Title))
 				}
 			}
-			spaceIDs = append(spaceIDs, spaceID)
+			spaceIDs = append(spaceIDs, coretypes.SpaceID(spaceID))
 			spaceTitles = append(spaceTitles, space.Title)
 		}
 	}
@@ -242,7 +243,7 @@ func (v *UserDbo) validateSpaces() error {
 
 // GetUserSpaceInfoByID return space info specific to the user by space ContactID
 func (v *UserDbo) GetUserSpaceInfoByID(spaceID coretypes.SpaceID) *UserSpaceBrief {
-	return v.Spaces[spaceID]
+	return v.Spaces[string(spaceID)]
 }
 
 func (v *UserDbo) SetBotUserID(platform const4userus.AuthProviderCode, botID, botUserID string) {

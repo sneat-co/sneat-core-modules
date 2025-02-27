@@ -231,8 +231,8 @@ func createOrUpdateUserRecord(
 	if err = userSpaceInfo.Validate(); err != nil {
 		return fmt.Errorf("invalid user space info: %w", err)
 	}
-	user.Data.Spaces[request.SpaceID] = &userSpaceInfo
-	user.Data.SpaceIDs = append(user.Data.SpaceIDs, request.SpaceID)
+	user.Data.Spaces[string(request.SpaceID)] = &userSpaceInfo
+	user.Data.SpaceIDs = append(user.Data.SpaceIDs, string(request.SpaceID))
 	if existingUser {
 		userUpdates := []update.Update{
 			update.ByFieldName("spaces", user.Data.Spaces),
