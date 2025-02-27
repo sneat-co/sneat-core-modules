@@ -65,7 +65,7 @@ func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.MultiGetter, r
 	}
 
 	if err = tx.GetMulti(ctx, records); err != nil {
-		return err
+		return fmt.Errorf("failed in SpaceWorkerParams.GetMulti(len(records)=%d): %w", len(records), err)
 	}
 
 	if hasSpaceRecord {
