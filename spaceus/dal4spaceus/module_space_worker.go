@@ -6,10 +6,9 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-go-core/coretypes"
-
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"slices"
 )
@@ -133,16 +132,14 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
-		return
+		return fmt.Errorf("failed to get sneat db: %w", err)
 	}
 	if err = db.Get(ctx, spaceWorkerParams.Space.Record); err != nil {
 		return fmt.Errorf("failed to get space record outside of transaction: %w", err)
 	}
-	if userCtx != nil {
-		if userID := userCtx.GetUserID(); userID != "" {
-			if !slices.Contains(spaceWorkerParams.Space.Data.UserIDs, userID) {
-				return fmt.Errorf("user is not a member of the space")
-			}
+	if userID := spaceWorkerParams.UserID(); userID != "" {
+		if !slices.Contains(spaceWorkerParams.Space.Data.UserIDs, userID) {
+			return fmt.Errorf("%w: user is not a member of the space", facade.ErrUnauthorized)
 		}
 	}
 	err = facade.RunReadwriteTransactionWithDB(ctx, db, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
