@@ -15,6 +15,11 @@ var GetUserByID = func(ctx context.Context, tx dal.ReadSession, userID string) (
 
 // GetUser returns user by its ID
 func GetUser(ctx context.Context, tx dal.ReadSession, user dbo4userus.UserEntry) (err error) {
+	if tx == nil {
+		if tx, err = facade.GetSneatDB(ctx); err != nil {
+			return
+		}
+	}
 	return tx.Get(ctx, user.Record)
 }
 

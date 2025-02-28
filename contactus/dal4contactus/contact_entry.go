@@ -6,6 +6,7 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
+	"github.com/sneat-co/sneat-go-core/facade"
 )
 
 type ContactEntry = record.DataWithID[string, *dbo4contactus.ContactDbo]
@@ -34,5 +35,10 @@ func FindContactEntryByContactID(contacts []ContactEntry, contactID string) (con
 }
 
 func GetContactusSpace(ctx context.Context, tx dal.ReadSession, contactusSpace ContactusSpaceEntry) (err error) {
+	if tx == nil {
+		if tx, err = facade.GetSneatDB(ctx); err != nil {
+			return err
+		}
+	}
 	return tx.Get(ctx, contactusSpace.Record)
 }
