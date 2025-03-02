@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/security"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/strongoauth"
 	"github.com/strongo/validation"
 	"net/mail"
 	"strings"
@@ -45,7 +46,7 @@ type InitUserRecordRequest struct {
 // Validate validates request
 func (v *InitUserRecordRequest) Validate() error {
 	if v.AuthProvider != "" {
-		if err := dbmodels.ValidateAuthProviderID(v.AuthProvider); err != nil {
+		if err := strongoauth.ValidateAuthProviderID(v.AuthProvider); err != nil {
 			return validation.NewErrBadRequestFieldValue("authProvider", err.Error())
 		}
 	}
