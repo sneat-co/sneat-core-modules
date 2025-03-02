@@ -44,8 +44,10 @@ type InitUserRecordRequest struct {
 
 // Validate validates request
 func (v *InitUserRecordRequest) Validate() error {
-	if v.AuthProvider != "" && !dbmodels.IsKnownAuthProviderID(v.AuthProvider) {
-		return validation.NewErrBadRequestFieldValue("authProvider", "unknown value: "+v.AuthProvider)
+	if v.AuthProvider != "" {
+		if err := dbmodels.ValidateAuthProviderID(v.AuthProvider); err != nil {
+			return validation.NewErrBadRequestFieldValue("authProvider", err.Error())
+		}
 	}
 	if v.Names != nil {
 		if err := v.Names.Validate(); err != nil {
