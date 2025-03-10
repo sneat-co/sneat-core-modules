@@ -2,7 +2,6 @@ package api4invitus
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
@@ -63,7 +62,7 @@ func TestCreateMassInvite(t *testing.T) {
 	}
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMassInviteFunc = func(ctx context.Context, _ facade.UserContext, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateInviteResponse, err error) {
+	createMassInviteFunc = func(ctx facade.ContextWithUser, request facade4invitus.CreateMassInviteRequest) (response facade4invitus.CreateInviteResponse, err error) {
 		response.Invite.ID = "test-id"
 		return
 	}

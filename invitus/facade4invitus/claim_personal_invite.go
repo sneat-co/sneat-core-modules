@@ -80,16 +80,16 @@ type ClaimPersonalInviteResponse struct {
 // ClaimPersonalInvite accepts personal invite and joins user to a space.
 // If needed, a user record should be created
 func ClaimPersonalInvite(
-	ctx context.Context, userCtx facade.UserContext, request ClaimPersonalInviteRequest,
+	ctx facade.ContextWithUser, request ClaimPersonalInviteRequest,
 ) (
 	response ClaimPersonalInviteResponse, err error,
 ) {
 	if err = request.Validate(); err != nil {
 		return
 	}
-	uid := userCtx.GetUserID()
+	uid := ctx.User().GetUserID()
 
-	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest,
+	err = dal4contactus.RunContactusSpaceWorker(ctx, ctx.User(), request.SpaceRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 			response.Space = params.Space
 			response.ContactusSpace = params.SpaceModuleEntry

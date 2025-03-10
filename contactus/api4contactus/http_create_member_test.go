@@ -1,7 +1,6 @@
 package api4contactus
 
 import (
-	"context"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -86,7 +85,7 @@ func TestHttpAddMember(t *testing.T) {
 	req.Host = "localhost"
 	req.Header.Set("Origin", "http://localhost:3000")
 
-	createMember = func(ctx context.Context, userCtx facade.UserContext, request dal4contactus.CreateMemberRequest) (contact dal4contactus.ContactEntry, err error) {
+	createMember = func(ctx facade.ContextWithUser, request dal4contactus.CreateMemberRequest) (contact dal4contactus.ContactEntry, err error) {
 		if request.SpaceID != spaceID {
 			t.Fatalf("Expected spaceID=%s, got: %s", spaceID, request.SpaceID)
 		}

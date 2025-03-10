@@ -13,13 +13,13 @@ var createMassInviteFunc = facade4invitus.CreateMassInvite
 func httpPostCreateMassInvite(w http.ResponseWriter, r *http.Request) {
 
 	var request facade4invitus.CreateMassInviteRequest
-	ctx, userCtx, err := apicore.VerifyAuthenticatedRequestAndDecodeBody(w, r, verify.DefaultJsonWithAuthRequired, &request)
+	ctx, err := apicore.VerifyAuthenticatedRequestAndDecodeBody(w, r, verify.DefaultJsonWithAuthRequired, &request)
 	if err != nil {
 		return
 	}
 
 	var response facade4invitus.CreateInviteResponse
-	response, err = createMassInviteFunc(ctx, userCtx, request)
+	response, err = createMassInviteFunc(ctx, request)
 
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, response)
 }

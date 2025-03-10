@@ -1,7 +1,6 @@
 package api4spaceus
 
 import (
-	"context"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
@@ -14,8 +13,8 @@ import (
 func httpPostCreateSpace(w http.ResponseWriter, r *http.Request) {
 	var request dto4spaceus.CreateSpaceRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx context.Context, userCtx facade.UserContext) (interface{}, error) {
-			result, err := facade4spaceus.CreateSpace(ctx, userCtx, request)
+		func(ctx facade.ContextWithUser) (interface{}, error) {
+			result, err := facade4spaceus.CreateSpace(ctx, ctx.User(), request)
 			if err != nil {
 				return nil, err
 			}

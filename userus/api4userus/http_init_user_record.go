@@ -13,7 +13,7 @@ import (
 
 // httpInitUserRecord sets user title
 func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}
@@ -36,7 +36,7 @@ func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
 	if request.Names != nil {
 		userToCreate.Names = *request.Names
 	}
-	if params, err = facade4auth.CreateUserRecords(ctx, userContext, userToCreate); err != nil {
+	if params, err = facade4auth.CreateUserRecords(ctx, ctx.User(), userToCreate); err != nil {
 		apicore.ReturnError(ctx, w, r, err)
 		return
 	}

@@ -12,14 +12,14 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-func UpdateItemRelationships(ctx context.Context, userCtx facade.UserContext, request dto4linkage.UpdateItemRequest) (item record.DataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID], err error) {
-	if err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, userCtx, request.Space, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
+func UpdateItemRelationships(ctx facade.ContextWithUser, request dto4linkage.UpdateItemRequest) (item record.DataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID], err error) {
+	if err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, ctx.User(), request.Space, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
 		item, err = txUpdateItemRelationships(ctx, tx, params, request)
 		return err
 	}); err != nil {
 		return item, err
 	}
-	if err = UpdateRelatedItemsWithLatestRelationships(ctx, userCtx, request, *item.Data.WithRelatedAndIDs); err != nil {
+	if err = UpdateRelatedItemsWithLatestRelationships(ctx, ctx.User(), request, *item.Data.WithRelatedAndIDs); err != nil {
 		return item, err
 	}
 	return item, err

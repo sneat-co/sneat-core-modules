@@ -54,14 +54,14 @@ func (v InviteContactRequest) Validate() error {
 
 // CreateOrReuseInviteToContact creates or reuses an invitation for a member
 func CreateOrReuseInviteToContact(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request InviteContactRequest,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
 	response CreateInviteResponse,
 	err error,
 ) {
+	userCtx := ctx.User()
 	if userCtx == nil || userCtx.GetUserID() == "" {
 		err = errors.New("user context is required")
 		return

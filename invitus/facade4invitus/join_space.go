@@ -42,11 +42,12 @@ func (v *JoinSpaceRequest) Validate() error {
 }
 
 // JoinSpace joins space
-func JoinSpace(ctx context.Context, userCtx facade.UserContext, request JoinSpaceRequest) (space *dbo4spaceus.SpaceDbo, err error) {
+func JoinSpace(ctx facade.ContextWithUser, request JoinSpaceRequest) (space *dbo4spaceus.SpaceDbo, err error) {
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
+	userCtx := ctx.User()
 	uid := userCtx.GetUserID()
 
 	// We intentionally do not use space worker to query both space & user records in parallel

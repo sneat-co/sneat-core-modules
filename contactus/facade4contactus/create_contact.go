@@ -28,8 +28,7 @@ var ErrContactWithSameAccountKeyAlreadyExists = errors.New("contact with the sam
 
 // CreateContact creates space contact
 func CreateContact(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	userCanBeNonSpaceMember bool,
 	request dto4contactus.CreateContactRequest,
 ) (
@@ -56,7 +55,7 @@ func CreateContact(
 		return contact, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
 
-	err = dal4spaceus.CreateSpaceItem(ctx, userCtx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
+	err = dal4spaceus.CreateSpaceItem(ctx, ctx.User(), request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
 				return fmt.Errorf("failed in CreateContactTx(): %w", err)

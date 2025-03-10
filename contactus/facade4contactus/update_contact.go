@@ -18,8 +18,7 @@ import (
 
 // UpdateContact sets contact fields
 func UpdateContact(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4contactus.UpdateContactRequest,
 ) (
 	contact dal4contactus.ContactEntry,
@@ -27,7 +26,7 @@ func UpdateContact(
 	space dbo4spaceus.SpaceEntry,
 	err error,
 ) {
-	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
+	err = dal4contactus.RunContactWorker(ctx, ctx.User(), request.ContactRequest,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			contact = params.Contact
 			contactusSpace = params.SpaceModuleEntry

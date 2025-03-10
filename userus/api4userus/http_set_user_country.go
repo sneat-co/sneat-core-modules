@@ -1,7 +1,6 @@
 package api4userus
 
 import (
-	"context"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
@@ -11,7 +10,8 @@ import (
 
 func httpSetUserCountry(w http.ResponseWriter, r *http.Request) {
 	var request facade4userus.SetUserCountryRequest
-	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent, func(ctx context.Context, userCtx facade.UserContext) (response interface{}, err error) {
-		return nil, facade4userus.SetUserCountry(ctx, userCtx, request)
-	})
+	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent,
+		func(ctx facade.ContextWithUser) (response interface{}, err error) {
+			return nil, facade4userus.SetUserCountry(ctx, request)
+		})
 }

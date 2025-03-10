@@ -1,7 +1,6 @@
 package facade4contactus
 
 import (
-	"context"
 	"errors"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
@@ -25,7 +24,7 @@ func (v *RefuseToJoinSpaceRequest) Validate() error {
 }
 
 // RefuseToJoinSpace refuses to join space
-func RefuseToJoinSpace(_ context.Context, _ facade.UserContext, request RefuseToJoinSpaceRequest) (err error) {
+func RefuseToJoinSpace(_ facade.ContextWithUser, request RefuseToJoinSpaceRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return
 	}

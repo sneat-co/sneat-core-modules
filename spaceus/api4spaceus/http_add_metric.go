@@ -11,7 +11,7 @@ import (
 
 // httpPostAddMetric is an API endpoint that adds a metric
 func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}
@@ -25,7 +25,7 @@ func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
 	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
 		return
 	}
-	err = addMetric(ctx, userContext, request)
+	err = addMetric(ctx, ctx.User(), request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, nil)
 }
 

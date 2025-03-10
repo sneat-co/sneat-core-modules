@@ -1,7 +1,6 @@
 package facade4contactus
 
 import (
-	"context"
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/checks4contactus"
@@ -13,8 +12,7 @@ import (
 
 // CreateMember adds members to a space
 func CreateMember(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dal4contactus.CreateMemberRequest,
 ) (
 	contact dal4contactus.ContactEntry,
@@ -33,7 +31,7 @@ func CreateMember(
 	if !checks4contactus.IsSpaceMember(request.Roles) {
 		createContactRequest.Roles = append(createContactRequest.Roles, const4contactus.SpaceMemberRoleMember)
 	}
-	if contact, err = CreateContact(ctx, userCtx, false, createContactRequest); err != nil {
+	if contact, err = CreateContact(ctx, false, createContactRequest); err != nil {
 		return contact, err
 	}
 	if contact.Data == nil {

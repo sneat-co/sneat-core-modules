@@ -14,11 +14,9 @@ import (
 
 func TestUpdateItemRelationships(t *testing.T) {
 	type args struct {
-		ctx     context.Context
-		userCtx facade.UserContext
+		ctx     facade.ContextWithUser
 		request dto4linkage.UpdateItemRequest
 	}
-	const testUserID = "test_user_1"
 	const space1ID = "space_1"
 	const item1ID = "item_1"
 	const collection1ID = "collection_1"
@@ -39,8 +37,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 			name:      "should_update_contact_with_reciprocal_role",
 			wantPanic: true, // TODO: Fix this test
 			args: args{
-				ctx:     context.Background(),
-				userCtx: facade.NewUserContext(testUserID),
+				ctx: facade.NewContextWithUser(context.Background(), "123"),
 				request: dto4linkage.UpdateItemRequest{
 					SpaceModuleItemRef: dbo4linkage.SpaceModuleItemRef{
 						Module:     const4contactus.ModuleID,
@@ -73,7 +70,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 					}
 				}()
 			}
-			gotItem, err := UpdateItemRelationships(tt.args.ctx, tt.args.userCtx, tt.args.request)
+			gotItem, err := UpdateItemRelationships(tt.args.ctx, tt.args.request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UpdateItemRelationships() error = %v, wantErr %v", err, tt.wantErr)
 				return

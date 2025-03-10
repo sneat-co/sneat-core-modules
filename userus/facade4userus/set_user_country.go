@@ -27,13 +27,15 @@ func (v SetUserCountryRequest) Validate() error {
 	return nil
 }
 
-func SetUserCountry(ctx context.Context, userCtx facade.UserContext, request SetUserCountryRequest) (err error) {
-	return dal4userus.RunUserWorker(ctx, userCtx, true, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams) (err error) {
-		if err = txSetUserCountry(ctx, tx, userCtx, request, params); err != nil {
-			return fmt.Errorf("failed in txSetUserCountry(): %w", err)
-		}
-		return
-	})
+func SetUserCountry(ctx facade.ContextWithUser, request SetUserCountryRequest) (err error) {
+	userCtx := ctx.User()
+	return dal4userus.RunUserWorker(ctx, userCtx, true,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams) (err error) {
+			if err = txSetUserCountry(ctx, tx, userCtx, request, params); err != nil {
+				return fmt.Errorf("failed in txSetUserCountry(): %w", err)
+			}
+			return
+		})
 }
 
 type RecordToUpdate struct {

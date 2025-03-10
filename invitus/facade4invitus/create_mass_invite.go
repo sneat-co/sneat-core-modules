@@ -21,11 +21,12 @@ func (request *CreateMassInviteRequest) Validate() error {
 }
 
 // CreateMassInvite creates a mass invite
-func CreateMassInvite(ctx context.Context, userCtx facade.UserContext, request CreateMassInviteRequest) (response CreateInviteResponse, err error) {
+func CreateMassInvite(ctx facade.ContextWithUser, request CreateMassInviteRequest) (response CreateInviteResponse, err error) {
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
+	userCtx := ctx.User()
 	if userCtx == nil || userCtx.GetUserID() == "" {
 		err = errors.New("user context is required")
 		return

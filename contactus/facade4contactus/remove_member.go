@@ -18,11 +18,11 @@ import (
 )
 
 // RemoveSpaceMember removes members from a space
-func RemoveSpaceMember(ctx context.Context, userCtx facade.UserContext, request dto4contactus.ContactRequest) (err error) {
+func RemoveSpaceMember(ctx facade.ContextWithUser, request dto4contactus.ContactRequest) (err error) {
 	if err = request.Validate(); err != nil {
 		return err
 	}
-	return dal4contactus.RunContactWorker(ctx, userCtx, request,
+	return dal4contactus.RunContactWorker(ctx, ctx.User(), request,
 		func(ctx context.Context, tx dal.ReadwriteTransaction,
 			params *dal4contactus.ContactWorkerParams,
 		) (err error) {

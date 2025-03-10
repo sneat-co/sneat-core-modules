@@ -10,7 +10,7 @@ import (
 
 // httpPostRefuseToJoinSpace an API endpoint that records user refusal to join a space
 func httpPostRefuseToJoinSpace(w http.ResponseWriter, r *http.Request) {
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithNoAuthRequired)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithNoAuthRequired)
 	if err != nil {
 		return
 	}
@@ -25,6 +25,6 @@ func httpPostRefuseToJoinSpace(w http.ResponseWriter, r *http.Request) {
 		SpaceID: q.Get("id"),
 		Pin:     int32(pin),
 	}
-	err = facade4contactus.RefuseToJoinSpace(ctx, userContext, request)
+	err = facade4contactus.RefuseToJoinSpace(ctx, request)
 	apicore.IfNoErrorReturnOK(ctx, w, r, err)
 }

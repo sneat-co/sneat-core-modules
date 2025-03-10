@@ -26,8 +26,8 @@ func (fooModuleSpaceData) Validate() error {
 }
 
 func TestRunModuleSpaceWorker(t *testing.T) {
-	ctx := context.Background()
-	user := &facade.AuthUserContext{ID: "user1"}
+	const userID = "user1"
+	ctxWithUser := facade.NewContextWithUser(context.Background(), userID)
 	request := dto4spaceus.SpaceRequest{SpaceID: "space1"}
 	const moduleID = "test_module"
 	assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
@@ -47,7 +47,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 		db.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			record.SetError(nil)
 			spaceDbo := record.Data().(*dbo4spaceus.SpaceDbo)
-			spaceDbo.UserIDs = []string{user.ID}
+			spaceDbo.UserIDs = []string{userID}
 			return nil
 		})
 		//var db2 dal.DB
@@ -95,7 +95,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 						spaceDbo.Type = coretypes.SpaceTypeFamily
 						spaceDbo.CountryID = "UK"
 						spaceDbo.Status = dbmodels.StatusActive
-						spaceDbo.UserIDs = []string{user.ID}
+						spaceDbo.UserIDs = []string{userID}
 					case "modules":
 						record.SetError(nil)
 					default:
@@ -109,7 +109,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 		})
 		return db, nil
 	}
-	err := RunModuleSpaceWorkerWithUserCtx(ctx, user, request.SpaceID, moduleID, new(fooModuleSpaceData), assertTxWorker)
+	err := RunModuleSpaceWorkerWithUserCtx(ctxWithUser, ctxWithUser.User(), request.SpaceID, moduleID, new(fooModuleSpaceData), assertTxWorker)
 	assert.Nil(t, err)
 	//type args[ModuleDbo SpaceModuleDbo] struct {
 	//	ctx      context.Context
@@ -136,8 +136,9 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 }
 
 func TestRunModuleSpaceWorkerTx(t *testing.T) {
-	ctx := context.Background()
-	user := &facade.AuthUserContext{ID: "user1"}
+	const userID = "user1"
+	ctx := facade.NewContextWithUser(context.Background(), userID)
+
 	var spaceID coretypes.SpaceID = "space1"
 	const moduleID = "test_module"
 	//assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
@@ -149,6 +150,6 @@ func TestRunModuleSpaceWorkerTx(t *testing.T) {
 	//	return nil
 	//}
 	assert.Panics(t, func() {
-		_ = RunModuleSpaceWorkerTx(ctx, nil, user, spaceID, moduleID, new(fooModuleSpaceData), nil)
+		_ = RunModuleSpaceWorkerTx(ctx, nil, ctx.User(), spaceID, moduleID, new(fooModuleSpaceData), nil)
 	})
 }

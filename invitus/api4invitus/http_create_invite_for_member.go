@@ -1,13 +1,11 @@
 package api4invitus
 
 import (
-	"context"
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
-	"github.com/sneat-co/sneat-go-core/coretypes"
-
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/httpserver"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -19,13 +17,13 @@ import (
 func httpPostCreateOrReuseInviteForMember(w http.ResponseWriter, r *http.Request) {
 	var request facade4invitus.InviteContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx context.Context, userCtx facade.UserContext) (any, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			if request.To.Channel == "link" {
 				return nil, fmt.Errorf("%w: link invites should be requested via GET", facade.ErrBadRequest)
 			}
 			var resp facade4invitus.CreateInviteResponse
 			var err error
-			resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userCtx, request, func() dbmodels.RemoteClientInfo {
+			resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, request, func() dbmodels.RemoteClientInfo {
 				return apicore.GetRemoteClientInfo(r)
 			})
 			return resp.Invite.ID, err
@@ -48,7 +46,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	request.To.Channel = "link"
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.Request(
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.Request(
 		verify.AuthenticationRequired(true),
 		verify.MaximumContentLength(0),
 	))
@@ -57,7 +55,7 @@ func httpGetOrCreateInviteLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var resp facade4invitus.CreateInviteResponse
-	resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, userContext, request, func() dbmodels.RemoteClientInfo {
+	resp, err = facade4invitus.CreateOrReuseInviteToContact(ctx, request, func() dbmodels.RemoteClientInfo {
 		return apicore.GetRemoteClientInfo(r)
 	})
 	if err != nil {

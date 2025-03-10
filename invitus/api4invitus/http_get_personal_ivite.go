@@ -13,7 +13,7 @@ import (
 
 // httpGetPersonal is an API endpoint that returns personal invite data
 func httpGetPersonal(w http.ResponseWriter, r *http.Request) {
-	ctx, user, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}
@@ -24,6 +24,6 @@ func httpGetPersonal(w http.ResponseWriter, r *http.Request) {
 		},
 		InviteID: strings.TrimSpace(q.Get("inviteID")),
 	}
-	response, err := facade4invitus.GetPersonal(ctx, user, request)
+	response, err := facade4invitus.GetPersonal(ctx, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, response)
 }

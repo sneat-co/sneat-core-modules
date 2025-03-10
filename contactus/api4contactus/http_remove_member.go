@@ -10,7 +10,7 @@ import (
 
 // httpPostRemoveSpaceMember is an API endpoint that removes a members from a space
 func httpPostRemoveSpaceMember(w http.ResponseWriter, r *http.Request) {
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verify.DefaultJsonWithAuthRequired)
 	if err != nil {
 		return
 	}
@@ -18,6 +18,6 @@ func httpPostRemoveSpaceMember(w http.ResponseWriter, r *http.Request) {
 	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
 		return
 	}
-	err = facade4contactus.RemoveSpaceMember(ctx, userContext, request)
+	err = facade4contactus.RemoveSpaceMember(ctx, request)
 	apicore.IfNoErrorReturnOK(ctx, w, r, err)
 }

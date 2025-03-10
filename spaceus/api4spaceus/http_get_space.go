@@ -16,13 +16,13 @@ func httpGetSpace(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	id := coretypes.SpaceID(q.Get("id"))
 	verifyOptions := verify.Request(verify.AuthenticationRequired(true))
-	ctx, userContext, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
+	ctx, err := apicore.VerifyRequestAndCreateUserContext(w, r, verifyOptions)
 	if err != nil {
 		return
 	}
 	var space dbo4spaceus.SpaceEntry
 	var response any
-	if space, err = facade4spaceus.GetSpace(ctx, userContext, id); err == nil {
+	if space, err = facade4spaceus.GetSpace(ctx, ctx.User(), id); err == nil {
 		response = space.Data
 	}
 	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, response)
