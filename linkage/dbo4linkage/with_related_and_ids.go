@@ -110,7 +110,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 				return err
 			}
 
-			relatedByCollectionID := withRelated.Related[relatedRef.Module]
+			relatedByCollectionID := withRelated.Related[string(relatedRef.Module)]
 			if relatedByCollectionID == nil {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s]' does not have value for module ContactID=%s", relatedRef.Space, relatedRef.Module))
 			}
@@ -178,7 +178,7 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 							searchIndex = append(searchIndex, spaceKey)
 						}
 					}
-					id := NewSpaceModuleItemRef(k.SpaceID, moduleID, collectionID, k.ItemID).ID()
+					id := NewSpaceModuleItemRef(k.SpaceID, coretypes.ModuleID(moduleID), collectionID, k.ItemID).ID()
 					withRelatedIDs.RelatedIDs = append(withRelatedIDs.RelatedIDs, id)
 				}
 			}

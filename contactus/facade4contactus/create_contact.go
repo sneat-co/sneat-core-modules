@@ -124,7 +124,7 @@ func CreateContactTx(
 		}
 	}
 	if request.Related != nil {
-		relatedByCollection := request.Related[const4contactus.ModuleID]
+		relatedByCollection := request.Related[string(const4contactus.ModuleID)]
 		if relatedByCollection != nil {
 			relatedItems := relatedByCollection[const4contactus.ContactsCollection]
 			if len(relatedItems) > 0 {
@@ -291,7 +291,7 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 				for _, key := range relatedItem.Keys {
 					itemRef := dbo4linkage.SpaceModuleItemRef{
 						Space:      spaceID,
-						Module:     moduleID,
+						Module:     coretypes.ModuleID(moduleID),
 						Collection: collection,
 						ItemID:     key.ItemID,
 					}
