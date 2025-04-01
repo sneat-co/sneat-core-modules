@@ -10,7 +10,7 @@ import (
 var (
 	endian           = binary.BigEndian
 	base64UrlEncoder = base64.RawURLEncoding
-	ErrEmptyID       = errors.New("Can't decode ContactID as value is empty string")
+	ErrEmptyID       = errors.New("can't decode ContactID as value is empty string")
 )
 
 func EncodeID(id int64) string {

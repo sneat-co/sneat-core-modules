@@ -73,8 +73,7 @@ func (LoginCodeDalGae) ClaimLoginCode(ctx context.Context, code int) (userID str
 		if loginCode.Data.Created.Add(time.Minute).Before(time.Now()) {
 			return models4auth.ErrLoginCodeExpired
 		}
-		var emptyTime time.Time
-		if loginCode.Data.Claimed == emptyTime {
+		if !loginCode.Data.Claimed.IsZero() {
 			return models4auth.ErrLoginCodeAlreadyClaimed
 		}
 		loginCode.Data.Claimed = time.Now()

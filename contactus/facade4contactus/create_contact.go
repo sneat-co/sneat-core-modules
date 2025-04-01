@@ -211,8 +211,8 @@ func CreateContactTx(
 	if contactDbo.Address != nil {
 		contactDbo.CountryID = contactDbo.Address.CountryID
 	}
-	if len(request.AccountsOfUser.Accounts) > 0 {
-		contactDbo.Accounts = request.AccountsOfUser.Accounts
+	if len(request.Accounts) > 0 {
+		contactDbo.Accounts = request.Accounts
 	}
 	contactDbo.ShortTitle = contactDbo.DetermineShortTitle(request.Person.Title, params.SpaceModuleEntry.Data.Contacts)
 	var contactID string

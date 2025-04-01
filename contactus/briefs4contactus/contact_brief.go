@@ -197,7 +197,7 @@ NAMES:
 func CleanTitle(title string) string {
 	title = strings.TrimSpace(title)
 	for strings.Contains(title, "  ") {
-		title = strings.Replace(title, "  ", " ", -1)
+		title = strings.ReplaceAll(title, "  ", " ")
 	}
 	return title
 }

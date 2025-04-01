@@ -39,7 +39,7 @@ func (loginPinDalGae LoginPinDalGae) CreateLoginPin(ctx context.Context, tx dal.
 	case "telegram":
 	case "viber":
 	default:
-		return loginPin, fmt.Errorf("Unknown channel: %v", channel)
+		return loginPin, fmt.Errorf("unknown channel: %v", channel)
 	}
 	if createdUserID != "" {
 		user := dbo4userus.NewUserEntry(createdUserID)

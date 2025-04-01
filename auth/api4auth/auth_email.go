@@ -105,7 +105,7 @@ func handleRequestPasswordReset(ctx context.Context, w http.ResponseWriter, r *h
 	email := r.PostFormValue("email")
 	userEmail, err := unsorted4auth.UserEmail.GetUserEmailByID(ctx, nil, email)
 	if dal.IsNotFound(err) {
-		common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("Unknown email"))
+		common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("unknown email"))
 		return
 	}
 
@@ -140,13 +140,13 @@ func handleChangePasswordAndSignIn2(ctx context.Context, w http.ResponseWriter, 
 
 	pwd := r.PostFormValue("pwd")
 	if pwd == "" {
-		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Empty password"))
+		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("empty password"))
 		return
 	}
 
 	if passwordReset, err = unsorted4auth.PasswordReset.GetPasswordResetByID(ctx, nil, passwordReset.ID); err != nil {
 		if dal.IsNotFound(err) {
-			common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("Unknown pin"))
+			common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("unknown pin"))
 			return
 		}
 		common4all.ErrorAsJson(ctx, w, http.StatusInternalServerError, err)
@@ -206,11 +206,11 @@ func handleConfirmEmailAndSignIn2(ctx context.Context, w http.ResponseWriter, r 
 	userEmail.ID, pin = r.PostFormValue("email"), r.PostFormValue("pin")
 
 	if userEmail.ID == "" {
-		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Empty email"))
+		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("empty email"))
 		return
 	}
 	if pin == "" {
-		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Empty pin"))
+		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("empty pin"))
 		return
 	}
 

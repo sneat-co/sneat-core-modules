@@ -96,7 +96,7 @@ func CreateOrReuseInviteToContact(
 			var invite InviteEntry
 
 			//var inviteToContactBrief *dbo4contactus.InviteToContactBrief
-			invite.ID, _ = params.Contact.Data.WithInvitesToContactBriefs.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
+			invite.ID, _ = params.Contact.Data.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
 				if invite.Data.Status == "active" || invite.Data.Status == "" {

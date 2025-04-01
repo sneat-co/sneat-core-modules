@@ -15,6 +15,6 @@ func SetLastCurrency(ctx context.Context, userCtx facade.UserContext, currencyCo
 }
 
 func txSetLastCurrency(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams, currencyCode money.CurrencyCode) (err error) {
-	params.UserUpdates, err = params.User.Data.WithLastCurrencies.SetLastCurrency(currencyCode)
+	params.UserUpdates, err = params.User.Data.SetLastCurrency(currencyCode)
 	return
 }

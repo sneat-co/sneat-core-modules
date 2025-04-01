@@ -36,7 +36,7 @@ func AddMetric(ctx context.Context, userCtx facade.UserContext, request AddSpace
 		return
 	}
 	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, userCtx, request.SpaceID, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
-		request.Metric.ID = strings.Replace(slug.Make(request.Metric.Title), "-", "_", -1)
+		request.Metric.ID = strings.ReplaceAll(slug.Make(request.Metric.Title), "-", "_")
 		for _, m := range params.Space.Data.Metrics {
 			if m.ID == request.Metric.ID {
 				err = validation.NewErrBadRequestFieldValue("title", "duplicate slug(title)")

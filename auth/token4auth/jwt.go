@@ -70,7 +70,7 @@ type AuthInfo struct {
 	Issuer  string
 }
 
-var ErrNoToken = errors.New("No authorization token")
+var ErrNoToken = errors.New("no authorization token")
 
 func Authenticate(w http.ResponseWriter, r *http.Request, required bool) (authInfo AuthInfo, token *jwt.Token, err error) {
 	c := r.Context()

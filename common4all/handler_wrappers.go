@@ -24,7 +24,7 @@ func OptionsHandler(ctx context.Context, w http.ResponseWriter, r *http.Request)
 		BadRequestMessage(ctx, w, "Missing required request header: Origin")
 		return
 	default:
-		if !(strings.HasPrefix(origin, "http://") && strings.HasSuffix(origin, ":8100")) {
+		if !strings.HasPrefix(origin, "http"+"://") || !strings.HasSuffix(origin, ":8100") {
 			err := fmt.Errorf("unknown origin: %s", origin)
 			logus.Debugf(ctx, err.Error())
 			BadRequestError(ctx, w, err)
@@ -33,7 +33,7 @@ func OptionsHandler(ctx context.Context, w http.ResponseWriter, r *http.Request)
 	}
 	logus.Debugf(ctx, "Request 'Origin' header: %s", origin)
 	responseHeader := w.Header()
-	if accessControlRequestMethod := r.Header.Get("Access-Control-Request-Method"); !(accessControlRequestMethod == http.MethodGet || accessControlRequestMethod == http.MethodPost) {
+	if accessControlRequestMethod := r.Header.Get("Access-Control-Request-Method"); accessControlRequestMethod != http.MethodGet && accessControlRequestMethod != http.MethodPost {
 		BadRequestMessage(ctx, w, "Requested method is unsupported: "+accessControlRequestMethod)
 		return
 	} else {

@@ -146,7 +146,7 @@ func updateContactTxWorker(
 
 	if len(params.ContactUpdates) > 0 {
 		contact.Data.IncreaseVersion(params.Started, params.UserID())
-		params.ContactUpdates = append(params.ContactUpdates, contact.Data.WithUpdatedAndVersion.GetUpdates()...)
+		params.ContactUpdates = append(params.ContactUpdates, contact.Data.GetUpdates()...)
 		if err := contact.Data.Validate(); err != nil {
 			return fmt.Errorf("contact DBO is not valid after updating %d fields (%+v) and before storing changes DB: %w",
 				len(updatedContactFields), updatedContactFields, err)

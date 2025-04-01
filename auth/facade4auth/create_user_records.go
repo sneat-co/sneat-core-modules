@@ -102,13 +102,13 @@ func createUserRecord(userToCreate dto4auth.DataToCreateUser, user dbo4userus.Us
 		panic("userInfo is nil")
 	}
 	user.Data.Status = "active"
-	user.Data.ContactBrief.Type = briefs4contactus.ContactTypePerson
-	user.Data.ContactBrief.AgeGroup = "unknown"
-	user.Data.ContactBrief.Gender = "unknown"
-	user.Data.OptionalCountryID.CountryID = with.UnknownCountryID
+	user.Data.Type = briefs4contactus.ContactTypePerson
+	user.Data.AgeGroup = "unknown"
+	user.Data.Gender = "unknown"
+	user.Data.CountryID = with.UnknownCountryID
 
 	if !userToCreate.Names.IsEmpty() {
-		user.Data.ContactBrief.Names = &userToCreate.Names
+		user.Data.Names = &userToCreate.Names
 	}
 
 	if user.Data.Names != nil && user.Data.Names.FullName != "" && (user.Data.Names.FirstName == "" || user.Data.Names.LastName == "") {

@@ -48,7 +48,7 @@ func handleSignInAnonymous(ctx context.Context, w http.ResponseWriter, r *http.R
 		}
 		ReturnToken(ctx, w, r, userID, r.Referer())
 	} else {
-		common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("User is not anonymous."))
+		common4all.ErrorAsJson(ctx, w, http.StatusForbidden, errors.New("user is not anonymous"))
 	}
 }
 

@@ -24,7 +24,7 @@ func handleSignInWithCode(ctx context.Context, w http.ResponseWriter, r *http.Re
 		common4all.BadRequestMessage(ctx, w, "Parameter code is not an integer")
 		return
 	} else if loginCode == 0 {
-		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Login code should not be 0."))
+		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("login code should not be 0"))
 		return
 	} else {
 		if userID, err := unsorted4auth.LoginCode.ClaimLoginCode(ctx, loginCode); err != nil {

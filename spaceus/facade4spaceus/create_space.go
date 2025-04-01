@@ -226,7 +226,7 @@ func getUniqueSpaceID(ctx context.Context, getter dal.ReadSession, title string)
 	if title == "" || const4contactus.IsKnownSpaceMemberRole(title, []string{}) {
 		spaceID = coretypes.SpaceID(random.ID(5))
 	} else {
-		spaceID = coretypes.SpaceID(strings.Replace(slug.Make(title), "-", "", -1))
+		spaceID = coretypes.SpaceID(strings.ReplaceAll(slug.Make(title), "-", ""))
 	}
 	const maxAttemptsCount = 9
 	for i := 0; i <= maxAttemptsCount; i++ {

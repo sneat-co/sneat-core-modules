@@ -198,7 +198,7 @@ func (v *WithRelatedAndIDs) AddRelationshipAndID(
 	itemRef SpaceModuleItemRef,
 	link RelationshipItemRolesCommand,
 ) (updates []update.Update, err error) {
-	updates, err = v.WithRelated.AddRelationship(itemRef, link)
+	updates, err = v.AddRelationship(itemRef, link)
 	updates = append(updates, UpdateRelatedIDs(&v.WithRelated, &v.WithRelatedIDs)...)
 	return
 }
