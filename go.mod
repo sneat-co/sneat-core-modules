@@ -25,9 +25,9 @@ require (
 	github.com/strongo/slice v0.3.1
 	github.com/strongo/strongoapp v0.27.0
 	github.com/strongo/validation v0.0.7
-	go.uber.org/mock v0.5.0
-	golang.org/x/crypto v0.36.0
-	golang.org/x/net v0.38.0
+	go.uber.org/mock v0.5.1
+	golang.org/x/crypto v0.37.0
+	golang.org/x/net v0.39.0
 )
 
 require (
