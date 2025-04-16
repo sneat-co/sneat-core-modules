@@ -24,7 +24,9 @@ type ContactBrief struct {
 	// Joined is true if a user has joined a space or a creator of the space
 	Joined bool `json:"joined,omitempty" firestore:"joined,omitempty"`
 
-	Type       ContactType        `json:"type" firestore:"type"` // "person", "company", "location"
+	Type ContactType `json:"type" firestore:"type"` // "person", "company", "location"
+
+	// Gender is required for contact types ContactTypePerson and ContactTypeAnimal, for other types it should be nil
 	Gender     dbmodels.Gender    `json:"gender,omitempty" firestore:"gender,omitempty"`
 	Names      *person.NameFields `json:"names,omitempty" firestore:"names,omitempty"`
 	Title      string             `json:"title,omitempty" firestore:"title,omitempty"`
