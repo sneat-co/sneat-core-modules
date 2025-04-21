@@ -21,15 +21,15 @@ type LoginPin struct {
 //	return LoginPinKind
 //}
 //
-//func (loginPin LoginPin) Entity() interface{} {
+//func (loginPin LoginPin) Entity() any {
 //	return loginPin.LoginPinData
 //}
 //
-//func (LoginPin) NewEntity() interface{} {
+//func (LoginPin) NewEntity() any {
 //	return new(LoginPinData)
 //}
 //
-//func (loginPin *LoginPin) SetEntity(entity interface{}) {
+//func (loginPin *LoginPin) SetEntity(entity any) {
 //	if entity == nil {
 //		loginPin.LoginPinData = nil
 //	} else {

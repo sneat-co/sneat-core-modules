@@ -34,7 +34,7 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 				Space:   dbo4spaceus.NewSpaceEntry(spaceID),
 				UserCtx: nil,
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t assert.TestingT, err error, i ...any) bool {
 				return assert.NoError(t, err, i...)
 			},
 		},
@@ -44,7 +44,7 @@ func TestSpaceWorkerParams_GetRecords(t *testing.T) {
 				Space:   dbo4spaceus.NewSpaceEntry(spaceID),
 				UserCtx: facade.NewUserContext(userID),
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t assert.TestingT, err error, i ...any) bool {
 				return assert.NoError(t, err, i...)
 			},
 		},

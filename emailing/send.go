@@ -36,11 +36,11 @@ func CreateEmailRecordAndQueueForSending(ctx context.Context, emailEntity *model
 	return email.ID, err
 }
 
-func GetEmailText(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams interface{}) (string, error) {
+func GetEmailText(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams any) (string, error) {
 	return common4all.TextTemplates.RenderTemplate(ctx, translator, templateName, templateParams)
 }
 
-func GetEmailHtml(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams interface{}) (s string, err error) {
+func GetEmailHtml(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, templateParams any) (s string, err error) {
 	var buffer bytes.Buffer
 	err = common4all.HtmlTemplates.RenderTemplate(ctx, &buffer, translator, templateName, templateParams)
 	return buffer.String(), err

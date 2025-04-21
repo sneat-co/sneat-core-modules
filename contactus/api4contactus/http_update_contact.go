@@ -12,7 +12,7 @@ import (
 func httpUpdateContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.UpdateContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent,
-		func(ctx facade.ContextWithUser) (body interface{}, err error) {
+		func(ctx facade.ContextWithUser) (body any, err error) {
 			_, _, _, err = facade4contactus.UpdateContact(ctx, request)
 			return nil, err
 		})

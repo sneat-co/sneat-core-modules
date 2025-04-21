@@ -32,7 +32,7 @@ func NewHtmlTemplates() HtmlTemplateProvider {
 var TextTemplates = NewTextTemplates()
 var HtmlTemplates = NewHtmlTemplates()
 
-func (templates *TextTemplateProvider) RenderTemplate(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, params interface{}) (string, error) {
+func (templates *TextTemplateProvider) RenderTemplate(ctx context.Context, translator i18n.SingleLocaleTranslator, templateName string, params any) (string, error) {
 	var t *text.Template
 	var err error
 	var ok bool
@@ -56,7 +56,7 @@ func (templates *TextTemplateProvider) RenderTemplate(ctx context.Context, trans
 	return wr.String(), nil
 }
 
-func (templates *HtmlTemplateProvider) RenderTemplate(ctx context.Context, wr *bytes.Buffer, translator i18n.SingleLocaleTranslator, templateName string, params interface{}) (err error) {
+func (templates *HtmlTemplateProvider) RenderTemplate(ctx context.Context, wr *bytes.Buffer, translator i18n.SingleLocaleTranslator, templateName string, params any) (err error) {
 	var t *html.Template
 	var ok bool
 	cacheCode := templateName + ":" + translator.Locale().Code5

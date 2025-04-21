@@ -35,7 +35,7 @@ func (userEmail UserEmailEntry) Kind() string {
 	return UserEmailKind
 }
 
-func (UserEmailEntry) NewEntity() interface{} {
+func (UserEmailEntry) NewEntity() any {
 	return new(UserEmailDbo)
 }
 

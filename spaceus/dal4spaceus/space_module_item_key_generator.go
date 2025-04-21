@@ -18,7 +18,7 @@ func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransact
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
 		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)
-		record := dal.NewRecordWithData(key, make(map[string]interface{}))
+		record := dal.NewRecordWithData(key, make(map[string]any))
 		if err := tx.Get(ctx, record); err != nil { // TODO: use tx.Exists()
 			if dal.IsNotFound(err) {
 				return id, key, nil

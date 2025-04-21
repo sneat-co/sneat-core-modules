@@ -15,4 +15,6 @@ func RegisterHttpRoutes(handle module.HTTPHandleFunc) {
 	handle(http.MethodPost, "/v0/space/add_metric", httpPostAddMetric)
 	handle(http.MethodPost, "/v0/space/remove_metrics", httpPostRemoveMetrics)
 	handle(http.MethodGet, "/v0/space", httpGetSpace)
+
+	handle(http.MethodPost, "/v0/space/update_related", httpPostUpdateRelated)
 }

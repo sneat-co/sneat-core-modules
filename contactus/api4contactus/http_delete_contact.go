@@ -13,7 +13,7 @@ import (
 func httpDeleteContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.ContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			return nil, facade4contactus.DeleteContact(ctx, request)
 		})
 }

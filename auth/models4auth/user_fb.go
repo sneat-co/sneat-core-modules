@@ -77,15 +77,15 @@ func (u *UserFacebook) SetStrID(id string) {
 //	u.FbUserOrPageScopeID = vals[1]
 //}
 
-//func (u *UserFacebook) Entity() interface{} {
+//func (u *UserFacebook) Entity() any {
 //	return u.Data
 //}
 //
-//func (UserFacebook) NewEntity() interface{} {
+//func (UserFacebook) NewEntity() any {
 //	return new(UserFacebookData)
 //}
 //
-//func (u *UserFacebook) SetEntity(entity interface{}) {
+//func (u *UserFacebook) SetEntity(entity any) {
 //	u.Data = entity.(*UserFacebookData)
 //}
 

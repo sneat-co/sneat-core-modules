@@ -4,8 +4,7 @@ module github.com/sneat-co/sneat-core-modules
 
 go 1.23.0
 
-//replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
-//replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
+replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
 
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0

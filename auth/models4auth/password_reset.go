@@ -54,15 +54,15 @@ func NewPasswordResetIncompleteKey() *dal.Key {
 ////	return record.ContactID
 ////}
 //
-//func (record PasswordReset) Entity() interface{} {
+//func (record PasswordReset) Entity() any {
 //	return record.PasswordResetData
 //}
 //
-//func (PasswordReset) NewEntity() interface{} {
+//func (PasswordReset) NewEntity() any {
 //	return new(PasswordResetData)
 //}
 //
-//func (record *PasswordReset) SetEntity(entity interface{}) {
+//func (record *PasswordReset) SetEntity(entity any) {
 //	if entity == nil {
 //		record.PasswordResetData = nil
 //	} else {

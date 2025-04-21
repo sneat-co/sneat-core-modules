@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"slices"
 	"time"
 )
 
@@ -66,7 +65,7 @@ func SetRelated(
 	}
 
 	// TODO: Duplicate of GetOppositeRole()! - needs to be in 1 place and document why 1 place chosen over the other
-	addReciprocal := func(roles1, roles2 []dbo4linkage.RelationshipRoleID) []dbo4linkage.RelationshipRoleID {
+	/*addReciprocal := func(roles1, roles2 []dbo4linkage.RelationshipRoleID) []dbo4linkage.RelationshipRoleID {
 		for _, r := range roles1 {
 			switch r {
 			case dbo4linkage.RelationshipRoleSibling, dbo4linkage.RelationshipRoleSpouse:
@@ -89,10 +88,10 @@ func SetRelated(
 			}
 		}
 		return roles2
-	}
+	}*/
 
-	command.Add.RolesToItem = addReciprocal(command.Add.RolesOfItem, command.Add.RolesToItem)
-	command.Add.RolesOfItem = addReciprocal(command.Add.RolesToItem, command.Add.RolesOfItem)
+	//command.Add.RolesToItem = addReciprocal(command.Add.RolesOfItem, command.Add.RolesToItem)
+	//command.Add.RolesOfItem = addReciprocal(command.Add.RolesToItem, command.Add.RolesOfItem)
 
 	//makeRelationships := func(ids []string, now time.Time) (relationships dbo4linkage.RelationshipRoles) {
 	//	relationships = make(dbo4linkage.RelationshipRoles, len(ids))

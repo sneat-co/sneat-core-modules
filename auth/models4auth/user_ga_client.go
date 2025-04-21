@@ -22,15 +22,15 @@ func (GaClient) Kind() string {
 	return GaClientKind
 }
 
-func (gaClient GaClient) Entity() interface{} {
+func (gaClient GaClient) Entity() any {
 	return gaClient.GaClientEntity
 }
 
-func (GaClient) NewEntity() interface{} {
+func (GaClient) NewEntity() any {
 	return new(GaClientEntity)
 }
 
-func (gaClient *GaClient) SetEntity(entity interface{}) {
+func (gaClient *GaClient) SetEntity(entity any) {
 	if entity == nil {
 		gaClient.GaClientEntity = nil
 

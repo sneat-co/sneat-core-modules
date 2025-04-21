@@ -13,7 +13,7 @@ import (
 func httpPostCreateContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.CreateContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			return facade4contactus.CreateContact(ctx, false, request)
 		})
 }

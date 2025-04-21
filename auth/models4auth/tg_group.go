@@ -24,15 +24,15 @@ type TgGroupData struct {
 //	return TgGroupKind
 //}
 //
-//func (tgGroup TgGroup) Entity() interface{} {
+//func (tgGroup TgGroup) Entity() any {
 //	return tgGroup.TgGroupData
 //}
 //
-//func (tgGroup TgGroup) NewEntity() interface{} {
+//func (tgGroup TgGroup) NewEntity() any {
 //	return new(TgGroupData)
 //}
 //
-//func (tgGroup *TgGroup) SetEntity(entity interface{}) {
+//func (tgGroup *TgGroup) SetEntity(entity any) {
 //	if entity == nil {
 //		tgGroup.TgGroupData = nil
 //	} else {

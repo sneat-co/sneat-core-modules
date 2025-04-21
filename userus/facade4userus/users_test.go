@@ -27,7 +27,7 @@ func TestTxGetUsers(t *testing.T) {
 				tx:    nil,
 				users: nil,
 			},
-			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+			wantErr: func(t assert.TestingT, err error, i ...any) bool {
 				return assert.Nil(t, err)
 			},
 		},

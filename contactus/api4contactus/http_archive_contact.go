@@ -13,7 +13,7 @@ import (
 func httpPostArchiveContact(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.ContactRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusOK,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			return nil, facade4contactus.ArchiveContact(ctx, request)
 		})
 }

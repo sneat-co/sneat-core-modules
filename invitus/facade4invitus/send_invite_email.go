@@ -38,7 +38,7 @@ func sendInviteEmail(ctx context.Context, invite InviteEntry) (messageID string,
 	if invite.Data.To.Address == "" {
 		return "", errors.New("missing required field: invite.To.Address")
 	}
-	templateData := make(map[string]interface{})
+	templateData := make(map[string]any)
 	if core.IsInProd() {
 		templateData["hostPath"] = "sneat.app/pwa"
 	} else {

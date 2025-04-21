@@ -29,15 +29,15 @@ func (UserVk) Kind() string {
 	return UserVkKind
 }
 
-func (u UserVk) Entity() interface{} {
+func (u UserVk) Entity() any {
 	return u.UserVkEntity
 }
 
-func (UserVk) NewEntity() interface{} {
+func (UserVk) NewEntity() any {
 	return new(UserVkEntity)
 }
 
-func (u *UserVk) SetEntity(entity interface{}) {
+func (u *UserVk) SetEntity(entity any) {
 	if entity == nil {
 		u.UserVkEntity = nil
 	} else {

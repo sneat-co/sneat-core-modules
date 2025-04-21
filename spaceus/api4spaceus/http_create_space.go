@@ -13,7 +13,7 @@ import (
 func httpPostCreateSpace(w http.ResponseWriter, r *http.Request) {
 	var request dto4spaceus.CreateSpaceRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			result, err := facade4spaceus.CreateSpace(ctx, ctx.User(), request)
 			if err != nil {
 				return nil, err

@@ -14,7 +14,7 @@ var setContactsStatus = facade4contactus.SetContactsStatus
 func httpSetContactStatus(w http.ResponseWriter, r *http.Request) {
 	var request dto4contactus.SetContactsStatusRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusOK,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			return nil, setContactsStatus(ctx, request)
 		})
 }

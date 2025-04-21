@@ -10,7 +10,6 @@ import (
 
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/strongo/validation"
 )
 
 // SpaceItemDbo is an interface for space item DB data object. Examples: ContactDbo, ListDbo, etc.
@@ -19,21 +18,6 @@ type SpaceItemDbo = interface {
 }
 
 // SpaceItemRequest DTO
-type SpaceItemRequest struct {
-	dto4spaceus.SpaceRequest
-	ID string `json:"id"`
-}
-
-// Validate returns error if not valid
-func (v SpaceItemRequest) Validate() error {
-	if v.ID == "" {
-		return validation.NewErrRequestIsMissingRequiredField("id")
-	}
-	if err := v.SpaceRequest.Validate(); err != nil {
-		return err
-	}
-	return nil
-}
 
 // SliceIndexes DTO
 type SliceIndexes struct {
@@ -86,14 +70,14 @@ type SpaceItemWorkerParams[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo] struc
 func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
-	request SpaceItemRequest,
+	request dto4spaceus.SpaceItemRequest,
 	moduleID coretypes.ModuleID,
-	spaceModuleData ModuleDbo,
+	spaceModuleDbo ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
 ) (err error) {
-	return RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, request.SpaceID, moduleID, spaceModuleData,
+	return RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, request.SpaceID, moduleID, spaceModuleDbo,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, moduleSpaceWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error) {
 			spaceItemKey := dal.NewKeyWithParentAndID(moduleSpaceWorkerParams.SpaceModuleEntry.Key, spaceItemCollection, request.ID)
 			params := SpaceItemWorkerParams[ModuleDbo, ItemDbo]{
@@ -117,7 +101,7 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 func DeleteSpaceItem[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
-	request SpaceItemRequest,
+	request dto4spaceus.SpaceItemRequest,
 	moduleID coretypes.ModuleID,
 	moduleData ModuleDbo,
 	spaceItemCollection string,

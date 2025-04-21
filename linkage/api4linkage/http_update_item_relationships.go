@@ -12,7 +12,7 @@ import (
 func httpUpdateItemRelationships(w http.ResponseWriter, r *http.Request) {
 	var request dto4linkage.UpdateItemRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			_, err := facade4linkage.UpdateItemRelationships(ctx, request)
 			return nil, err
 		})

@@ -57,7 +57,7 @@ func HasError(ctx context.Context, w http.ResponseWriter, err error, entity stri
 }
 
 // TODO - replace with generic sneat one
-func JsonToResponse(ctx context.Context, w http.ResponseWriter, v interface{}) {
+func JsonToResponse(ctx context.Context, w http.ResponseWriter, v any) {
 	header := w.Header()
 	if buffer, err := ffjson.Marshal(v); err != nil {
 		logus.Errorf(ctx, err.Error())

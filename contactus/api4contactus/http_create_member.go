@@ -16,7 +16,7 @@ var createMember = facade4contactus.CreateMember
 func httpPostCreateMember(w http.ResponseWriter, r *http.Request) {
 	var request dal4contactus.CreateMemberRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusCreated,
-		func(ctx facade.ContextWithUser) (interface{}, error) {
+		func(ctx facade.ContextWithUser) (any, error) {
 			return createMember(ctx, request)
 		})
 }

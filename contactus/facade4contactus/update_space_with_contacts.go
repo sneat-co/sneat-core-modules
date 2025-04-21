@@ -1,7 +1,7 @@
 package facade4contactus
 
 //func updateSpaceDtoWithNumberOfContact(numberOfContacts int) (update update.Update) {
-//	var value interface{}
+//	var value any
 //	if numberOfContacts == 0 {
 //		value = update.DeleteField
 //	} else {

@@ -23,14 +23,14 @@ func (UserOneSignal) Kind() string {
 	return UserOneSignalKind
 }
 
-func (userOneSignal UserOneSignal) Entity() interface{} {
+func (userOneSignal UserOneSignal) Entity() any {
 	return userOneSignal.UserOneSignalEntity
 }
 
-func (UserOneSignal) NewEntity() interface{} {
+func (UserOneSignal) NewEntity() any {
 	return new(UserOneSignalEntity)
 }
 
-func (userOneSignal *UserOneSignal) SetEntity(entity interface{}) {
+func (userOneSignal *UserOneSignal) SetEntity(entity any) {
 	userOneSignal.UserOneSignalEntity = entity.(*UserOneSignalEntity)
 }

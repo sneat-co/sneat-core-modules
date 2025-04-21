@@ -11,7 +11,7 @@ import (
 func httpSetUserCountry(w http.ResponseWriter, r *http.Request) {
 	var request facade4userus.SetUserCountryRequest
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired, http.StatusNoContent,
-		func(ctx facade.ContextWithUser) (response interface{}, err error) {
+		func(ctx facade.ContextWithUser) (response any, err error) {
 			return nil, facade4userus.SetUserCountry(ctx, request)
 		})
 }

@@ -100,7 +100,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request, required bool) (authIn
 
 	logus.Debugf(r.Context(), "JWT token: [%v]", s)
 
-	if token, err = jwt.Parse(s, func(token *jwt.Token) (interface{}, error) {
+	if token, err = jwt.Parse(s, func(token *jwt.Token) (any, error) {
 		return nil, nil
 	}); err != nil {
 		logus.Debugf(c, "Tried to parse: [%v]", s)
