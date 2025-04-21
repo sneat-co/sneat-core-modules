@@ -7,10 +7,9 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-go-core/coretypes"
-
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"slices"
 	"strings"
@@ -137,6 +136,11 @@ func runSpaceWorkerTx(
 	if err = worker(ctx, tx, params); err != nil {
 		return fmt.Errorf("failed to execute space worker: %w", err)
 	}
+	for i, rec := range params.RecordUpdates {
+		if rec.Record == nil {
+			panic(fmt.Sprintf("worker %v returned params.RecordUpdates[%d] == nil", worker, i))
+		}
+	}
 	if err = applySpaceUpdates(ctx, tx, params); err != nil {
 		return fmt.Errorf("space worker failed to apply space record updates: %w", err)
 	}
@@ -147,7 +151,10 @@ func runSpaceWorkerTx(
 }
 
 func applyRecordUpdates(ctx context.Context, tx dal.ReadwriteTransaction, recordUpdates []record.Updates) error {
-	for _, rec := range recordUpdates {
+	for i, rec := range recordUpdates {
+		if rec.Record == nil {
+			panic(fmt.Sprintf("recordUpdates[%d] == nil", i))
+		}
 		key := rec.Record.Key()
 		if err := tx.Update(ctx, key, rec.Updates); err != nil {
 			updateFieldNames := make([]string, len(rec.Updates))

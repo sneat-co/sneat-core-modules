@@ -8,14 +8,14 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 )
 
-func updateUserRelated(
+func updateUserRelated( // TODO: Document use case when this is needed
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	userID string,
-	objectRef dbo4linkage.SpaceModuleItemRef,
-	item record.DataWithID[string, *dbo4linkage.WithRelated],
-) (userUpdates record.Updates, err error) {
-	user := dbo4userus.NewUserEntry(userID)
+	item record.DataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID],
+) (
+	userUpdates record.Updates, err error,
+) {
+	user := dbo4userus.NewUserEntry(item.Data.UserID)
 	if err = tx.Get(ctx, user.Record); err != nil {
 		return
 	}

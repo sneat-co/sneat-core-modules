@@ -36,7 +36,10 @@ func txUpdateItemRelationships(
 		return item, err
 	}
 	var itemUpdates []update.Update
-	params.RecordUpdates, err = UpdateRelatedField(ctx, tx,
+	userID := params.UserID()
+	params.RecordUpdates, err = UpdateRelatedFields(ctx, tx,
+		params.Started,
+		userID,
 		request.SpaceModuleItemRef, request.UpdateRelatedFieldRequest, item.Data,
 		func(updates []update.Update) {
 			itemUpdates = append(itemUpdates, updates...)

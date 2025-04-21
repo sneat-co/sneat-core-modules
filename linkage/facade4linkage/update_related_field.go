@@ -9,31 +9,36 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/strongo/validation"
+	"time"
 )
 
-func UpdateRelatedField(
+func UpdateRelatedFields(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
+	now time.Time,
+	userID string,
 	objectRef dbo4linkage.SpaceModuleItemRef,
 	request dto4linkage.UpdateRelatedFieldRequest,
 	item *dbo4linkage.WithRelatedAndIDsAndUserID,
-	addUpdates func(updates []update.Update),
-) (recordsUpdates []record.Updates, err error) {
+	addUpdatesToParams func(updates []update.Update),
+) (
+	recordsUpdates []record.Updates, err error,
+) {
 	var setRelatedResult SetRelatedResult
 
-	for i, itemRolesCommand := range request.Related {
-		itemRef := itemRolesCommand.ItemRef
-		if objectRef == itemRef {
-			return recordsUpdates, validation.NewErrBadRequestFieldValue("itemRef", fmt.Sprintf("objectRef and itemRef are the same: %+v", objectRef))
+	for i, command := range request.Related {
+		itemRef := command.ItemRef
+		if itemRef == objectRef {
+			return nil, validation.NewErrBadRequestFieldValue(fmt.Sprintf("request.Related[%d].ItemRef", i), fmt.Sprintf("same as objectRef: %+v", objectRef))
 		}
-		if setRelatedResult, err = SetRelated(ctx, tx, item, objectRef, itemRef, itemRolesCommand); err != nil {
-			return recordsUpdates, err
+		if setRelatedResult, err = SetRelated(now, userID, item, objectRef, command); err != nil {
+			return nil, err
 		}
 
-		addUpdates(setRelatedResult.ItemUpdates)
+		addUpdatesToParams(setRelatedResult.ItemUpdates)
 		//params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, setRelatedResult.SpaceModuleUpdates...)
 
-		if recordsUpdates, err = updateRelatedItem(ctx, tx, itemRef, nil); err != nil {
+		if recordsUpdates, err = updateRelatedItem(ctx, tx, now, objectRef, command); err != nil {
 			return recordsUpdates, fmt.Errorf("failed to update related record for command [%d=%s]: %w", i, itemRef.ID(), err)
 		}
 	}

@@ -22,6 +22,7 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"reflect"
 	"slices"
+	"time"
 )
 
 var ErrContactWithSameAccountKeyAlreadyExists = errors.New("contact with the same account key already exists")
@@ -243,7 +244,12 @@ func CreateContactTx(
 	//params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.SpaceModuleEntry.Data.Contacts)))
 
 	if request.Related != nil {
-		if err = updateRelationshipsInRelatedItems(ctx, tx, params.Space.ID, params.UserID(), userContactID, contactID, params.SpaceModuleEntry, contactDbo, request.Related); err != nil {
+		if err = updateRelationshipsInRelatedItems(ctx, tx,
+			params.Started, params.Space.ID, params.UserID(),
+			userContactID, contactID,
+			params.SpaceModuleEntry, contactDbo,
+			request.Related,
+		); err != nil {
 			err = fmt.Errorf("failed to update relationships in related items: %w", err)
 			return
 		}
@@ -267,6 +273,7 @@ func CreateContactTx(
 }
 
 func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransaction,
+	now time.Time,
 	spaceID coretypes.SpaceID,
 	userID, userContactID, contactID string,
 	contactusSpaceEntry dal4contactus.ContactusSpaceEntry,
@@ -296,11 +303,16 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 						ItemID:     key.ItemID,
 					}
 
-					if _, err = contactDbo.AddRelationshipsAndIDs(
-						itemRef,
-						relatedItem.RolesOfItem,
-						relatedItem.RolesToItem,
-					); err != nil {
+					command := dbo4linkage.RelationshipItemRolesCommand{
+						ItemRef: itemRef,
+					}
+					for roleID := range relatedItem.RolesOfItem {
+						command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleID)
+					}
+					for roleID := range relatedItem.RolesToItem {
+						command.Add.RolesToItem = append(command.Add.RolesOfItem, roleID)
+					}
+					if _, err = contactDbo.AddRelationshipAndID(now, userID, command); err != nil {
 						return err
 					}
 				}

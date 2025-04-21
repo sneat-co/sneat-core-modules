@@ -1,11 +1,11 @@
 package facade4linkage
 
 import (
-	"context"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"slices"
+	"time"
 )
 
 //type RelatableAdapter[D dbo4linkage.Relatable] interface {
@@ -38,16 +38,13 @@ type SetRelatedResult struct {
 
 // SetRelated updates related records to define relationships
 func SetRelated(
-	_ context.Context,
-	_ dal.ReadwriteTransaction,
+	now time.Time,
+	userID string,
 	object dbo4linkage.Relatable,
 	objectRef dbo4linkage.SpaceModuleItemRef,
-	itemRef dbo4linkage.SpaceModuleItemRef,
-	rolesCommand dbo4linkage.RelationshipItemRolesCommand,
+	command dbo4linkage.RelationshipItemRolesCommand,
 ) (
-	result SetRelatedResult,
-	//spaceModuleUpdates []update.Update,
-	err error,
+	result SetRelatedResult, err error,
 ) {
 
 	{
@@ -56,7 +53,7 @@ func SetRelated(
 			err = fmt.Errorf("%s `objectRef dbo4linkage.SpaceModuleItemRef`: %w", invalidArgPrefix, err)
 			return
 		}
-		if err = rolesCommand.Validate(); err != nil {
+		if err = command.Validate(); err != nil {
 			return
 		}
 	}
@@ -67,28 +64,59 @@ func SetRelated(
 	if objectWithRelated.Related == nil {
 		objectWithRelated.Related = make(dbo4linkage.RelatedByModuleID, 1)
 	}
-	getRelationships := func(ids []string) (relationships dbo4linkage.RelationshipRoles) {
-		relationships = make(dbo4linkage.RelationshipRoles, len(ids))
-		for _, r := range ids {
-			relationships[r] = &dbo4linkage.RelationshipRole{
-				//CreatedField: with.CreatedField{
-				//	Created: with.Created{
-				//		At: now.Format(time.DateOnly),
-				//		By: userID,
-				//	},
-				//},
+
+	// TODO: Duplicate of GetOppositeRole()! - needs to be in 1 place and document why 1 place chosen over the other
+	addReciprocal := func(roles1, roles2 []dbo4linkage.RelationshipRoleID) []dbo4linkage.RelationshipRoleID {
+		for _, r := range roles1 {
+			switch r {
+			case dbo4linkage.RelationshipRoleSibling, dbo4linkage.RelationshipRoleSpouse:
+				// mutual relationships
+				if !slices.Contains(roles2, r) {
+					roles2 = append(roles2, r)
+				}
+			case dbo4linkage.RelationshipRoleParent:
+				if !slices.Contains(roles2, dbo4linkage.RelationshipRoleChild) {
+					roles2 = append(roles2, dbo4linkage.RelationshipRoleChild)
+				}
+			case dbo4linkage.RelationshipRoleChild:
+				if !slices.Contains(roles2, dbo4linkage.RelationshipRoleParent) {
+					roles2 = append(roles2, dbo4linkage.RelationshipRoleParent)
+				}
+			case dbo4linkage.RelationshipRoleManager:
+				if !slices.Contains(roles2, dbo4linkage.RelationshipRoleParent) {
+					roles2 = append(roles2, dbo4linkage.RelationshipRoleParent)
+				}
 			}
 		}
-		return
+		return roles2
 	}
-	rolesOfItem := getRelationships(rolesCommand.Add.RolesOfItem)
-	rolesToItem := getRelationships(rolesCommand.Add.RolesToItem)
 
-	if relUpdates, err = objectWithRelated.AddRelationshipsAndIDs(
-		itemRef,
-		rolesOfItem,
-		rolesToItem,
-	); err != nil {
+	command.Add.RolesToItem = addReciprocal(command.Add.RolesOfItem, command.Add.RolesToItem)
+	command.Add.RolesOfItem = addReciprocal(command.Add.RolesToItem, command.Add.RolesOfItem)
+
+	//makeRelationships := func(ids []string, now time.Time) (relationships dbo4linkage.RelationshipRoles) {
+	//	relationships = make(dbo4linkage.RelationshipRoles, len(ids))
+	//	for _, r := range ids {
+	//		relationships[r] = &dbo4linkage.RelationshipRole{
+	//			CreatedField: with.CreatedField{
+	//				Created: with.Created{
+	//					At: now.Format(time.DateOnly),
+	//					By: userID,
+	//				},
+	//			},
+	//		}
+	//	}
+	//	return
+	//}
+	//rolesOfItem := makeRelationships(command.Add.RolesOfItem, now)
+	//rolesToItem := makeRelationships(command.Add.RolesToItem, now)
+	//
+	//objectWithRelated.AddRelationshipsAndIDs(
+	//	itemRef,
+	//	rolesOfItem,
+	//	rolesToItem,
+	//)
+	if relUpdates, err = objectWithRelated.AddRelationshipAndID(now, userID, command); err != nil {
 		return
 	}
 	result.ItemUpdates = append(result.ItemUpdates, relUpdates...)

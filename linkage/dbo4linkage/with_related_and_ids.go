@@ -8,6 +8,7 @@ import (
 	"github.com/strongo/validation"
 	"slices"
 	"strings"
+	"time"
 )
 
 const NoRelatedID = "-"
@@ -135,31 +136,28 @@ func (v *WithRelatedAndIDs) Validate() error {
 	return ValidateRelatedAndRelatedIDs(v.WithRelated, v.RelatedIDs)
 }
 
-func (v *WithRelatedAndIDs) AddRelationshipsAndIDs(
+/*func (v *WithRelatedAndIDs) AddRelationshipsAndIDs(
 	itemRef SpaceModuleItemRef,
 	rolesOfItem RelationshipRoles,
 	rolesToItem RelationshipRoles, // TODO: needs implementation
-) (updates []update.Update, err error) {
-	link := RelationshipItemRolesCommand{}
-	if len(rolesOfItem) > 0 {
-		if link.Add == nil {
-			link.Add = new(RolesCommand)
-		}
-		for roleOfItem := range rolesOfItem {
-			link.Add.RolesOfItem = append(link.Add.RolesOfItem, roleOfItem)
-		}
-	}
-	if len(rolesToItem) > 0 {
-		if link.Remove == nil {
-			link.Remove = new(RolesCommand)
-		}
-		for roleToItem := range rolesToItem {
-			link.Remove.RolesToItem = append(link.Remove.RolesToItem, roleToItem)
+) (
+	updates []update.Update, err error,
+) {
+	var command RelationshipItemRolesCommand
+	if len(rolesOfItem) > 0 || len(rolesToItem) > 0 {
+		if command.Add == nil {
+			command.Add = new(RolesCommand)
 		}
 	}
-	return v.AddRelationshipAndID(itemRef, link)
+	for roleOfItem := range rolesOfItem {
+		command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleOfItem)
+	}
+	for roleToItem := range rolesToItem {
+		command.Add.RolesToItem = append(command.Add.RolesToItem, roleToItem)
+	}
+	return v.AddRelationshipAndID(itemRef, command)
 	//return nil, errors.New("not implemented yet - AddRelationshipsAndIDs")
-}
+}*/
 
 func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
 	searchIndex := []string{AnyRelatedID}
@@ -195,21 +193,25 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 }
 
 func (v *WithRelatedAndIDs) AddRelationshipAndID(
-	itemRef SpaceModuleItemRef,
-	link RelationshipItemRolesCommand,
-) (updates []update.Update, err error) {
-	updates, err = v.AddRelationship(itemRef, link)
+	now time.Time,
+	userID string,
+	command RelationshipItemRolesCommand,
+) (
+	updates []update.Update, err error,
+) {
+	updates, err = v.AddRelationship(now, userID, command)
 	updates = append(updates, UpdateRelatedIDs(&v.WithRelated, &v.WithRelatedIDs)...)
 	return
 }
 
 func AddRelationshipAndID(
+	now time.Time,
+	userID string,
 	withRelated *WithRelated,
 	withRelatedIDs *WithRelatedIDs,
-	itemRef SpaceModuleItemRef,
-	link RelationshipItemRolesCommand,
+	command RelationshipItemRolesCommand,
 ) (updates []update.Update, err error) {
-	updates, err = withRelated.AddRelationship(itemRef, link)
+	updates, err = withRelated.AddRelationship(now, userID, command)
 	updates = append(updates, UpdateRelatedIDs(withRelated, withRelatedIDs)...)
 	return
 }
@@ -230,10 +232,17 @@ const (
 	RelationshipRoleSpacemate = "space-mate"
 )
 
+const (
+	RelationshipRoleManager      = "manager"
+	RelationshipRoleDirectReport = "direct_report"
+)
+
 // Should provide a way for modules to register opposite roles?
 var oppositeRoles = map[RelationshipRoleID]RelationshipRoleID{
-	RelationshipRoleParent: RelationshipRoleChild,
-	RelationshipRoleChild:  RelationshipRoleParent,
+	RelationshipRoleParent:       RelationshipRoleChild,
+	RelationshipRoleChild:        RelationshipRoleParent,
+	RelationshipRoleManager:      RelationshipRoleDirectReport,
+	RelationshipRoleDirectReport: RelationshipRoleManager,
 }
 
 // Should provide a way for modules to register reciprocal roles?

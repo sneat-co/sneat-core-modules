@@ -26,13 +26,14 @@ func UpdateContact(
 	space dbo4spaceus.SpaceEntry,
 	err error,
 ) {
-	err = dal4contactus.RunContactWorker(ctx, ctx.User(), request.ContactRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
-			contact = params.Contact
-			contactusSpace = params.SpaceModuleEntry
-			space = params.Space
-			return UpdateContactTx(ctx, tx, request, params)
-		})
+	user := ctx.User()
+	updateContactWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
+		contact = params.Contact
+		contactusSpace = params.SpaceModuleEntry
+		space = params.Space
+		return UpdateContactTx(ctx, tx, request, params)
+	}
+	err = dal4contactus.RunContactWorker(ctx, user, request.ContactRequest, updateContactWorker)
 	return
 }
 
@@ -130,9 +131,15 @@ func updateContactTxWorker(
 			ItemID:     request.ContactID,
 		}
 		var recordsUpdates []record.Updates
-		recordsUpdates, err = facade4linkage.UpdateRelatedField(ctx, tx,
-			itemRef, request.UpdateRelatedFieldRequest, &dbo4linkage.WithRelatedAndIDsAndUserID{
-				WithUserID:        dbmodels.WithUserID{UserID: params.Contact.Data.UserID},
+		userID := params.UserID()
+		recordsUpdates, err = facade4linkage.UpdateRelatedFields(ctx, tx,
+			params.Started,
+			userID,
+			itemRef, request.UpdateRelatedFieldRequest,
+			&dbo4linkage.WithRelatedAndIDsAndUserID{
+				WithUserID: dbmodels.WithUserID{
+					UserID: params.Contact.Data.UserID,
+				},
 				WithRelatedAndIDs: &params.Contact.Data.WithRelatedAndIDs,
 			},
 			func(updates []update.Update) {

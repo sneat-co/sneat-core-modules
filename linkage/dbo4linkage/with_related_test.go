@@ -15,10 +15,9 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 		relatedIDs []string
 	}
 	type args struct {
-		userID string
-		item   SpaceModuleItemRef
-		link   RelationshipItemRolesCommand
-		now    time.Time
+		userID  string
+		command RelationshipItemRolesCommand
+		now     time.Time
 	}
 	now := time.Now()
 	tests := []struct {
@@ -32,13 +31,13 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 			fields: fields{},
 			args: args{
 				userID: "u1",
-				item: SpaceModuleItemRef{
-					Space:      "space1",
-					Module:     const4contactus.ModuleID,
-					Collection: const4contactus.ContactsCollection,
-					ItemID:     "c2",
-				},
-				link: RelationshipItemRolesCommand{
+				command: RelationshipItemRolesCommand{
+					ItemRef: SpaceModuleItemRef{
+						Space:      "space1",
+						Module:     const4contactus.ModuleID,
+						Collection: const4contactus.ContactsCollection,
+						ItemID:     "c2",
+					},
 					Add: &RolesCommand{
 						RolesOfItem: []RelationshipRoleID{"parent"},
 					},
@@ -76,13 +75,13 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 			fields: fields{},
 			args: args{
 				userID: "u1",
-				item: SpaceModuleItemRef{
-					Space:      "space1",
-					Module:     const4contactus.ModuleID,
-					Collection: const4contactus.ContactsCollection,
-					ItemID:     "c2",
-				},
-				link: RelationshipItemRolesCommand{
+				command: RelationshipItemRolesCommand{
+					ItemRef: SpaceModuleItemRef{
+						Space:      "space1",
+						Module:     const4contactus.ModuleID,
+						Collection: const4contactus.ContactsCollection,
+						ItemID:     "c2",
+					},
 					Add: &RolesCommand{
 						RolesOfItem: []RelationshipRoleID{"child"},
 					},
@@ -125,9 +124,11 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 					RelatedIDs: tt.fields.relatedIDs,
 				},
 			}
+			userID := "u123"
 			gotUpdates, gotErr := v.AddRelationshipAndID(
-				tt.args.item,
-				tt.args.link,
+				now,
+				userID,
+				tt.args.command,
 			)
 			if gotErr != nil {
 				t.Fatal(gotErr)
@@ -143,7 +144,26 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				if !reflect.DeepEqual(gotUpdate.FieldPath(), wantUpdate.FieldPath()) {
 					t.Errorf("SetRelationshipToItem()[%d]\nactual.Field:\n\t%+v,\nwant.Field:\n\t%+v", i, gotUpdate.FieldPath(), wantUpdate.FieldPath())
 				}
-				if !reflect.DeepEqual(gotUpdate.Value(), wantUpdate.Value()) {
+				if gotUpdate.FieldName() == "related.contactus.contacts" {
+					gotRelated := gotUpdate.Value().([]*RelatedItem)
+					wantRelated := wantUpdate.Value().([]*RelatedItem)
+					if len(gotRelated) != len(wantRelated) {
+						t.Fatalf("expected to have %d related items, but got %d", len(wantRelated), len(gotRelated))
+					}
+					for i, relatedItem := range gotRelated {
+						wantRelatedItem := wantRelated[i]
+						for gotRoleOfItem := range relatedItem.RolesOfItem {
+							if wantRelatedItem.RolesOfItem[gotRoleOfItem] == nil {
+								t.Error("got unexpected roleOfItem=" + gotRoleOfItem)
+							}
+						}
+						for gotRoleToItem := range relatedItem.RolesToItem {
+							if wantRelatedItem.RolesToItem[gotRoleToItem] == nil {
+								t.Error("got unexpected roleToItem=" + gotRoleToItem)
+							}
+						}
+					}
+				} else if !reflect.DeepEqual(gotUpdate.Value(), wantUpdate.Value()) {
 					if gotUpdate.FieldName() == "relatedIDs" {
 						// We do not care about order of the relatedIDs
 						gotRelatedIDs := gotUpdate.Value().([]string)

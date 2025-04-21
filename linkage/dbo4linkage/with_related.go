@@ -5,15 +5,17 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
+	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
 	"slices"
 	"strings"
+	"time"
 )
 
 type RelationshipRoleID = string
 
 type RelationshipRole struct {
-	//with.CreatedField
+	with.CreatedField
 }
 
 func (v RelationshipRole) Validate() error {
@@ -252,36 +254,42 @@ func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) e
 	return nil
 }
 
-func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand RelationshipItemRolesCommand) (updates []update.Update, err error) {
-	if err := rolesCommand.Validate(); err != nil {
+func (v *WithRelated) AddRelationship(
+	now time.Time,
+	userID string,
+	command RelationshipItemRolesCommand,
+) (
+	updates []update.Update, err error,
+) {
+	if err := command.Validate(); err != nil {
 		return nil, err
 	}
 	if v.Related == nil {
 		v.Related = make(RelatedByModuleID, 1)
 	}
 
-	if rolesCommand.Add != nil {
+	if command.Add != nil {
 		addOppositeRoles := func(roles []RelationshipRoleID, oppositeRoles []RelationshipRoleID) []RelationshipRoleID {
 			for _, roleOfItem := range roles {
-				if oppositeRole := GetOppositeRole(roleOfItem); oppositeRole != "" && !slices.Contains(rolesCommand.Add.RolesToItem, oppositeRole) {
+				if oppositeRole := GetOppositeRole(roleOfItem); oppositeRole != "" && !slices.Contains(command.Add.RolesToItem, oppositeRole) {
 					oppositeRoles = append(oppositeRoles, oppositeRole)
 				}
 			}
 			return oppositeRoles
 		}
-		rolesCommand.Add.RolesToItem = addOppositeRoles(rolesCommand.Add.RolesOfItem, rolesCommand.Add.RolesToItem)
-		rolesCommand.Add.RolesOfItem = addOppositeRoles(rolesCommand.Add.RolesToItem, rolesCommand.Add.RolesOfItem)
+		command.Add.RolesToItem = addOppositeRoles(command.Add.RolesOfItem, command.Add.RolesToItem)
+		command.Add.RolesOfItem = addOppositeRoles(command.Add.RolesToItem, command.Add.RolesOfItem)
 	}
 
-	relatedByCollectionID := v.Related[string(itemRef.Module)]
+	relatedByCollectionID := v.Related[string(command.ItemRef.Module)]
 	if relatedByCollectionID == nil {
 		relatedByCollectionID = make(RelatedByCollectionID, 1)
-		v.Related[string(itemRef.Module)] = relatedByCollectionID
+		v.Related[string(command.ItemRef.Module)] = relatedByCollectionID
 	}
 
 	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]
 
-	relatedItemKey := RelatedItemKey{SpaceID: itemRef.Space, ItemID: itemRef.ItemID}
+	relatedItemKey := RelatedItemKey{SpaceID: command.ItemRef.Space, ItemID: command.ItemRef.ItemID}
 	relatedItem := GetRelatedItemByKey(relatedItems, relatedItemKey)
 	if relatedItem == nil {
 		relatedItem = NewRelatedItem(relatedItemKey)
@@ -299,12 +307,12 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 		for _, relationshipID := range relationshipIDs {
 			if relationship := relationships[relationshipID]; relationship == nil {
 				relationship = &RelationshipRole{
-					//CreatedField: with.CreatedField{
-					//	Created: with.Created{
-					//		By: userID,
-					//		At: now.Format(time.RFC3339),
-					//	},
-					//},
+					CreatedField: with.CreatedField{
+						Created: with.Created{
+							By: userID,
+							At: now.Format(time.RFC3339),
+						},
+					},
 				}
 				relationships[relationshipID] = relationship
 			}
@@ -312,13 +320,13 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 		return relationships
 	}
 
-	if rolesCommand.Add != nil {
-		relatedItem.RolesOfItem = addRelationship("rolesOfItem", rolesCommand.Add.RolesOfItem, relatedItem.RolesOfItem)
-		relatedItem.RolesToItem = addRelationship("rolesToItem", rolesCommand.Add.RolesToItem, relatedItem.RolesToItem)
+	if command.Add != nil {
+		relatedItem.RolesOfItem = addRelationship("rolesOfItem", command.Add.RolesOfItem, relatedItem.RolesOfItem)
+		relatedItem.RolesToItem = addRelationship("rolesToItem", command.Add.RolesToItem, relatedItem.RolesToItem)
 	}
 
 	updates = append(updates, update.ByFieldName(
-		fmt.Sprintf("related.%s", itemRef.ModuleCollectionPath()),
+		fmt.Sprintf("related.%s", command.ItemRef.ModuleCollectionPath()),
 		relatedItems))
 
 	return updates, nil
@@ -326,11 +334,11 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 
 //func (v *WithRelated) SetRelationshipToItem(
 //	userID string,
-//	link RelationshipItemRolesCommand,
+//	command RelationshipItemRolesCommand,
 //	now time.Time,
 //) (updates []update.Update, err error) {
-//	if err = link.Validate(); err != nil {
-//		return nil, fmt.Errorf("failed to validate link: %w", err)
+//	if err = command.Validate(); err != nil {
+//		return nil, fmt.Errorf("failed to validate command: %w", err)
 //	}
 //
 //	//var alreadyHasRelatedAs bool
@@ -340,17 +348,17 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 //	if v.Related == nil {
 //		v.Related = make(RelatedByModuleID, 1)
 //	}
-//	relatedByCollectionID := v.Related[link.Module]
+//	relatedByCollectionID := v.Related[command.Module]
 //	if relatedByCollectionID == nil {
 //		relatedByCollectionID = make(RelatedByCollectionID, 1)
-//		v.Related[link.Module] = relatedByCollectionID
+//		v.Related[command.Module] = relatedByCollectionID
 //	}
 //	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]
 //	//if relatedItems == nil {
 //	//	relatedItems = make([]*RelatedItem, 0, 1)
 //	//	relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
 //	//}
-//	relatedItemKey := RelatedItemKey{Space: link.Space, ItemID: link.ItemID}
+//	relatedItemKey := RelatedItemKey{Space: command.Space, ItemID: command.ItemID}
 //	relatedItem := GetRelatedItemByKey(relatedItems, relatedItemKey)
 //	if relatedItem == nil {
 //		relatedItem = NewRelatedItem(relatedItemKey)
@@ -361,7 +369,7 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 //
 //	//addIfNeeded := func(f string, itemRelationships RelationshipRoles, linkRelationshipIDs []RelationshipRoleID) {
 //	//	field := func() string {
-//	//		return fmt.Sprintf("%s.%s.%s", relatedField, link.ContactID(), f)
+//	//		return fmt.Sprintf("%s.%s.%s", relatedField, command.ContactID(), f)
 //	//	}
 //	//	for _, linkRelationshipID := range linkRelationshipIDs {
 //	//		itemRelationship := itemRelationships[linkRelationshipID]
@@ -378,11 +386,11 @@ func (v *WithRelated) AddRelationship(itemRef SpaceModuleItemRef, rolesCommand R
 //	//		}
 //	//	}
 //	//}
-//	//addIfNeeded("rolesOfItem", relatedItem.RolesOfItem, link.RolesOfItem)
-//	//addIfNeeded("rolesToItem", relatedItem.RolesToItem, link.RolesToItem)
+//	//addIfNeeded("rolesOfItem", relatedItem.RolesOfItem, command.RolesOfItem)
+//	//addIfNeeded("rolesToItem", relatedItem.RolesToItem, command.RolesToItem)
 //
 //	var relationshipUpdate []update.Update
-//	if relationshipUpdate, err = v.AddRelationshipAndID(userID, link, now); err != nil {
+//	if relationshipUpdate, err = v.AddRelationshipAndID(userID, command, now); err != nil {
 //		return updates, err
 //	}
 //	updates = append(updates, relationshipUpdate...)
