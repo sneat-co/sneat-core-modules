@@ -4,7 +4,7 @@ module github.com/sneat-co/sneat-core-modules
 
 go 1.23.0
 
-replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
+//replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
 
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
@@ -14,7 +14,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.50.9
+	github.com/sneat-co/sneat-go-core v0.50.10
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
