@@ -16,7 +16,7 @@ package facade4linkage
 //	userID string,
 //	spaceID coretypes.SpaceID,
 //	users map[string]dbo4userus.UserEntry,
-//	itemRef dbo4linkage.SpaceModuleItemRef,
+//	itemRef dbo4linkage.ItemRef,
 //	relatedItem dbo4linkage.RelatedItem,
 //) (err error) {
 //	if users == nil {

@@ -39,7 +39,7 @@ func UpdateRelated(ctx facade.ContextWithUser, request dto4linkage.UpdateRelated
 			dal4spaceus.SpaceItemDbo
 			GetUserID() string
 		}]) (err error) {
-			itemRef := dbo4linkage.SpaceModuleItemRef{
+			itemRef := dbo4linkage.ItemRef{
 				Module:     const4contactus.ModuleID,
 				Collection: const4contactus.ContactsCollection,
 				ItemID:     request.ID,

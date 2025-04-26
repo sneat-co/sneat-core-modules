@@ -13,13 +13,13 @@ type RolesCommand struct {
 }
 
 type RelationshipItemRolesCommand struct {
-	ItemRef SpaceModuleItemRef `json:"itemRef"`
-	Add     *RolesCommand      `json:"add,omitempty"`
-	Remove  *RolesCommand      `json:"remove,omitempty"`
+	ItemRef ItemRef       `json:"itemRef"`
+	Add     *RolesCommand `json:"add,omitempty"`
+	Remove  *RolesCommand `json:"remove,omitempty"`
 }
 
 func (v RelationshipItemRolesCommand) Validate() error {
-	//if err := v.SpaceModuleItemRef.Validate(); err != nil {
+	//if err := v.ItemRef.Validate(); err != nil {
 	//	return err
 	//}
 	if err := v.Add.Validate(); err != nil {

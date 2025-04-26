@@ -124,7 +124,7 @@ func updateContactTxWorker(
 	}
 
 	if request.Related != nil {
-		itemRef := dbo4linkage.SpaceModuleItemRef{
+		itemRef := dbo4linkage.ItemRef{
 			Module:     const4contactus.ModuleID,
 			Collection: const4contactus.ContactsCollection,
 			ItemID:     request.ContactID,

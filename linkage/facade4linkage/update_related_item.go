@@ -16,7 +16,7 @@ func updateRelatedItem(
 	tx dal.ReadwriteTransaction,
 	now time.Time,
 	spaceID coretypes.SpaceID,
-	objectRef dbo4linkage.SpaceModuleItemRef,
+	objectRef dbo4linkage.ItemRef,
 	command dbo4linkage.RelationshipItemRolesCommand,
 ) (
 	recordsUpdates []record.Updates,

@@ -62,7 +62,7 @@ func (v *WithRelatedIDs) Validate() error {
 }
 
 func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) error {
-	if err := withRelated.ValidateRelated(func(itemKey SpaceModuleItemRef) error {
+	if err := withRelated.ValidateRelated(func(itemKey ItemRef) error {
 		// needs space ID to verify this
 		//if id := itemKey.ID(); !slices.Contains(relatedIDs, id) {
 		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
@@ -115,7 +115,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 				}
 			}
 		case 2: // "{module}.{collection}.{item}"
-			relatedRef, err := NewSpaceModuleItemRefFromString(relatedID)
+			relatedRef, err := NewItemRefFromString(relatedID)
 			if err != nil {
 				return err
 			}
@@ -153,7 +153,7 @@ func (v *WithRelatedAndIDs) Validate() error {
 }
 
 /*func (v *WithRelatedAndIDs) AddRelationshipsAndIDs(
-	itemRef SpaceModuleItemRef,
+	itemRef ItemRef,
 	rolesOfItem RelationshipRoles,
 	rolesToItem RelationshipRoles, // TODO: needs implementation
 ) (
@@ -226,7 +226,7 @@ func AddRelationshipAndID(
 	return
 }
 
-func RemoveRelatedAndID(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref SpaceModuleItemRef) (updates []update.Update) {
+func RemoveRelatedAndID(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref ItemRef) (updates []update.Update) {
 	updates = withRelated.RemoveRelatedItem(ref)
 	updates = append(updates, UpdateRelatedIDs(spaceID, withRelated, withRelatedIDs)...)
 	return updates

@@ -44,7 +44,7 @@ func (v RelatedItemKey) Validate() error {
 	return nil
 }
 
-func GetRelatedItemByRef(relatedModules RelatedModules, itemRef SpaceModuleItemRef, createIfMissing bool) *RelatedItem {
+func GetRelatedItemByRef(relatedModules RelatedModules, itemRef ItemRef, createIfMissing bool) *RelatedItem {
 	relatedCollections := relatedModules[string(itemRef.Module)]
 	if !createIfMissing && len(relatedCollections) == 0 {
 		return nil
@@ -145,7 +145,7 @@ func (v *WithRelated) Validate() error {
 
 // RemoveRelatedItem removes all relationships to a given item
 // TODO(help-wanted): needs 100% code coverage by tests
-func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []update.Update) {
+func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
 	relatedCollections := v.Related[string(ref.Module)]
 	if relatedCollections == nil {
 		return
@@ -174,7 +174,7 @@ func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []updat
 	return updates
 }
 
-func (v *WithRelated) ValidateRelated(validateID func(itemKey SpaceModuleItemRef) error) error {
+func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) error {
 	for moduleID, relatedCollections := range v.Related {
 		if moduleID == "" {
 			return validation.NewErrBadRecordFieldValue(relatedField, "has an empty module key")
@@ -203,7 +203,7 @@ func (v *WithRelated) ValidateRelated(validateID func(itemKey SpaceModuleItemRef
 						err.Error())
 				}
 				if validateID != nil {
-					if err := validateID(SpaceModuleItemRef{
+					if err := validateID(ItemRef{
 						Module:     coretypes.ModuleID(moduleID),
 						Collection: collectionID,
 						ItemID:     itemID,

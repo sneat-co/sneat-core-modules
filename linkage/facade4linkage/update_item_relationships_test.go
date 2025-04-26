@@ -43,7 +43,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 					SpaceRequest: dto4spaceus.SpaceRequest{
 						SpaceID: space1ID,
 					},
-					SpaceModuleItemRef: dbo4linkage.SpaceModuleItemRef{
+					ItemRef: dbo4linkage.ItemRef{
 						Module:     const4contactus.ModuleID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     item1ID,
@@ -51,7 +51,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 					UpdateRelatedFieldRequest: dto4linkage.UpdateRelatedFieldRequest{
 						Related: []dbo4linkage.RelationshipItemRolesCommand{
 							{
-								ItemRef: dbo4linkage.NewSpaceModuleItemRef(module1ID, collection1ID, item1ID),
+								ItemRef: dbo4linkage.NewItemRef(module1ID, collection1ID, item1ID),
 								Add: &dbo4linkage.RolesCommand{
 									RolesOfItem: []dbo4linkage.RelationshipRoleID{
 										dbo4linkage.RelationshipRoleSpouse,

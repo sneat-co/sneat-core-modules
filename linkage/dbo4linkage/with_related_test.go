@@ -35,7 +35,7 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				userID:  "u1",
 				spaceID: "space1",
 				command: RelationshipItemRolesCommand{
-					ItemRef: SpaceModuleItemRef{
+					ItemRef: ItemRef{
 						Module:     const4contactus.ModuleID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     "c2",
@@ -76,7 +76,7 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				userID:  "u1",
 				spaceID: "space1",
 				command: RelationshipItemRolesCommand{
-					ItemRef: SpaceModuleItemRef{
+					ItemRef: ItemRef{
 						Module:     const4contactus.ModuleID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     "c2",

@@ -41,7 +41,7 @@ func txUpdateItemRelationships(
 		params.Started,
 		userID,
 		request.SpaceID,
-		request.SpaceModuleItemRef, request.UpdateRelatedFieldRequest, item.Data,
+		request.ItemRef, request.UpdateRelatedFieldRequest, item.Data,
 		func(updates []update.Update) {
 			itemUpdates = append(itemUpdates, updates...)
 		})

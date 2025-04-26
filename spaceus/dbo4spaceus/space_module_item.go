@@ -19,6 +19,6 @@ func NewSpaceModuleItemIncompleteKey[K comparable](spaceID coretypes.SpaceID, mo
 	return dal.NewIncompleteKey(collection, idKind, spaceModuleKey)
 }
 
-func NewSpaceModuleItemKeyFromItemRef(spaceID coretypes.SpaceID, itemRef dbo4linkage.SpaceModuleItemRef) *dal.Key {
+func NewSpaceModuleItemKeyFromItemRef(spaceID coretypes.SpaceID, itemRef dbo4linkage.ItemRef) *dal.Key {
 	return NewSpaceModuleItemKey(spaceID, itemRef.Module, itemRef.Collection, itemRef.ItemID)
 }

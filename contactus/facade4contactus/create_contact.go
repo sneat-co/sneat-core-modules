@@ -290,7 +290,7 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 		for moduleID, relatedCollections := range related {
 			for collection, relatedItems := range relatedCollections {
 				for itemID, relatedItem := range relatedItems {
-					itemRef := dbo4linkage.SpaceModuleItemRef{
+					itemRef := dbo4linkage.ItemRef{
 						Module:     coretypes.ModuleID(moduleID),
 						Collection: collection,
 						ItemID:     itemID,

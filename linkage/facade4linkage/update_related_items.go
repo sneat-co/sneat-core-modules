@@ -21,7 +21,7 @@ func UpdateRelatedItemsWithLatestRelationships(
 ) (err error) {
 	var updateErrors []error
 	for i, related := range request.Related {
-		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, userCtx, request.SpaceID, related.ItemRef, request.SpaceModuleItemRef, itemData.Related)
+		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, userCtx, request.SpaceID, related.ItemRef, request.ItemRef, itemData.Related)
 		if err != nil {
 			updateErrors = append(updateErrors, fmt.Errorf("failed to update related item (%d=%s): %w", i, related.ItemRef.ID(), err))
 		}
@@ -36,8 +36,8 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 	ctx context.Context,
 	_ facade.UserContext,
 	spaceID coretypes.SpaceID,
-	itemRef dbo4linkage.SpaceModuleItemRef,
-	relatedItemRef dbo4linkage.SpaceModuleItemRef,
+	itemRef dbo4linkage.ItemRef,
+	relatedItemRef dbo4linkage.ItemRef,
 	relatedByModuleOfRelatedItem dbo4linkage.RelatedModules,
 ) (err error) {
 	itemRelationshipInRelatedItem := dbo4linkage.GetRelatedItemByRef(relatedByModuleOfRelatedItem, itemRef, false)

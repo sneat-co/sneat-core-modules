@@ -10,14 +10,14 @@ import (
 	"strings"
 )
 
-type SpaceModuleItemRef struct { // TODO: Move to sneat-go-core or document why not
+type ItemRef struct { // TODO: Move to sneat-go-core or document why not
 	Module     coretypes.ModuleID `json:"module" firestore:"module"`
 	Collection string             `json:"collection" firestore:"collection"`
 	ItemID     string             `json:"itemID" firestore:"itemID"`
 	//SpaceID    coretypes.SpaceID  `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
 }
 
-func NewSpaceModuleItemRef(module coretypes.ModuleID, collection, itemID string) SpaceModuleItemRef {
+func NewItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	if module == "" {
 		panic("module is required")
 	}
@@ -27,7 +27,7 @@ func NewSpaceModuleItemRef(module coretypes.ModuleID, collection, itemID string)
 	if itemID == "" {
 		panic("itemID is required")
 	}
-	return SpaceModuleItemRef{
+	return ItemRef{
 		//SpaceID:    spaceID,
 		Module:     module,
 		Collection: collection,
@@ -35,7 +35,7 @@ func NewSpaceModuleItemRef(module coretypes.ModuleID, collection, itemID string)
 	}
 }
 
-func NewSpaceModuleItemRefFromString(id string) (itemRef SpaceModuleItemRef, err error) {
+func NewItemRefFromString(id string) (itemRef ItemRef, err error) {
 	var values url.Values
 	if values, err = url.ParseQuery(id); err != nil {
 		return
@@ -52,29 +52,29 @@ func NewSpaceModuleItemRefFromString(id string) (itemRef SpaceModuleItemRef, err
 	return
 }
 
-func (v SpaceModuleItemRef) ID() string {
+func (v ItemRef) ID() string {
 	// The order is important for the RelatedIDs field
 	return fmt.Sprintf("m=%s&c=%s&i=%s", v.Module, v.Collection, v.ItemID)
 }
 
-func (v SpaceModuleItemRef) String() string {
+func (v ItemRef) String() string {
 	return fmt.Sprintf("{Module=%s,Collection=%s,ItemID=%s}", v.Module, v.Collection, v.ItemID)
 }
 
-func (v SpaceModuleItemRef) ModuleID() string {
+func (v ItemRef) ModuleID() string {
 	return fmt.Sprintf("m=" + string(v.Module))
 }
 
-func (v SpaceModuleItemRef) ModuleCollectionPath() string {
+func (v ItemRef) ModuleCollectionPath() string {
 	// The order is important for the RelatedIDs field
 	return fmt.Sprintf("%s.%s", v.Module, v.Collection)
 }
 
-func (v SpaceModuleItemRef) ModuleCollectionID() string {
+func (v ItemRef) ModuleCollectionID() string {
 	return fmt.Sprintf("m=%s&c=%s", v.Module, v.Collection)
 }
 
-func (v SpaceModuleItemRef) Validate() error {
+func (v ItemRef) Validate() error {
 	// SpaceID can be empty for global collections like Happening
 	if v.Module == "" {
 		return validation.NewErrRecordIsMissingRequiredField("moduleID")

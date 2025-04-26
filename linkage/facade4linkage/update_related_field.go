@@ -19,7 +19,7 @@ func UpdateRelatedFields(
 	now time.Time,
 	userID string,
 	spaceID coretypes.SpaceID,
-	objectRef dbo4linkage.SpaceModuleItemRef,
+	objectRef dbo4linkage.ItemRef,
 	request dto4linkage.UpdateRelatedFieldRequest,
 	item *dbo4linkage.WithRelatedAndIDsAndUserID,
 	addUpdatesToParams func(updates []update.Update),

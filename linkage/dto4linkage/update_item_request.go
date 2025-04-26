@@ -7,12 +7,12 @@ import (
 
 type UpdateItemRequest struct {
 	dto4spaceus.SpaceRequest
-	dbo4linkage.SpaceModuleItemRef `json:"itemRef"`
+	dbo4linkage.ItemRef `json:"itemRef"`
 	UpdateRelatedFieldRequest
 }
 
 func (v *UpdateItemRequest) Validate() error {
-	if err := v.SpaceModuleItemRef.Validate(); err != nil {
+	if err := v.ItemRef.Validate(); err != nil {
 		return err
 	}
 	if err := v.UpdateRelatedFieldRequest.Validate(); err != nil {

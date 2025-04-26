@@ -14,7 +14,7 @@ func TestNewContactFullRef(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want SpaceModuleItemRef
+		want ItemRef
 	}{
 		{
 			name: "normal",
@@ -22,7 +22,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "test-space-id",
 				contactID: "test-contact-id",
 			},
-			want: SpaceModuleItemRef{
+			want: ItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id@test-space-id",
@@ -34,7 +34,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "",
 				contactID: "test-contact-id",
 			},
-			want: SpaceModuleItemRef{
+			want: ItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id",
@@ -46,7 +46,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "test-space-id",
 				contactID: "",
 			},
-			want: SpaceModuleItemRef{
+			want: ItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "",
