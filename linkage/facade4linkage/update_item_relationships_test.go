@@ -51,7 +51,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 					UpdateRelatedFieldRequest: dto4linkage.UpdateRelatedFieldRequest{
 						Related: []dbo4linkage.RelationshipItemRolesCommand{
 							{
-								ItemRef: dbo4linkage.NewSpaceModuleItemRef(space1ID, module1ID, collection1ID, item1ID),
+								ItemRef: dbo4linkage.NewSpaceModuleItemRef(module1ID, collection1ID, item1ID),
 								Add: &dbo4linkage.RolesCommand{
 									RolesOfItem: []dbo4linkage.RelationshipRoleID{
 										dbo4linkage.RelationshipRoleSpouse,

@@ -28,7 +28,7 @@ func NewMemberContactEntryFromContactBrief(
 	}
 	member = dal4contactus.NewContactEntry(spaceID, contactID)
 	//member.Brief = &memberBrief
-	//member.Data.Space = spaceID
+	//member.Data.SpaceID = spaceID
 	member.Data.ContactBrief = memberBrief
 	member.Data.Status = dbmodels.StatusActive
 	_ = member.Data.AddRole(const4contactus.SpaceMemberRoleMember)

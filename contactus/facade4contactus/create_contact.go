@@ -235,7 +235,7 @@ func CreateContactTx(
 		}
 	}
 
-	//params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.SpaceModuleEntry.Data.Contacts)))
+	//params.SpaceUpdates = append(params.SpaceUpdates, params.SpaceID.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.SpaceModuleEntry.Data.Contacts)))
 
 	if request.Related != nil {
 		if err = updateRelationshipsInRelatedItems(ctx, tx,
@@ -286,39 +286,43 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 		}
 	}
 
-	for moduleID, relatedCollections := range related {
-		for collection, relatedItems := range relatedCollections {
-			for itemID, relatedItem := range relatedItems {
-				itemRef := dbo4linkage.SpaceModuleItemRef{
-					Module:     coretypes.ModuleID(moduleID),
-					Collection: collection,
-					ItemID:     itemID,
-				}
+	if len(related) > 0 {
+		for moduleID, relatedCollections := range related {
+			for collection, relatedItems := range relatedCollections {
+				for itemID, relatedItem := range relatedItems {
+					itemRef := dbo4linkage.SpaceModuleItemRef{
+						Module:     coretypes.ModuleID(moduleID),
+						Collection: collection,
+						ItemID:     itemID,
+					}
 
-				command := dbo4linkage.RelationshipItemRolesCommand{
-					ItemRef: itemRef,
-				}
-				if len(relatedItem.RolesOfItem) > 0 {
-					if command.Add == nil {
-						command.Add = &dbo4linkage.RolesCommand{}
+					command := dbo4linkage.RelationshipItemRolesCommand{
+						ItemRef: itemRef,
 					}
-					for roleID := range relatedItem.RolesOfItem {
-						command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleID)
+					if len(relatedItem.RolesOfItem) > 0 {
+						if command.Add == nil {
+							command.Add = &dbo4linkage.RolesCommand{}
+						}
+						for roleID := range relatedItem.RolesOfItem {
+							command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleID)
+						}
 					}
-				}
-				if len(relatedItem.RolesToItem) > 0 {
-					if command.Add == nil {
-						command.Add = &dbo4linkage.RolesCommand{}
+					if len(relatedItem.RolesToItem) > 0 {
+						if command.Add == nil {
+							command.Add = &dbo4linkage.RolesCommand{}
+						}
+						for roleID := range relatedItem.RolesToItem {
+							command.Add.RolesToItem = append(command.Add.RolesOfItem, roleID)
+						}
 					}
-					for roleID := range relatedItem.RolesToItem {
-						command.Add.RolesToItem = append(command.Add.RolesOfItem, roleID)
+					if _, err = contactDbo.AddRelationshipAndID(now, userID, spaceID, command); err != nil {
+						return err
 					}
-				}
-				if _, err = contactDbo.AddRelationshipAndID(now, userID, spaceID, command); err != nil {
-					return err
 				}
 			}
 		}
+		dbo4linkage.UpdateRelatedIDs(spaceID, &contactDbo.WithRelated, &contactDbo.WithRelatedIDs)
 	}
+
 	return nil
 }

@@ -89,8 +89,8 @@ func removeMemberFromSpaceRecord(
 		params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("userIDs", params.Space.Data.UserIDs))
 	}
 	_ = membersCount
-	//if params.Space.Data.NumberOf[dbo4spaceus.NumberOfMembersFieldName] != membersCount {
-	//	params.SpaceUpdates = append(params.SpaceUpdates, params.Space.Data.SetNumberOf(dbo4spaceus.NumberOfMembersFieldName, membersCount))
+	//if params.SpaceID.Data.NumberOf[dbo4spaceus.NumberOfMembersFieldName] != membersCount {
+	//	params.SpaceUpdates = append(params.SpaceUpdates, params.SpaceID.Data.SetNumberOf(dbo4spaceus.NumberOfMembersFieldName, membersCount))
 	//}
 }
 

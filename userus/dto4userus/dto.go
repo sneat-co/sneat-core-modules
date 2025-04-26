@@ -60,8 +60,8 @@ func (v *InitUserRecordRequest) Validate() error {
 			return validation.NewErrBadRequestFieldValue("email", err.Error())
 		}
 	}
-	//if v.Space != nil {
-	//	if err := v.Space.Validate(); err != nil {
+	//if v.SpaceID != nil {
+	//	if err := v.SpaceID.Validate(); err != nil {
 	//		return validation.NewErrBadRecordFieldValue("space", err.Error())
 	//	}
 	//}

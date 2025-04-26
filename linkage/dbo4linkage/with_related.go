@@ -174,7 +174,7 @@ func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []updat
 	return updates
 }
 
-func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) error {
+func (v *WithRelated) ValidateRelated(validateID func(itemKey SpaceModuleItemRef) error) error {
 	for moduleID, relatedCollections := range v.Related {
 		if moduleID == "" {
 			return validation.NewErrBadRecordFieldValue(relatedField, "has an empty module key")
@@ -187,18 +187,29 @@ func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) e
 				)
 			}
 			for itemID, relatedItem := range relatedItems {
-				if itemID == "" {
+				switch itemID {
+				case "":
 					return validation.NewErrBadRecordFieldValue(
 						fmt.Sprintf("%s.%s.%s", relatedField, moduleID, collectionID),
 						"has an empty item key")
+				case "itemID":
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("%s.%s.%s", relatedField, moduleID, collectionID),
+						"item key should not be 'itemID'")
 				}
 				if err := relatedItem.Validate(); err != nil {
 					return validation.NewErrBadRecordFieldValue(
 						fmt.Sprintf("%s.%s.%s.%s", relatedField, moduleID, collectionID, itemID),
 						err.Error())
 				}
-				if err := validateID(itemID); err != nil {
-					return fmt.Errorf("validateID(%s) returned error: %w", itemID, err)
+				if validateID != nil {
+					if err := validateID(SpaceModuleItemRef{
+						Module:     coretypes.ModuleID(moduleID),
+						Collection: collectionID,
+						ItemID:     itemID,
+					}); err != nil {
+						return fmt.Errorf("validateID(%s) returned error: %w", itemID, err)
+					}
 				}
 			}
 		}
@@ -313,7 +324,7 @@ func (v *WithRelated) AddRelationship(
 //	//	relatedItems = make([]*RelatedItem, 0, 1)
 //	//	relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
 //	//}
-//	relatedItemKey := RelatedItemKey{Space: command.Space, ItemID: command.ItemID}
+//	relatedItemKey := RelatedItemKey{SpaceID: command.SpaceID, ItemID: command.ItemID}
 //	relatedItem := GetRelatedItemByKey(relatedItems, relatedItemKey)
 //	if relatedItem == nil {
 //		relatedItem = NewRelatedItem(relatedItemKey)

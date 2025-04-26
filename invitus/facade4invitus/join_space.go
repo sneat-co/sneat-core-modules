@@ -254,7 +254,7 @@ func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	}
 
 	_ = params.Space.Data.AddUserID(uid)
-	//if u, ok := params.Space.Data.AddUserID(uid); ok {
+	//if u, ok := params.SpaceID.Data.AddUserID(uid); ok {
 	//	updates = append(updates, u)
 	//}
 
@@ -303,7 +303,7 @@ MemberAdded:
 		//memberBrief.UserID = uid
 		//updates = append(updates, update.Update{
 		//	Field: "members",
-		//	Value: params.Space.Members,
+		//	Value: params.SpaceID.Members,
 		//})
 	case uid: // Do nothing
 	default:

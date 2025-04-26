@@ -1,7 +1,6 @@
-package dbo4contactus
+package dbo4linkage
 
 import (
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
 	"testing"
@@ -15,7 +14,7 @@ func TestNewContactFullRef(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want dbo4linkage.SpaceModuleItemRef
+		want SpaceModuleItemRef
 	}{
 		{
 			name: "normal",
@@ -23,10 +22,10 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "test-space-id",
 				contactID: "test-contact-id",
 			},
-			want: dbo4linkage.SpaceModuleItemRef{
+			want: SpaceModuleItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
-				ItemID:     "test-contact-id",
+				ItemID:     "test-contact-id@test-space-id",
 			},
 		},
 		{
@@ -35,7 +34,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "",
 				contactID: "test-contact-id",
 			},
-			want: dbo4linkage.SpaceModuleItemRef{
+			want: SpaceModuleItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id",
@@ -47,7 +46,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "test-space-id",
 				contactID: "",
 			},
-			want: dbo4linkage.SpaceModuleItemRef{
+			want: SpaceModuleItemRef{
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "",
@@ -59,19 +58,19 @@ func TestNewContactFullRef(t *testing.T) {
 			if tt.args.contactID == "" {
 				defer func() {
 					if r := recover(); r == nil {
-						t.Errorf("NewContactFullRef() did not panic on empty contactID")
+						t.Errorf("NewFullItemRef() did not panic on empty itemID")
 					}
 				}()
 			}
 			if tt.args.spaceID == "" {
 				defer func() {
 					if r := recover(); r == nil {
-						t.Errorf("NewContactFullRef() did not panic on empty spaceID")
+						t.Errorf("NewFullItemRef() did not panic on empty itemID")
 					}
 				}()
 			}
-			if got := NewContactFullRef(tt.args.spaceID, tt.args.contactID); got != tt.want {
-				t.Errorf("NewContactFullRef() = %v, want %v", got, tt.want)
+			if got := NewFullItemRef("contactus", "contacts", tt.args.spaceID, tt.args.contactID); got != tt.want {
+				t.Errorf("NewFullItemRef() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -11,7 +11,7 @@ import (
 
 var createMember = facade4contactus.CreateMember
 
-// httpPostCreateMember is an API endpoint that adds a members to a space.
+// httpPostCreateMember is an API endpoint that adds a member to a space.
 // While is very similar to contactus/api4contactus/http_create_contact.go, it's not the same.
 func httpPostCreateMember(w http.ResponseWriter, r *http.Request) {
 	var request dal4contactus.CreateMemberRequest
