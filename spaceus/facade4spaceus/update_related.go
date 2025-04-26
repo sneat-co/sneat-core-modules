@@ -8,14 +8,14 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
-	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
-func UpdateRelated(ctx facade.ContextWithUser, request dto4spaceus.UpdateRelatedRequest) (err error) {
+func UpdateRelated(ctx facade.ContextWithUser, request dto4linkage.UpdateRelatedRequest) (err error) {
 	userCtx := ctx.User()
 	var moduleDbo dal4spaceus.SpaceModuleDbo
 	var itemDbo interface {
@@ -42,7 +42,6 @@ func UpdateRelated(ctx facade.ContextWithUser, request dto4spaceus.UpdateRelated
 			itemRef := dbo4linkage.SpaceModuleItemRef{
 				Module:     const4contactus.ModuleID,
 				Collection: const4contactus.ContactsCollection,
-				Space:      request.SpaceID,
 				ItemID:     request.ID,
 			}
 			var recordsUpdates []record.Updates
@@ -50,6 +49,7 @@ func UpdateRelated(ctx facade.ContextWithUser, request dto4spaceus.UpdateRelated
 			recordsUpdates, err = facade4linkage.UpdateRelatedFields(ctx, tx,
 				params.Started,
 				userID,
+				request.SpaceID,
 				itemRef, request.UpdateRelatedFieldRequest,
 				&dbo4linkage.WithRelatedAndIDsAndUserID{
 					WithUserID: dbmodels.WithUserID{

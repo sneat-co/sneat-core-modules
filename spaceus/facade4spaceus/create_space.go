@@ -10,7 +10,6 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -218,7 +217,7 @@ func updateUserWithSpaceBrief(user dbo4userus.UserEntry, spaceID coretypes.Space
 		Roles:         spaceUserRoles,
 	}
 	updates = append(updates, user.Data.SetSpaceBrief(spaceID, &userSpaceBrief)...)
-	updates = append(updates, dbo4linkage.UpdateRelatedIDs(&user.Data.WithRelated, &user.Data.WithRelatedIDs)...)
+	//updates = append(updates, dbo4linkage.UpdateRelatedIDs(spaceID, &user.Data.WithRelated, &user.Data.WithRelatedIDs)...)
 	return
 }
 

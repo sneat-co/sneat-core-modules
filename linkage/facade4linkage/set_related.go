@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"time"
 )
 
@@ -39,6 +40,7 @@ type SetRelatedResult struct {
 func SetRelated(
 	now time.Time,
 	userID string,
+	spaceID coretypes.SpaceID,
 	object dbo4linkage.Relatable,
 	objectRef dbo4linkage.SpaceModuleItemRef,
 	command dbo4linkage.RelationshipItemRolesCommand,
@@ -61,7 +63,7 @@ func SetRelated(
 
 	objectWithRelated := object.GetRelated()
 	if objectWithRelated.Related == nil {
-		objectWithRelated.Related = make(dbo4linkage.RelatedByModuleID, 1)
+		objectWithRelated.Related = make(dbo4linkage.RelatedModules, 1)
 	}
 
 	// TODO: Duplicate of GetOppositeRole()! - needs to be in 1 place and document why 1 place chosen over the other
@@ -115,7 +117,7 @@ func SetRelated(
 	//	rolesOfItem,
 	//	rolesToItem,
 	//)
-	if relUpdates, err = objectWithRelated.AddRelationshipAndID(now, userID, command); err != nil {
+	if relUpdates, err = objectWithRelated.AddRelationshipAndID(now, userID, spaceID, command); err != nil {
 		return
 	}
 	result.ItemUpdates = append(result.ItemUpdates, relUpdates...)

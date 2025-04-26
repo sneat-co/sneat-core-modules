@@ -27,13 +27,10 @@ func TestHttpAddMember(t *testing.T) {
 			SpaceID: spaceID,
 		},
 		WithRelated: dbo4linkage.WithRelated{
-			Related: dbo4linkage.RelatedByModuleID{
-				string(const4contactus.ModuleID): dbo4linkage.RelatedByCollectionID{
-					const4contactus.ContactsCollection: []*dbo4linkage.RelatedItem{
-						{
-							Keys: []dbo4linkage.RelatedItemKey{
-								{SpaceID: "space1", ItemID: "c1"},
-							},
+			Related: dbo4linkage.RelatedModules{
+				string(const4contactus.ModuleID): dbo4linkage.RelatedCollections{
+					const4contactus.ContactsCollection: map[string]*dbo4linkage.RelatedItem{
+						"c1": {
 							RolesOfItem: map[dbo4linkage.RelationshipRoleID]*dbo4linkage.RelationshipRole{
 								"spouse": {
 									//CreatedField: with.CreatedField{

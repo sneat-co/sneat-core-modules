@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"reflect"
 	"testing"
@@ -39,9 +40,11 @@ func TestUpdateItemRelationships(t *testing.T) {
 			args: args{
 				ctx: facade.NewContextWithUser(context.Background(), "123"),
 				request: dto4linkage.UpdateItemRequest{
+					SpaceRequest: dto4spaceus.SpaceRequest{
+						SpaceID: space1ID,
+					},
 					SpaceModuleItemRef: dbo4linkage.SpaceModuleItemRef{
 						Module:     const4contactus.ModuleID,
-						Space:      space1ID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     item1ID,
 					},

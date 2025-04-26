@@ -1,14 +1,14 @@
-package dto4spaceus
+package dto4linkage
 
 import (
-	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
 type UpdateRelatedRequest struct {
-	SpaceItemRequest
+	dto4spaceus.SpaceItemRequest
 	coretypes.ModuleCollectionRef
-	dto4linkage.UpdateRelatedFieldRequest
+	UpdateRelatedFieldRequest
 }
 
 func (v *UpdateRelatedRequest) Validate() error {

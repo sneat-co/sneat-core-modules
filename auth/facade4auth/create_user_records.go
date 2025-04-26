@@ -6,7 +6,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/dto4auth"
@@ -169,7 +168,7 @@ func createUserRecord(userToCreate dto4auth.DataToCreateUser, user dbo4userus.Us
 	if user.Data.Title == "" && user.Data.Names.IsEmpty() {
 		user.Data.Title = user.Data.Email
 	}
-	_ = dbo4linkage.UpdateRelatedIDs(&user.Data.WithRelated, &user.Data.WithRelatedIDs)
+	//_ = dbo4linkage.UpdateRelatedIDs( &user.Data.WithRelated, &user.Data.WithRelatedIDs)
 	if err := user.Data.Validate(); err != nil {
 		return fmt.Errorf("user record prepared for insert is not valid: %w", err)
 	}

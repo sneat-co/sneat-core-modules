@@ -9,7 +9,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
-	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
@@ -21,7 +21,7 @@ func UpdateRelatedItemsWithLatestRelationships(
 ) (err error) {
 	var updateErrors []error
 	for i, related := range request.Related {
-		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, userCtx, related.ItemRef, request.SpaceModuleItemRef, itemData.Related)
+		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, userCtx, request.SpaceID, related.ItemRef, request.SpaceModuleItemRef, itemData.Related)
 		if err != nil {
 			updateErrors = append(updateErrors, fmt.Errorf("failed to update related item (%d=%s): %w", i, related.ItemRef.ID(), err))
 		}
@@ -35,9 +35,10 @@ func UpdateRelatedItemsWithLatestRelationships(
 func updateItemWithLatestRelationshipsFromRelatedItem(
 	ctx context.Context,
 	_ facade.UserContext,
+	spaceID coretypes.SpaceID,
 	itemRef dbo4linkage.SpaceModuleItemRef,
 	relatedItemRef dbo4linkage.SpaceModuleItemRef,
-	relatedByModuleOfRelatedItem dbo4linkage.RelatedByModuleID,
+	relatedByModuleOfRelatedItem dbo4linkage.RelatedModules,
 ) (err error) {
 	itemRelationshipInRelatedItem := dbo4linkage.GetRelatedItemByRef(relatedByModuleOfRelatedItem, itemRef, false)
 	if itemRelationshipInRelatedItem == nil || len(itemRelationshipInRelatedItem.RolesToItem) == 0 {
@@ -51,7 +52,7 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 
-		key := dbo4spaceus.NewSpaceModuleItemKey(itemRef.Space, itemRef.Module, itemRef.Collection, itemRef.ItemID)
+		key := dbo4spaceus.NewSpaceModuleItemKey(spaceID, itemRef.Module, itemRef.Collection, itemRef.ItemID)
 		item := record.NewDataWithID(itemRef.ItemID, key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
 		if err = tx.Get(ctx, item.Record); err != nil {
 			return err
@@ -62,13 +63,13 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 		for roleID, role := range itemRelationshipInRelatedItem.RolesToItem {
 			relatedItem.RolesOfItem[roleID] = role
 		}
-		if item.Data.UserID != "" {
-			users := make(map[string]dbo4userus.UserEntry)
-			if err = updateUserWithRelatedTx(ctx, tx, item.Data.UserID, users, itemRef, *relatedItem); err != nil {
-				return err
-			}
-
-		}
+		//if item.Data.UserID != "" {
+		//	users := make(map[string]dbo4userus.UserEntry)
+		//	if err = updateUserWithRelatedTx(ctx, tx, item.Data.UserID, spaceID, users, itemRef, *relatedItem); err != nil {
+		//		return err
+		//	}
+		//
+		//}
 		return nil
 	})
 }

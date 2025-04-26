@@ -24,7 +24,6 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "test-contact-id",
 			},
 			want: dbo4linkage.SpaceModuleItemRef{
-				Space:      "test-space-id",
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id",
@@ -37,7 +36,6 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "test-contact-id",
 			},
 			want: dbo4linkage.SpaceModuleItemRef{
-				Space:      "",
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id",
@@ -50,7 +48,6 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "",
 			},
 			want: dbo4linkage.SpaceModuleItemRef{
-				Space:      "test-space-id",
 				Module:     "contactus",
 				Collection: "contacts",
 				ItemID:     "",
@@ -59,17 +56,17 @@ func TestNewContactFullRef(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.want.Space == "" {
+			if tt.args.contactID == "" {
 				defer func() {
 					if r := recover(); r == nil {
-						t.Errorf("NewContactFullRef() did not panic")
+						t.Errorf("NewContactFullRef() did not panic on empty contactID")
 					}
 				}()
 			}
-			if tt.want.ItemID == "" {
+			if tt.args.spaceID == "" {
 				defer func() {
 					if r := recover(); r == nil {
-						t.Errorf("NewContactFullRef() did not panic")
+						t.Errorf("NewContactFullRef() did not panic on empty spaceID")
 					}
 				}()
 			}

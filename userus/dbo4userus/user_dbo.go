@@ -6,7 +6,7 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	//"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -47,7 +47,7 @@ type UserDbo struct {
 	appuser.AccountsOfUser
 	appuser.WithLastLogin
 
-	dbo4linkage.WithRelatedAndIDs
+	//dbo4linkage.WithRelatedAndIDs
 
 	InvitedByUserID string `firestore:"invitedByUserID,omitempty" ` // TODO: Prevent circular references! see users 6032980589936640 & 5998019824582656
 
@@ -166,9 +166,9 @@ func (v *UserDbo) Validate() error {
 	if err := v.Created.Validate(); err != nil {
 		return validation.NewErrBadRecordFieldValue("created", err.Error())
 	}
-	if err := v.WithRelatedAndIDs.Validate(); err != nil {
-		return err
-	}
+	//if err := v.WithRelatedAndIDs.Validate(); err != nil {
+	//	return err
+	//}
 	if err := v.WithBotUserIDs.Validate(); err != nil {
 		return err
 	}

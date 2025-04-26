@@ -8,6 +8,7 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
 	"time"
 )
@@ -17,6 +18,7 @@ func UpdateRelatedFields(
 	tx dal.ReadwriteTransaction,
 	now time.Time,
 	userID string,
+	spaceID coretypes.SpaceID,
 	objectRef dbo4linkage.SpaceModuleItemRef,
 	request dto4linkage.UpdateRelatedFieldRequest,
 	item *dbo4linkage.WithRelatedAndIDsAndUserID,
@@ -31,14 +33,14 @@ func UpdateRelatedFields(
 		if itemRef == objectRef {
 			return nil, validation.NewErrBadRequestFieldValue(fmt.Sprintf("request.Related[%d].ItemRef", i), fmt.Sprintf("same as objectRef: %+v", objectRef))
 		}
-		if setRelatedResult, err = SetRelated(now, userID, item, objectRef, command); err != nil {
+		if setRelatedResult, err = SetRelated(now, userID, spaceID, item, objectRef, command); err != nil {
 			return nil, err
 		}
 
 		addUpdatesToParams(setRelatedResult.ItemUpdates)
 		//params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, setRelatedResult.SpaceModuleUpdates...)
 
-		if recordsUpdates, err = updateRelatedItem(ctx, tx, now, objectRef, command); err != nil {
+		if recordsUpdates, err = updateRelatedItem(ctx, tx, now, spaceID, objectRef, command); err != nil {
 			return recordsUpdates, fmt.Errorf("failed to update related record for command [%d=%s]: %w", i, itemRef.ID(), err)
 		}
 	}

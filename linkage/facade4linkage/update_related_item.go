@@ -7,6 +7,7 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"time"
 )
 
@@ -14,6 +15,7 @@ func updateRelatedItem(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	now time.Time,
+	spaceID coretypes.SpaceID,
 	objectRef dbo4linkage.SpaceModuleItemRef,
 	command dbo4linkage.RelationshipItemRolesCommand,
 ) (
@@ -26,7 +28,7 @@ func updateRelatedItem(
 	}
 	relatedItemID := relatedItemRef.ItemID
 
-	key := dbo4spaceus.NewSpaceModuleItemKeyFromItemRef(relatedItemRef)
+	key := dbo4spaceus.NewSpaceModuleItemKeyFromItemRef(spaceID, relatedItemRef)
 	dbo := new(dbo4linkage.WithRelatedAndIDsAndUserID)
 	dbo.WithRelatedAndIDs = new(dbo4linkage.WithRelatedAndIDs)
 	related := record.NewDataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID](relatedItemID, key, dbo)
@@ -56,7 +58,7 @@ func updateRelatedItem(
 	}
 
 	userID := "u123"
-	if result, err = SetRelated(now, userID, dbo, relatedItemRef, relatedItemCommand); err != nil {
+	if result, err = SetRelated(now, userID, spaceID, dbo, relatedItemRef, relatedItemCommand); err != nil {
 		return nil, fmt.Errorf("failed to update related item: %w", err)
 	}
 	recordsUpdates = append(recordsUpdates, record.Updates{

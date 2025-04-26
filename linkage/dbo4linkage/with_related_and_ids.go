@@ -105,23 +105,30 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 					return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "single key should start with 'm=' or 's=', got: "+relatedID)
 				}
 			}
-		case 3: // "{module}.{collection}.{space}.{item}"
+		case 2: // "{module}.{collection}.{item}"
 			relatedRef, err := NewSpaceModuleItemRefFromString(relatedID)
 			if err != nil {
 				return err
 			}
 
-			relatedByCollectionID := withRelated.Related[string(relatedRef.Module)]
-			if relatedByCollectionID == nil {
-				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s]' does not have value for module ContactID=%s", relatedRef.Space, relatedRef.Module))
+			relatedCollections := withRelated.Related[string(relatedRef.Module)]
+			if relatedCollections == nil {
+				return validation.NewErrBadRecordFieldValue(
+					fmt.Sprintf("relatedIDs[%d]", i),
+					fmt.Sprintf("field 'related[%s]' does not have value", relatedRef.Module))
 			}
-			relatedItems := relatedByCollectionID[relatedRef.Collection]
+			relatedItems := relatedCollections[relatedRef.Collection]
 			if relatedItems == nil {
-				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s][%s]' does not have value for collection ContactID=%s", relatedRef.Space, relatedRef.Module, relatedRef.Collection))
+				return validation.NewErrBadRecordFieldValue(
+					fmt.Sprintf("relatedIDs[%d]", i),
+					fmt.Sprintf("field 'related[%s][%s]' does not have value", relatedRef.Module, relatedRef.Collection))
 			}
 
-			if !HasRelatedItem(relatedItems, RelatedItemKey{SpaceID: relatedRef.Space, ItemID: relatedRef.ItemID}) {
-				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), fmt.Sprintf("field 'related[%s][%s][%s]' does not have value for item ContactID=%s", relatedRef.Space, relatedRef.Module, relatedRef.Collection, relatedRef.ItemID))
+			if _, ok := relatedItems[relatedRef.ItemID]; !ok {
+				return validation.NewErrBadRecordFieldValue(
+					fmt.Sprintf("relatedIDs[%d]", i),
+					fmt.Sprintf("field 'related[%s][%s][%s]' does not have value",
+						relatedRef.Module, relatedRef.Collection, relatedRef.ItemID))
 			}
 		}
 	}
@@ -159,26 +166,16 @@ func (v *WithRelatedAndIDs) Validate() error {
 	//return nil, errors.New("not implemented yet - AddRelationshipsAndIDs")
 }*/
 
-func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
-	searchIndex := []string{AnyRelatedID}
+func UpdateRelatedIDs(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
+	searchIndex := []string{AnyRelatedID, "s=" + string(spaceID)}
 	withRelatedIDs.RelatedIDs = make([]string, 0)
-	for moduleID, relatedByCollectionID := range withRelated.Related {
+	for moduleID, relatedCollections := range withRelated.Related {
 		searchIndex = append(searchIndex, "m="+string(moduleID))
-		for collectionID, relatedItems := range relatedByCollectionID {
+		for collectionID, relatedItems := range relatedCollections {
 			searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s", moduleID, collectionID))
-			spaceIDs := make([]coretypes.SpaceID, 0, len(relatedItems))
-			for _, relatedItem := range relatedItems {
-				for _, k := range relatedItem.Keys {
-					if !slices.Contains(spaceIDs, k.SpaceID) {
-						spaceIDs = append(spaceIDs, k.SpaceID)
-						searchIndex = append(searchIndex, fmt.Sprintf("s=%s&m=%s&c=%s", k.SpaceID, moduleID, collectionID))
-						if spaceKey := fmt.Sprintf("s=%s", k.SpaceID); !slices.Contains(searchIndex, spaceKey) {
-							searchIndex = append(searchIndex, spaceKey)
-						}
-					}
-					id := NewSpaceModuleItemRef(k.SpaceID, coretypes.ModuleID(moduleID), collectionID, k.ItemID).ID()
-					withRelatedIDs.RelatedIDs = append(withRelatedIDs.RelatedIDs, id)
-				}
+			searchIndex = append(searchIndex, fmt.Sprintf("s=%s&m=%s&c=%s", spaceID, moduleID, collectionID))
+			for itemID := range relatedItems {
+				withRelatedIDs.RelatedIDs = append(withRelatedIDs.RelatedIDs, fmt.Sprintf("s=%s&m=%s&c=%s&i=%s", spaceID, moduleID, collectionID, itemID))
 			}
 		}
 	}
@@ -195,30 +192,32 @@ func UpdateRelatedIDs(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) 
 func (v *WithRelatedAndIDs) AddRelationshipAndID(
 	now time.Time,
 	userID string,
+	spaceID coretypes.SpaceID,
 	command RelationshipItemRolesCommand,
 ) (
 	updates []update.Update, err error,
 ) {
 	updates, err = v.AddRelationship(now, userID, command)
-	updates = append(updates, UpdateRelatedIDs(&v.WithRelated, &v.WithRelatedIDs)...)
+	updates = append(updates, UpdateRelatedIDs(spaceID, &v.WithRelated, &v.WithRelatedIDs)...)
 	return
 }
 
 func AddRelationshipAndID(
 	now time.Time,
 	userID string,
+	spaceID coretypes.SpaceID,
 	withRelated *WithRelated,
 	withRelatedIDs *WithRelatedIDs,
 	command RelationshipItemRolesCommand,
 ) (updates []update.Update, err error) {
 	updates, err = withRelated.AddRelationship(now, userID, command)
-	updates = append(updates, UpdateRelatedIDs(withRelated, withRelatedIDs)...)
+	updates = append(updates, UpdateRelatedIDs(spaceID, withRelated, withRelatedIDs)...)
 	return
 }
 
-func RemoveRelatedAndID(withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref SpaceModuleItemRef) (updates []update.Update) {
+func RemoveRelatedAndID(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref SpaceModuleItemRef) (updates []update.Update) {
 	updates = withRelated.RemoveRelatedItem(ref)
-	updates = append(updates, UpdateRelatedIDs(withRelated, withRelatedIDs)...)
+	updates = append(updates, UpdateRelatedIDs(spaceID, withRelated, withRelatedIDs)...)
 	return updates
 }
 

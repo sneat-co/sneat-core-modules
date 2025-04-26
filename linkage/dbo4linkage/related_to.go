@@ -25,7 +25,7 @@ func (v *ShortSpaceModuleDocRef) Validate() error {
 }
 
 type SpaceModuleItemRef struct { // TODO: Move to sneat-go-core or document why not
-	Space      coretypes.SpaceID  `json:"space" firestore:"space"`
+	//Space      coretypes.SpaceID  `json:"space" firestore:"space"`
 	Module     coretypes.ModuleID `json:"module" firestore:"module"`
 	Collection string             `json:"collection" firestore:"collection"`
 	ItemID     string             `json:"itemID" firestore:"itemID"`
@@ -45,7 +45,7 @@ func NewSpaceModuleItemRef(spaceID coretypes.SpaceID, module coretypes.ModuleID,
 		panic("itemID is required")
 	}
 	return SpaceModuleItemRef{
-		Space:      spaceID,
+		//Space:      spaceID,
 		Module:     module,
 		Collection: collection,
 		ItemID:     itemID,
@@ -58,17 +58,19 @@ func NewSpaceModuleItemRefFromString(id string) (itemRef SpaceModuleItemRef, err
 		panic(fmt.Sprintf("invalid ContactID: '%s'", id))
 	}
 	for i, s := range ids {
+		if s[1] != '=' {
+			err = fmt.Errorf("expected to have '=' as 2nd charcter of value #%d, got '%s'", i, string(s[1]))
+			return
+		}
 		switch s[0] {
 		case 'm':
 			itemRef.Module = coretypes.ModuleID(s[2:])
 		case 'c':
 			itemRef.Collection = s[2:]
-		case 's':
-			itemRef.Space = coretypes.SpaceID(s[2:])
 		case 'i':
 			itemRef.ItemID = s[2:]
 		default:
-			err = fmt.Errorf("unexpected character at position %d in ContactID: '%s'", i, id)
+			err = fmt.Errorf("unexpected key for value #%d - '%s'", i, id)
 			return
 		}
 	}
@@ -77,11 +79,11 @@ func NewSpaceModuleItemRefFromString(id string) (itemRef SpaceModuleItemRef, err
 
 func (v SpaceModuleItemRef) ID() string {
 	// The order is important for RelatedIDs field
-	return fmt.Sprintf("s=%s&m=%s&c=%s&i=%s", v.Space, v.Module, v.Collection, v.ItemID)
+	return fmt.Sprintf("m=%s&c=%s&i=%s", v.Module, v.Collection, v.ItemID)
 }
 
 func (v SpaceModuleItemRef) String() string {
-	return fmt.Sprintf("{Space=%s, Module=%s. Collection=%s, ItemID=%s}", v.Module, v.Space, v.Collection, v.ItemID)
+	return fmt.Sprintf("{Module=%s. Collection=%s, ItemID=%s}", v.Module, v.Collection, v.ItemID)
 }
 
 func (v SpaceModuleItemRef) ModuleCollectionPath() string {

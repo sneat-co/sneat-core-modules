@@ -44,63 +44,40 @@ func (v RelatedItemKey) Validate() error {
 	return nil
 }
 
-func HasRelatedItem(relatedItems []*RelatedItem, key RelatedItemKey) bool {
-	for _, relatedItem := range relatedItems {
-		for _, k := range relatedItem.Keys {
-			if k == key {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func GetRelatedItemByRef(related RelatedByModuleID, itemRef SpaceModuleItemRef, createIfMissing bool) *RelatedItem {
-	relatedByCollection := related[string(itemRef.Module)]
-	if !createIfMissing && len(relatedByCollection) == 0 {
+func GetRelatedItemByRef(relatedModules RelatedModules, itemRef SpaceModuleItemRef, createIfMissing bool) *RelatedItem {
+	relatedCollections := relatedModules[string(itemRef.Module)]
+	if !createIfMissing && len(relatedCollections) == 0 {
 		return nil
 	}
-	relatedByItem := relatedByCollection[itemRef.Collection]
-	if !createIfMissing && len(relatedByItem) == 0 {
+	relatedItems := relatedCollections[itemRef.Collection]
+	if !createIfMissing && len(relatedItems) == 0 {
 		return nil
 	}
-	for _, ri := range relatedByItem {
-		for _, k := range ri.Keys {
-			if k.SpaceID == itemRef.Space && k.ItemID == itemRef.ItemID {
-				return ri
-			}
-
-		}
+	relatedItem, exists := relatedItems[itemRef.ItemID]
+	if exists {
+		return relatedItem
 	}
 	if createIfMissing {
-		relatedItem := NewRelatedItem(RelatedItemKey{SpaceID: itemRef.Space, ItemID: itemRef.ItemID})
-		relatedByItem = append(relatedByItem, relatedItem)
-		if relatedByCollection == nil {
-			relatedByCollection = make(RelatedByCollectionID, 1)
+		relatedItem = NewRelatedItem()
+		if relatedItems == nil {
+			relatedItems = make(RelatedItems, 1)
 		}
-		relatedByCollection[itemRef.Collection] = relatedByItem
-		if related == nil {
-			related = make(RelatedByModuleID, 1)
+		relatedItems[itemRef.ItemID] = relatedItem
+		if relatedCollections == nil {
+			relatedCollections = make(RelatedCollections, 1)
 		}
-		related[string(itemRef.Module)] = relatedByCollection
+		relatedCollections[itemRef.Collection] = relatedItems
+		if relatedModules == nil {
+			relatedModules = make(RelatedModules, 1)
+		}
+		relatedModules[string(itemRef.Module)] = relatedCollections
 		return relatedItem
 	}
 	return nil
 }
 
-func GetRelatedItemByKey(relatedItems []*RelatedItem, key RelatedItemKey) *RelatedItem {
-	for _, relatedItem := range relatedItems {
-		for _, k := range relatedItem.Keys {
-			if k == key {
-				return relatedItem
-			}
-		}
-	}
-	return nil
-}
-
 type RelatedItem struct {
-	Keys []RelatedItemKey `json:"keys" firestore:"keys"` // TODO: document why we need multiple keys, provide a use case
+	//Keys []RelatedItemKey `json:"keys" firestore:"keys"` // TODO: document why we need multiple keys, provide a use case
 
 	Note string `json:"note,omitempty" firestore:"note,omitempty"`
 
@@ -118,21 +95,11 @@ func (v *RelatedItem) String() string {
 	return fmt.Sprintf("RelatedItem{RolesOfItem=%+v, RolesToItem=%+v}", v.RolesOfItem, v.RolesToItem)
 }
 
-func NewRelatedItem(key RelatedItemKey) *RelatedItem {
-	return &RelatedItem{
-		Keys: []RelatedItemKey{key},
-	}
+func NewRelatedItem() *RelatedItem {
+	return new(RelatedItem)
 }
 
 func (v *RelatedItem) Validate() error {
-	if len(v.Keys) == 0 {
-		return validation.NewErrRecordIsMissingRequiredField("keys")
-	}
-	for i, key := range v.Keys {
-		if err := key.Validate(); err != nil {
-			return validation.NewErrBadRequestFieldValue(fmt.Sprintf("keys[%d]", i), err.Error())
-		}
-	}
 	if err := v.validateRelationships(v.RolesOfItem); err != nil {
 		return validation.NewErrBadRecordFieldValue("rolesOfItem", err.Error())
 	}
@@ -154,8 +121,9 @@ func (*RelatedItem) validateRelationships(related RelationshipRoles) error {
 	return nil
 }
 
-type RelatedByCollectionID = map[string][]*RelatedItem
-type RelatedByModuleID = map[string]RelatedByCollectionID
+type RelatedItems = map[string]*RelatedItem
+type RelatedCollections = map[string]RelatedItems
+type RelatedModules = map[string]RelatedCollections
 
 const relatedField = "related"
 
@@ -168,7 +136,7 @@ func (v *WithRelatedAndIDs) GetRelated() *WithRelatedAndIDs {
 type WithRelated struct {
 	// Related defines relationships of the current contact to other contacts.
 	// Key is space ContactID.
-	Related RelatedByModuleID `json:"related,omitempty" firestore:"related,omitempty"`
+	Related RelatedModules `json:"related,omitempty" firestore:"related,omitempty"`
 }
 
 func (v *WithRelated) Validate() error {
@@ -178,75 +146,59 @@ func (v *WithRelated) Validate() error {
 // RemoveRelatedItem removes all relationships to a given item
 // TODO(help-wanted): needs 100% code coverage by tests
 func (v *WithRelated) RemoveRelatedItem(ref SpaceModuleItemRef) (updates []update.Update) {
-	collectionsRelated := v.Related[string(ref.Module)]
-	if collectionsRelated == nil {
+	relatedCollections := v.Related[string(ref.Module)]
+	if relatedCollections == nil {
 		return
 	}
-	relatedItems := collectionsRelated[ref.Collection]
+	relatedItems := relatedCollections[ref.Collection]
 	if len(relatedItems) == 0 {
 		return
 	}
-	var newRelatedItems []*RelatedItem
-
-relatedItemCycle:
-	for _, relatedItem := range relatedItems {
-		for _, key := range relatedItem.Keys {
-			if key.SpaceID == ref.Space && key.ItemID == ref.ItemID {
-				continue relatedItemCycle
-			}
-		}
-		newRelatedItems = append(newRelatedItems, relatedItem)
-	}
-	field := fmt.Sprintf("%s.%s.%s", relatedField, ref.Module, ref.Collection)
-	if len(newRelatedItems) != len(relatedItems) {
-		if len(newRelatedItems) == 0 {
-			delete(collectionsRelated, ref.Collection)
-			if len(collectionsRelated) == 0 {
+	if _, ok := relatedItems[ref.ItemID]; ok {
+		delete(relatedItems, ref.ItemID)
+		if len(relatedItems) == 0 {
+			delete(relatedCollections, ref.Collection)
+			if len(v.Related) == 0 {
 				delete(v.Related, string(ref.Module))
-				if len(v.Related) == 0 {
-					updates = append(updates, update.ByFieldName(
-						relatedField, update.DeleteField))
-				} else {
-					updates = append(updates, update.ByFieldName(
-						fmt.Sprintf("%s.%s", relatedField, ref.Module),
-						update.DeleteField))
-				}
+				updates = append(updates,
+					update.ByFieldName(relatedField, update.DeleteField))
 			} else {
-				updates = append(updates, update.ByFieldName(field, update.DeleteField))
+				updates = append(updates,
+					update.ByFieldPath([]string{relatedField, string(ref.Module)}, update.DeleteField))
 			}
 		} else {
-			collectionsRelated[ref.Collection] = newRelatedItems
-			updates = append(updates, update.ByFieldName(field, newRelatedItems))
+			updates = append(updates,
+				update.ByFieldPath([]string{relatedField, string(ref.Module), ref.Collection, ref.ItemID}, update.DeleteField))
 		}
 	}
 	return updates
 }
 
 func (v *WithRelated) ValidateRelated(validateID func(relatedID string) error) error {
-	for moduleID, relatedByCollectionID := range v.Related {
+	for moduleID, relatedCollections := range v.Related {
 		if moduleID == "" {
-			return validation.NewErrBadRecordFieldValue(relatedField, "has empty module ContactID")
+			return validation.NewErrBadRecordFieldValue(relatedField, "has an empty module key")
 		}
-		for collectionID, relatedItems := range relatedByCollectionID {
+		for collectionID, relatedItems := range relatedCollections {
 			if collectionID == "" {
 				return validation.NewErrBadRecordFieldValue(
 					fmt.Sprintf("%s.%s", relatedField, moduleID),
-					"has empty collection ContactID",
+					"has an empty collection key",
 				)
 			}
-			for i, relatedItem := range relatedItems {
-				field := fmt.Sprintf("%s.%s.%s[%d]", relatedField, moduleID, collectionID, i)
-
-				if err := relatedItem.Validate(); err != nil {
-					return validation.NewErrBadRecordFieldValue(field, err.Error())
+			for itemID, relatedItem := range relatedItems {
+				if itemID == "" {
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("%s.%s.%s", relatedField, moduleID, collectionID),
+						"has an empty item key")
 				}
-				for _, key := range relatedItem.Keys {
-					if validateID != nil {
-						relatedID := NewSpaceModuleItemRef(key.SpaceID, coretypes.ModuleID(moduleID), collectionID, key.ItemID).ID()
-						if err := validateID(relatedID); err != nil {
-							return validation.NewErrBadRecordFieldValue(field, err.Error())
-						}
-					}
+				if err := relatedItem.Validate(); err != nil {
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("%s.%s.%s.%s", relatedField, moduleID, collectionID, itemID),
+						err.Error())
+				}
+				if err := validateID(itemID); err != nil {
+					return fmt.Errorf("validateID(%s) returned error: %w", itemID, err)
 				}
 			}
 		}
@@ -265,7 +217,7 @@ func (v *WithRelated) AddRelationship(
 		return nil, err
 	}
 	if v.Related == nil {
-		v.Related = make(RelatedByModuleID, 1)
+		v.Related = make(RelatedModules, 1)
 	}
 
 	if command.Add != nil {
@@ -283,17 +235,20 @@ func (v *WithRelated) AddRelationship(
 
 	relatedByCollectionID := v.Related[string(command.ItemRef.Module)]
 	if relatedByCollectionID == nil {
-		relatedByCollectionID = make(RelatedByCollectionID, 1)
+		relatedByCollectionID = make(RelatedCollections, 1)
 		v.Related[string(command.ItemRef.Module)] = relatedByCollectionID
 	}
 
 	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]
+	if relatedItems == nil {
+		relatedItems = make(RelatedItems, 1)
+		relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
+	}
 
-	relatedItemKey := RelatedItemKey{SpaceID: command.ItemRef.Space, ItemID: command.ItemRef.ItemID}
-	relatedItem := GetRelatedItemByKey(relatedItems, relatedItemKey)
+	relatedItem := relatedItems[command.ItemRef.ItemID]
 	if relatedItem == nil {
-		relatedItem = NewRelatedItem(relatedItemKey)
-		relatedItems = append(relatedItems, relatedItem)
+		relatedItem = NewRelatedItem()
+		relatedItems[command.ItemRef.ItemID] = relatedItem
 		relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
 	}
 
@@ -346,11 +301,11 @@ func (v *WithRelated) AddRelationship(
 //	changed := false
 //
 //	if v.Related == nil {
-//		v.Related = make(RelatedByModuleID, 1)
+//		v.Related = make(RelatedModules, 1)
 //	}
 //	relatedByCollectionID := v.Related[command.Module]
 //	if relatedByCollectionID == nil {
-//		relatedByCollectionID = make(RelatedByCollectionID, 1)
+//		relatedByCollectionID = make(RelatedCollections, 1)
 //		v.Related[command.Module] = relatedByCollectionID
 //	}
 //	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]

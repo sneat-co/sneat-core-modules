@@ -131,11 +131,9 @@ func CreateContactTx(
 			if len(relatedItems) > 0 {
 				var isRelatedByUserID bool
 				for _, relatedItem := range relatedItems {
-					isRelatedByUserID = dbo4linkage.HasRelatedItem(relatedItems, dbo4linkage.RelatedItemKey{SpaceID: params.Space.ID, ItemID: params.UserID()})
-					if !isRelatedByUserID {
-						contactID := relatedItem.Keys[0].ItemID
-						if contactBrief := params.SpaceModuleEntry.Data.GetContactBriefByContactID(contactID); contactBrief == nil {
-							return contact, fmt.Errorf("contact with ContactID=[%s] is not found", contactID)
+					if _, isRelatedByUserID = relatedItems[userContactID]; !isRelatedByUserID {
+						if contactBrief := params.SpaceModuleEntry.Data.GetContactBriefByContactID(userContactID); contactBrief == nil {
+							return contact, fmt.Errorf("contact with ContactID=[%s] is not found", userContactID)
 						}
 					}
 					switch userContactBrief.AgeGroup {
@@ -154,10 +152,6 @@ func CreateContactTx(
 							}
 						}
 					}
-				}
-				if isRelatedByUserID {
-					userRelatedItem := dbo4linkage.GetRelatedItemByKey(relatedItems, dbo4linkage.RelatedItemKey{SpaceID: params.Space.ID, ItemID: params.UserID()})
-					userRelatedItem.Keys[0].ItemID = userContactID
 				}
 			}
 		}
@@ -257,7 +251,7 @@ func CreateContactTx(
 
 	contact = dal4contactus.NewContactEntryWithData(request.SpaceID, contactID, contactDbo)
 
-	_ = dbo4linkage.UpdateRelatedIDs(&contact.Data.WithRelated, &contact.Data.WithRelatedIDs)
+	_ = dbo4linkage.UpdateRelatedIDs(request.SpaceID, &contact.Data.WithRelated, &contact.Data.WithRelatedIDs)
 	if err = contact.Data.Validate(); err != nil {
 		return contact, fmt.Errorf("contact record is not valid: %w", err)
 	}
@@ -278,7 +272,7 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 	userID, userContactID, contactID string,
 	contactusSpaceEntry dal4contactus.ContactusSpaceEntry,
 	contactDbo *dbo4contactus.ContactDbo,
-	related dbo4linkage.RelatedByModuleID,
+	related dbo4linkage.RelatedModules,
 ) (err error) {
 	_ = contactID // TODO: either user the parameter or remove it or document why not using but needs keeping
 
@@ -292,29 +286,36 @@ func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransacti
 		}
 	}
 
-	for moduleID, relatedByCollection := range related {
-		for collection, relatedByItemID := range relatedByCollection {
-			for _, relatedItem := range relatedByItemID {
-				for _, key := range relatedItem.Keys {
-					itemRef := dbo4linkage.SpaceModuleItemRef{
-						Space:      spaceID,
-						Module:     coretypes.ModuleID(moduleID),
-						Collection: collection,
-						ItemID:     key.ItemID,
-					}
+	for moduleID, relatedCollections := range related {
+		for collection, relatedItems := range relatedCollections {
+			for itemID, relatedItem := range relatedItems {
+				itemRef := dbo4linkage.SpaceModuleItemRef{
+					Module:     coretypes.ModuleID(moduleID),
+					Collection: collection,
+					ItemID:     itemID,
+				}
 
-					command := dbo4linkage.RelationshipItemRolesCommand{
-						ItemRef: itemRef,
+				command := dbo4linkage.RelationshipItemRolesCommand{
+					ItemRef: itemRef,
+				}
+				if len(relatedItem.RolesOfItem) > 0 {
+					if command.Add == nil {
+						command.Add = &dbo4linkage.RolesCommand{}
 					}
 					for roleID := range relatedItem.RolesOfItem {
 						command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleID)
 					}
+				}
+				if len(relatedItem.RolesToItem) > 0 {
+					if command.Add == nil {
+						command.Add = &dbo4linkage.RolesCommand{}
+					}
 					for roleID := range relatedItem.RolesToItem {
 						command.Add.RolesToItem = append(command.Add.RolesOfItem, roleID)
 					}
-					if _, err = contactDbo.AddRelationshipAndID(now, userID, command); err != nil {
-						return err
-					}
+				}
+				if _, err = contactDbo.AddRelationshipAndID(now, userID, spaceID, command); err != nil {
+					return err
 				}
 			}
 		}

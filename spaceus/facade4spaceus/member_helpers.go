@@ -34,7 +34,7 @@ func NewMemberContactEntryFromContactBrief(
 	_ = member.Data.AddRole(const4contactus.SpaceMemberRoleMember)
 	member.Data.CreatedAt = now
 	member.Data.CreatedBy = byUserID
-	dbo4linkage.UpdateRelatedIDs(&member.Data.WithRelated, &member.Data.WithRelatedIDs)
+	dbo4linkage.UpdateRelatedIDs(spaceID, &member.Data.WithRelated, &member.Data.WithRelatedIDs)
 	member.Data.IncreaseVersion(now, byUserID)
 	if err = member.Data.Validate(); err != nil {
 		member.Record.SetError(err)

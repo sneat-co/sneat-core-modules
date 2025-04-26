@@ -2,9 +2,11 @@ package dto4linkage
 
 import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 )
 
 type UpdateItemRequest struct {
+	dto4spaceus.SpaceRequest
 	dbo4linkage.SpaceModuleItemRef `json:"itemRef"`
 	UpdateRelatedFieldRequest
 }

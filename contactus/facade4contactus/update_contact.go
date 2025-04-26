@@ -127,7 +127,6 @@ func updateContactTxWorker(
 		itemRef := dbo4linkage.SpaceModuleItemRef{
 			Module:     const4contactus.ModuleID,
 			Collection: const4contactus.ContactsCollection,
-			Space:      request.SpaceID,
 			ItemID:     request.ContactID,
 		}
 		var recordsUpdates []record.Updates
@@ -135,6 +134,7 @@ func updateContactTxWorker(
 		recordsUpdates, err = facade4linkage.UpdateRelatedFields(ctx, tx,
 			params.Started,
 			userID,
+			request.SpaceID,
 			itemRef, request.UpdateRelatedFieldRequest,
 			&dbo4linkage.WithRelatedAndIDsAndUserID{
 				WithUserID: dbmodels.WithUserID{
