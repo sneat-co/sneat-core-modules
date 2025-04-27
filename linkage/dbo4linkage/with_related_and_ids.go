@@ -91,7 +91,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 	}
 	for i, relatedID := range relatedIDs[1:] { // The first item is always either "*" or "-"
 		if strings.TrimSpace(relatedID) == "" {
-			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "empty contact ContactID")
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "empty string value")
 		}
 		if strings.HasSuffix(relatedID, "."+AnyRelatedID) {
 			// TODO: Validate search index values
@@ -115,29 +115,31 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 				}
 			}
 		case 2: // "{module}.{collection}.{item}"
-			relatedRef, err := NewItemRefFromString(relatedID)
-			if err != nil {
-				return err
-			}
+			if relatedID[0] != 's' { // TODO: handle id of 's={spaceID}&m={module}&c={collection}'
+				relatedRef, err := NewItemRefFromString(relatedID)
+				if err != nil {
+					return err
+				}
 
-			relatedCollections := withRelated.Related[string(relatedRef.Module)]
-			if relatedCollections == nil {
-				return validation.NewErrBadRecordFieldValue(
-					fmt.Sprintf("relatedIDs[%d]", i),
-					fmt.Sprintf("field 'related[%s]' does not have value", relatedRef.Module))
-			}
-			relatedItems := relatedCollections[relatedRef.Collection]
-			if relatedItems == nil {
-				return validation.NewErrBadRecordFieldValue(
-					fmt.Sprintf("relatedIDs[%d]", i),
-					fmt.Sprintf("field 'related[%s][%s]' does not have value", relatedRef.Module, relatedRef.Collection))
-			}
+				relatedCollections := withRelated.Related[string(relatedRef.Module)]
+				if relatedCollections == nil {
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("relatedIDs[%d]", i),
+						fmt.Sprintf("field 'related[%s]' does not have value", relatedRef.Module))
+				}
+				relatedItems := relatedCollections[relatedRef.Collection]
+				if relatedItems == nil {
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("relatedIDs[%d]", i),
+						fmt.Sprintf("field 'related[%s][%s]' does not have value", relatedRef.Module, relatedRef.Collection))
+				}
 
-			if _, ok := relatedItems[relatedRef.ItemID]; !ok {
-				return validation.NewErrBadRecordFieldValue(
-					fmt.Sprintf("relatedIDs[%d]", i),
-					fmt.Sprintf("field 'related[%s][%s][%s]' does not have value",
-						relatedRef.Module, relatedRef.Collection, relatedRef.ItemID))
+				if _, ok := relatedItems[relatedRef.ItemID]; !ok {
+					return validation.NewErrBadRecordFieldValue(
+						fmt.Sprintf("relatedIDs[%d]", i),
+						fmt.Sprintf("field 'related[%s][%s][%s]' does not have value",
+							relatedRef.Module, relatedRef.Collection, relatedRef.ItemID))
+				}
 			}
 		}
 	}
@@ -176,22 +178,36 @@ func (v *WithRelatedAndIDs) Validate() error {
 }*/
 
 func UpdateRelatedIDs(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
-	searchIndex := []string{
-		AnyRelatedID,
-		"s=" + string(spaceID),
-	}
+	searchIndex := []string{AnyRelatedID}
+	var spaceIDs []string
+	var moduleCollectionSpaces []string
 	for moduleID, relatedCollections := range withRelated.Related {
 		searchIndex = append(searchIndex, "m="+string(moduleID))
 		for collectionID, relatedItems := range relatedCollections {
 			searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s", moduleID, collectionID))
-			searchIndex = append(searchIndex, fmt.Sprintf("s=%s&m=%s&c=%s", spaceID, moduleID, collectionID))
 			for itemID := range relatedItems {
-				searchIndex = append(searchIndex, fmt.Sprintf("s=%s&m=%s&c=%s&i=%s", spaceID, moduleID, collectionID, itemID))
+				var itemSpaceID string
+				if i := strings.Index(itemID, SpaceItemIDSeparator); i > 0 {
+					itemSpaceID = itemID[i+1:]
+					itemID = itemID[:i]
+				} else {
+					itemSpaceID = string(spaceID)
+				}
+				searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s&s=%s&i=%s", moduleID, collectionID, itemSpaceID, itemID))
+				if !slices.Contains(spaceIDs, itemSpaceID) {
+					searchIndex = append(searchIndex, fmt.Sprintf("s=%s", itemSpaceID))
+					spaceIDs = append(spaceIDs, itemSpaceID)
+				}
+				if v := fmt.Sprintf("m=%s&c=%s&s=%s", moduleID, collectionID, itemSpaceID); !slices.Contains(moduleCollectionSpaces, v) {
+					searchIndex = append(searchIndex, v)
+					moduleCollectionSpaces = append(moduleCollectionSpaces, v)
+				}
 			}
 		}
 	}
 	if len(searchIndex) > 2 {
 		withRelatedIDs.RelatedIDs = searchIndex
+		slices.Sort(searchIndex)
 		updates = append(updates, update.ByFieldName("relatedIDs", withRelatedIDs.RelatedIDs))
 	} else if len(withRelatedIDs.RelatedIDs) != 1 || withRelatedIDs.RelatedIDs[0] != NoRelatedID {
 		withRelatedIDs.RelatedIDs = []string{NoRelatedID}

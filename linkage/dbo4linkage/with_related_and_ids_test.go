@@ -4,6 +4,7 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"reflect"
+	"slices"
 	"testing"
 	"time"
 )
@@ -109,6 +110,196 @@ func TestRemoveRelatedAndID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if gotUpdates := RemoveRelatedAndID(tt.args.spaceID, tt.args.withRelated, tt.args.withRelatedIDs, tt.args.ref); !reflect.DeepEqual(gotUpdates, tt.wantUpdates) {
 				t.Errorf("RemoveRelatedAndID() = %v, want %v", gotUpdates, tt.wantUpdates)
+			}
+		})
+	}
+}
+
+func TestUpdateRelatedIDs(t *testing.T) {
+	type args struct {
+		spaceID        coretypes.SpaceID
+		withRelated    *WithRelated
+		withRelatedIDs *WithRelatedIDs
+	}
+	tests := []struct {
+		name           string
+		args           args
+		wantRelatedIDs []string
+		wantUpdates    []update.Update
+	}{
+		{
+			name: "empty",
+			args: args{
+				spaceID:        "space1",
+				withRelated:    &WithRelated{},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{"-"},
+		},
+		{
+			name: "single_related_empty_ids",
+			args: args{
+				spaceID: "space1",
+				withRelated: &WithRelated{
+					Related: RelatedModules{
+						"module1": {
+							"collection1": {
+								"item1": {},
+							},
+						},
+					},
+				},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{
+				"*",
+				"s=space1",
+				"m=module1",
+				"m=module1&c=collection1",
+				"m=module1&c=collection1&s=space1",
+				"m=module1&c=collection1&s=space1&i=item1",
+			},
+		},
+		{
+			name: "2_related_same_space_and_collection",
+			args: args{
+				spaceID: "space1",
+				withRelated: &WithRelated{
+					Related: RelatedModules{
+						"module1": {
+							"collection1": {
+								"item1": {},
+								"item2": {},
+							},
+						},
+					},
+				},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{
+				"*",
+				"s=space1",
+				"m=module1",
+				"m=module1&c=collection1",
+				"m=module1&c=collection1&s=space1",
+				"m=module1&c=collection1&s=space1&i=item1",
+				"m=module1&c=collection1&s=space1&i=item2",
+			},
+		},
+		{
+			name: "2_related_same_collection_different_spaces",
+			args: args{
+				spaceID: "space1",
+				withRelated: &WithRelated{
+					Related: RelatedModules{
+						"module1": {
+							"collection1": {
+								"item1":        {},
+								"item2@space2": {},
+							},
+						},
+					},
+				},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{
+				"*",
+				"s=space1",
+				"s=space2",
+				"m=module1",
+				"m=module1&c=collection1",
+				"m=module1&c=collection1&s=space1",
+				"m=module1&c=collection1&s=space2",
+				"m=module1&c=collection1&s=space1&i=item1",
+				"m=module1&c=collection1&s=space2&i=item2",
+			},
+		},
+		{
+			name: "2_related_same_space_different_collections",
+			args: args{
+				spaceID: "space1",
+				withRelated: &WithRelated{
+					Related: RelatedModules{
+						"module1": {
+							"collection1": {
+								"item1": {},
+							},
+							"collection2": {
+								"item2": {},
+							},
+						},
+					},
+				},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{
+				"*",
+				"s=space1",
+				"m=module1",
+				"m=module1&c=collection1",
+				"m=module1&c=collection2",
+				"m=module1&c=collection1&s=space1",
+				"m=module1&c=collection2&s=space1",
+				"m=module1&c=collection1&s=space1&i=item1",
+				"m=module1&c=collection2&s=space1&i=item2",
+			},
+		},
+		{
+			name: "2_related_different_spaces_and_different_collections",
+			args: args{
+				spaceID: "space1",
+				withRelated: &WithRelated{
+					Related: RelatedModules{
+						"module1": {
+							"collection1": {
+								"item1": {},
+							},
+							"collection2": {
+								"item2@space2": {},
+							},
+						},
+					},
+				},
+				withRelatedIDs: &WithRelatedIDs{},
+			},
+			wantRelatedIDs: []string{
+				"*",
+				"s=space1",
+				"s=space2",
+				"m=module1",
+				"m=module1&c=collection1",
+				"m=module1&c=collection2",
+				"m=module1&c=collection1&s=space1",
+				"m=module1&c=collection2&s=space2",
+				"m=module1&c=collection1&s=space1&i=item1",
+				"m=module1&c=collection2&s=space2&i=item2",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			// Perform the tested code
+			gotUpdates := UpdateRelatedIDs(tt.args.spaceID, tt.args.withRelated, tt.args.withRelatedIDs)
+
+			// Assert the results
+			if len(tt.args.withRelated.Related) == 0 {
+				if tt.args.withRelatedIDs.RelatedIDs[0] != "-" {
+					t.Errorf("first element of relatedIDs should be '-'")
+				}
+			} else if tt.args.withRelatedIDs.RelatedIDs[0] != "*" {
+				t.Errorf("first element of relatedIDs should be '*'")
+			}
+
+			//sort.StringSlice(tt.wantRelatedIDs).Sort()
+			slices.Sort(tt.wantRelatedIDs)
+			if !slices.Equal(tt.args.withRelatedIDs.RelatedIDs, tt.wantRelatedIDs) {
+				t.Errorf("UpdateRelatedIDs() = got\n\trelatedIDs:\n\t\t%+v\n\twant:\n\t\t%+v", tt.args.withRelatedIDs.RelatedIDs, tt.wantRelatedIDs)
+			}
+			if tt.wantUpdates != nil {
+				if !reflect.DeepEqual(gotUpdates, tt.wantUpdates) {
+					t.Errorf("UpdateRelatedIDs() = %v, want %v", gotUpdates, tt.wantUpdates)
+				}
 			}
 		})
 	}
