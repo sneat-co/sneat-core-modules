@@ -114,31 +114,43 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 					return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "single key should start with 'm=' or 's=', got: "+relatedID)
 				}
 			}
-		case 2: // "{module}.{collection}.{item}"
-			if relatedID[0] != 's' { // TODO: handle id of 's={spaceID}&m={module}&c={collection}'
-				relatedRef, err := NewItemRefFromString(relatedID)
-				if err != nil {
-					return err
-				}
+		case 2: // "m={module}&c={collection}&s={space}"
+			params := strings.Split(relatedID, "&")
+			if !strings.HasPrefix(params[0], "m=") {
+				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "1st part of a 3 part ID should start with 'm=', got: "+params[0])
+			}
+			if !strings.HasPrefix(params[1], "c=") {
+				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "2nd part of a 3 part ID should start with 'c=', got: "+params[0])
+			}
+			if !strings.HasPrefix(params[2], "s=") {
+				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "3d part of a 3 part ID should start with 's=', got: "+params[0])
+			}
+		case 3: // "m={module}&c={collection}&s={space}&i=item"
+			relatedRef, err := NewItemRefFromString(relatedID)
+			if err != nil {
+				return err
+			}
 
-				relatedCollections := withRelated.Related[string(relatedRef.Module)]
-				if relatedCollections == nil {
-					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("relatedIDs[%d]", i),
-						fmt.Sprintf("field 'related[%s]' does not have value", relatedRef.Module))
-				}
-				relatedItems := relatedCollections[relatedRef.Collection]
-				if relatedItems == nil {
-					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("relatedIDs[%d]", i),
-						fmt.Sprintf("field 'related[%s][%s]' does not have value", relatedRef.Module, relatedRef.Collection))
-				}
+			relatedCollections := withRelated.Related[string(relatedRef.Module)]
+			if relatedCollections == nil {
+				return validation.NewErrBadRecordFieldValue(
+					fmt.Sprintf("relatedIDs[%d]", i),
+					fmt.Sprintf("field 'related[%s]' does not have module value", relatedRef.Module))
+			}
+			relatedItems := relatedCollections[relatedRef.Collection]
+			if relatedItems == nil {
+				return validation.NewErrBadRecordFieldValue(
+					fmt.Sprintf("relatedIDs[%d]", i),
+					fmt.Sprintf("field 'related[%s][%s]' does not have collection value", relatedRef.Module, relatedRef.Collection))
+			}
 
-				if _, ok := relatedItems[relatedRef.ItemID]; !ok {
+			if _, ok := relatedItems[relatedRef.ItemID]; !ok {
+				itemID := relatedRef.ItemID[:strings.Index(relatedRef.ItemID, SpaceItemIDSeparator)]
+				if _, ok = relatedItems[itemID]; !ok {
 					return validation.NewErrBadRecordFieldValue(
 						fmt.Sprintf("relatedIDs[%d]", i),
-						fmt.Sprintf("field 'related[%s][%s][%s]' does not have value",
-							relatedRef.Module, relatedRef.Collection, relatedRef.ItemID))
+						fmt.Sprintf("field 'related[%s][%s]' does not have values for either '%s' or '%s'",
+							relatedRef.Module, relatedRef.Collection, relatedRef.ItemID, itemID))
 				}
 			}
 		}

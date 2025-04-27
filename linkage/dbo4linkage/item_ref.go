@@ -49,6 +49,9 @@ func NewItemRefFromString(id string) (itemRef ItemRef, err error) {
 	if itemRef.ItemID = values.Get("i"); strings.TrimSpace(itemRef.ItemID) == "" {
 		return itemRef, errors.New("itemID 'i' parameter is required")
 	}
+	if spaceID := values.Get("s"); spaceID != "" {
+		itemRef.ItemID = itemRef.ItemID + SpaceItemIDSeparator + spaceID
+	}
 	return
 }
 
