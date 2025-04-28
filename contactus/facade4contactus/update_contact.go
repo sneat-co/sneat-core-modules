@@ -26,14 +26,13 @@ func UpdateContact(
 	space dbo4spaceus.SpaceEntry,
 	err error,
 ) {
-	user := ctx.User()
-	updateContactWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
+	updateContactWorker := func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 		contact = params.Contact
 		contactusSpace = params.SpaceModuleEntry
 		space = params.Space
 		return UpdateContactTx(ctx, tx, request, params)
 	}
-	err = dal4contactus.RunContactWorker(ctx, user, request.ContactRequest, updateContactWorker)
+	err = dal4contactus.RunContactWorker(ctx, request.ContactRequest, updateContactWorker)
 	return
 }
 

@@ -1,7 +1,6 @@
 package facade4spaceus
 
 import (
-	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
@@ -16,7 +15,6 @@ import (
 )
 
 func UpdateRelated(ctx facade.ContextWithUser, request dto4linkage.UpdateRelatedRequest) (err error) {
-	userCtx := ctx.User()
 	var moduleDbo dal4spaceus.SpaceModuleDbo
 	var itemDbo interface {
 		dal4spaceus.SpaceItemDbo
@@ -31,14 +29,16 @@ func UpdateRelated(ctx facade.ContextWithUser, request dto4linkage.UpdateRelated
 		itemDbo = contactDbo
 		itemWithRelatedAndIDs = &contactDbo.WithRelatedAndIDs
 	}
-	return dal4spaceus.RunSpaceItemWorker(ctx, userCtx,
+	return dal4spaceus.RunSpaceItemWorker(ctx,
 		request.SpaceItemRequest,
 		request.ModuleID, moduleDbo,
 		request.Collection, itemDbo,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceItemWorkerParams[dal4spaceus.SpaceModuleDbo, interface {
-			dal4spaceus.SpaceItemDbo
-			GetUserID() string
-		}]) (err error) {
+		func(
+			ctx facade.ContextWithUser, tx dal.ReadwriteTransaction,
+			params *dal4spaceus.SpaceItemWorkerParams[dal4spaceus.SpaceModuleDbo, interface {
+				dal4spaceus.SpaceItemDbo
+				GetUserID() string
+			}]) (err error) {
 			itemRef := dbo4linkage.ItemRef{
 				Module:     const4contactus.ModuleID,
 				Collection: const4contactus.ContactsCollection,

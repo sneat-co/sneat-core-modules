@@ -1,7 +1,6 @@
 package facade4spaceus
 
 import (
-	"context"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
@@ -15,8 +14,8 @@ func RemoveMetrics(ctx facade.ContextWithUser, request dto4spaceus.SpaceMetricsR
 	if err = request.Validate(); err != nil {
 		return
 	}
-	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, ctx.User(), request.SpaceID,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
+	err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, request.SpaceID,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
 			changed := false
 			space := params.Space
 

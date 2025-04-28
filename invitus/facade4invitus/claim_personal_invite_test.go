@@ -27,7 +27,7 @@ func TestAcceptPersonalInvite(t *testing.T) {
 		ctx     facade.ContextWithUser
 		request ClaimPersonalInviteRequest
 	}
-	ctx := facade.NewContextWithUser(context.Background(), "123")
+	ctx := facade.NewContextWithUserID(context.Background(), "123")
 	tests := []struct {
 		name    string
 		args    args

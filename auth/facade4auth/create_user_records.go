@@ -20,30 +20,31 @@ import (
 )
 
 // CreateUserRecords sets user title
-func CreateUserRecords(ctx context.Context, userCtx facade.UserContext, userToCreate dto4auth.DataToCreateUser) (params CreateUserWorkerParams, err error) {
+func CreateUserRecords(ctx facade.ContextWithUser, userToCreate dto4auth.DataToCreateUser) (params CreateUserWorkerParams, err error) {
 	if err = userToCreate.Validate(); err != nil {
 		err = fmt.Errorf("%w: %v", facade.ErrBadRequest, err)
 		return
 	}
-	userID := userCtx.GetUserID()
+	userID := ctx.User().GetUserID()
 	var userInfo *sneatauth.AuthUserInfo
 	if userInfo, err = sneatauth.GetUserInfo(ctx, userID); err != nil {
 		err = fmt.Errorf("failed to get user info: %w", err)
 		return
 	}
 
-	err = dal4userus.RunUserWorker(ctx, userCtx, false, func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *dal4userus.UserWorkerParams) (err error) {
-		params = CreateUserWorkerParams{
-			UserWorkerParams: userWorkerParams,
-		}
-		if err = CreateUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params); err != nil {
+	err = dal4userus.RunUserWorker(ctx, false,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, userWorkerParams *dal4userus.UserWorkerParams) (err error) {
+			params = CreateUserWorkerParams{
+				UserWorkerParams: userWorkerParams,
+			}
+			if err = CreateUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params); err != nil {
+				return
+			}
+			if err = params.ApplyChanges(ctx, tx); err != nil {
+				err = fmt.Errorf("failed to apply changes returned by CreateUserRecordsTxWorker(): %w", err)
+			}
 			return
-		}
-		if err = params.ApplyChanges(ctx, tx); err != nil {
-			err = fmt.Errorf("failed to apply changes returned by CreateUserRecordsTxWorker(): %w", err)
-		}
-		return
-	})
+		})
 	if err != nil {
 		return params, fmt.Errorf("failed to init user record and to create default user spaces: %w", err)
 	}

@@ -36,13 +36,12 @@ type SpaceModuleDbo = interface {
 }
 
 func RunModuleSpaceWorkerNoUpdates[D SpaceModuleDbo](
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
-	userCtx facade.UserContext,
 	spaceID coretypes.SpaceID,
 	moduleID coretypes.ModuleID,
 	data D,
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
 	if err = validateRunModuleSpaceWorkerArgs[D](spaceID, moduleID, data); err != nil {
 		return err
@@ -50,6 +49,7 @@ func RunModuleSpaceWorkerNoUpdates[D SpaceModuleDbo](
 	if worker == nil {
 		panic("worker is nil")
 	}
+	userCtx := ctx.User()
 	spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
 	params := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
 	return worker(ctx, tx, params)
@@ -82,10 +82,10 @@ func runModuleSpaceWorkerReadonlyTx[D SpaceModuleDbo](
 }
 
 func runModuleSpaceWorkerReadwriteTx[D SpaceModuleDbo](
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
 	params *ModuleSpaceWorkerParams[D],
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
 	if worker == nil {
 		panic("worker is nil")
@@ -116,12 +116,11 @@ func RunReadonlyModuleSpaceWorker[D SpaceModuleDbo](
 }
 
 func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	spaceID coretypes.SpaceID,
 	moduleID coretypes.ModuleID,
 	data D,
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
 	//const singleCall = "singleCall"
 	//if ctx.Value(singleCall) != nil {
@@ -129,7 +128,7 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	//}
 	//ctx = context.WithValue(ctx, singleCall, true)
 
-	spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
+	spaceWorkerParams := NewSpaceWorkerParams(ctx.User(), spaceID)
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
 		return fmt.Errorf("failed to get sneat db: %w", err)
@@ -142,15 +141,17 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 			return fmt.Errorf("%w: user is not a member of the space", facade.ErrUnauthorized)
 		}
 	}
+	userCtx := ctx.User()
 	err = facade.RunReadwriteTransactionWithDB(ctx, db, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		txSpaceWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
+		txSpaceWorker := func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *SpaceWorkerParams) (err error) {
 			moduleWorkerParams := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
 			if err = runModuleSpaceWorkerReadwriteTx(ctx, tx, moduleWorkerParams, worker); err != nil {
 				return fmt.Errorf("failed in runModuleSpaceWorkerReadwriteTx(): %w", err)
 			}
 			return nil
 		}
-		if err = runSpaceWorkerTx(ctx, tx, spaceWorkerParams, nil, txSpaceWorker); err != nil {
+		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		if err = runSpaceWorkerTx(ctxWithUser, tx, spaceWorkerParams, nil, txSpaceWorker); err != nil {
 			return fmt.Errorf("failed in runSpaceWorkerTx(): %w", err)
 		}
 		return
@@ -162,18 +163,17 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 }
 
 func RunModuleSpaceWorkerTx[D SpaceModuleDbo](
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
-	userCtx facade.UserContext,
 	spaceID coretypes.SpaceID,
 	moduleID coretypes.ModuleID,
 	data D,
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
 	if err = validateRunModuleSpaceWorkerArgs[D](spaceID, moduleID, data); err != nil {
 		return err
 	}
-	spaceWorkerParams := NewSpaceWorkerParams(userCtx, spaceID)
+	spaceWorkerParams := NewSpaceWorkerParams(ctx.User(), spaceID)
 	params := NewSpaceModuleWorkerParams(moduleID, spaceWorkerParams, data)
 	return runModuleSpaceWorkerReadwriteTx(ctx, tx, params, worker)
 }

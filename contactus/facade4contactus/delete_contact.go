@@ -18,8 +18,8 @@ func DeleteContact(ctx facade.ContextWithUser, request dto4contactus.ContactRequ
 		return
 	}
 
-	return dal4contactus.RunContactusSpaceWorker(ctx, ctx.User(), request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
+	return dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 			return deleteContactTxWorker(ctx, tx, params, request.ContactID)
 		},
 	)

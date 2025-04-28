@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type spaceWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceWorkerParams) (err error)
+type spaceWorker = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *SpaceWorkerParams) (err error)
 
 func NewSpaceWorkerParams(userCtx facade.UserContext, spaceID coretypes.SpaceID) *SpaceWorkerParams {
 	return &SpaceWorkerParams{
@@ -28,7 +28,7 @@ func NewSpaceWorkerParams(userCtx facade.UserContext, spaceID coretypes.SpaceID)
 
 // SpaceWorkerParams passes data to a space worker
 type SpaceWorkerParams struct {
-	UserCtx facade.UserContext
+	UserCtx facade.UserContext // TODO: consider removing this field in favor of using facade.ContextWithUser
 	Started time.Time
 	//
 	Space         dbo4spaceus.SpaceEntry
@@ -85,44 +85,40 @@ func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.MultiGetter, r
 }
 
 // RunSpaceWorkerWithUserContext executes a space worker
-var RunSpaceWorkerWithUserContext = func(ctx context.Context, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+var RunSpaceWorkerWithUserContext = func(ctx facade.ContextWithUser, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
 	if strings.TrimSpace(string(spaceID)) == "" {
 		return fmt.Errorf("required parameter `spaceID` of RunSpaceWorkerWithUserContext() is an empty string")
 	}
-	if userCtx == nil {
-		panic("userCtx is nil")
-	}
-	if userCtx.GetUserID() == "" {
-		err = facade.ErrUnauthorized
-		return
-	}
-	return runSpaceWorker(ctx, userCtx, spaceID, worker)
+	return runSpaceWorker(ctx, spaceID, worker)
 }
 
 // RunSpaceWorkerWithoutUserContext executes a space worker without user context
-var RunSpaceWorkerWithoutUserContext = func(ctx context.Context, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
-	if strings.TrimSpace(string(spaceID)) == "" {
-		return fmt.Errorf("required parameter `spaceID` of RunSpaceWorkerWithoutUserContext() is an empty string")
-	}
-	return runSpaceWorker(ctx, nil, spaceID, worker)
-}
+//var RunSpaceWorkerWithoutUserContext = func(ctx context.Context, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+//	if strings.TrimSpace(string(spaceID)) == "" {
+//		return fmt.Errorf("required parameter `spaceID` of RunSpaceWorkerWithoutUserContext() is an empty string")
+//	}
+//	return runSpaceWorker(ctx, nil, spaceID, worker)
+//}
 
-var runSpaceWorker = func(ctx context.Context, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+var runSpaceWorker = func(ctx facade.ContextWithUser, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
 	if strings.TrimSpace(string(spaceID)) == "" {
 		return fmt.Errorf("required parameter `spaceID` of runSpaceWorker() is an empty string")
 	}
+	userCtx := ctx.User()
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		return RunSpaceWorkerTx(ctx, tx, userCtx, spaceID, worker)
+		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		return RunSpaceWorkerTx(ctxWithUser, tx, spaceID, worker)
 	})
 }
 
-func RunSpaceWorkerTx(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+func RunSpaceWorkerTx(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceID coretypes.SpaceID, worker spaceWorker) (err error) {
+	userCtx := ctx.User()
 	params := NewSpaceWorkerParams(userCtx, spaceID)
 	return runSpaceWorkerTx(ctx, tx, params, nil, worker)
 }
 
 func runSpaceWorkerTx(
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
 	params *SpaceWorkerParams,
 	beforeWorker func(ctx context.Context) error,
@@ -230,13 +226,12 @@ func applySpaceModuleUpdates[D SpaceModuleDbo](
 
 // CreateSpaceItem creates a space item
 func CreateSpaceItem[D SpaceModuleDbo](
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	spaceRequest dto4spaceus.SpaceRequest,
 	moduleID coretypes.ModuleID,
 	data D,
 	worker func(
-		ctx context.Context,
+		ctx facade.ContextWithUser,
 		tx dal.ReadwriteTransaction,
 		spaceWorkerParams *ModuleSpaceWorkerParams[D],
 	) (err error),
@@ -247,8 +242,8 @@ func CreateSpaceItem[D SpaceModuleDbo](
 	if err = spaceRequest.Validate(); err != nil {
 		return err
 	}
-	err = RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, spaceRequest.SpaceID, moduleID, data,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[D]) (err error) {
+	err = RunModuleSpaceWorkerWithUserCtx(ctx, spaceRequest.SpaceID, moduleID, data,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[D]) (err error) {
 			if err = worker(ctx, tx, params); err != nil {
 				return fmt.Errorf("failed to execute space worker passed to CreateSpaceItem: %w", err)
 			}

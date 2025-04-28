@@ -20,6 +20,7 @@ import (
 func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	ctx := context.Background()
 	user := facade.NewUserContext("TestUser")
+	ctxWithUser := facade.NewContextWithUserContext(ctx, user)
 
 	setupMockDb := func(insertMultiTimes int) {
 		mockCtrl := gomock.NewController(t)
@@ -82,7 +83,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 
 	t.Run("error on bad request", func(t *testing.T) {
 		setupMockDb(0)
-		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{})
+		result, err := CreateSpace(ctxWithUser, dto4spaceus.CreateSpaceRequest{})
 		assert.Error(t, err)
 		assert.Equal(t, coretypes.SpaceID(""), result.Space.ID)
 		assert.Equal(t, coretypes.ModuleID(""), result.ContactusSpace.ID)
@@ -91,7 +92,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	t.Run("user's 1st space", func(t *testing.T) {
 		setupMockDb(1)
 
-		result, err := CreateSpace(ctx, user, dto4spaceus.CreateSpaceRequest{Type: coretypes.SpaceTypeFamily})
+		result, err := CreateSpace(ctxWithUser, dto4spaceus.CreateSpaceRequest{Type: coretypes.SpaceTypeFamily})
 		assert.Nil(t, err)
 
 		assert.NotEqual(t, coretypes.SpaceID(""), result.Space.ID)

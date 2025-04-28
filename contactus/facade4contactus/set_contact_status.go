@@ -18,8 +18,8 @@ func SetContactsStatus(ctx facade.ContextWithUser, request dto4contactus.SetCont
 		return
 	}
 
-	err = dal4contactus.RunContactusSpaceWorker(ctx, ctx.User(), request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 			return setContactsStatusTxWorker(ctx, tx, params, request.ContactIDs, request.Status)
 		},
 	)

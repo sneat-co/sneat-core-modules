@@ -11,10 +11,11 @@ import (
 	"time"
 )
 
-func updateRelatedItem(
+func UpdateRelatedItemTx(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	now time.Time,
+	userID string,
 	spaceID coretypes.SpaceID,
 	objectRef dbo4linkage.ItemRef,
 	command dbo4linkage.RelationshipItemRolesCommand,
@@ -57,7 +58,6 @@ func updateRelatedItem(
 		}
 	}
 
-	userID := "u123"
 	if result, err = SetRelated(now, userID, spaceID, dbo, relatedItemRef, relatedItemCommand); err != nil {
 		return nil, fmt.Errorf("failed to update related item: %w", err)
 	}

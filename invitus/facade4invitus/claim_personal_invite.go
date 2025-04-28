@@ -89,8 +89,8 @@ func ClaimPersonalInvite(
 	}
 	uid := ctx.User().GetUserID()
 
-	err = dal4contactus.RunContactusSpaceWorker(ctx, ctx.User(), request.SpaceRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 			response.Space = params.Space
 			response.ContactusSpace = params.SpaceModuleEntry
 

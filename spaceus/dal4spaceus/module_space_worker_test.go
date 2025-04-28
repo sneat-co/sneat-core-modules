@@ -27,10 +27,10 @@ func (fooModuleSpaceData) Validate() error {
 
 func TestRunModuleSpaceWorker(t *testing.T) {
 	const userID = "user1"
-	ctxWithUser := facade.NewContextWithUser(context.Background(), userID)
+	ctxWithUser := facade.NewContextWithUserID(context.Background(), userID)
 	request := dto4spaceus.SpaceRequest{SpaceID: "space1"}
 	const moduleID = "test_module"
-	assertTxWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
+	assertTxWorker := func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *ModuleSpaceWorkerParams[*fooModuleSpaceData]) (err error) {
 		if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
 			return err
 		}
@@ -44,7 +44,11 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 	facade.GetSneatDB = func(ctx context.Context) (dal.DB, error) {
 		ctrl := gomock.NewController(t)
 		db := mock_dal.NewMockDB(ctrl)
-		db.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
+		isContextWithUser := gomock.Cond(func(ctx context.Context) bool {
+			return facade.GetUserContext(ctx) != nil
+		})
+
+		db.EXPECT().Get(isContextWithUser, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			record.SetError(nil)
 			spaceDbo := record.Data().(*dbo4spaceus.SpaceDbo)
 			spaceDbo.UserIDs = []string{userID}
@@ -52,7 +56,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 		})
 		//var db2 dal.DB
 		//db2.RunReadwriteTransaction()
-		db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, worker dal.RWTxWorker, options ...dal.TransactionOption) error {
+		db.EXPECT().RunReadwriteTransaction(isContextWithUser, gomock.Any()).DoAndReturn(func(ctx context.Context, worker dal.RWTxWorker, options ...dal.TransactionOption) error {
 			tx := mock_dal.NewMockReadwriteTransaction(ctrl)
 			//tx.EXPECT().Get(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, record dal.Record) error {
 			//	switch key := record.Key(); key.Collection() {
@@ -76,7 +80,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 			//	return nil
 			//})
 			spaceGetCounter := 0
-			tx.EXPECT().GetMulti(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, records []dal.Record) error {
+			tx.EXPECT().GetMulti(isContextWithUser, gomock.Any()).DoAndReturn(func(ctx context.Context, records []dal.Record) error {
 				for _, record := range records {
 					switch key := record.Key(); key.Collection() {
 					case "spaces":
@@ -109,7 +113,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 		})
 		return db, nil
 	}
-	err := RunModuleSpaceWorkerWithUserCtx(ctxWithUser, ctxWithUser.User(), request.SpaceID, moduleID, new(fooModuleSpaceData), assertTxWorker)
+	err := RunModuleSpaceWorkerWithUserCtx(ctxWithUser, request.SpaceID, moduleID, new(fooModuleSpaceData), assertTxWorker)
 	assert.Nil(t, err)
 	//type args[ModuleDbo SpaceModuleDbo] struct {
 	//	ctx      context.Context
@@ -137,7 +141,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 
 func TestRunModuleSpaceWorkerTx(t *testing.T) {
 	const userID = "user1"
-	ctx := facade.NewContextWithUser(context.Background(), userID)
+	ctx := facade.NewContextWithUserID(context.Background(), userID)
 
 	var spaceID coretypes.SpaceID = "space1"
 	const moduleID = "test_module"
@@ -150,6 +154,6 @@ func TestRunModuleSpaceWorkerTx(t *testing.T) {
 	//	return nil
 	//}
 	assert.Panics(t, func() {
-		_ = RunModuleSpaceWorkerTx(ctx, nil, ctx.User(), spaceID, moduleID, new(fooModuleSpaceData), nil)
+		_ = RunModuleSpaceWorkerTx(ctx, nil, spaceID, moduleID, new(fooModuleSpaceData), nil)
 	})
 }

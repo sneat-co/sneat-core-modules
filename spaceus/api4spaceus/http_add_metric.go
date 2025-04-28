@@ -25,7 +25,7 @@ func httpPostAddMetric(w http.ResponseWriter, r *http.Request) {
 	if err = apicore.DecodeRequestBody(w, r, &request); err != nil {
 		return
 	}
-	err = addMetric(ctx, ctx.User(), request)
+	err = addMetric(ctx, request)
 	apicore.ReturnJSON(ctx, w, r, http.StatusCreated, err, nil)
 }
 

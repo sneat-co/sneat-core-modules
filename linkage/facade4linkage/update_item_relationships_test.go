@@ -38,7 +38,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 			name:      "should_update_contact_with_reciprocal_role",
 			wantPanic: true, // TODO: Fix this test
 			args: args{
-				ctx: facade.NewContextWithUser(context.Background(), "123"),
+				ctx: facade.NewContextWithUserID(context.Background(), "123"),
 				request: dto4linkage.UpdateItemRequest{
 					SpaceRequest: dto4spaceus.SpaceRequest{
 						SpaceID: space1ID,

@@ -9,6 +9,6 @@ import (
 
 func delayedSetUserPreferredLocale(ctx context.Context, userID string, localeCode5 string) (err error) {
 	logus.Debugf(ctx, "delayedSetUserPreferredLocale(userID=%v, localeCode5=%v)", userID, localeCode5)
-	userContext := facade.NewUserContext(userID)
-	return facade4userus.SetUserPreferredLocale(ctx, userContext, localeCode5)
+	ctxWithUser := facade.NewContextWithUserID(ctx, userID)
+	return facade4userus.SetUserPreferredLocale(ctxWithUser, localeCode5)
 }

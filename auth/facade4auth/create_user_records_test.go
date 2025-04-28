@@ -62,12 +62,15 @@ func Test_InitUserRecord(t *testing.T) {
 				return db, nil
 			}
 
-			db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any(), gomock.Any()).
+			db.EXPECT().RunReadwriteTransaction(gomock.Any(), gomock.Any()).
 				DoAndReturn(func(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
+					isContextWithUser := gomock.Cond(func(ctx context.Context) bool {
+						return facade.GetUserContext(ctx) != nil
+					})
 					tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
-					tx.EXPECT().Get(ctx, gomock.Any()).Return(dal.ErrRecordNotFound).AnyTimes() // TODO: Assert gets
-					tx.EXPECT().Insert(ctx, gomock.Any()).Return(nil)                           // TODO: Assert inserts
-					tx.EXPECT().InsertMulti(ctx, gomock.Any()).Return(nil)                      // TODO: Assert inserts
+					tx.EXPECT().Get(isContextWithUser, gomock.Any()).Return(dal.ErrRecordNotFound).AnyTimes() // TODO: Assert gets
+					tx.EXPECT().Insert(isContextWithUser, gomock.Any()).Return(nil)                           // TODO: Assert inserts
+					tx.EXPECT().InsertMulti(isContextWithUser, gomock.Any()).Return(nil)                      // TODO: Assert inserts
 					return f(ctx, tx)
 				})
 
@@ -82,7 +85,7 @@ func Test_InitUserRecord(t *testing.T) {
 			// SETUP MOCKS ENDS
 
 			// TEST CALL BEGINS
-			gotParams, err := CreateUserRecords(ctx, tt.args.user, tt.args.userToCreate)
+			gotParams, err := CreateUserRecords(facade.NewContextWithUserContext(ctx, tt.args.user), tt.args.userToCreate)
 			// TEST CALL ENDS
 
 			if (err != nil) != tt.wantErr {

@@ -22,7 +22,7 @@ func httpGetSpace(w http.ResponseWriter, r *http.Request) {
 	}
 	var space dbo4spaceus.SpaceEntry
 	var response any
-	if space, err = facade4spaceus.GetSpace(ctx, ctx.User(), id); err == nil {
+	if space, err = facade4spaceus.GetSpace(ctx, id); err == nil {
 		response = space.Data
 	}
 	apicore.ReturnJSON(ctx, w, r, http.StatusOK, err, response)

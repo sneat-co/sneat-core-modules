@@ -14,14 +14,13 @@ import (
 )
 
 func UpdateRelatedItemsWithLatestRelationships(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4linkage.UpdateItemRequest,
 	itemData dbo4linkage.WithRelatedAndIDs,
 ) (err error) {
 	var updateErrors []error
 	for i, related := range request.Related {
-		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, userCtx, request.SpaceID, related.ItemRef, request.ItemRef, itemData.Related)
+		err = updateItemWithLatestRelationshipsFromRelatedItem(ctx, request.SpaceID, related.ItemRef, request.ItemRef, itemData.Related)
 		if err != nil {
 			updateErrors = append(updateErrors, fmt.Errorf("failed to update related item (%d=%s): %w", i, related.ItemRef.ID(), err))
 		}
@@ -33,8 +32,7 @@ func UpdateRelatedItemsWithLatestRelationships(
 }
 
 func updateItemWithLatestRelationshipsFromRelatedItem(
-	ctx context.Context,
-	_ facade.UserContext,
+	ctx facade.ContextWithUser,
 	spaceID coretypes.SpaceID,
 	itemRef dbo4linkage.ItemRef,
 	relatedItemRef dbo4linkage.ItemRef,

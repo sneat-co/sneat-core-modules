@@ -17,11 +17,13 @@ type UserWorkerParams struct {
 	UserUpdates []update.Update
 }
 
-type userWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) (err error)
+type userWorker = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, userWorkerParams *UserWorkerParams) (err error)
 
-var RunUserWorker = func(ctx context.Context, userCtx facade.UserContext, userRecordMustExists bool, worker userWorker) (err error) {
+var RunUserWorker = func(ctx facade.ContextWithUser, userRecordMustExists bool, worker userWorker) (err error) {
+	userCtx := ctx.User()
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		return RunUserWorkerTx(ctx, tx, userCtx, userRecordMustExists, worker)
+		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		return RunUserWorkerTx(ctxWithUser, tx, userCtx, userRecordMustExists, worker)
 	})
 	if err != nil {
 		err = fmt.Errorf("failed inside transaction created by RunUserWorker(): %w", err)
@@ -29,7 +31,7 @@ var RunUserWorker = func(ctx context.Context, userCtx facade.UserContext, userRe
 	return
 }
 
-var RunUserWorkerTx = func(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, userRecordMustExists bool, worker userWorker) (err error) {
+var RunUserWorkerTx = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, userCtx facade.UserContext, userRecordMustExists bool, worker userWorker) (err error) {
 	if userCtx == nil {
 		panic("userCtx == nil")
 	}

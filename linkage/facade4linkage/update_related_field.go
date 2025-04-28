@@ -40,7 +40,7 @@ func UpdateRelatedFields(
 		addUpdatesToParams(setRelatedResult.ItemUpdates)
 		//params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, setRelatedResult.SpaceModuleUpdates...)
 
-		if recordsUpdates, err = updateRelatedItem(ctx, tx, now, spaceID, objectRef, command); err != nil {
+		if recordsUpdates, err = UpdateRelatedItemTx(ctx, tx, now, userID, spaceID, objectRef, command); err != nil {
 			return recordsUpdates, fmt.Errorf("failed to update related record for command [%d=%s]: %w", i, itemRef.ID(), err)
 		}
 	}

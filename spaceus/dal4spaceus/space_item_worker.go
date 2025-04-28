@@ -1,7 +1,6 @@
 package dal4spaceus
 
 import (
-	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
@@ -68,17 +67,16 @@ type SpaceItemWorkerParams[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo] struc
 
 // RunSpaceItemWorker runs space item worker
 func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4spaceus.SpaceItemRequest,
 	moduleID coretypes.ModuleID,
 	spaceModuleDbo ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
 ) (err error) {
-	return RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, request.SpaceID, moduleID, spaceModuleDbo,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, moduleSpaceWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error) {
+	return RunModuleSpaceWorkerWithUserCtx(ctx, request.SpaceID, moduleID, spaceModuleDbo,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, moduleSpaceWorkerParams *ModuleSpaceWorkerParams[ModuleDbo]) (err error) {
 			spaceItemKey := dal.NewKeyWithParentAndID(moduleSpaceWorkerParams.SpaceModuleEntry.Key, spaceItemCollection, request.ID)
 			params := SpaceItemWorkerParams[ModuleDbo, ItemDbo]{
 				ModuleSpaceWorkerParams: moduleSpaceWorkerParams,
@@ -99,29 +97,28 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 
 // DeleteSpaceItem deletes space item
 func DeleteSpaceItem[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4spaceus.SpaceItemRequest,
 	moduleID coretypes.ModuleID,
 	moduleData ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
 	briefsAdapter BriefsAdapter[ModuleDbo],
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error),
 ) (err error) {
-	return RunSpaceItemWorker(ctx, userCtx, request, moduleID, moduleData, spaceItemCollection, spaceItemDbo,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, spaceItemWorkerParams *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error) {
+	return RunSpaceItemWorker(ctx, request, moduleID, moduleData, spaceItemCollection, spaceItemDbo,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceItemWorkerParams *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) (err error) {
 			return deleteSpaceItemTxWorker[ModuleDbo](ctx, tx, spaceItemWorkerParams, briefsAdapter, worker)
 		},
 	)
 }
 
 func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
 	params *SpaceItemWorkerParams[ModuleDbo, ItemDbo],
 	briefsAdapter BriefsAdapter[ModuleDbo],
-	worker func(ctx context.Context, tx dal.ReadwriteTransaction, p *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) error,
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, p *SpaceItemWorkerParams[ModuleDbo, ItemDbo]) error,
 ) (err error) {
 	if err = tx.Get(ctx, params.Space.Record); err != nil {
 		return

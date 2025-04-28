@@ -61,17 +61,12 @@ func CreateOrReuseInviteToContact(
 	response CreateInviteResponse,
 	err error,
 ) {
-	userCtx := ctx.User()
-	if userCtx == nil || userCtx.GetUserID() == "" {
-		err = errors.New("user context is required")
-		return
-	}
 	if err = request.Validate(); err != nil {
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
-	err = dal4contactus.RunContactWorker(ctx, userCtx, request.ContactRequest,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
+	err = dal4contactus.RunContactWorker(ctx, request.ContactRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			response.Contact = params.Contact
 			response.ContactusSpace = params.SpaceModuleEntry
 			response.Space = params.Space

@@ -1,7 +1,6 @@
 package facade4userus
 
 import (
-	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
@@ -28,10 +27,9 @@ func (v SetUserCountryRequest) Validate() error {
 }
 
 func SetUserCountry(ctx facade.ContextWithUser, request SetUserCountryRequest) (err error) {
-	userCtx := ctx.User()
-	return dal4userus.RunUserWorker(ctx, userCtx, true,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams) (err error) {
-			if err = txSetUserCountry(ctx, tx, userCtx, request, params); err != nil {
+	return dal4userus.RunUserWorker(ctx, true,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4userus.UserWorkerParams) (err error) {
+			if err = txSetUserCountry(ctx, tx, request, params); err != nil {
 				return fmt.Errorf("failed in txSetUserCountry(): %w", err)
 			}
 			return
@@ -43,7 +41,7 @@ type RecordToUpdate struct {
 	Updates []update.Update
 }
 
-func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx facade.UserContext, request SetUserCountryRequest, params *dal4userus.UserWorkerParams) (err error) {
+func txSetUserCountry(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, request SetUserCountryRequest, params *dal4userus.UserWorkerParams) (err error) {
 	if params.User.Data.CountryID != request.CountryID {
 		params.User.Data.CountryID = request.CountryID
 		params.User.Record.MarkAsChanged()
@@ -58,8 +56,8 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 			spaceBrief.CountryID = request.CountryID
 			params.UserUpdates = append(params.UserUpdates, update.ByFieldName(fmt.Sprintf("spaces.%s.countryID", spaceID), request.CountryID))
 		}
-		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, userCtx, coretypes.SpaceID(spaceID),
-			func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
+		if err = dal4contactus.RunContactusSpaceWorkerNoUpdate(ctx, tx, coretypes.SpaceID(spaceID),
+			func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) (err error) {
 				if err = params.GetRecords(ctx, tx, params.Space.Record); err != nil {
 					return
 				}
@@ -68,7 +66,8 @@ func txSetUserCountry(ctx context.Context, tx dal.ReadwriteTransaction, userCtx 
 					params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("countryID", request.CountryID))
 					params.Space.Record.MarkAsChanged()
 				}
-				userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userCtx.GetUserID())
+				userID := ctx.User().GetUserID()
+				userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 				if userContactBrief != nil && IsUnknownCountryID(userContactBrief.CountryID) {
 					userContactBrief.CountryID = request.CountryID
 					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+userContactID+".countryID", request.CountryID))

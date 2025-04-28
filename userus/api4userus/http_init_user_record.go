@@ -36,7 +36,7 @@ func httpInitUserRecord(w http.ResponseWriter, r *http.Request) {
 	if request.Names != nil {
 		userToCreate.Names = *request.Names
 	}
-	if params, err = facade4auth.CreateUserRecords(ctx, ctx.User(), userToCreate); err != nil {
+	if params, err = facade4auth.CreateUserRecords(ctx, userToCreate); err != nil {
 		apicore.ReturnError(ctx, w, r, err)
 		return
 	}

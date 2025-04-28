@@ -11,10 +11,9 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
-	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -22,7 +21,6 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"reflect"
 	"slices"
-	"time"
 )
 
 var ErrContactWithSameAccountKeyAlreadyExists = errors.New("contact with the same account key already exists")
@@ -56,8 +54,8 @@ func CreateContact(
 		return contact, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
 
-	err = dal4spaceus.CreateSpaceItem(ctx, ctx.User(), request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
+	err = dal4spaceus.CreateSpaceItem(ctx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
 				return fmt.Errorf("failed in CreateContactTx(): %w", err)
 			}
@@ -94,7 +92,9 @@ func CreateContactTx(
 	if err = params.GetRecords(ctx, tx); err != nil {
 		return
 	}
-	userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(params.UserID())
+	userID := params.UserID()
+	now := params.Started
+	userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 	if !userCanBeNonSpaceMember && (userContactBrief == nil || !userContactBrief.IsSpaceMember()) {
 		err = errors.New("user is not a member of the space")
 		return
@@ -168,8 +168,8 @@ func CreateContactTx(
 	}
 
 	contactDbo := new(dbo4contactus.ContactDbo)
-	contactDbo.CreatedAt = params.Started
-	contactDbo.CreatedBy = params.UserID()
+	contactDbo.CreatedAt = now
+	contactDbo.CreatedBy = userID
 	contactDbo.Status = "active"
 	contactDbo.ParentID = parentContactID
 	contactDbo.RolesField = request.RolesField
@@ -237,12 +237,9 @@ func CreateContactTx(
 
 	//params.SpaceUpdates = append(params.SpaceUpdates, params.SpaceID.Data.UpdateNumberOf(const4contactus.ContactsField, len(params.SpaceModuleEntry.Data.Contacts)))
 
-	if request.Related != nil {
-		if err = updateRelationshipsInRelatedItems(ctx, tx,
-			params.Started, params.Space.ID, params.UserID(),
-			userContactID, contactID,
-			params.SpaceModuleEntry, contactDbo,
-			request.Related,
+	if len(request.Related) > 0 {
+		if err = facade4linkage.UpdateRelationshipsInRelatedItems(
+			now, userID, params.Space.ID, &contactDbo.WithRelatedAndIDs, request.Related,
 		); err != nil {
 			err = fmt.Errorf("failed to update relationships in related items: %w", err)
 			return
@@ -251,7 +248,6 @@ func CreateContactTx(
 
 	contact = dal4contactus.NewContactEntryWithData(request.SpaceID, contactID, contactDbo)
 
-	_ = dbo4linkage.UpdateRelatedIDs(request.SpaceID, &contact.Data.WithRelated, &contact.Data.WithRelatedIDs)
 	if err = contact.Data.Validate(); err != nil {
 		return contact, fmt.Errorf("contact record is not valid: %w", err)
 	}
@@ -264,65 +260,4 @@ func CreateContactTx(
 		}
 	}
 	return contact, err
-}
-
-func updateRelationshipsInRelatedItems(ctx context.Context, tx dal.ReadTransaction,
-	now time.Time,
-	spaceID coretypes.SpaceID,
-	userID, userContactID, contactID string,
-	contactusSpaceEntry dal4contactus.ContactusSpaceEntry,
-	contactDbo *dbo4contactus.ContactDbo,
-	related dbo4linkage.RelatedModules,
-) (err error) {
-	_ = contactID // TODO: either user the parameter or remove it or document why not using but needs keeping
-
-	if userContactID == "" { // Why do we get it 2nd time? Previous is up in stack in CreateContactTx()
-		if userContactID, err = dal4userus.GetUserSpaceContactID(ctx, tx, userID, contactusSpaceEntry); err != nil {
-			return
-		}
-		if userContactID == "" {
-			err = errors.New("user is not associated with the spaceID=" + string(spaceID))
-			return
-		}
-	}
-
-	if len(related) > 0 {
-		for moduleID, relatedCollections := range related {
-			for collection, relatedItems := range relatedCollections {
-				for itemID, relatedItem := range relatedItems {
-					itemRef := dbo4linkage.ItemRef{
-						Module:     coretypes.ModuleID(moduleID),
-						Collection: collection,
-						ItemID:     itemID,
-					}
-
-					command := dbo4linkage.RelationshipItemRolesCommand{
-						ItemRef: itemRef,
-					}
-					if len(relatedItem.RolesOfItem) > 0 {
-						if command.Add == nil {
-							command.Add = &dbo4linkage.RolesCommand{}
-						}
-						for roleID := range relatedItem.RolesOfItem {
-							command.Add.RolesOfItem = append(command.Add.RolesOfItem, roleID)
-						}
-					}
-					if len(relatedItem.RolesToItem) > 0 {
-						if command.Add == nil {
-							command.Add = &dbo4linkage.RolesCommand{}
-						}
-						for roleID := range relatedItem.RolesToItem {
-							command.Add.RolesToItem = append(command.Add.RolesOfItem, roleID)
-						}
-					}
-					if _, err = contactDbo.AddRelationshipAndID(now, userID, spaceID, command); err != nil {
-						return err
-					}
-				}
-			}
-		}
-		dbo4linkage.UpdateRelatedIDs(spaceID, &contactDbo.WithRelated, &contactDbo.WithRelatedIDs)
-	}
-
-	return nil
 }

@@ -14,8 +14,8 @@ func ArchiveContact(ctx facade.ContextWithUser, request dto4contactus.ContactReq
 		return
 	}
 
-	return dal4contactus.RunContactWorker(ctx, ctx.User(), request,
-		func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
+	return dal4contactus.RunContactWorker(ctx, request,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			return archiveContactTxWorker(ctx, tx, params)
 		},
 	)

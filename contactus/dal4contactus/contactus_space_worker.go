@@ -28,33 +28,30 @@ func RunReadonlyContactusSpaceWorker(
 	return dal4spaceus.RunReadonlyModuleSpaceWorker(ctx, userCtx, request, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
 }
 
-type ContactusModuleWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactusSpaceWorkerParams) (err error)
+type ContactusModuleWorker = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *ContactusSpaceWorkerParams) (err error)
 
 func RunContactusSpaceWorker(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4spaceus.SpaceRequest,
 	worker ContactusModuleWorker,
 ) error {
-	return dal4spaceus.RunModuleSpaceWorkerWithUserCtx(ctx, userCtx, request.SpaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
+	return dal4spaceus.RunModuleSpaceWorkerWithUserCtx(ctx, request.SpaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
 }
 
 func RunContactusSpaceWorkerTx(
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
-	userCtx facade.UserContext,
 	spaceID coretypes.SpaceID,
 	worker ContactusModuleWorker,
 ) error {
-	return dal4spaceus.RunModuleSpaceWorkerTx(ctx, tx, userCtx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
+	return dal4spaceus.RunModuleSpaceWorkerTx(ctx, tx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
 }
 
 func RunContactusSpaceWorkerNoUpdate(
-	ctx context.Context,
+	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
-	userCtx facade.UserContext,
 	spaceID coretypes.SpaceID,
 	worker ContactusModuleWorker,
 ) error {
-	return dal4spaceus.RunModuleSpaceWorkerNoUpdates(ctx, tx, userCtx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
+	return dal4spaceus.RunModuleSpaceWorkerNoUpdates(ctx, tx, spaceID, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo), worker)
 }

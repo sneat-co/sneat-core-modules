@@ -25,15 +25,14 @@ func NewContactWorkerParams(moduleParams *ContactusSpaceWorkerParams, contactID 
 	}
 }
 
-type ContactWorker = func(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error)
+type ContactWorker = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error)
 
 func RunContactWorker(
-	ctx context.Context,
-	userCtx facade.UserContext,
+	ctx facade.ContextWithUser,
 	request dto4contactus.ContactRequest,
 	worker ContactWorker,
 ) error {
-	contactWorker := func(ctx context.Context, tx dal.ReadwriteTransaction, moduleWorkerParams *ContactusSpaceWorkerParams) (err error) {
+	contactWorker := func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, moduleWorkerParams *ContactusSpaceWorkerParams) (err error) {
 		params := NewContactWorkerParams(moduleWorkerParams, request.ContactID)
 		if err = worker(ctx, tx, params); err != nil {
 			return err
@@ -43,7 +42,7 @@ func RunContactWorker(
 		}
 		return err
 	}
-	return RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, contactWorker)
+	return RunContactusSpaceWorker(ctx, request.SpaceRequest, contactWorker)
 }
 
 func applyContactUpdates(ctx context.Context, tx dal.ReadwriteTransaction, params *ContactWorkerParams) (err error) {

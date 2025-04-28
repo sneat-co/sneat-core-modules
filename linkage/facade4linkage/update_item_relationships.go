@@ -13,13 +13,15 @@ import (
 )
 
 func UpdateItemRelationships(ctx facade.ContextWithUser, request dto4linkage.UpdateItemRequest) (item record.DataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID], err error) {
-	if err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, ctx.User(), request.SpaceID, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
-		item, err = txUpdateItemRelationships(ctx, tx, params, request)
-		return err
-	}); err != nil {
+	if err = dal4spaceus.RunSpaceWorkerWithUserContext(ctx, request.SpaceID,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4spaceus.SpaceWorkerParams) (err error) {
+			item, err = txUpdateItemRelationships(ctx, tx, params, request)
+			return err
+		},
+	); err != nil {
 		return item, err
 	}
-	if err = UpdateRelatedItemsWithLatestRelationships(ctx, ctx.User(), request, *item.Data.WithRelatedAndIDs); err != nil {
+	if err = UpdateRelatedItemsWithLatestRelationships(ctx, request, *item.Data.WithRelatedAndIDs); err != nil {
 		return item, err
 	}
 	return item, err

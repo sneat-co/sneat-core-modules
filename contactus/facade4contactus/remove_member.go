@@ -22,8 +22,8 @@ func RemoveSpaceMember(ctx facade.ContextWithUser, request dto4contactus.Contact
 	if err = request.Validate(); err != nil {
 		return err
 	}
-	return dal4contactus.RunContactWorker(ctx, ctx.User(), request,
-		func(ctx context.Context, tx dal.ReadwriteTransaction,
+	return dal4contactus.RunContactWorker(ctx, request,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction,
 			params *dal4contactus.ContactWorkerParams,
 		) (err error) {
 			return removeSpaceMemberTx(ctx, tx, request, params)

@@ -11,7 +11,7 @@ import (
 )
 
 // GetSpace loads space record
-func GetSpace(ctx context.Context, userCtx facade.UserContext, id coretypes.SpaceID) (space dbo4spaceus.SpaceEntry, err error) {
+func GetSpace(ctx facade.ContextWithUser, id coretypes.SpaceID) (space dbo4spaceus.SpaceEntry, err error) {
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
 		return space, err
@@ -20,7 +20,11 @@ func GetSpace(ctx context.Context, userCtx facade.UserContext, id coretypes.Spac
 	if err != nil || !space.Record.Exists() {
 		return space, err
 	}
-	userID := userCtx.GetUserID()
+	user := ctx.User()
+	var userID string
+	if user != nil {
+		userID = user.GetUserID()
+	}
 	var found bool
 	for _, uid := range space.Data.UserIDs {
 		if uid == userID {

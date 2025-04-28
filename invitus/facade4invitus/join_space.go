@@ -47,79 +47,79 @@ func JoinSpace(ctx facade.ContextWithUser, request JoinSpaceRequest) (space *dbo
 		err = fmt.Errorf("invalid request: %w", err)
 		return
 	}
-	userCtx := ctx.User()
-	uid := userCtx.GetUserID()
 
 	// We intentionally do not use space worker to query both space & user records in parallel
-	err = dal4contactus.RunContactusSpaceWorker(ctx, userCtx, request.SpaceRequest, func(ctx context.Context, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
+	err = dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
 
-		userKey := dbo4userus.NewUserKey(uid)
-		userDto := new(dbo4userus.UserDbo)
-		userRecord := dal.NewRecordWithData(userKey, userDto)
+			uid := ctx.User().GetUserID()
+			userKey := dbo4userus.NewUserKey(uid)
+			userDto := new(dbo4userus.UserDbo)
+			userRecord := dal.NewRecordWithData(userKey, userDto)
 
-		inviteKey := NewInviteKey(request.InviteID)
-		inviteDto := new(dbo4invitus.InviteDbo)
-		inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
+			inviteKey := NewInviteKey(request.InviteID)
+			inviteDto := new(dbo4invitus.InviteDbo)
+			inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
-		if err = params.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
-			return fmt.Errorf("failed to get some records from DB by ContactID: %w", err)
-		}
+			if err = params.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
+				return fmt.Errorf("failed to get some records from DB by ContactID: %w", err)
+			}
 
-		if inviteDto.From.UserID == uid {
-			err = fmt.Errorf("%w: you can not join using your own invite", facade.ErrForbidden)
-			return err
-		}
+			if inviteDto.From.UserID == uid {
+				err = fmt.Errorf("%w: you can not join using your own invite", facade.ErrForbidden)
+				return err
+			}
 
-		switch inviteDto.Status {
-		case "active": // OK
-		case "claimed":
-			return fmt.Errorf("%w: the invite already has been claimed", facade.ErrBadRequest)
-		case "expired":
-			return fmt.Errorf("%w: the invite has expired", facade.ErrBadRequest)
-		default:
-			return fmt.Errorf("the invite has unknown status: [%s]", inviteDto.Status)
-		}
+			switch inviteDto.Status {
+			case "active": // OK
+			case "claimed":
+				return fmt.Errorf("%w: the invite already has been claimed", facade.ErrBadRequest)
+			case "expired":
+				return fmt.Errorf("%w: the invite has expired", facade.ErrBadRequest)
+			default:
+				return fmt.Errorf("the invite has unknown status: [%s]", inviteDto.Status)
+			}
 
-		if inviteDto.Pin == "" {
-			return validation.NewErrBadRecordFieldValue("inviteDto.pin", "is empty")
-		}
+			if inviteDto.Pin == "" {
+				return validation.NewErrBadRecordFieldValue("inviteDto.pin", "is empty")
+			}
 
-		if inviteDto.Pin != request.Pin {
-			return fmt.Errorf("%w: invalid PIN code", facade.ErrForbidden)
-		}
+			if inviteDto.Pin != request.Pin {
+				return fmt.Errorf("%w: invalid PIN code", facade.ErrForbidden)
+			}
 
-		//if space.LastScrum().InviteID != "" {
-		//	if err = joinAddUserToLastScrum(ctx, tx, spaceKey, *space, uid); err != nil {
-		//		return err
-		//	}
-		//}
+			//if space.LastScrum().InviteID != "" {
+			//	if err = joinAddUserToLastScrum(ctx, tx, spaceKey, *space, uid); err != nil {
+			//		return err
+			//	}
+			//}
 
-		member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.ContactID)
-		if err = tx.Get(ctx, member.Record); err != nil {
-			return fmt.Errorf("failed to get member record: %w", err)
-		}
+			member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.ContactID)
+			if err = tx.Get(ctx, member.Record); err != nil {
+				return fmt.Errorf("failed to get member record: %w", err)
+			}
 
-		member.Data.UserID = uid
-		memberUpdates := []update.Update{update.ByFieldName("userID", uid)}
-		if err = tx.Update(ctx, member.Key, memberUpdates); err != nil {
-			return fmt.Errorf("failed to update member record")
-		}
+			member.Data.UserID = uid
+			memberUpdates := []update.Update{update.ByFieldName("userID", uid)}
+			if err = tx.Update(ctx, member.Key, memberUpdates); err != nil {
+				return fmt.Errorf("failed to update member record")
+			}
 
-		if err = onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
-			ctx, tx, params, inviteDto.From.ContactID, member, uid, userDto,
-		); err != nil {
-			return err
-		}
-		if err = onJoinAddSpaceToUser(
-			ctx, tx, userDto, userRecord, request.SpaceID, space, member,
-		); err != nil {
-			return fmt.Errorf("failed to update user record: %w", err)
-		}
-		if err = onJoinUpdateInvite(ctx, tx, uid, inviteKey, inviteDto); err != nil {
-			return fmt.Errorf("failed to update invite record: %w", err)
-		}
-		return nil
-	})
+			if err = onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
+				ctx, tx, params, inviteDto.From.ContactID, member, uid, userDto,
+			); err != nil {
+				return err
+			}
+			if err = onJoinAddSpaceToUser(
+				ctx, tx, userDto, userRecord, request.SpaceID, space, member,
+			); err != nil {
+				return fmt.Errorf("failed to update user record: %w", err)
+			}
+			if err = onJoinUpdateInvite(ctx, tx, uid, inviteKey, inviteDto); err != nil {
+				return fmt.Errorf("failed to update invite record: %w", err)
+			}
+			return nil
+		})
 	return
 }
 
