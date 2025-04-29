@@ -65,7 +65,7 @@ func (v ItemRef) String() string {
 }
 
 func (v ItemRef) ModuleID() string {
-	return fmt.Sprintf("m=" + string(v.Module))
+	return "m=" + string(v.Module)
 }
 
 func (v ItemRef) ModuleCollectionPath() string {

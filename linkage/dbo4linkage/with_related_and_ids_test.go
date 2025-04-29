@@ -11,12 +11,11 @@ import (
 
 func TestAddRelationshipAndID(t *testing.T) {
 	type args struct {
-		now            time.Time
-		userID         string
-		spaceID        coretypes.SpaceID
-		withRelated    *WithRelated
-		withRelatedIDs *WithRelatedIDs
-		command        RelationshipItemRolesCommand
+		now               time.Time
+		userID            string
+		spaceID           coretypes.SpaceID
+		withRelatedAndIDs *WithRelatedAndIDs
+		command           RelationshipItemRolesCommand
 	}
 	now := time.Now()
 	tests := []struct {
@@ -28,11 +27,10 @@ func TestAddRelationshipAndID(t *testing.T) {
 		{
 			name: "add",
 			args: args{
-				now:            now,
-				userID:         "user1",
-				spaceID:        "space1",
-				withRelated:    &WithRelated{},
-				withRelatedIDs: &WithRelatedIDs{},
+				now:               now,
+				userID:            "user1",
+				spaceID:           "space1",
+				withRelatedAndIDs: &WithRelatedAndIDs{},
 				command: RelationshipItemRolesCommand{
 					ItemRef: ItemRef{
 						Module:     "module1",
@@ -61,7 +59,9 @@ func TestAddRelationshipAndID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotUpdates, err := AddRelationshipAndID(tt.args.now, tt.args.userID, tt.args.spaceID, tt.args.withRelated, tt.args.withRelatedIDs, tt.args.command)
+			gotUpdates, err := AddRelationshipAndID(tt.args.now, tt.args.userID, tt.args.spaceID,
+				&tt.args.withRelatedAndIDs.WithRelated, &tt.args.withRelatedAndIDs.WithRelatedIDs,
+				tt.args.command)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AddRelationshipAndID() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -79,10 +79,9 @@ func TestAddRelationshipAndID(t *testing.T) {
 
 func TestRemoveRelatedAndID(t *testing.T) {
 	type args struct {
-		spaceID        coretypes.SpaceID
-		withRelated    *WithRelated
-		withRelatedIDs *WithRelatedIDs
-		ref            ItemRef
+		spaceID           coretypes.SpaceID
+		withRelatedAndIDs *WithRelatedAndIDs
+		ref               ItemRef
 	}
 	tests := []struct {
 		name        string
@@ -92,9 +91,8 @@ func TestRemoveRelatedAndID(t *testing.T) {
 		{
 			name: "remove_non_existing_item",
 			args: args{
-				spaceID:        "space1",
-				withRelated:    &WithRelated{},
-				withRelatedIDs: &WithRelatedIDs{},
+				spaceID:           "space1",
+				withRelatedAndIDs: &WithRelatedAndIDs{},
 				ref: ItemRef{
 					Module:     "module1",
 					Collection: "collection1",
@@ -108,7 +106,9 @@ func TestRemoveRelatedAndID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotUpdates := RemoveRelatedAndID(tt.args.spaceID, tt.args.withRelated, tt.args.withRelatedIDs, tt.args.ref); !reflect.DeepEqual(gotUpdates, tt.wantUpdates) {
+			if gotUpdates := RemoveRelatedAndID(tt.args.spaceID,
+				&tt.args.withRelatedAndIDs.WithRelated, &tt.args.withRelatedAndIDs.WithRelatedIDs,
+				tt.args.ref); !reflect.DeepEqual(gotUpdates, tt.wantUpdates) {
 				t.Errorf("RemoveRelatedAndID() = %v, want %v", gotUpdates, tt.wantUpdates)
 			}
 		})
@@ -117,9 +117,8 @@ func TestRemoveRelatedAndID(t *testing.T) {
 
 func TestUpdateRelatedIDs(t *testing.T) {
 	type args struct {
-		spaceID        coretypes.SpaceID
-		withRelated    *WithRelated
-		withRelatedIDs *WithRelatedIDs
+		spaceID           coretypes.SpaceID
+		withRelatedAndIDs *WithRelatedAndIDs
 	}
 	tests := []struct {
 		name           string
@@ -130,9 +129,8 @@ func TestUpdateRelatedIDs(t *testing.T) {
 		{
 			name: "empty",
 			args: args{
-				spaceID:        "space1",
-				withRelated:    &WithRelated{},
-				withRelatedIDs: &WithRelatedIDs{},
+				spaceID:           "space1",
+				withRelatedAndIDs: &WithRelatedAndIDs{},
 			},
 			wantRelatedIDs: []string{"-"},
 		},
@@ -140,23 +138,22 @@ func TestUpdateRelatedIDs(t *testing.T) {
 			name: "single_related_empty_ids",
 			args: args{
 				spaceID: "space1",
-				withRelated: &WithRelated{
-					Related: RelatedModules{
-						"module1": {
-							"collection1": {
-								"item1": {},
+				withRelatedAndIDs: &WithRelatedAndIDs{
+					WithRelated: WithRelated{
+						Related: RelatedModules{
+							"module1": {
+								"collection1": {
+									"item1": {},
+								},
 							},
 						},
 					},
 				},
-				withRelatedIDs: &WithRelatedIDs{},
 			},
 			wantRelatedIDs: []string{
 				"*",
-				"s=space1",
-				"m=module1",
-				"m=module1&c=collection1",
-				"m=module1&c=collection1&s=space1",
+				//"m=module1",
+				//"m=module1&c=collection1",
 				"m=module1&c=collection1&s=space1&i=item1",
 			},
 		},
@@ -164,24 +161,23 @@ func TestUpdateRelatedIDs(t *testing.T) {
 			name: "2_related_same_space_and_collection",
 			args: args{
 				spaceID: "space1",
-				withRelated: &WithRelated{
-					Related: RelatedModules{
-						"module1": {
-							"collection1": {
-								"item1": {},
-								"item2": {},
+				withRelatedAndIDs: &WithRelatedAndIDs{
+					WithRelated: WithRelated{
+						Related: RelatedModules{
+							"module1": {
+								"collection1": {
+									"item1": {},
+									"item2": {},
+								},
 							},
 						},
 					},
 				},
-				withRelatedIDs: &WithRelatedIDs{},
 			},
 			wantRelatedIDs: []string{
 				"*",
-				"s=space1",
-				"m=module1",
-				"m=module1&c=collection1",
-				"m=module1&c=collection1&s=space1",
+				//"m=module1",
+				//"m=module1&c=collection1",
 				"m=module1&c=collection1&s=space1&i=item1",
 				"m=module1&c=collection1&s=space1&i=item2",
 			},
@@ -190,26 +186,25 @@ func TestUpdateRelatedIDs(t *testing.T) {
 			name: "2_related_same_collection_different_spaces",
 			args: args{
 				spaceID: "space1",
-				withRelated: &WithRelated{
-					Related: RelatedModules{
-						"module1": {
-							"collection1": {
-								"item1":        {},
-								"item2@space2": {},
+				withRelatedAndIDs: &WithRelatedAndIDs{
+					WithRelated: WithRelated{
+						Related: RelatedModules{
+							"module1": {
+								"collection1": {
+									"item1":        {},
+									"item2@space2": {},
+								},
 							},
 						},
 					},
 				},
-				withRelatedIDs: &WithRelatedIDs{},
 			},
 			wantRelatedIDs: []string{
 				"*",
-				"s=space1",
-				"s=space2",
-				"m=module1",
-				"m=module1&c=collection1",
-				"m=module1&c=collection1&s=space1",
-				"m=module1&c=collection1&s=space2",
+				"s=space2", // add only for different spaces
+				//"m=module1",
+				//"m=module1&c=collection1",
+				//"m=module1&c=collection1&s=space2", // add only for different spaces
 				"m=module1&c=collection1&s=space1&i=item1",
 				"m=module1&c=collection1&s=space2&i=item2",
 			},
@@ -218,28 +213,26 @@ func TestUpdateRelatedIDs(t *testing.T) {
 			name: "2_related_same_space_different_collections",
 			args: args{
 				spaceID: "space1",
-				withRelated: &WithRelated{
-					Related: RelatedModules{
-						"module1": {
-							"collection1": {
-								"item1": {},
-							},
-							"collection2": {
-								"item2": {},
+				withRelatedAndIDs: &WithRelatedAndIDs{
+					WithRelated: WithRelated{
+						Related: RelatedModules{
+							"module1": {
+								"collection1": {
+									"item1": {},
+								},
+								"collection2": {
+									"item2": {},
+								},
 							},
 						},
 					},
 				},
-				withRelatedIDs: &WithRelatedIDs{},
 			},
 			wantRelatedIDs: []string{
 				"*",
-				"s=space1",
-				"m=module1",
-				"m=module1&c=collection1",
-				"m=module1&c=collection2",
-				"m=module1&c=collection1&s=space1",
-				"m=module1&c=collection2&s=space1",
+				//"m=module1",
+				//"m=module1&c=collection1",
+				//"m=module1&c=collection2",
 				"m=module1&c=collection1&s=space1&i=item1",
 				"m=module1&c=collection2&s=space1&i=item2",
 			},
@@ -248,29 +241,28 @@ func TestUpdateRelatedIDs(t *testing.T) {
 			name: "2_related_different_spaces_and_different_collections",
 			args: args{
 				spaceID: "space1",
-				withRelated: &WithRelated{
-					Related: RelatedModules{
-						"module1": {
-							"collection1": {
-								"item1": {},
-							},
-							"collection2": {
-								"item2@space2": {},
+				withRelatedAndIDs: &WithRelatedAndIDs{
+					WithRelated: WithRelated{
+						Related: RelatedModules{
+							"module1": {
+								"collection1": {
+									"item1": {},
+								},
+								"collection2": {
+									"item2@space2": {},
+								},
 							},
 						},
 					},
 				},
-				withRelatedIDs: &WithRelatedIDs{},
 			},
 			wantRelatedIDs: []string{
 				"*",
-				"s=space1",
-				"s=space2",
-				"m=module1",
-				"m=module1&c=collection1",
-				"m=module1&c=collection2",
-				"m=module1&c=collection1&s=space1",
-				"m=module1&c=collection2&s=space2",
+				"s=space2", // add only for different spaces
+				//"m=module1",
+				//"m=module1&c=collection1",
+				//"m=module1&c=collection2",
+				//"m=module1&c=collection2&s=space2", // add only for different spaces
 				"m=module1&c=collection1&s=space1&i=item1",
 				"m=module1&c=collection2&s=space2&i=item2",
 			},
@@ -280,21 +272,21 @@ func TestUpdateRelatedIDs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Perform the tested code
-			gotUpdates := UpdateRelatedIDs(tt.args.spaceID, tt.args.withRelated, tt.args.withRelatedIDs)
+			gotUpdates := UpdateRelatedIDs(tt.args.spaceID, &tt.args.withRelatedAndIDs.WithRelated, &tt.args.withRelatedAndIDs.WithRelatedIDs)
 
 			// Assert the results
-			if len(tt.args.withRelated.Related) == 0 {
-				if tt.args.withRelatedIDs.RelatedIDs[0] != "-" {
+			if len(tt.args.withRelatedAndIDs.Related) == 0 {
+				if tt.args.withRelatedAndIDs.RelatedIDs[0] != "-" {
 					t.Errorf("first element of relatedIDs should be '-'")
 				}
-			} else if tt.args.withRelatedIDs.RelatedIDs[0] != "*" {
+			} else if tt.args.withRelatedAndIDs.RelatedIDs[0] != "*" {
 				t.Errorf("first element of relatedIDs should be '*'")
 			}
 
 			//sort.StringSlice(tt.wantRelatedIDs).Sort()
 			slices.Sort(tt.wantRelatedIDs)
-			if !slices.Equal(tt.args.withRelatedIDs.RelatedIDs, tt.wantRelatedIDs) {
-				t.Errorf("UpdateRelatedIDs() = got\n\trelatedIDs:\n\t\t%+v\n\twant:\n\t\t%+v", tt.args.withRelatedIDs.RelatedIDs, tt.wantRelatedIDs)
+			if !slices.Equal(tt.args.withRelatedAndIDs.RelatedIDs, tt.wantRelatedIDs) {
+				t.Errorf("UpdateRelatedIDs() = got\n\trelatedIDs:\n\t\t%+v\n\twant:\n\t\t%+v", tt.args.withRelatedAndIDs.RelatedIDs, tt.wantRelatedIDs)
 			}
 			if tt.wantUpdates != nil {
 				if !reflect.DeepEqual(gotUpdates, tt.wantUpdates) {

@@ -3,7 +3,6 @@ package dbo4linkage
 import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
@@ -151,6 +150,12 @@ func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
 		return
 	}
 	relatedItems := relatedCollections[ref.Collection]
+	deletePath := []string{
+		relatedField,
+		string(ref.Module),
+		ref.Collection,
+		ref.ItemID,
+	}
 	if len(relatedItems) == 0 {
 		return
 	}
@@ -158,20 +163,21 @@ func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
 		delete(relatedItems, ref.ItemID)
 		if len(relatedItems) == 0 {
 			delete(relatedCollections, ref.Collection)
-			if len(v.Related) == 0 {
+			deletePath = deletePath[:len(deletePath)-1]
+			if len(relatedCollections) == 0 {
 				delete(v.Related, string(ref.Module))
-				updates = append(updates,
-					update.ByFieldName(relatedField, update.DeleteField))
-			} else {
-				updates = append(updates,
-					update.ByFieldPath([]string{relatedField, string(ref.Module)}, update.DeleteField))
+				deletePath = deletePath[:len(deletePath)-1]
+				if len(v.Related) == 0 {
+					v.Related = nil
+					deletePath = []string{relatedField}
+				}
 			}
-		} else {
-			updates = append(updates,
-				update.ByFieldPath([]string{relatedField, string(ref.Module), ref.Collection, ref.ItemID}, update.DeleteField))
+		}
+		return []update.Update{
+			update.ByFieldPath(deletePath, update.DeleteField),
 		}
 	}
-	return updates
+	return
 }
 
 func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) error {
@@ -217,50 +223,88 @@ func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) er
 	return nil
 }
 
-func (v *WithRelated) AddRelationship(
-	now time.Time,
-	userID string,
-	command RelationshipItemRolesCommand,
-) (
-	updates []update.Update, err error,
-) {
-	if err := command.Validate(); err != nil {
-		return nil, err
+func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCommand) (updates []update.Update) {
+	if len(remove.RolesOfItem) == 0 || len(remove.RolesToItem) == 0 {
+		return
 	}
+	relatedCollections := v.Related[string(itemRef.Module)]
+	if relatedCollections == nil {
+		return
+	}
+	relatedItems := relatedCollections[itemRef.Collection]
+	if relatedItems == nil {
+		return
+	}
+	relatedItem := relatedItems[itemRef.ItemID]
+	if relatedItem == nil {
+		return
+	}
+
+	removeRoles := func(field string, roles RelationshipRoles, rolesToRemove []RelationshipRoleID) (updates []update.Update) {
+		var roleUpdates []update.Update
+		for _, role := range rolesToRemove {
+			if roles[role] != nil {
+				delete(roles, role)
+				roleUpdates = append(roleUpdates, update.ByFieldPath([]string{
+					relatedField,
+					string(itemRef.Module),
+					itemRef.Collection,
+					itemRef.ItemID,
+					field,
+					role,
+				}, update.DeleteField))
+			}
+		}
+		if len(roles) > 0 {
+			updates = roleUpdates
+		}
+		return
+	}
+	if len(relatedItem.RolesOfItem) > 0 || len(relatedItem.RolesToItem) > 0 {
+		itemUpdates := removeRoles("rolesOfItem", relatedItem.RolesOfItem, remove.RolesOfItem)
+		itemUpdates = append(itemUpdates, removeRoles("rolesToItem", relatedItem.RolesToItem, remove.RolesToItem)...)
+		if len(relatedItem.RolesOfItem) == 0 && len(relatedItem.RolesToItem) == 0 {
+			updates = append(updates, v.RemoveRelatedItem(itemRef)...)
+		} else {
+			updates = append(updates, itemUpdates...)
+		}
+	}
+	return
+}
+
+func (v *WithRelated) addRolesToRelatedItem(itemRef ItemRef, add RolesCommand, userID string, now time.Time) (updates []update.Update) {
 	if v.Related == nil {
 		v.Related = make(RelatedModules, 1)
 	}
-
-	if command.Add != nil {
-		addOppositeRoles := func(roles []RelationshipRoleID, oppositeRoles []RelationshipRoleID) []RelationshipRoleID {
-			for _, roleOfItem := range roles {
-				if oppositeRole := GetOppositeRole(roleOfItem); oppositeRole != "" && !slices.Contains(command.Add.RolesToItem, oppositeRole) {
-					oppositeRoles = append(oppositeRoles, oppositeRole)
-				}
+	addOppositeRoles := func(roles []RelationshipRoleID, oppositeRoles []RelationshipRoleID) []RelationshipRoleID {
+		for _, roleOfItem := range roles {
+			if oppositeRole := GetOppositeRole(roleOfItem); oppositeRole != "" && !slices.Contains(add.RolesToItem, oppositeRole) {
+				oppositeRoles = append(oppositeRoles, oppositeRole)
 			}
-			return oppositeRoles
 		}
-		command.Add.RolesToItem = addOppositeRoles(command.Add.RolesOfItem, command.Add.RolesToItem)
-		command.Add.RolesOfItem = addOppositeRoles(command.Add.RolesToItem, command.Add.RolesOfItem)
+		return oppositeRoles
+	}
+	add.RolesToItem = addOppositeRoles(add.RolesOfItem, add.RolesToItem)
+	add.RolesOfItem = addOppositeRoles(add.RolesToItem, add.RolesOfItem)
+
+	relatedCollections := v.Related[string(itemRef.Module)]
+	if relatedCollections == nil {
+		relatedCollections = make(RelatedCollections, 1)
+		v.Related[string(itemRef.Module)] = relatedCollections
 	}
 
-	relatedByCollectionID := v.Related[string(command.ItemRef.Module)]
-	if relatedByCollectionID == nil {
-		relatedByCollectionID = make(RelatedCollections, 1)
-		v.Related[string(command.ItemRef.Module)] = relatedByCollectionID
-	}
-
-	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]
+	relatedItems := relatedCollections[itemRef.Collection]
 	if relatedItems == nil {
 		relatedItems = make(RelatedItems, 1)
-		relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
+		relatedCollections[itemRef.Collection] = relatedItems
 	}
 
-	relatedItem := relatedItems[command.ItemRef.ItemID]
+	var relatedItemChanged bool
+	relatedItem := relatedItems[itemRef.ItemID]
 	if relatedItem == nil {
 		relatedItem = NewRelatedItem()
-		relatedItems[command.ItemRef.ItemID] = relatedItem
-		relatedByCollectionID[const4contactus.ContactsCollection] = relatedItems
+		relatedItems[itemRef.ItemID] = relatedItem
+		relatedItemChanged = true
 	}
 
 	addRelationship := func(field string, relationshipIDs []RelationshipRoleID, relationships RelationshipRoles) RelationshipRoles {
@@ -281,19 +325,41 @@ func (v *WithRelated) AddRelationship(
 					},
 				}
 				relationships[relationshipID] = relationship
+				relatedItemChanged = true
 			}
 		}
 		return relationships
 	}
+	relatedItem.RolesOfItem = addRelationship("rolesOfItem", add.RolesOfItem, relatedItem.RolesOfItem)
+	relatedItem.RolesToItem = addRelationship("rolesToItem", add.RolesToItem, relatedItem.RolesToItem)
 
-	if command.Add != nil {
-		relatedItem.RolesOfItem = addRelationship("rolesOfItem", command.Add.RolesOfItem, relatedItem.RolesOfItem)
-		relatedItem.RolesToItem = addRelationship("rolesToItem", command.Add.RolesToItem, relatedItem.RolesToItem)
+	if relatedItemChanged {
+		updates = append(updates, update.ByFieldPath(
+			[]string{relatedField, string(itemRef.Module), itemRef.Collection, itemRef.ItemID},
+			relatedItem,
+		))
+	}
+	return
+}
+
+func (v *WithRelated) ProcessRelatedCommand(
+	now time.Time,
+	userID string,
+	command RelationshipItemRolesCommand,
+) (
+	updates []update.Update, err error,
+) {
+	if err = command.Validate(); err != nil {
+		return nil, err
 	}
 
-	updates = append(updates, update.ByFieldName(
-		fmt.Sprintf("related.%s", command.ItemRef.ModuleCollectionPath()),
-		relatedItems))
+	if command.Remove != nil {
+		updates = append(updates, v.removeRolesFromRelatedItem(command.ItemRef, *command.Remove)...)
+	}
+
+	if command.Add != nil {
+		updates = append(updates, v.addRolesToRelatedItem(command.ItemRef, *command.Add, userID, now)...)
+	}
 
 	return updates, nil
 }

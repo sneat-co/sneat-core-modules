@@ -4,16 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
-	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
 // UpdateContact sets contact fields
@@ -120,34 +115,6 @@ func updateContactTxWorker(
 			return err
 		}
 		updatedContactFields = append(updatedContactFields, contactFieldsUpdated...)
-	}
-
-	if request.Related != nil {
-		itemRef := dbo4linkage.ItemRef{
-			Module:     const4contactus.ModuleID,
-			Collection: const4contactus.ContactsCollection,
-			ItemID:     request.ContactID,
-		}
-		var recordsUpdates []record.Updates
-		userID := params.UserID()
-		recordsUpdates, err = facade4linkage.UpdateRelatedFields(ctx, tx,
-			params.Started,
-			userID,
-			request.SpaceID,
-			itemRef, request.UpdateRelatedFieldRequest,
-			&dbo4linkage.WithRelatedAndIDsAndUserID{
-				WithUserID: dbmodels.WithUserID{
-					UserID: params.Contact.Data.UserID,
-				},
-				WithRelatedAndIDs: &params.Contact.Data.WithRelatedAndIDs,
-			},
-			func(updates []update.Update) {
-				params.ContactUpdates = append(params.ContactUpdates, updates...)
-			})
-		if err != nil {
-			return err
-		}
-		params.RecordUpdates = append(params.RecordUpdates, recordsUpdates...)
 	}
 
 	if len(params.ContactUpdates) > 0 {

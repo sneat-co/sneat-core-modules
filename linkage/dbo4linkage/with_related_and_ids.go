@@ -68,14 +68,14 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
 		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
 		//}
-		if id := itemKey.ModuleCollectionID(); !slices.Contains(relatedIDs, id) {
-			return validation.NewErrBadRecordFieldValue("relatedIDs",
-				fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
-		}
-		if id := itemKey.ModuleID(); !slices.Contains(relatedIDs, id) {
-			return validation.NewErrBadRecordFieldValue("relatedIDs",
-				fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
-		}
+		//if id := itemKey.ModuleCollectionID(); !slices.Contains(relatedIDs, id) {
+		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
+		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
+		//}
+		//if id := itemKey.ModuleID(); !slices.Contains(relatedIDs, id) {
+		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
+		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
+		//}
 		return nil
 	}); err != nil {
 		return err
@@ -189,14 +189,19 @@ func (v *WithRelatedAndIDs) Validate() error {
 	//return nil, errors.New("not implemented yet - AddRelationshipsAndIDs")
 }*/
 
-func UpdateRelatedIDs(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs) (updates []update.Update) {
+func UpdateRelatedIDs(
+	spaceID coretypes.SpaceID,
+	//withRelatedAndIDs *WithRelatedAndIDs, // can't use WithRelatedAndIDs as HappeningBrief has only Related
+	withRelated *WithRelated,
+	withRelatedIDs *WithRelatedIDs,
+) (updates []update.Update) {
 	searchIndex := []string{AnyRelatedID}
 	var spaceIDs []string
-	var moduleCollectionSpaces []string
+	//var moduleCollectionSpaces []string
 	for moduleID, relatedCollections := range withRelated.Related {
-		searchIndex = append(searchIndex, "m="+string(moduleID))
+		//searchIndex = append(searchIndex, "m="+string(moduleID))
 		for collectionID, relatedItems := range relatedCollections {
-			searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s", moduleID, collectionID))
+			//searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s", moduleID, collectionID))
 			for itemID := range relatedItems {
 				var itemSpaceID string
 				if i := strings.Index(itemID, SpaceItemIDSeparator); i > 0 {
@@ -205,19 +210,21 @@ func UpdateRelatedIDs(spaceID coretypes.SpaceID, withRelated *WithRelated, withR
 				} else {
 					itemSpaceID = string(spaceID)
 				}
-				searchIndex = append(searchIndex, fmt.Sprintf("m=%s&c=%s&s=%s&i=%s", moduleID, collectionID, itemSpaceID, itemID))
-				if !slices.Contains(spaceIDs, itemSpaceID) {
+				v := fmt.Sprintf("m=%s&c=%s&s=%s&i=%s", moduleID, collectionID, itemSpaceID, itemID)
+				searchIndex = append(searchIndex, v)
+				if itemSpaceID != string(spaceID) && !slices.Contains(spaceIDs, itemSpaceID) {
 					searchIndex = append(searchIndex, fmt.Sprintf("s=%s", itemSpaceID))
 					spaceIDs = append(spaceIDs, itemSpaceID)
 				}
-				if v := fmt.Sprintf("m=%s&c=%s&s=%s", moduleID, collectionID, itemSpaceID); !slices.Contains(moduleCollectionSpaces, v) {
-					searchIndex = append(searchIndex, v)
-					moduleCollectionSpaces = append(moduleCollectionSpaces, v)
-				}
+				//v = fmt.Sprintf("m=%s&c=%s&s=%s", moduleID, collectionID, itemSpaceID)
+				//if itemSpaceID != string(spaceID) && !slices.Contains(moduleCollectionSpaces, v) {
+				//	searchIndex = append(searchIndex, v)
+				//	moduleCollectionSpaces = append(moduleCollectionSpaces, v)
+				//}
 			}
 		}
 	}
-	if len(searchIndex) > 2 {
+	if len(searchIndex) > 1 {
 		withRelatedIDs.RelatedIDs = searchIndex
 		slices.Sort(searchIndex)
 		updates = append(updates, update.ByFieldName("relatedIDs", withRelatedIDs.RelatedIDs))
@@ -236,7 +243,7 @@ func (v *WithRelatedAndIDs) AddRelationshipAndID(
 ) (
 	updates []update.Update, err error,
 ) {
-	updates, err = v.AddRelationship(now, userID, command)
+	updates, err = v.ProcessRelatedCommand(now, userID, command)
 	updates = append(updates, UpdateRelatedIDs(spaceID, &v.WithRelated, &v.WithRelatedIDs)...)
 	return
 }
@@ -245,16 +252,23 @@ func AddRelationshipAndID(
 	now time.Time,
 	userID string,
 	spaceID coretypes.SpaceID,
+	//withRelatedAndIDs *WithRelatedAndIDs // can't use WithRelatedAndIDs as HappeningBrief has only Related
 	withRelated *WithRelated,
 	withRelatedIDs *WithRelatedIDs,
 	command RelationshipItemRolesCommand,
 ) (updates []update.Update, err error) {
-	updates, err = withRelated.AddRelationship(now, userID, command)
+	updates, err = withRelated.ProcessRelatedCommand(now, userID, command)
 	updates = append(updates, UpdateRelatedIDs(spaceID, withRelated, withRelatedIDs)...)
 	return
 }
 
-func RemoveRelatedAndID(spaceID coretypes.SpaceID, withRelated *WithRelated, withRelatedIDs *WithRelatedIDs, ref ItemRef) (updates []update.Update) {
+func RemoveRelatedAndID(
+	spaceID coretypes.SpaceID,
+	//withRelatedAndIDs *WithRelatedAndIDs // can't use WithRelatedAndIDs as HappeningBrief has only Related
+	withRelated *WithRelated,
+	withRelatedIDs *WithRelatedIDs,
+	ref ItemRef,
+) (updates []update.Update) {
 	updates = withRelated.RemoveRelatedItem(ref)
 	updates = append(updates, UpdateRelatedIDs(spaceID, withRelated, withRelatedIDs)...)
 	return updates

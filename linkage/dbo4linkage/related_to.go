@@ -28,6 +28,18 @@ func (v RelationshipItemRolesCommand) Validate() error {
 	if err := v.Remove.Validate(); err != nil {
 		return validation.NewErrBadRequestFieldValue("remove", err.Error())
 	}
+	if v.Add != nil && v.Remove != nil {
+		for _, role := range v.Add.RolesOfItem {
+			if slices.Contains(v.Remove.RolesOfItem, role) {
+				return validation.NewErrBadRequestFieldValue("add.rolesOfItem", "cannot add and remove the same role:"+role)
+			}
+		}
+		for _, role := range v.Add.RolesToItem {
+			if slices.Contains(v.Remove.RolesToItem, role) {
+				return validation.NewErrBadRequestFieldValue("remove.rolesToItem", "cannot add and remove the same role: "+role)
+			}
+		}
+	}
 	return nil
 }
 func (v *RolesCommand) Validate() error {
