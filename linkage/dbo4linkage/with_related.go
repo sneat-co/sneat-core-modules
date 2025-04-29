@@ -240,6 +240,21 @@ func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCo
 		return
 	}
 
+	for _, role := range remove.RolesOfItem {
+		if oppositeRole := GetOppositeRole(role); oppositeRole != "" {
+			if slices.Contains(remove.RolesToItem, oppositeRole) {
+				remove.RolesToItem = append(remove.RolesToItem, oppositeRole)
+			}
+		}
+	}
+	for _, role := range remove.RolesToItem {
+		if oppositeRole := GetOppositeRole(role); oppositeRole != "" {
+			if slices.Contains(remove.RolesOfItem, oppositeRole) {
+				remove.RolesOfItem = append(remove.RolesOfItem, oppositeRole)
+			}
+		}
+	}
+
 	removeRoles := func(field string, roles RelationshipRoles, rolesToRemove []RelationshipRoleID) (updates []update.Update) {
 		var roleUpdates []update.Update
 		for _, role := range rolesToRemove {

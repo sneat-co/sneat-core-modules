@@ -291,32 +291,17 @@ const (
 
 // Should provide a way for modules to register opposite roles?
 var oppositeRoles = map[RelationshipRoleID]RelationshipRoleID{
+	RelationshipRoleSpouse:       RelationshipRoleSpouse,
 	RelationshipRoleParent:       RelationshipRoleChild,
 	RelationshipRoleChild:        RelationshipRoleParent,
 	RelationshipRoleManager:      RelationshipRoleDirectReport,
 	RelationshipRoleDirectReport: RelationshipRoleManager,
 }
 
-// Should provide a way for modules to register reciprocal roles?
-var reciprocalRoles = []string{
-	RelationshipRoleSpouse,
-	RelationshipRoleSibling,
-	RelationshipRoleCousin,
-	RelationshipRolePartner,
-	RelationshipRoleSpacemate,
-}
-
-func IsReciprocalRole(role RelationshipRoleID) bool {
-	return slices.Contains(reciprocalRoles, role)
-}
-
 // GetOppositeRole returns relationship ContactID for the opposite direction
 func GetOppositeRole(relationshipRoleID RelationshipRoleID) RelationshipRoleID {
 	if relationshipRoleID == "" {
 		return ""
-	}
-	if IsReciprocalRole(relationshipRoleID) {
-		return relationshipRoleID
 	}
 	return oppositeRoles[relationshipRoleID]
 }
