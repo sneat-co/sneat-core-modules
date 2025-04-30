@@ -1,9 +1,8 @@
-package facade4spaceus
+package facade4linkage
 
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
-	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"testing"
@@ -24,10 +23,14 @@ func TestRegisterDboFactory(t *testing.T) {
 			args: args{
 				moduleID:   const4contactus.ModuleID,
 				collection: const4contactus.ContactsCollection,
-				f: func() (dal4spaceus.SpaceModuleDbo, dal4spaceus.SpaceItemDbo, *dbo4linkage.WithRelatedAndIDs) {
-					dbo := new(dbo4contactus.ContactDbo)
-					return new(dbo4contactus.ContactusSpaceDbo), dbo, &dbo.WithRelatedAndIDs
-				},
+				f: NewDboFactory(
+					func() SpaceItemDboWithRelatedAndIDs {
+						return new(dbo4contactus.ContactDbo)
+					},
+					func() dal4spaceus.SpaceModuleDbo {
+						return new(dbo4contactus.ContactusSpaceDbo)
+					},
+				),
 			},
 		},
 	}
@@ -38,15 +41,11 @@ func TestRegisterDboFactory(t *testing.T) {
 			if f == nil {
 				t.Errorf("getDboFactory() = nil")
 			}
-			spaceModuleDbo, itemDbo, withRelatedAndIDs := f()
-			if spaceModuleDbo == nil {
-				t.Errorf("getDboFactory() spaceModuleDbo = nil")
+			if f.NewSpaceModuleDbo() == nil {
+				t.Errorf("NewSpaceModuleDbo() = nil")
 			}
-			if itemDbo == nil {
-				t.Errorf("getDboFactory() itemDbo = nil")
-			}
-			if withRelatedAndIDs == nil {
-				t.Errorf("getDboFactory() withRelatedAndIDs = nil")
+			if f.NewItemDbo() == nil {
+				t.Errorf("NewItemDbo() = nil")
 			}
 		})
 	}

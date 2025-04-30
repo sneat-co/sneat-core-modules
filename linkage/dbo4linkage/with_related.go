@@ -224,7 +224,7 @@ func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) er
 }
 
 func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCommand) (updates []update.Update) {
-	if len(remove.RolesOfItem) == 0 || len(remove.RolesToItem) == 0 {
+	if len(remove.RolesOfItem) == 0 && len(remove.RolesToItem) == 0 {
 		return
 	}
 	relatedCollections := v.Related[string(itemRef.Module)]
@@ -242,25 +242,24 @@ func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCo
 
 	for _, role := range remove.RolesOfItem {
 		if oppositeRole := GetOppositeRole(role); oppositeRole != "" {
-			if slices.Contains(remove.RolesToItem, oppositeRole) {
+			if !slices.Contains(remove.RolesToItem, oppositeRole) {
 				remove.RolesToItem = append(remove.RolesToItem, oppositeRole)
 			}
 		}
 	}
 	for _, role := range remove.RolesToItem {
 		if oppositeRole := GetOppositeRole(role); oppositeRole != "" {
-			if slices.Contains(remove.RolesOfItem, oppositeRole) {
+			if !slices.Contains(remove.RolesOfItem, oppositeRole) {
 				remove.RolesOfItem = append(remove.RolesOfItem, oppositeRole)
 			}
 		}
 	}
 
 	removeRoles := func(field string, roles RelationshipRoles, rolesToRemove []RelationshipRoleID) (updates []update.Update) {
-		var roleUpdates []update.Update
 		for _, role := range rolesToRemove {
 			if roles[role] != nil {
 				delete(roles, role)
-				roleUpdates = append(roleUpdates, update.ByFieldPath([]string{
+				updates = append(updates, update.ByFieldPath([]string{
 					relatedField,
 					string(itemRef.Module),
 					itemRef.Collection,
@@ -270,11 +269,9 @@ func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCo
 				}, update.DeleteField))
 			}
 		}
-		if len(roles) > 0 {
-			updates = roleUpdates
-		}
 		return
 	}
+
 	if len(relatedItem.RolesOfItem) > 0 || len(relatedItem.RolesToItem) > 0 {
 		itemUpdates := removeRoles("rolesOfItem", relatedItem.RolesOfItem, remove.RolesOfItem)
 		itemUpdates = append(itemUpdates, removeRoles("rolesToItem", relatedItem.RolesToItem, remove.RolesToItem)...)

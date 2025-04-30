@@ -35,11 +35,7 @@ func NewItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	}
 }
 
-func NewItemRefFromString(id string) (itemRef ItemRef, err error) {
-	var values url.Values
-	if values, err = url.ParseQuery(id); err != nil {
-		return
-	}
+func NewItemRefFromQueryString(values url.Values) (itemRef ItemRef, err error) {
 	if itemRef.Module = coretypes.ModuleID(values.Get("m")); strings.TrimSpace(string(itemRef.Module)) == "" {
 		return itemRef, errors.New("moduleID 'm' parameter is required")
 	}

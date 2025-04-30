@@ -29,19 +29,21 @@ func UpdateRelatedFields(
 	var setRelatedResult SetRelatedResult
 
 	for i, command := range request.Related {
-		itemRef := command.ItemRef
-		if itemRef == objectRef {
-			return nil, validation.NewErrBadRequestFieldValue(fmt.Sprintf("request.Related[%d].ItemRef", i), fmt.Sprintf("same as objectRef: %+v", objectRef))
+		if command.ItemRef == objectRef {
+			return nil, validation.NewErrBadRequestFieldValue(
+				fmt.Sprintf("request.Related[%d].ItemRef", i),
+				fmt.Sprintf("same as objectRef: %+v", objectRef))
 		}
 		if setRelatedResult, err = SetRelated(now, userID, spaceID, item, objectRef, command); err != nil {
 			return nil, err
 		}
-
 		addUpdatesToParams(setRelatedResult.ItemUpdates)
 		//params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, setRelatedResult.SpaceModuleUpdates...)
 
 		if recordsUpdates, err = UpdateRelatedItemTx(ctx, tx, now, userID, spaceID, objectRef, command); err != nil {
-			return recordsUpdates, fmt.Errorf("failed to update related record for command [%d=%s]: %w", i, itemRef.ID(), err)
+			return recordsUpdates,
+				fmt.Errorf("failed to update related record for command [%d=%s]: %w",
+					i, command.ItemRef.ID(), err)
 		}
 	}
 

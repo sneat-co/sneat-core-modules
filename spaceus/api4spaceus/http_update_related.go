@@ -2,7 +2,7 @@ package api4spaceus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
-	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
+	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -15,7 +15,7 @@ func httpPostUpdateRelated(w http.ResponseWriter, r *http.Request) {
 	apicore.HandleAuthenticatedRequestWithBody(w, r, &request, verify.DefaultJsonWithAuthRequired,
 		http.StatusNoContent,
 		func(ctx facade.ContextWithUser) (body any, err error) {
-			return nil, facade4spaceus.UpdateRelated(ctx, request)
+			return nil, facade4linkage.UpdateRelatedAndIDsOfSpaceItem(ctx, request)
 		},
 	)
 }

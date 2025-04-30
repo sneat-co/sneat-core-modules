@@ -61,18 +61,20 @@ func UpdateRelatedItemTx(
 	if result, err = SetRelated(now, userID, spaceID, dbo, relatedItemRef, relatedItemCommand); err != nil {
 		return nil, fmt.Errorf("failed to update related item: %w", err)
 	}
-	recordsUpdates = append(recordsUpdates, record.Updates{
-		Record:  related.Record,
-		Updates: result.ItemUpdates,
-	})
-	if related.Data.UserID != "" {
-		var userUpdates record.Updates
-		// TODO: Document use case when this is needed and if it is really used
-		if userUpdates, err = updateUserRelated(ctx, tx, related); err != nil {
-			return recordsUpdates, fmt.Errorf("failed to update related in user record: %w", err)
-		} else if len(userUpdates.Updates) > 0 {
-			recordsUpdates = append(recordsUpdates, userUpdates)
-		}
+	if len(result.ItemUpdates) > 0 {
+		recordsUpdates = append(recordsUpdates, record.Updates{
+			Record:  related.Record,
+			Updates: result.ItemUpdates,
+		})
 	}
+	//if related.Data.UserID != "" {
+	//	var userUpdates record.Updates
+	//	// TODO: Document use case when this is needed and if it is really used
+	//	if userUpdates, err = updateUserRelated(ctx, tx, related); err != nil {
+	//		return recordsUpdates, fmt.Errorf("failed to update related in user record: %w", err)
+	//	} else if len(userUpdates.Updates) > 0 {
+	//		recordsUpdates = append(recordsUpdates, userUpdates)
+	//	}
+	//}
 	return recordsUpdates, nil
 }

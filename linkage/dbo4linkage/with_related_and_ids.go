@@ -6,6 +6,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
+	"net/url"
 	"slices"
 	"strings"
 	"time"
@@ -43,6 +44,10 @@ type WithRelatedAndIDs struct {
 	*/
 }
 
+func (v *WithRelatedAndIDs) RelatedAndIDs() *WithRelatedAndIDs {
+	return v
+}
+
 type WithRelatedIDs struct {
 	// RelatedIDs holds identifiers of related records - needed for indexed search.
 	RelatedIDs []string `json:"relatedIDs,omitempty" firestore:"relatedIDs,omitempty"`
@@ -61,7 +66,7 @@ func (v *WithRelatedIDs) Validate() error {
 	return nil
 }
 
-func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) error {
+func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) (err error) {
 	if err := withRelated.ValidateRelated(func(itemKey ItemRef) error {
 		// needs space ID to verify this
 		//if id := itemKey.ID(); !slices.Contains(relatedIDs, id) {
@@ -97,9 +102,14 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 			// TODO: Validate search index values
 			continue
 		}
-		delimitersCount := strings.Count(relatedID, "&")
-		switch delimitersCount {
-		case 0:
+		var relatedIDValues url.Values
+		if relatedIDValues, err = url.ParseQuery(relatedID); err != nil {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i),
+				fmt.Sprintf("failed to parse relatedID '%s': %s", relatedID, err.Error()))
+		}
+
+		switch len(relatedIDValues) {
+		case 1:
 			if relatedID != "*" {
 				parts := strings.Split(relatedID, "=")
 				if len(parts) != 2 {
@@ -114,7 +124,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 					return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "single key should start with 'm=' or 's=', got: "+relatedID)
 				}
 			}
-		case 2: // "m={module}&c={collection}&s={space}"
+		case 3: // "m={module}&c={collection}&s={space}"
 			params := strings.Split(relatedID, "&")
 			if !strings.HasPrefix(params[0], "m=") {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "1st part of a 3 part ID should start with 'm=', got: "+params[0])
@@ -125,8 +135,8 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 			if !strings.HasPrefix(params[2], "s=") {
 				return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "3d part of a 3 part ID should start with 's=', got: "+params[0])
 			}
-		case 3: // "m={module}&c={collection}&s={space}&i=item"
-			relatedRef, err := NewItemRefFromString(relatedID)
+		case 4: // "m={module}&c={collection}&s={space}&i=item"
+			relatedRef, err := NewItemRefFromQueryString(relatedIDValues)
 			if err != nil {
 				return err
 			}
@@ -198,6 +208,7 @@ func UpdateRelatedIDs(
 	searchIndex := []string{AnyRelatedID}
 	var spaceIDs []string
 	//var moduleCollectionSpaces []string
+	currentRelatedIDs := withRelatedIDs.RelatedIDs[:]
 	for moduleID, relatedCollections := range withRelated.Related {
 		//searchIndex = append(searchIndex, "m="+string(moduleID))
 		for collectionID, relatedItems := range relatedCollections {
@@ -226,10 +237,11 @@ func UpdateRelatedIDs(
 	}
 	if len(searchIndex) > 1 {
 		withRelatedIDs.RelatedIDs = searchIndex
-		slices.Sort(searchIndex)
-		updates = append(updates, update.ByFieldName("relatedIDs", withRelatedIDs.RelatedIDs))
+		slices.Sort(withRelatedIDs.RelatedIDs)
 	} else if len(withRelatedIDs.RelatedIDs) != 1 || withRelatedIDs.RelatedIDs[0] != NoRelatedID {
 		withRelatedIDs.RelatedIDs = []string{NoRelatedID}
+	}
+	if !slices.Equal(currentRelatedIDs, withRelatedIDs.RelatedIDs) {
 		updates = append(updates, update.ByFieldName("relatedIDs", withRelatedIDs.RelatedIDs))
 	}
 	return

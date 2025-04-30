@@ -28,7 +28,8 @@ func (v *ModuleSpaceWorkerParams[D]) AddSpaceModuleUpdates(updates ...update.Upd
 }
 
 func (v *ModuleSpaceWorkerParams[D]) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
-	return v.SpaceWorkerParams.GetRecords(ctx, tx, append(records, v.SpaceModuleEntry.Record)...)
+	records = append(records, v.SpaceModuleEntry.Record)
+	return v.SpaceWorkerParams.GetRecords(ctx, tx, records...)
 }
 
 type SpaceModuleDbo = interface {

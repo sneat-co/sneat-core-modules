@@ -1,6 +1,7 @@
 package dal4spaceus
 
 import (
+	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
@@ -63,6 +64,11 @@ type SpaceItemWorkerParams[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo] struc
 	*ModuleSpaceWorkerParams[ModuleDbo]
 	SpaceItem        record.DataWithID[string, ItemDbo]
 	SpaceItemUpdates []update.Update
+}
+
+func (v *SpaceItemWorkerParams[SpaceModuleDbo, SpaceItemDbo]) GetRecords(ctx context.Context, tx dal.ReadSession, records ...dal.Record) error {
+	records = append(records, v.SpaceItem.Record)
+	return v.ModuleSpaceWorkerParams.GetRecords(ctx, tx, records...)
 }
 
 // RunSpaceItemWorker runs space item worker
