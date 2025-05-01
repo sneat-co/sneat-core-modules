@@ -3,24 +3,26 @@ package dto4contactus
 import (
 	"errors"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
 	"strings"
 )
 
 type UpdateContactRequest struct {
 	ContactRequest
-	Address   *dbmodels.Address `json:"address,omitempty"`
-	AgeGroup  string            `json:"ageGroup,omitempty"`
-	Roles     *SetRolesRequest  `json:"roles,omitempty"`
-	VatNumber *string           `json:"vatNumber,omitempty"`
-	Gender    dbmodels.Gender   `json:"gender,omitempty"`
+	Address   *dbmodels.Address  `json:"address,omitempty"`
+	AgeGroup  string             `json:"ageGroup,omitempty"`
+	Roles     *SetRolesRequest   `json:"roles,omitempty"`
+	VatNumber *string            `json:"vatNumber,omitempty"`
+	Gender    dbmodels.Gender    `json:"gender,omitempty"`
+	Names     *person.NameFields `json:"names,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
 	if err := v.ContactRequest.Validate(); err != nil {
 		return err
 	}
-	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.VatNumber == nil && v.Gender == "" {
+	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.VatNumber == nil && v.Gender == "" && v.Names == nil {
 		return validation.NewBadRequestError(errors.New("at least one of contact fields must be provided for an update"))
 	}
 	if v.Address != nil {
@@ -42,6 +44,11 @@ func (v UpdateContactRequest) Validate() error {
 			return validation.NewErrBadRequestFieldValue("vatNumber", "must not have leading or trailing spaces")
 		}
 
+	}
+	if v.Names != nil {
+		if err := v.Names.Validate(); err != nil {
+			return validation.NewErrBadRequestFieldValue("names", err.Error())
+		}
 	}
 	if v.Gender != "" && !dbmodels.IsKnownGender(v.Gender) {
 		return validation.NewErrBadRequestFieldValue("gender", "unknown value: "+v.Gender)

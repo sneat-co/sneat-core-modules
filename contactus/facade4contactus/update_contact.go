@@ -41,6 +41,17 @@ func UpdateContactTx(
 	if err = request.Validate(); err != nil {
 		return
 	}
+
+	if request.Names != nil { // TODO: move this into `person` package.
+		fullName := request.Names.FullName
+		if fullName != "" {
+			names := *request.Names
+			names.FullName = ""
+			if fullName == request.Names.GetFullName() {
+				request.Names.FullName = ""
+			}
+		}
+	}
 	return updateContactTxWorker(ctx, tx, request, params)
 }
 
@@ -73,12 +84,21 @@ func updateContactTxWorker(
 
 	var updatedContactFields []string
 
-	if request.Address != nil {
-		if *request.Address != *contact.Data.Address {
-			updatedContactFields = append(updatedContactFields, "address")
-			contact.Data.Address = request.Address
-			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("address", request.Address))
+	if request.Names != nil {
+		names := *request.Names
+		if contact.Data.Names == nil || *contact.Data.Names != names {
+			updatedContactFields = append(updatedContactFields, "names")
+			contact.Data.Names = request.Names
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("names", request.Names))
 		}
+		if contactBrief != nil && *contactBrief.Names != names {
+			updateContactBriefField("names", contact.Data.Names)
+		}
+	}
+	if request.Address != nil && (contact.Data.Address == nil || *request.Address != *contact.Data.Address) {
+		updatedContactFields = append(updatedContactFields, "address")
+		contact.Data.Address = request.Address
+		params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("address", request.Address))
 	}
 
 	if request.VatNumber != nil {
@@ -90,9 +110,11 @@ func updateContactTxWorker(
 	}
 
 	if request.Gender != "" {
-		updatedContactFields = append(updatedContactFields, "gender")
-		contact.Data.Gender = request.Gender
-		params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("gender", request.Gender))
+		if request.Gender != contact.Data.Gender {
+			updatedContactFields = append(updatedContactFields, "gender")
+			contact.Data.Gender = request.Gender
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("gender", request.Gender))
+		}
 		if contactBrief != nil && contactBrief.Gender != request.Gender {
 			updateContactBriefField("gender", contact.Data.Gender)
 		}
