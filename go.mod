@@ -9,7 +9,7 @@ go 1.24.2
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
-	github.com/dal-go/dalgo v0.18.2
+	github.com/dal-go/dalgo v0.18.3
 	github.com/dal-go/mocks4dalgo v0.2.6
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gosimple/slug v1.15.0
@@ -25,8 +25,8 @@ require (
 	github.com/strongo/strongoapp v0.27.0
 	github.com/strongo/validation v0.0.7
 	go.uber.org/mock v0.5.2
-	golang.org/x/crypto v0.37.0
-	golang.org/x/net v0.39.0
+	golang.org/x/crypto v0.38.0
+	golang.org/x/net v0.40.0
 )
 
 require (
