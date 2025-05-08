@@ -58,12 +58,12 @@ func (v *WithSingleSpaceContactsWithoutContactIDs[T]) AddContact(contactID strin
 		v.Contacts = make(map[string]T)
 	}
 	v.Contacts[contactID] = contact
-	return update.ByFieldName("contacts."+contactID, contact)
+	return update.ByFieldPath([]string{"contacts", contactID}, contact)
 }
 
 func (v *WithSingleSpaceContactsWithoutContactIDs[T]) RemoveContact(contactID string) update.Update {
 	delete(v.Contacts, contactID)
-	return update.ByFieldName("contacts."+contactID, update.DeleteField)
+	return update.ByFieldPath([]string{"contacts", contactID}, update.DeleteField)
 }
 
 // WithMultiSpaceContacts mixin that adds WithMultiSpaceContactIDs.ContactIDs & Contacts fields

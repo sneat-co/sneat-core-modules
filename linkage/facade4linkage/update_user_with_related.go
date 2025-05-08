@@ -45,7 +45,7 @@ package facade4linkage
 //	for roleID, role := range relatedItem.RolesToItem {
 //		if userRelated.RolesOfItem[roleID] != role {
 //			userRelated.RolesOfItem[roleID] = role
-//			updates = append(updates, update.ByFieldName("related."+itemRef.ID()+".rolesOfItem."+roleID, role))
+//			updates = append(updates, update.ByFieldPath([]string{"related", itemRef.ID(), "rolesOfItem", roleID}, role))
 //		}
 //	}
 //

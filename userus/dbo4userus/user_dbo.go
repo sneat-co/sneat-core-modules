@@ -96,7 +96,7 @@ func (v *UserDbo) SetSpaceBrief(spaceID coretypes.SpaceID, brief *UserSpaceBrief
 		v.Spaces = make(map[string]*UserSpaceBrief, 1)
 	}
 	v.Spaces[string(spaceID)] = brief
-	updates = append(updates, update.ByFieldName("spaces."+string(spaceID), brief))
+	updates = append(updates, update.ByFieldPath([]string{"spaces", string(spaceID)}, brief))
 	if !slices.Contains(v.SpaceIDs, string(spaceID)) {
 		v.SpaceIDs = append(v.SpaceIDs, string(spaceID))
 		updates = append(updates, update.ByFieldName("spaceIDs", v.SpaceIDs))

@@ -49,7 +49,7 @@ func (v *WithInvitesToContactBriefs) GetInviteBriefByChannelAndInviterUserID(cha
 
 func (v *WithInvitesToContactBriefs) DeleteInviteBrief(id string) update.Update {
 	delete(v.Invites, id)
-	return update.ByFieldName("invites."+id, update.DeleteField)
+	return update.ByFieldPath([]string{"invites", id}, update.DeleteField)
 }
 
 func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID string, channel dbo4invitus.InviteChannel, createdTime time.Time) update.Update {
@@ -63,5 +63,5 @@ func (v *WithInvitesToContactBriefs) AddInviteBrief(inviteID, createdByUserID st
 	} else {
 		v.Invites[inviteID] = brief
 	}
-	return update.ByFieldName("invites."+inviteID, brief)
+	return update.ByFieldPath([]string{"invites", inviteID}, brief)
 }

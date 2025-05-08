@@ -70,7 +70,9 @@ func txSetUserCountry(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, r
 				userContactID, userContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 				if userContactBrief != nil && IsUnknownCountryID(userContactBrief.CountryID) {
 					userContactBrief.CountryID = request.CountryID
-					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+userContactID+".countryID", request.CountryID))
+					params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
+						update.ByFieldPath([]string{"contacts", userContactID, "countryID"},
+							request.CountryID))
 					params.SpaceModuleEntry.Record.MarkAsChanged()
 					userContact := dal4contactus.NewContactEntry(coretypes.SpaceID(spaceID), userContactID)
 					if err = tx.Get(ctx, userContact.Record); err != nil {

@@ -185,7 +185,8 @@ func updateContactusSpaceRecord(
 			updatePersonDetails(spaceMember, &requestMember.Data.ContactBase, spaceMember, nil)
 			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, params.SpaceModuleEntry.Data.AddUserID(uid)...)
 			if m.AddRole(const4contactus.SpaceMemberRoleMember) {
-				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, update.ByFieldName("contacts."+contactID+".roles", m.Roles))
+				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
+					update.ByFieldPath([]string{"contacts", contactID, "roles"}, m.Roles))
 			}
 			break
 		}
