@@ -2,6 +2,7 @@ package dbo4linkage
 
 import (
 	"fmt"
+	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
@@ -120,8 +121,16 @@ func (*RelatedItem) validateRelationships(related RelationshipRoles) error {
 	return nil
 }
 
+// RelatedItems is the lowest level of the relationship definitions.
+// Key: `{itemID}@{spaceID}`.
 type RelatedItems = map[string]*RelatedItem
+
+// RelatedCollections is the middle level of the relationship definitions.
+// Key: `{collection}/{itemID}@{spaceID}`.
 type RelatedCollections = map[string]RelatedItems
+
+// RelatedModules is the top level of the relationship definitions.
+// Keys: `{module}/{collection}/{itemID}@{spaceID}`.
 type RelatedModules = map[string]RelatedCollections
 
 const relatedField = "related"
@@ -133,13 +142,37 @@ func (v *WithRelatedAndIDs) GetRelated() *WithRelatedAndIDs {
 }
 
 type WithRelated struct {
-	// Related defines relationships of the current contact to other contacts.
-	// Key is space ContactID.
+	// The Related field defines relationships of the current object to other objects.
+	// Key `{module}/{collection}/{itemID}@{spaceID}`.
 	Related RelatedModules `json:"related,omitempty" firestore:"related,omitempty"`
 }
 
 func (v *WithRelated) Validate() error {
 	return v.ValidateRelated(nil)
+}
+
+func (v *WithRelated) ValidateWithKey(key *dal.Key) error {
+	parent := key.Parent()
+	var spaceID coretypes.SpaceID
+	if parent.Collection() == "modules" {
+		spaceID = coretypes.SpaceID(parent.Parent().ID.(string))
+	} else {
+		spaceID = coretypes.SpaceID(parent.Parent().Parent().ID.(string))
+	}
+	return v.validateWithSpaceID(spaceID)
+}
+
+func (v *WithRelated) validateWithSpaceID(spaceID coretypes.SpaceID) error {
+	for moduleID, relatedCollections := range v.Related {
+		for collectionID, relatedItems := range relatedCollections {
+			for relatedItemID := range relatedItems {
+				if i := strings.Index(relatedItemID, "@"); i > 0 && relatedItemID[i+1:] == string(spaceID) {
+					return validation.NewErrBadRecordFieldValue(fmt.Sprintf("related.%s.%s.%s", moduleID, collectionID, relatedItemID), "has an itemID with spaceID")
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // RemoveRelatedItem removes all relationships to a given item

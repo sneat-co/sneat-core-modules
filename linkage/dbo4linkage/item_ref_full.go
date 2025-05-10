@@ -13,5 +13,5 @@ func NewFullItemRef(module coretypes.ModuleID, collection string, spaceID corety
 	if itemID == "" {
 		panic("itemID is required for a full item reference")
 	}
-	return NewItemRef(module, collection, itemID+SpaceItemIDSeparator+string(spaceID))
+	return NewItemRefSameSpace(module, collection, itemID+SpaceItemIDSeparator+string(spaceID))
 }

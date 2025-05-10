@@ -17,7 +17,7 @@ type ItemRef struct { // TODO: Move to sneat-go-core or document why not
 	//SpaceID    coretypes.SpaceID  `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
 }
 
-func NewItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
+func NewItemRefSameSpace(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	if module == "" {
 		panic("module is required")
 	}
@@ -26,6 +26,9 @@ func NewItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	}
 	if itemID == "" {
 		panic("itemID is required")
+	}
+	if strings.Contains(itemID, "@") {
+		panic("itemID must not contain a spaceID separated by '@'")
 	}
 	return ItemRef{
 		//SpaceID:    spaceID,
