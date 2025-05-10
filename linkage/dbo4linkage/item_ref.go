@@ -18,6 +18,13 @@ type ItemRef struct { // TODO: Move to sneat-go-core or document why not
 }
 
 func NewItemRefSameSpace(module coretypes.ModuleID, collection, itemID string) ItemRef {
+	if strings.Contains(itemID, "@") {
+		panic("itemID must not contain a spaceID separated by '@'")
+	}
+	return newItemRef(module, collection, itemID)
+}
+
+func newItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	if module == "" {
 		panic("module is required")
 	}
@@ -26,9 +33,6 @@ func NewItemRefSameSpace(module coretypes.ModuleID, collection, itemID string) I
 	}
 	if itemID == "" {
 		panic("itemID is required")
-	}
-	if strings.Contains(itemID, "@") {
-		panic("itemID must not contain a spaceID separated by '@'")
 	}
 	return ItemRef{
 		//SpaceID:    spaceID,
