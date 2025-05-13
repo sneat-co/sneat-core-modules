@@ -6,6 +6,8 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
+	"github.com/sneat-co/sneat-core-modules/dbo4all"
+
 	//"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
@@ -60,6 +62,9 @@ type UserDbo struct {
 
 	Email         string `json:"email,omitempty"  firestore:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
+
+	dbo4all.WithEmails
+	dbo4all.WithPhones
 
 	// List of spaces a user belongs to
 	Spaces map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
@@ -149,6 +154,12 @@ func (v *UserDbo) Validate() error {
 	//		return err
 	//	}
 	//}
+	if err := v.WithEmails.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithPhones.Validate(); err != nil {
+		return err
+	}
 	if err := v.validateEmails(); err != nil {
 		return err
 	}
@@ -191,11 +202,11 @@ func (v *UserDbo) validateEmails() error {
 		}
 	}
 	primaryEmailInEmails := false
-	for i, email := range v.Emails {
-		if err := email.Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("emails[%d]", i), err.Error())
+	for emailAddress, emailProps := range v.Emails {
+		if err := emailProps.Validate(); err != nil {
+			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("emails[%s]", emailAddress), err.Error())
 		}
-		if email.Address == v.Email {
+		if emailAddress == v.Email {
 			primaryEmailInEmails = true
 		}
 	}

@@ -76,6 +76,6 @@ func NewPasswordResetIncompleteKey() *dal.Key {
 //	}
 //	return gaedb.CleanProperties(properties, map[string]gaedb.IsOkToRemove{
 //		"DtUpdated": gaedb.IsZeroTime,
-//		"Email":     gaedb.IsEmptyString,
+//		"EmailAddress":     gaedb.IsEmptyString,
 //	})
 //}

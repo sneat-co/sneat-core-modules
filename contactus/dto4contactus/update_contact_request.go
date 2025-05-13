@@ -6,16 +6,18 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
 	"strings"
+	"time"
 )
 
 type UpdateContactRequest struct {
 	ContactRequest
-	Address   *dbmodels.Address  `json:"address,omitempty"`
-	AgeGroup  string             `json:"ageGroup,omitempty"`
-	Roles     *SetRolesRequest   `json:"roles,omitempty"`
-	VatNumber *string            `json:"vatNumber,omitempty"`
-	Gender    dbmodels.Gender    `json:"gender,omitempty"`
-	Names     *person.NameFields `json:"names,omitempty"`
+	Address     *dbmodels.Address  `json:"address,omitempty"`
+	AgeGroup    string             `json:"ageGroup,omitempty"`
+	Roles       *SetRolesRequest   `json:"roles,omitempty"`
+	VatNumber   *string            `json:"vatNumber,omitempty"`
+	Gender      dbmodels.Gender    `json:"gender,omitempty"`
+	DateOfBirth *string            `json:"dateOfBirth,omitempty"`
+	Names       *person.NameFields `json:"names,omitempty"`
 }
 
 func (v UpdateContactRequest) Validate() error {
@@ -52,6 +54,15 @@ func (v UpdateContactRequest) Validate() error {
 	}
 	if v.Gender != "" && !dbmodels.IsKnownGender(v.Gender) {
 		return validation.NewErrBadRequestFieldValue("gender", "unknown value: "+v.Gender)
+	}
+	if v.DateOfBirth != nil {
+		dob := *v.DateOfBirth
+		if trimmed := strings.TrimSpace(dob); trimmed != dob {
+			return validation.NewErrBadRequestFieldValue("dateOfBirth", "must not have leading or trailing spaces")
+		}
+		if _, err := time.Parse(time.DateOnly, dob); err != nil {
+			return validation.NewErrBadRequestFieldValue("dateOfBirth", err.Error())
+		}
 	}
 	return nil
 }

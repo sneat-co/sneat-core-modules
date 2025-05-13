@@ -22,7 +22,7 @@ func CreateEmailRecordAndQueueForSending(ctx context.Context, emailEntity *model
 	if err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
 		emailEntity.Status = "queued"
 		if email, err = common4all.Email.InsertEmail(ctx, tx, emailEntity); err != nil {
-			err = fmt.Errorf("%w: Failed to insert Email record", err)
+			err = fmt.Errorf("%w: Failed to insert EmailAddress record", err)
 			return err
 		}
 		if err = DelaySendEmail(ctx, email.ID); err != nil {
@@ -117,7 +117,7 @@ func SendEmail(ctx context.Context, email emails.Email) (messageID string, err e
 	//	// Message from an error.
 	//	originalErr := err
 	//	errMessage := err.Error()
-	//	if to != strings.ToLower(to) && strings.Index(errMessage, "Email address is not verified") > 0 && strings.Index(errMessage, to) > 0 {
+	//	if to != strings.ToLower(to) && strings.Index(errMessage, "EmailAddress address is not verified") > 0 && strings.Index(errMessage, to) > 0 {
 	//		params.Destination.ToAddresses[0] = aws.String(strings.ToLower(to))
 	//		resp, err = svc.SendEmail(params)
 	//		if err != nil {

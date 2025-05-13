@@ -10,7 +10,7 @@ func TestModule(t *testing.T) {
 	m := Module()
 	module.AssertModule(t, m, module.Expected{
 		ModuleID:      const4contactus.ModuleID,
-		HandlersCount: 7,
+		HandlersCount: 11,
 		DelayersCount: 1,
 	})
 }

@@ -68,7 +68,7 @@ func updateContactTxWorker(
 
 	contact := params.Contact
 
-	if err := contact.Data.Validate(); err != nil {
+	if err = contact.Data.Validate(); err != nil {
 		return fmt.Errorf("contact DBO is not valid after loading from DB: %w", err)
 	}
 
@@ -131,6 +131,14 @@ func updateContactTxWorker(
 		}
 	}
 
+	if request.DateOfBirth != nil {
+		if dob := *request.DateOfBirth; dob != contact.Data.DoB {
+			contact.Data.DoB = dob
+			params.ContactUpdates = append(params.ContactUpdates,
+				update.ByFieldName("dob", dob))
+		}
+	}
+
 	if request.Roles != nil {
 		var contactFieldsUpdated []string
 		if contactFieldsUpdated, err = updateContactRoles(params, *request.Roles); err != nil {
@@ -142,11 +150,11 @@ func updateContactTxWorker(
 	if len(params.ContactUpdates) > 0 {
 		contact.Data.IncreaseVersion(params.Started, params.UserID())
 		params.ContactUpdates = append(params.ContactUpdates, contact.Data.GetUpdates()...)
-		if err := contact.Data.Validate(); err != nil {
+		if err = contact.Data.Validate(); err != nil {
 			return fmt.Errorf("contact DBO is not valid after updating %d fields (%+v) and before storing changes DB: %w",
 				len(updatedContactFields), updatedContactFields, err)
 		}
-		if err := tx.Update(ctx, contact.Key, params.ContactUpdates); err != nil {
+		if err = tx.Update(ctx, contact.Key, params.ContactUpdates); err != nil {
 			return err
 		}
 	}

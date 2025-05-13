@@ -48,7 +48,7 @@ type ClaimPersonalInviteRequest struct {
 	//Member dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
 
 	//FullName string                      `json:"fullName"`
-	//Email    string                      `json:"email"`
+	//EmailAddress    string                      `json:"email"`
 }
 
 // Validate validates request

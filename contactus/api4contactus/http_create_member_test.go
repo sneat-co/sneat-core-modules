@@ -6,17 +6,18 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
+	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/httpmock"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"github.com/strongo/strongoapp/with"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestHttpAddMember(t *testing.T) {
@@ -61,8 +62,20 @@ func TestHttpAddMember(t *testing.T) {
 				//WithRequiredCountryID: dbmodels.WithRequiredCountryID{
 				//	CountryID: dbmodels.UnknownCountryID,
 				//},
-				Emails: []dbmodels.PersonEmail{
-					{Type: "personal", Address: "someone@example.com"},
+			},
+			WithEmails: dbo4all.WithEmails{
+				Emails: map[string]dbo4all.EmailProps{
+					"someone@example.com": {
+						Type: "personal",
+						CreatedFields: with.CreatedFields{
+							CreatedAtField: with.CreatedAtField{
+								CreatedAt: time.Now(),
+							},
+							CreatedByField: with.CreatedByField{
+								CreatedBy: "unit-test-user",
+							},
+						},
+					},
 				},
 			},
 		},

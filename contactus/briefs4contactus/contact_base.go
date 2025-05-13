@@ -22,12 +22,12 @@ type ContactBase struct {
 	Address   *dbmodels.Address `json:"address,omitempty" firestore:"address,omitempty"`
 	VATNumber string            `json:"vatNumber,omitempty" firestore:"vatNumber,omitempty"`
 
-	// Dob is Date of birth
+	// Dob is a "Date of Birth"
 	DoB string `json:"dob,omitempty" firestore:"dob,omitempty"`
 
-	Emails  []dbmodels.PersonEmail `json:"emails,omitempty" firestore:"emails,omitempty"`
-	Phones  []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
-	Avatars []dbprofile.Avatar     `json:"avatars,omitempty" firestore:"avatars,omitempty"`
+	//EmailsObsolete []dbmodels.PersonEmail `json:"emails,omitempty" firestore:"emails,omitempty"`
+	//PhonesObsolete []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
+	Avatars []dbprofile.Avatar `json:"avatars,omitempty" firestore:"avatars,omitempty"`
 
 	Timezone *dbmodels.Timezone `json:"timezone,omitempty" firestore:"timezone,omitempty"`
 }
@@ -87,24 +87,6 @@ func (v *ContactBase) Validate() error {
 		}
 		if err := dbmodels.ValidateAgeGroup(v.AgeGroup, false); err != nil {
 			errs = append(errs, err)
-		}
-	}
-
-	hasPrimaryEmail := false
-	for i, email := range v.Emails {
-		if err := email.Validate(); err != nil {
-			errs = append(errs, validation.NewErrBadRecordFieldValue(fmt.Sprintf("emails[%d]", i), err.Error()))
-		}
-		if email.Type == "primary" {
-			if hasPrimaryEmail {
-				errs = append(errs, validation.NewErrBadRecordFieldValue("emails", "only 1 email can have type=primary"))
-			}
-			hasPrimaryEmail = true
-		}
-	}
-	for i, phone := range v.Phones {
-		if err := phone.Validate(); err != nil {
-			errs = append(errs, validation.NewErrBadRecordFieldValue(fmt.Sprintf("phones[%d]", i), err.Error()))
 		}
 	}
 	for i, avatar := range v.Avatars {

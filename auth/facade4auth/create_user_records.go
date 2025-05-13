@@ -6,6 +6,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/dto4auth"
@@ -152,14 +153,20 @@ func createUserRecord(userToCreate dto4auth.DataToCreateUser, user dbo4userus.Us
 	_ = user.Data.AddAccount(userToCreate.AuthAccount)
 
 	if user.Data.Email != "" {
-		user.Data.Emails = []dbmodels.PersonEmail{
-			{
-				Type:         "primary",
-				Address:      user.Data.Email,
-				Verified:     user.Data.EmailVerified,
-				AuthProvider: userToCreate.AuthAccount.Provider,
-			},
+		emailAddress := strings.ToLower(user.Data.Email)
+		emailProps := dbo4all.EmailProps{
+			Type:          "primary",
+			Verified:      user.Data.EmailVerified,
+			AuthProvider:  userToCreate.AuthAccount.Provider,
+			CreatedFields: user.Data.CreatedFields,
 		}
+		if emailAddress != user.Data.Email {
+			emailProps.OriginalEmail = user.Data.Email
+		}
+		if user.Data.Emails == nil {
+			user.Data.Emails = make(map[string]dbo4all.EmailProps, 1)
+		}
+		user.Data.Emails[emailAddress] = emailProps
 	}
 	if userToCreate.IanaTimezone != "" {
 		user.Data.Timezone = &dbmodels.Timezone{

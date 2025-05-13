@@ -66,14 +66,14 @@ import (
 //			common4all.ErrorAsJson(ctx, w, http.StatusInternalServerError, err)
 //			return
 //		}
-//		ReturnToken(ctx, w, r, user.ID, r.Referer() /*, user.Data.Email == "alexander.trakhimenok@gmail.com"*/)
+//		ReturnToken(ctx, w, r, user.ID, r.Referer() /*, user.Data.EmailAddress == "alexander.trakhimenok@gmail.com"*/)
 //	}
 //}
 //
 //func HandleSignInWithEmail(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 //	email := strings.TrimSpace(r.PostFormValue("email"))
 //	password := strings.TrimSpace(r.PostFormValue("password"))
-//	//logus.Debugf(ctx, "Email: %s", email)
+//	//logus.Debugf(ctx, "EmailAddress: %s", email)
 //	if email == "" || password == "" {
 //		common4all.ErrorAsJson(ctx, w, http.StatusBadRequest, errors.New("Missing required value"))
 //		return

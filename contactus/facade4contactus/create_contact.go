@@ -173,6 +173,8 @@ func CreateContactTx(
 	contactDbo.Status = "active"
 	contactDbo.ParentID = parentContactID
 	contactDbo.RolesField = request.RolesField
+	contactDbo.WithEmails = request.WithEmails
+	contactDbo.WithPhones = request.WithPhones
 	if request.Person != nil {
 		contactDbo.ContactBase = request.Person.ContactBase
 		contactDbo.Type = briefs4contactus.ContactTypePerson

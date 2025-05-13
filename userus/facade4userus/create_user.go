@@ -50,9 +50,9 @@ package facade4userus
 //			}
 //		}
 //	}
-//	user.Data.Email = strings.TrimSpace(request.Email)
+//	user.Data.EmailAddress = strings.TrimSpace(request.EmailAddress)
 //	user.Data.Emails = []dbmodels.PersonEmail{
-//		{ExtraType: "primary", Address: user.Data.Email},
+//		{ExtraType: "primary", Address: user.Data.EmailAddress},
 //	}
 //	if user.Data.Gender == "" {
 //		user.Data.Gender = "unknown"

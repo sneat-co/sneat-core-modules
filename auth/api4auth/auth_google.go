@@ -43,7 +43,7 @@ func handleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r 
 	//	return
 	//}
 	//
-	//if googleAuthData.Email == "" {
+	//if googleAuthData.EmailAddress == "" {
 	//	BadRequestMessage(ctx, w, "Missing required field: email")
 	//	return
 	//}
@@ -122,7 +122,7 @@ func handleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r 
 	//			//	LastName:     userGooglePlus.NameLast,
 	//			//}
 	//			var user models.AppUser
-	//			//if user, isNewUser, err = facade4debtus.User.GetOrCreateEmailUser(ctx, googleAuthData.Email, userGooglePlus.EmailVerified, &createUserData); err != nil {
+	//			//if user, isNewUser, err = facade4debtus.User.GetOrCreateEmailUser(ctx, googleAuthData.EmailAddress, userGooglePlus.EmailVerified, &createUserData); err != nil {
 	//			//	return
 	//			//}
 	//			userGooglePlus.AppUserIntID = user.ContactID
@@ -154,8 +154,8 @@ func handleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r 
 	//			userGooglePlus.DisplayName = googleAuthData.DisplayName
 	//			changed = true
 	//		}
-	//		if googleAuthData.Email != "" && userGooglePlus.Email != googleAuthData.Email {
-	//			userGooglePlus.Email = googleAuthData.Email
+	//		if googleAuthData.EmailAddress != "" && userGooglePlus.EmailAddress != googleAuthData.EmailAddress {
+	//			userGooglePlus.EmailAddress = googleAuthData.EmailAddress
 	//			changed = true
 	//		}
 	//
@@ -175,5 +175,5 @@ func handleSignedInWithGooglePlus(ctx context.Context, w http.ResponseWriter, r 
 	//	return
 	//}
 	//
-	//ReturnToken(ctx, w, userGooglePlus.AppUserIntID, isNewUser, googleAuthData.Email == "alexander.trakhimenok@gmail.com")
+	//ReturnToken(ctx, w, userGooglePlus.AppUserIntID, isNewUser, googleAuthData.EmailAddress == "alexander.trakhimenok@gmail.com")
 }

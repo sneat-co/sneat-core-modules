@@ -9,7 +9,7 @@ import (
 	"errors"
 )
 
-const EmailKind = "Email"
+const EmailKind = "EmailAddress"
 
 type Email struct {
 	record.WithID[int64]
