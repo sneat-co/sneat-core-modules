@@ -2,9 +2,11 @@ package briefs4contactus
 
 import (
 	"fmt"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
+	"strings"
 )
 
 // WithContactBriefs is a base struct for DTOs that have contacts
@@ -35,7 +37,7 @@ type WithContactsBase[T interface {
 	dbmodels.WithUserIDs
 }
 
-func (v WithContactsBase[T]) Validate() error {
+func (v *WithContactsBase[T]) Validate() error {
 	for id, contact := range v.Contacts {
 		if err := contact.Validate(); err != nil {
 			return validation.NewErrBadRecordFieldValue("contacts."+string(id), err.Error())
@@ -51,7 +53,7 @@ func (v WithContactsBase[T]) Validate() error {
 	return nil
 }
 
-func (v WithContactsBase[T]) GetContactBriefByUserID(userID string) (id string, contactBrief T) {
+func (v *WithContactsBase[T]) GetContactBriefByUserID(userID string) (id string, contactBrief T) {
 	for k, c := range v.Contacts {
 		if c.GetUserID() == userID {
 			return k, c
@@ -60,11 +62,24 @@ func (v WithContactsBase[T]) GetContactBriefByUserID(userID string) (id string, 
 	return id, contactBrief
 }
 
-func (v WithContactsBase[T]) GetContactBriefByContactID(contactID string) (contactBrief T) {
+func (v *WithContactsBase[T]) GetContactBriefByContactID(contactID string) (contactBrief T) {
 	return v.Contacts[contactID]
 }
 
-func (v WithContactsBase[T]) GetContactBriefsByRoles(roles ...string) map[string]T {
+func (v *WithContactsBase[T]) SetContactBrief(id string, brief T) (updates []update.Update) {
+	if strings.TrimSpace(id) == "" {
+		panic("contact brief ID is empty string")
+	}
+	if v.Contacts == nil {
+		v.Contacts = make(map[string]T, 1)
+	}
+	v.Contacts[id] = brief
+	return []update.Update{
+		update.ByFieldPath([]string{"contacts", id}, brief),
+	}
+}
+
+func (v *WithContactsBase[T]) GetContactBriefsByRoles(roles ...string) map[string]T {
 	result := make(map[string]T)
 	for id, c := range v.Contacts {
 		for _, role := range roles {
@@ -77,7 +92,7 @@ func (v WithContactsBase[T]) GetContactBriefsByRoles(roles ...string) map[string
 	return result
 }
 
-func (v WithContactsBase[T]) GetSortedContactBriefsByRoles(roles ...string) (contacts []T) {
+func (v *WithContactsBase[T]) GetSortedContactBriefsByRoles(roles ...string) (contacts []T) {
 	for _, c := range v.Contacts {
 		for _, role := range roles {
 			if c.HasRole(role) {
@@ -89,7 +104,7 @@ func (v WithContactsBase[T]) GetSortedContactBriefsByRoles(roles ...string) (con
 	return
 }
 
-func (v WithContactsBase[T]) GetContactsCount(roles ...string) (count int) {
+func (v *WithContactsBase[T]) GetContactsCount(roles ...string) (count int) {
 	for _, c := range v.Contacts {
 		for _, role := range roles {
 			if c.HasRole(role) {

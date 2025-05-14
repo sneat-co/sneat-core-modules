@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/validation"
 	"strings"
+	"time"
 )
 
 // ContactBase is used in dbo4contactus.ContactDbo and in requests to create a contactBrief
@@ -21,9 +22,6 @@ type ContactBase struct {
 
 	Address   *dbmodels.Address `json:"address,omitempty" firestore:"address,omitempty"`
 	VATNumber string            `json:"vatNumber,omitempty" firestore:"vatNumber,omitempty"`
-
-	// Dob is a "Date of Birth"
-	DoB string `json:"dob,omitempty" firestore:"dob,omitempty"`
 
 	//EmailsObsolete []dbmodels.PersonEmail `json:"emails,omitempty" firestore:"emails,omitempty"`
 	//PhonesObsolete []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
@@ -60,6 +58,13 @@ func (v *ContactBase) Validate() error {
 	if v.Names != nil {
 		if err := v.Names.Validate(); err != nil {
 			errs = append(errs, err)
+		}
+	}
+	if v.DoB != "" {
+		if t, err := time.Parse(time.DateOnly, v.DoB); err != nil {
+			return validation.NewErrBadRecordFieldValue("dob", "invalid date of birth: "+v.DoB)
+		} else if t.After(time.Now()) {
+			return validation.NewErrBadRecordFieldValue("dob", "date of birth cannot be in the future: "+v.DoB)
 		}
 	}
 	switch v.Type {

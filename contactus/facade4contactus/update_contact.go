@@ -72,7 +72,7 @@ func updateContactTxWorker(
 		return fmt.Errorf("contact DBO is not valid after loading from DB: %w", err)
 	}
 
-	contactBrief := params.SpaceModuleEntry.Data.Contacts[request.ContactID]
+	contactBrief := params.SpaceModuleEntry.Data.GetContactBriefByContactID(request.ContactID)
 
 	updateContactBriefField := func(field string, value any) {
 		params.SpaceModuleEntry.Record.MarkAsChanged()
@@ -92,6 +92,7 @@ func updateContactTxWorker(
 			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("names", request.Names))
 		}
 		if contactBrief != nil && *contactBrief.Names != names {
+			contactBrief.Names = &names
 			updateContactBriefField("names", contact.Data.Names)
 		}
 	}
@@ -116,6 +117,7 @@ func updateContactTxWorker(
 			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("gender", request.Gender))
 		}
 		if contactBrief != nil && contactBrief.Gender != request.Gender {
+			contactBrief.Gender = request.Gender
 			updateContactBriefField("gender", contact.Data.Gender)
 		}
 	}
@@ -127,15 +129,22 @@ func updateContactTxWorker(
 			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldName("ageGroup", contact.Data.AgeGroup))
 		}
 		if contactBrief != nil && contactBrief.AgeGroup != request.AgeGroup {
+			contactBrief.AgeGroup = request.AgeGroup
 			updateContactBriefField("ageGroup", contact.Data.AgeGroup)
 		}
 	}
 
 	if request.DateOfBirth != nil {
-		if dob := *request.DateOfBirth; dob != contact.Data.DoB {
+		dob := *request.DateOfBirth
+		if dob != contact.Data.DoB {
+			updatedContactFields = append(updatedContactFields, "dob")
 			contact.Data.DoB = dob
 			params.ContactUpdates = append(params.ContactUpdates,
 				update.ByFieldName("dob", dob))
+		}
+		if contactBrief != nil && contactBrief.DoB != dob {
+			contactBrief.DoB = dob
+			updateContactBriefField("dob", contact.Data.DoB)
 		}
 	}
 
@@ -144,7 +153,13 @@ func updateContactTxWorker(
 		if contactFieldsUpdated, err = updateContactRoles(params, *request.Roles); err != nil {
 			return err
 		}
-		updatedContactFields = append(updatedContactFields, contactFieldsUpdated...)
+		if len(contactFieldsUpdated) > 0 {
+			updatedContactFields = append(updatedContactFields, contactFieldsUpdated...)
+			if contactBrief != nil {
+				contactBrief.Roles = contact.Data.Roles
+				updateContactBriefField("roles", contact.Data.Roles)
+			}
+		}
 	}
 
 	if len(params.ContactUpdates) > 0 {
@@ -156,6 +171,11 @@ func updateContactTxWorker(
 		}
 		if err = tx.Update(ctx, contact.Key, params.ContactUpdates); err != nil {
 			return err
+		}
+		if contactBrief == nil {
+			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
+				params.SpaceModuleEntry.Data.SetContactBrief(contact.ID, &contact.Data.ContactBrief)...)
+			params.SpaceModuleEntry.Record.MarkAsChanged()
 		}
 	}
 
