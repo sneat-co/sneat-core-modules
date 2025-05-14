@@ -5,7 +5,6 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/strongoapp/with"
 	"strings"
@@ -30,7 +29,7 @@ func addEmailWorker(
 	if _, ok := params.Contact.Data.Emails[emailKey]; ok {
 		return nil
 	}
-	emailProps := dbo4all.EmailProps{
+	emailProps := with.EmailProps{
 		Type:  request.Type,
 		Title: request.Type,
 		CreatedFields: with.CreatedFields{
@@ -48,7 +47,7 @@ func addEmailWorker(
 	}
 	params.Contact.Data.Emails[emailKey] = emailProps
 	params.ContactUpdates = append(params.ContactUpdates,
-		update.ByFieldPath([]string{dbo4all.EmailsField, emailKey}, emailProps))
+		update.ByFieldPath([]string{with.EmailsFieldName, emailKey}, emailProps))
 	params.Contact.Record.MarkAsChanged()
 	return err
 }
@@ -76,10 +75,10 @@ func deleteEmailWorker(
 	if len(params.Contact.Data.Emails) == 0 {
 		params.Contact.Data.Emails = nil
 		params.ContactUpdates = append(params.ContactUpdates,
-			update.ByFieldName(dbo4all.EmailsField, update.DeleteField))
+			update.ByFieldName(with.EmailsFieldName, update.DeleteField))
 	} else {
 		params.ContactUpdates = append(params.ContactUpdates,
-			update.ByFieldPath([]string{dbo4all.EmailsField, emailKey}, update.DeleteField))
+			update.ByFieldPath([]string{with.EmailsFieldName, emailKey}, update.DeleteField))
 	}
 	params.Contact.Record.MarkAsChanged()
 	return err

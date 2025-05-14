@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -34,8 +33,8 @@ type CreateContactRequest struct {
 
 	dbo4linkage.WithRelated
 
-	dbo4all.WithEmails
-	dbo4all.WithPhones
+	with.EmailsField
+	with.PhonesField
 
 	// Used for a situation when we want a hard-coded contact number
 	// (e.g., a self-contact for a company space).
@@ -116,10 +115,10 @@ func (v CreateContactRequest) Validate() error {
 			return validation.NewErrBadRequestFieldValue(fmt.Sprintf("accounts[%d]", i), "invalid account: "+err.Error())
 		}
 	}
-	if err := v.WithEmails.Validate(); err != nil {
+	if err := v.EmailsField.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithPhones.Validate(); err != nil {
+	if err := v.PhonesField.Validate(); err != nil {
 		return err
 	}
 	return nil

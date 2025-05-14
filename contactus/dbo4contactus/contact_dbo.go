@@ -3,7 +3,6 @@ package dbo4contactus
 import (
 	"fmt"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/strongo/strongoapp/with"
 )
@@ -21,10 +20,10 @@ type ContactDbo struct {
 	dbo4linkage.WithRelatedAndIDs
 	with.CreatedFields
 	with.TagsField
+	with.EmailsField
+	with.PhonesField
 	briefs4contactus.WithMultiSpaceContacts[*briefs4contactus.ContactBrief]
 	WithInvitesToContactBriefs // dbo4invitus.WithInvites // Invites to become a space member or to connect as a contact
-	dbo4all.WithEmails
-	dbo4all.WithPhones
 }
 
 // Validate returns error if not valid
@@ -47,10 +46,10 @@ func (v ContactDbo) Validate() error {
 	if err := v.WithRelatedAndIDs.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithPhones.Validate(); err != nil {
+	if err := v.PhonesField.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithEmails.Validate(); err != nil {
+	if err := v.EmailsField.Validate(); err != nil {
 		return err
 	}
 	return nil

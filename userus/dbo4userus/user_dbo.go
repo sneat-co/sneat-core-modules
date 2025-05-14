@@ -6,9 +6,6 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
-
-	//"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -63,8 +60,8 @@ type UserDbo struct {
 	Email         string `json:"email,omitempty"  firestore:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
 
-	dbo4all.WithEmails
-	dbo4all.WithPhones
+	with.EmailsField
+	with.PhonesField
 
 	// List of spaces a user belongs to
 	Spaces map[string]*UserSpaceBrief `json:"spaces,omitempty"   firestore:"spaces,omitempty"`
@@ -154,10 +151,10 @@ func (v *UserDbo) Validate() error {
 	//		return err
 	//	}
 	//}
-	if err := v.WithEmails.Validate(); err != nil {
+	if err := v.EmailsField.Validate(); err != nil {
 		return err
 	}
-	if err := v.WithPhones.Validate(); err != nil {
+	if err := v.PhonesField.Validate(); err != nil {
 		return err
 	}
 	if err := v.validateEmails(); err != nil {

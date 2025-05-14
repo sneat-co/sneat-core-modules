@@ -24,7 +24,7 @@ func (v UpdateContactRequest) Validate() error {
 	if err := v.ContactRequest.Validate(); err != nil {
 		return err
 	}
-	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.VatNumber == nil && v.Gender == "" && v.Names == nil {
+	if v.Address == nil && v.AgeGroup == "" && v.Roles == nil && v.VatNumber == nil && v.Gender == "" && v.Names == nil && v.DateOfBirth == nil {
 		return validation.NewBadRequestError(errors.New("at least one of contact fields must be provided for an update"))
 	}
 	if v.Address != nil {
@@ -56,12 +56,13 @@ func (v UpdateContactRequest) Validate() error {
 		return validation.NewErrBadRequestFieldValue("gender", "unknown value: "+v.Gender)
 	}
 	if v.DateOfBirth != nil {
-		dob := *v.DateOfBirth
-		if trimmed := strings.TrimSpace(dob); trimmed != dob {
-			return validation.NewErrBadRequestFieldValue("dateOfBirth", "must not have leading or trailing spaces")
-		}
-		if _, err := time.Parse(time.DateOnly, dob); err != nil {
-			return validation.NewErrBadRequestFieldValue("dateOfBirth", err.Error())
+		if dob := *v.DateOfBirth; dob != "" {
+			if trimmed := strings.TrimSpace(dob); trimmed != dob {
+				return validation.NewErrBadRequestFieldValue("dateOfBirth", "must not have leading or trailing spaces")
+			}
+			if _, err := time.Parse(time.DateOnly, dob); err != nil {
+				return validation.NewErrBadRequestFieldValue("dateOfBirth", err.Error())
+			}
 		}
 	}
 	return nil

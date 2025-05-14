@@ -6,7 +6,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
@@ -63,8 +62,8 @@ func TestHttpAddMember(t *testing.T) {
 				//	CountryID: dbmodels.UnknownCountryID,
 				//},
 			},
-			WithEmails: dbo4all.WithEmails{
-				Emails: map[string]dbo4all.EmailProps{
+			EmailsField: with.EmailsField{
+				Emails: map[string]with.EmailProps{
 					"someone@example.com": {
 						Type: "personal",
 						CreatedFields: with.CreatedFields{

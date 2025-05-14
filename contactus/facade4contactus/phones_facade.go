@@ -4,8 +4,8 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
-	"github.com/sneat-co/sneat-core-modules/dbo4all"
 	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/strongo/strongoapp/with"
 )
 
 func AddPhone(ctx facade.ContextWithUser, request dto4contactus.AddPhoneRequest) (err error) {
@@ -27,7 +27,7 @@ func addPhoneWorker(
 	if _, ok := params.Contact.Data.Phones[phoneKey]; ok {
 		return nil
 	}
-	phoneProps := dbo4all.PhoneProps{
+	phoneProps := with.PhoneProps{
 		Type: request.Type,
 	}
 	params.Contact.Data.Phones[phoneKey] = phoneProps

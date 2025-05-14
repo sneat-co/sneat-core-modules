@@ -22,7 +22,7 @@ require (
 	github.com/strongo/logus v0.2.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.1
-	github.com/strongo/strongoapp v0.27.2
+	github.com/strongo/strongoapp v0.29.0
 	github.com/strongo/validation v0.0.7
 	go.uber.org/mock v0.5.2
 	golang.org/x/crypto v0.38.0
@@ -35,7 +35,7 @@ require (
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/strongo/decimal v0.1.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
