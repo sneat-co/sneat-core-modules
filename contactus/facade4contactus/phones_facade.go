@@ -27,10 +27,10 @@ func addPhoneWorker(
 	if _, ok := params.Contact.Data.Phones[phoneKey]; ok {
 		return nil
 	}
-	phoneProps := with.PhoneProps{
+	phoneProps := with.CommunicationChannelProps{
 		Type: request.Type,
 	}
-	params.Contact.Data.Phones[phoneKey] = phoneProps
+	params.Contact.Data.Phones[phoneKey] = &phoneProps
 	params.Contact.Record.MarkAsChanged()
 	return err
 }

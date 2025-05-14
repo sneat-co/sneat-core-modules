@@ -22,7 +22,7 @@ require (
 	github.com/strongo/logus v0.2.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.1
-	github.com/strongo/strongoapp v0.29.0
+	github.com/strongo/strongoapp v0.30.0
 	github.com/strongo/validation v0.0.7
 	go.uber.org/mock v0.5.2
 	golang.org/x/crypto v0.38.0

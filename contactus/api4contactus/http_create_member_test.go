@@ -63,7 +63,7 @@ func TestHttpAddMember(t *testing.T) {
 				//},
 			},
 			EmailsField: with.EmailsField{
-				Emails: map[string]with.EmailProps{
+				Emails: map[string]*with.CommunicationChannelProps{
 					"someone@example.com": {
 						Type: "personal",
 						CreatedFields: with.CreatedFields{

@@ -29,7 +29,7 @@ func addEmailWorker(
 	if _, ok := params.Contact.Data.Emails[emailKey]; ok {
 		return nil
 	}
-	emailProps := with.EmailProps{
+	emailProps := with.CommunicationChannelProps{
 		Type:  request.Type,
 		Title: request.Type,
 		CreatedFields: with.CreatedFields{
@@ -43,9 +43,12 @@ func addEmailWorker(
 	}
 
 	if emailKey != request.EmailAddress {
-		emailProps.OriginalEmail = request.EmailAddress
+		emailProps.Original = request.EmailAddress
 	}
-	params.Contact.Data.Emails[emailKey] = emailProps
+	if params.Contact.Data.Emails == nil {
+		params.Contact.Data.Emails = make(map[string]*with.CommunicationChannelProps)
+	}
+	params.Contact.Data.Emails[emailKey] = &emailProps
 	params.ContactUpdates = append(params.ContactUpdates,
 		update.ByFieldPath([]string{with.EmailsFieldName, emailKey}, emailProps))
 	params.Contact.Record.MarkAsChanged()
