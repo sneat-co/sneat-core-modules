@@ -15,11 +15,9 @@ func RegisterHttpRoutes(handle module.HTTPHandleFunc) {
 	handle(http.MethodPost, "/v0/contactus/create_member", httpPostCreateMember)
 	handle(http.MethodPost, "/v0/contactus/remove_space_member", httpPostRemoveSpaceMember)
 
-	handle(http.MethodPost, "/v0/contactus/add_email", httpAddEmail)
-	handle(http.MethodDelete, "/v0/contactus/delete_email", httpDeleteEmail)
-
-	handle(http.MethodPost, "/v0/contactus/add_phone", httpAddPhone)
-	handle(http.MethodDelete, "/v0/contactus/delete_phone", httpDeletePhone)
+	handle(http.MethodPost, "/v0/contactus/add_contact_comm_channel", httpAddContactCommChannel)
+	handle(http.MethodPost, "/v0/contactus/update_contact_comm_channel", httpUpdateContactCommChannel)
+	handle(http.MethodPost, "/v0/contactus/delete_contact_comm_channel", httpDeleteContactCommChannel)
 
 	////
 	//handle(http.MethodGet, "/v0/space/join_info", api4debtus.GetSpaceJoinInfo)

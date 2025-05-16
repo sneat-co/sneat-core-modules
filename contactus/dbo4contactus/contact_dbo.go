@@ -20,8 +20,7 @@ type ContactDbo struct {
 	dbo4linkage.WithRelatedAndIDs
 	with.CreatedFields
 	with.TagsField
-	with.EmailsField
-	with.PhonesField
+	with.CommChannelFields
 	briefs4contactus.WithMultiSpaceContacts[*briefs4contactus.ContactBrief]
 	WithInvitesToContactBriefs // dbo4invitus.WithInvites // Invites to become a space member or to connect as a contact
 }
@@ -46,10 +45,7 @@ func (v ContactDbo) Validate() error {
 	if err := v.WithRelatedAndIDs.Validate(); err != nil {
 		return err
 	}
-	if err := v.PhonesField.Validate(); err != nil {
-		return err
-	}
-	if err := v.EmailsField.Validate(); err != nil {
+	if err := v.CommChannelFields.Validate(); err != nil {
 		return err
 	}
 	return nil
