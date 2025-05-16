@@ -68,7 +68,7 @@ func updateCommChannelWorker(
 	request dto4contactus.UpdateCommChannelRequest,
 ) (err error) {
 	channelID := strings.ToLower(request.ChannelID)
-	channels, _ := params.Contact.Data.GetCommChannels(request.ChannelType)
+	channels, fieldName := params.Contact.Data.GetCommChannels(request.ChannelType)
 
 	props := channels[channelID]
 	if props == nil {
@@ -78,14 +78,14 @@ func updateCommChannelWorker(
 	if request.Type != nil {
 		if t := *request.Type; t != props.Type {
 			props.Type = *request.Type
-			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldPath([]string{with.EmailsFieldName, channelID, "type"}, props.Type))
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldPath([]string{fieldName, channelID, "type"}, props.Type))
 			params.Contact.Record.MarkAsChanged()
 		}
 	}
 	if request.Note != nil {
 		if note := *request.Note; note != props.Note {
 			props.Note = *request.Note
-			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldPath([]string{with.EmailsFieldName, channelID, "note"}, props.Note))
+			params.ContactUpdates = append(params.ContactUpdates, update.ByFieldPath([]string{fieldName, channelID, "note"}, props.Note))
 			params.Contact.Record.MarkAsChanged()
 		}
 	}
@@ -96,8 +96,8 @@ func updateCommChannelWorker(
 			}
 			// Intentionally overrider slice with a single update
 			params.ContactUpdates = []update.Update{
-				update.ByFieldPath([]string{with.EmailsFieldName, channelID}, update.DeleteField),
-				update.ByFieldPath([]string{with.EmailsFieldName, *request.NewChannelID}, props),
+				update.ByFieldPath([]string{fieldName, channelID}, update.DeleteField),
+				update.ByFieldPath([]string{fieldName, *request.NewChannelID}, props),
 			}
 			params.Contact.Record.MarkAsChanged()
 		}
