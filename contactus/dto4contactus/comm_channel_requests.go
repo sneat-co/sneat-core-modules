@@ -66,9 +66,7 @@ type UpdateCommChannelRequest struct {
 func (v *UpdateCommChannelRequest) Validate() error {
 	if v.Type != nil {
 		switch *v.Type {
-		case with.CommChannelTypeEmail, with.CommChannelTypePhone: // ok
-		case "":
-			return validation.NewErrRequestIsMissingRequiredField("type")
+		case "personal", "work", "": // ok
 		default:
 			return validation.NewErrBadRequestFieldValue("type", "unknown value: "+*v.Type)
 		}
