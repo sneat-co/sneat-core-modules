@@ -7,7 +7,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
-const SpaceModulesCollection = coremodels.ModulesCollection
+const SpaceModulesCollection = coremodels.ExtCollection
 
 func NewSpaceModuleKey(spaceID coretypes.SpaceID, moduleID coretypes.ModuleID) *dal.Key {
 	spaceKey := NewSpaceKey(coretypes.SpaceID(spaceID))

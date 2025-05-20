@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
+	"github.com/sneat-co/sneat-core-modules/core/coremodels"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
@@ -70,7 +71,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 			//		spaceDbo.CountryID = "UK"
 			//		spaceDbo.Status = dbmodels.StatusActive
 			//		spaceDbo.UserIDs = []string{user.ID}
-			//	case "modules":
+			//	case "ext":
 			//		record.SetError(nil)
 			//	default:
 			//		err := fmt.Errorf("unexpected Get(key=%+v)", key)
@@ -100,7 +101,7 @@ func TestRunModuleSpaceWorker(t *testing.T) {
 						spaceDbo.CountryID = "UK"
 						spaceDbo.Status = dbmodels.StatusActive
 						spaceDbo.UserIDs = []string{userID}
-					case "modules":
+					case coremodels.ExtCollection:
 						record.SetError(nil)
 					default:
 						err := fmt.Errorf("unexpected GetMulti(key=%+v)", key)

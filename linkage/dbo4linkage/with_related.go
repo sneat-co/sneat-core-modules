@@ -154,7 +154,7 @@ func (v *WithRelated) Validate() error {
 func (v *WithRelated) ValidateWithKey(key *dal.Key) error {
 	parent := key.Parent()
 	var spaceID coretypes.SpaceID
-	if parent.Collection() == "modules" {
+	if parent.Collection() == "ext" {
 		spaceID = coretypes.SpaceID(parent.Parent().ID.(string))
 	} else {
 		spaceID = coretypes.SpaceID(parent.Parent().Parent().ID.(string))

@@ -28,7 +28,7 @@ func RunUserModuleWorker[T any](
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, param *UserModuleWorkerParams[T]) error,
 ) (err error) {
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
-		userModule := record.NewDataWithID(userID, NewUserModuleKey(userID, moduleID), userModuleDbo)
+		userModule := record.NewDataWithID(userID, NewExtUserKey(userID, moduleID), userModuleDbo)
 		params := UserModuleWorkerParams[T]{
 			UserModule: userModule,
 		}

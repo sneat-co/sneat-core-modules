@@ -9,14 +9,14 @@ import (
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 )
 
-const UserModulesCollection = coremodels.ModulesCollection
+const ExtUserCollection = coremodels.ExtCollection
 
-func NewUserModuleKey(userID string, moduleID coretypes.ModuleID) *dal.Key {
+func NewExtUserKey(userID string, extID coretypes.ModuleID) *dal.Key {
 	userKey := dbo4userus.NewUserKey(userID)
-	return dal.NewKeyWithParentAndID(userKey, UserModulesCollection, moduleID)
+	return dal.NewKeyWithParentAndID(userKey, ExtUserCollection, extID)
 }
 
-func NewUserModuleEntry[D any](userID string, moduleID coretypes.ModuleID, data D) record.DataWithID[coretypes.ModuleID, D] {
-	key := NewUserModuleKey(userID, moduleID)
-	return record.NewDataWithID(moduleID, key, data)
+func NewUserModuleEntry[D any](userID string, extID coretypes.ModuleID, data D) record.DataWithID[coretypes.ModuleID, D] {
+	key := NewExtUserKey(userID, extID)
+	return record.NewDataWithID(extID, key, data)
 }

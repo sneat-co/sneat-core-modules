@@ -1,3 +1,3 @@
 package coremodels
 
-const ModulesCollection = "modules"
+const ExtCollection = "ext"
