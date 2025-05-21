@@ -9,7 +9,7 @@ go 1.24.3
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
-	github.com/dal-go/dalgo v0.18.3
+	github.com/dal-go/dalgo v0.19.0
 	github.com/dal-go/mocks4dalgo v0.2.7
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gosimple/slug v1.15.0
