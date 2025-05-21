@@ -34,17 +34,20 @@ func RunUserExtWorker[T any](
 			if err = worker(ctx, tx, &params); err != nil {
 				return fmt.Errorf("failed to execute user ext worker: %w", err)
 			}
-			if params.UserExt.Record.Exists() {
-				if len(params.UserExtUpdates) > 0 {
-					if params.UserExt.Record.HasChanged() {
-						return fmt.Errorf("len(params.UserExtUpdates) > 0 but params.UserExt.Record.HasChanged() == false")
+			if params.UserExt.Record.HasChanged() {
+				if params.UserExt.Record.Exists() {
+					if len(params.UserExtUpdates) > 0 {
+						if err = tx.Update(ctx, params.UserExt.Key, params.UserExtUpdates); err != nil {
+							return fmt.Errorf("failed to update user's extension record: %w", err)
+						}
+					} else if err = tx.Set(ctx, params.UserExt.Record); err != nil {
+						return fmt.Errorf("failed to rewrite user's extension record: %w", err)
 					}
-					if err = tx.Update(ctx, params.UserExt.Key, params.UserExtUpdates); err != nil {
-						return fmt.Errorf("failed to update user's extension record: %w", err)
-					}
+				} else if err = tx.Insert(ctx, params.UserExt.Record); err != nil {
+					return fmt.Errorf("failed to insert user's extension record: %w", err)
 				}
-			} else if err = tx.Insert(ctx, params.UserExt.Record); err != nil {
-				return fmt.Errorf("failed to insert user's extension record: %w", err)
+			} else if len(params.UserExtUpdates) > 0 {
+				return fmt.Errorf("len(params.UserExtUpdates) > 0 but params.UserExt.Record.HasChanged() == false")
 			}
 			return err
 		},
