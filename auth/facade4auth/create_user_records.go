@@ -64,15 +64,19 @@ func CreateUserRecordsTxWorker(
 	if userInfo == nil {
 		panic("userInfo is nil")
 	}
+
+	// TODO: Should we do it after spaces creation so we update user with spaces brief?
+	// Caution required as can be tricky - check createDefaultUserSpacesTx does not expect user record to exist.
 	if err = createOrUpdateUserRecord(userInfo, userToCreate, params); err != nil {
 		return
 	}
 
-	if isCreateDefaultSpaces && !params.User.Record.Exists() {
+	if isCreateDefaultSpaces && (!params.User.Record.Exists() || len(params.User.Data.Spaces) == 0) {
 		if err = createDefaultUserSpacesTx(ctx, tx, params); err != nil {
 			return fmt.Errorf("failed to create default user spaces: %w", err)
 		}
 	}
+
 	return
 }
 
