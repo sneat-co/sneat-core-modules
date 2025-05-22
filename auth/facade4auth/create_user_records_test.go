@@ -19,8 +19,9 @@ import (
 func Test_InitUserRecord(t *testing.T) {
 	ctx := context.Background()
 	type args struct {
-		user         facade.UserContext
-		userToCreate dto4auth.DataToCreateUser
+		user                  facade.UserContext
+		userToCreate          dto4auth.DataToCreateUser
+		isCreateDefaultSpaces bool
 	}
 	tests := []struct {
 		name     string
@@ -31,7 +32,8 @@ func Test_InitUserRecord(t *testing.T) {
 		{
 			name: "should_create_user_record",
 			args: args{
-				user: facade.NewUserContext("test_user_1"),
+				user:                  facade.NewUserContext("test_user_1"),
+				isCreateDefaultSpaces: true,
 				userToCreate: dto4auth.DataToCreateUser{
 					AuthAccount: appuser.AccountKey{
 						Provider: "password",
@@ -85,7 +87,7 @@ func Test_InitUserRecord(t *testing.T) {
 			// SETUP MOCKS ENDS
 
 			// TEST CALL BEGINS
-			gotParams, err := CreateUserRecords(facade.NewContextWithUserContext(ctx, tt.args.user), tt.args.userToCreate)
+			gotParams, err := CreateUserRecords(facade.NewContextWithUserContext(ctx, tt.args.user), tt.args.userToCreate, tt.args.isCreateDefaultSpaces)
 			// TEST CALL ENDS
 
 			if (err != nil) != tt.wantErr {

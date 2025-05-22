@@ -20,7 +20,7 @@ import (
 )
 
 // CreateUserRecords sets user title
-func CreateUserRecords(ctx facade.ContextWithUser, userToCreate dto4auth.DataToCreateUser) (params CreateUserWorkerParams, err error) {
+func CreateUserRecords(ctx facade.ContextWithUser, userToCreate dto4auth.DataToCreateUser, isCreateDefaultSpaces bool) (params CreateUserWorkerParams, err error) {
 	if err = userToCreate.Validate(); err != nil {
 		err = fmt.Errorf("%w: %v", facade.ErrBadRequest, err)
 		return
@@ -37,7 +37,7 @@ func CreateUserRecords(ctx facade.ContextWithUser, userToCreate dto4auth.DataToC
 			params = CreateUserWorkerParams{
 				UserWorkerParams: userWorkerParams,
 			}
-			if err = CreateUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params); err != nil {
+			if err = CreateUserRecordsTxWorker(ctx, tx, userInfo, userToCreate, &params, isCreateDefaultSpaces); err != nil {
 				return
 			}
 			if err = params.ApplyChanges(ctx, tx); err != nil {
@@ -56,6 +56,7 @@ func CreateUserRecordsTxWorker(
 	tx dal.ReadwriteTransaction,
 	userInfo *sneatauth.AuthUserInfo, userToCreate dto4auth.DataToCreateUser, // TODO: Does this 2 duplicate each other?
 	params *CreateUserWorkerParams,
+	isCreateDefaultSpaces bool,
 ) (err error) {
 	if params == nil {
 		panic("params is nil")
@@ -67,7 +68,7 @@ func CreateUserRecordsTxWorker(
 		return
 	}
 
-	if !params.User.Record.Exists() {
+	if isCreateDefaultSpaces && !params.User.Record.Exists() {
 		if err = createDefaultUserSpacesTx(ctx, tx, params); err != nil {
 			return fmt.Errorf("failed to create default user spaces: %w", err)
 		}
