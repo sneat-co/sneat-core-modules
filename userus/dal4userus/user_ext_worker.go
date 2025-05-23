@@ -19,6 +19,22 @@ type UserExtWorkerParams[T any] struct {
 	UserExtUpdates []update.Update
 }
 
+func RunUserExtWorkerWithUserContext[T any](
+	ctx facade.ContextWithUser,
+	extID coretypes.ModuleID,
+	userExtDbo *T,
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, param *UserExtWorkerParams[T]) error,
+) error {
+	user := ctx.User()
+	userID := user.GetUserID()
+	return RunUserExtWorker[T](ctx, userID, extID, userExtDbo,
+		func(ctx context.Context, tx dal.ReadwriteTransaction, param *UserExtWorkerParams[T]) error {
+			ctxWithUser := facade.NewContextWithUserContext(ctx, user)
+			return worker(ctxWithUser, tx, param)
+		},
+	)
+}
+
 func RunUserExtWorker[T any](
 	ctx context.Context,
 	userID string,
