@@ -15,11 +15,13 @@ func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransact
 ) (
 	id string, key *dal.Key, err error,
 ) {
+	if tx == nil {
+		panic("tx nil transaction")
+	}
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
 		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)
-		record := dal.NewRecordWithData(key, make(map[string]any))
-		if err := tx.Get(ctx, record); err != nil { // TODO: use tx.Exists()
+		if _, err = tx.Exists(ctx, key); err != nil { // TODO: use tx.Exists()
 			if dal.IsNotFound(err) {
 				return id, key, nil
 			}

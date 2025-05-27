@@ -11,12 +11,17 @@ import (
 	"github.com/strongo/random"
 	"github.com/strongo/validation"
 	"net/mail"
+	"reflect"
 	"strings"
 	"time"
 )
 
 func NewInviteKey(inviteID string) *dal.Key {
 	return dal.NewKeyWithID(InvitesCollection, inviteID)
+}
+
+func NewInviteKeyWithoutID() *dal.Key {
+	return dal.NewIncompleteKey(InvitesCollection, reflect.String, nil)
 }
 
 var randomPinCode = func() string {

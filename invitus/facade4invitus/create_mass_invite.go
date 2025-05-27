@@ -7,7 +7,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/strongo/random"
 )
 
 // CreateMassInviteRequest parameters for creating a mass invite
@@ -47,9 +46,9 @@ func createMassInviteTx(
 ) (
 	response CreateInviteResponse, err error,
 ) {
-	invite := NewMassInviteEntryWithDbo(random.ID(7), &request.Invite)
+	invite := NewMassInviteEntryWithoutID(&request.Invite)
 	response.Invite = invite
-	if err = tx.Insert(ctx, invite.Record); err != nil {
+	if err = tx.Insert(ctx, invite.Record, dal.WithRandomStringKey(7, 3)); err != nil {
 		return
 	}
 	return

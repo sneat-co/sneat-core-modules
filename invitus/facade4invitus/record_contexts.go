@@ -27,6 +27,13 @@ func NewMassInviteEntry(id string) (invite InviteEntry) {
 	return NewMassInviteEntryWithDbo(id, new(dbo4invitus.InviteDbo))
 }
 
+func NewMassInviteEntryWithoutID(dbo *dbo4invitus.InviteDbo) (invite InviteEntry) {
+	invite.Key = NewInviteKeyWithoutID()
+	invite.Data = dbo
+	invite.Record = dal.NewRecordWithData(invite.Key, invite.Data)
+	return
+}
+
 func NewMassInviteEntryWithDbo(id string, dbo *dbo4invitus.InviteDbo) (invite InviteEntry) {
 	invite.ID = id
 	invite.Key = NewInviteKey(id)
