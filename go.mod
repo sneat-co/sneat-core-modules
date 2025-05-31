@@ -14,11 +14,11 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.50.23
+	github.com/sneat-co/sneat-go-core v0.50.24
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
-	github.com/strongo/i18n v0.6.1
+	github.com/strongo/i18n v0.7.1
 	github.com/strongo/logus v0.2.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.1
