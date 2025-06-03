@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.1.0
 	github.com/strongo/facebook v1.8.1
-	github.com/strongo/i18n v0.7.1
+	github.com/strongo/i18n v0.8.2
 	github.com/strongo/logus v0.2.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.1
