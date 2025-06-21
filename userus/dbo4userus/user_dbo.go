@@ -7,6 +7,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
+	"github.com/sneat-co/sneat-core-modules/wallet/dbo4wallet"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/appuser"
@@ -42,6 +43,7 @@ type UserDbo struct {
 	dbmodels.WithLastCurrencies
 	botsfwmodels.WithBotUserIDs
 	coremodels.SmsStats
+	dbo4wallet.WithWallet
 
 	appuser.AccountsOfUser
 	appuser.WithLastLogin
@@ -178,6 +180,9 @@ func (v *UserDbo) Validate() error {
 	//	return err
 	//}
 	if err := v.WithBotUserIDs.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithWallet.Validate(); err != nil {
 		return err
 	}
 	return nil
