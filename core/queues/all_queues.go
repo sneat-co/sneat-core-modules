@@ -13,6 +13,7 @@ var KnownQueues = []string{
 	QueueReminders,
 	QueueEmails,
 	QueueInvites,
+	QueueNotifications,
 
 	const4userus.QueueUsers,
 	const4contactus.QueueContacts,
