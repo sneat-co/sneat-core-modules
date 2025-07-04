@@ -7,11 +7,10 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/wallet/botcharges"
-	"github.com/sneat-co/sneat-core-modules/wallet/const4wallet"
+	"github.com/sneat-co/sneat-core-modules/wallet/dal4wallet"
 	"github.com/sneat-co/sneat-core-modules/wallet/dbo4wallet"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
-	"reflect"
 	"time"
 )
 
@@ -102,27 +101,27 @@ func topupUserWalletTxWorker(
 	userWorkerParams.UserUpdates = append(userWorkerParams.UserUpdates,
 		update.ByFieldPath([]string{"wallet", request.Currency}, walletItem))
 
-	walletTransaction := dbo4wallet.WalletTransactionDbo{
+	walletTransactionDbo := dbo4wallet.WalletTransactionDbo{
 		Type:                    dbo4wallet.TransactionTypeCredit,
 		Operation:               dbo4wallet.TopupOperation,
 		Currency:                request.Currency,
 		Amount:                  request.Amount,
 		Balance:                 walletItem.Balance,
-		BotPlatform:             request.BotPlatform,
-		BotCode:                 request.BotCode,
+		AppPlatform:             request.BotPlatform,
+		AppID:                   request.BotCode,
 		MessengerChargeID:       request.MessengerChargeID,
 		ProviderPaymentChargeID: request.PaymentProviderChargeID,
 	}
-	walletTransaction.CreatedAt = time.Now()
-
 	userID := ctx.User().GetUserID()
-	userWalletKey := dal4userus.NewUserExtKey(userID, const4wallet.ModuleID)
-	transactionKey := dal.NewIncompleteKey(const4wallet.TransactionsCollection, reflect.String, userWalletKey)
-	transactionRecord := dal.NewRecordWithData(transactionKey, &walletTransaction)
-	if err = tx.Insert(ctx, transactionRecord, dal.WithRandomStringKeyPrefixedByUnixTime(1, 3)); err != nil {
+	transactionRecord := dal4wallet.NewTransactionRecordWithTimestampID(userID, &walletTransactionDbo)
+	walletTransactionDbo.CreatedAt = time.UnixMicro(transactionRecord.Key().ID.(int64))
+
+	//transactionRecord := dal4wallet.NewTransactionRecordWithIncompleteKey(userID, &walletTransactionDbo)
+
+	if err = tx.Insert(ctx, transactionRecord); err != nil {
 		return
 	}
-	transactionID = transactionKey.ID.(string)
+	transactionID = transactionRecord.Key().ID.(string)
 
 	if request.BotCode != "" {
 		if err = botcharges.SaveCharge(ctx, tx, request.BotPlatform, request.BotCode, &botcharges.ChargeDbo{

@@ -17,22 +17,23 @@ import (
 type TransactionType string
 
 const (
-	TransactionTypeCredit TransactionType = "c"
-	TransactionTypeDebit  TransactionType = "d"
+	TransactionTypeCredit TransactionType = "credit"
+	TransactionTypeDebit  TransactionType = "debit"
 )
 
 const TopupOperation = "topup"
 
 type WalletTransactionDbo struct {
 	with.CreatedAtField
-	Type      TransactionType `json:"type" firestore:"type"`
-	Operation string          `json:"operation" firestore:"operation"`
-	Currency  string          `json:"currency" firestore:"currency"`
-	Amount    int             `json:"amount" firestore:"amount"`
-	Balance   int             `json:"balance" firestore:"balance"`
+	RelatedTransactionID int64           `json:"relatedTransactionID,omitempty" firestore:"relatedTransactionID,omitempty"`
+	Type                 TransactionType `json:"type" firestore:"type"`
+	Operation            string          `json:"operation" firestore:"operation"`
+	Currency             string          `json:"currency" firestore:"currency"`
+	Amount               int             `json:"amount" firestore:"amount"`
+	Balance              int             `json:"balance" firestore:"balance"`
 	//
-	BotPlatform string `json:"botPlatform,omitempty" firestore:"botPlatform,omitempty"`
-	BotCode     string `json:"botCode,omitempty" firestore:"botCode,omitempty"`
+	AppPlatform string `json:"appPlatform,omitempty" firestore:"appPlatform,omitempty"`
+	AppID       string `json:"appID,omitempty" firestore:"appID,omitempty"`
 	//
 	MessengerChargeID       string `json:"messengerChargeID,omitempty" firestore:"messengerChargeID,omitempty"`
 	ProviderPaymentChargeID string `json:"providerPaymentChargeID,omitempty" firestore:"providerPaymentChargeID,omitempty"`
@@ -71,15 +72,15 @@ func (v *WalletTransactionDbo) Validate() error {
 	default:
 		return validation.NewErrBadRecordFieldValue("currency", "expected to be 3 characters long, got "+strconv.Itoa(currencyLength))
 	}
-	switch v.Operation {
-	case TopupOperation:
-		if v.Type == TransactionTypeDebit {
-			return validation.NewErrBadRecordFieldValue("type|operation", "operation=topup should be a credit transaction")
-		}
-	case "":
-		return validation.NewErrRecordIsMissingRequiredField("operation")
-	default:
-		return validation.NewErrBadRecordFieldValue("operation", "expected to be topup or topup")
-	}
+	//switch v.Operation {
+	//case TopupOperation:
+	//	if v.Type == TransactionTypeDebit {
+	//		return validation.NewErrBadRecordFieldValue("type|operation", "operation=topup should be a credit transaction")
+	//	}
+	//case "":
+	//	return validation.NewErrRecordIsMissingRequiredField("operation")
+	//default:
+	//	return validation.NewErrBadRecordFieldValue("operation", "expected to be topup or topup")
+	//}
 	return v.CreatedAtField.Validate()
 }

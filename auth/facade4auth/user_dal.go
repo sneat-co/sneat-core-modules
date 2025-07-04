@@ -42,7 +42,7 @@ func (userDal UserDalGae) GetUserByVkUserID(_ context.Context, vkUserID int64) (
 //func (userDal UserDalGae) getUserByQuery(ctx context.Context, query dal.Query, searchCriteria string) (appUser models4debtus.AppUserOBSOLETE, err error) {
 //	userEntities := make([]*models4debtus.DebutsAppUserDataOBSOLETE, 0, 2)
 //	var db dal.DB
-//	if db, err = facade.GetSneatDB(c); err != nil {
+//	if db, err = getDB(c); err != nil {
 //		return
 //	}
 //	var userRecords []dal.Record
