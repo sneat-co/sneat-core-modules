@@ -21,7 +21,7 @@ func Module() module.Module {
 			},
 		),
 	)
-	return module.NewModule(const4contactus.ModuleID,
+	return module.NewExtension(const4contactus.ModuleID,
 		module.RegisterRoutes(api4contactus.RegisterHttpRoutes),
 		module.RegisterDelays(delays4contactus.InitDelays4contactus),
 	)

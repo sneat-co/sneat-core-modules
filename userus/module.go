@@ -8,7 +8,7 @@ import (
 )
 
 func Module() module.Module {
-	return module.NewModule(const4userus.ModuleID,
+	return module.NewExtension(const4userus.ModuleID,
 		module.RegisterRoutes(api4userus.RegisterHttpRoutes),
 		module.RegisterDelays(delays4userus.InitDelays4userus),
 	)

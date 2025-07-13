@@ -6,8 +6,8 @@ import (
 )
 
 func Module() module.Module {
-	return module.NewModule(
-		const4auth.ModuleID,
+	return module.NewExtension(
+		const4auth.ExtensionID,
 		module.RegisterRoutes(func(handle module.HTTPHandleFunc) {
 			// Moved to sneat-go-bots
 		}),

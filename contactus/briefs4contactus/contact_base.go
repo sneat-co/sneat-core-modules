@@ -27,7 +27,7 @@ type ContactBase struct {
 	//PhonesObsolete []dbmodels.PersonPhone `json:"phones,omitempty" firestore:"phones,omitempty"`
 	Avatars []dbprofile.Avatar `json:"avatars,omitempty" firestore:"avatars,omitempty"`
 
-	Timezone *dbmodels.Timezone `json:"timezone,omitempty" firestore:"timezone,omitempty"`
+	dbmodels.WithTimezone
 }
 
 func (v *ContactBase) Equal(v2 *ContactBase) bool {

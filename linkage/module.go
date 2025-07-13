@@ -7,5 +7,5 @@ import (
 )
 
 func Module() module.Module {
-	return module.NewModule(const4linkage.ModuleID, module.RegisterRoutes(api4linkage.RegisterHttpRoutes))
+	return module.NewExtension(const4linkage.ModuleID, module.RegisterRoutes(api4linkage.RegisterHttpRoutes))
 }

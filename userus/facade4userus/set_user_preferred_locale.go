@@ -15,7 +15,7 @@ func SetUserPreferredLocale(ctx facade.ContextWithUser, localeCode5 string) (err
 				return nil
 			}
 			user := userWorkerParams.User
-			if err == nil && user.Data.PreferredLocale != localeCode5 {
+			if user.Data.PreferredLocale != localeCode5 {
 				if userWorkerParams.UserUpdates, err = user.Data.SetPreferredLocale(localeCode5); err != nil {
 					return err
 				}

@@ -55,13 +55,12 @@ type UserDbo struct {
 	IsAnonymous bool `json:"isAnonymous" firestore:"isAnonymous"` // Intentionally do not omitempty
 	//Title string
 
-	Timezone *dbmodels.Timezone `json:"timezone,omitempty" firestore:"timezone,omitempty"`
-
 	Defaults *UserDefaults `json:"defaults,omitempty" firestore:"defaults,omitempty"`
 
 	Email         string `json:"email,omitempty"  firestore:"email,omitempty"`
 	EmailVerified bool   `json:"emailVerified"  firestore:"emailVerified"`
 
+	dbmodels.WithTimezone
 	with.EmailsField
 	with.PhonesField
 

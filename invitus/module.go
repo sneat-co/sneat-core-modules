@@ -7,5 +7,5 @@ import (
 )
 
 func Module() module.Module {
-	return module.NewModule(const4invitus.ModuleID, module.RegisterRoutes(api4invitus.RegisterHttpRoutes))
+	return module.NewExtension(const4invitus.ModuleID, module.RegisterRoutes(api4invitus.RegisterHttpRoutes))
 }
