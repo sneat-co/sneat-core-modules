@@ -11,6 +11,6 @@ func TestSetUserTimezone(t *testing.T) {
 				t.Fatal("panic expected but succeed")
 			}
 		}()
-		_, _ = SetUserTimezone(nil, "Europe/London", "+01:00")
+		_, _ = SetUserTimezone(nil, "Europe/London")
 	})
 }
