@@ -29,7 +29,7 @@ func RunUserExtWorkerWithUserContext[T any](
 	userID := user.GetUserID()
 	return RunUserExtWorker[T](ctx, userID, extID, userExtDbo,
 		func(ctx context.Context, tx dal.ReadwriteTransaction, param *UserExtWorkerParams[T]) error {
-			ctxWithUser := facade.NewContextWithUserContext(ctx, user)
+			ctxWithUser := facade.NewContextWithUser(ctx, user)
 			return worker(ctxWithUser, tx, param)
 		},
 	)

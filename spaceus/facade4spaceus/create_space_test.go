@@ -20,7 +20,7 @@ import (
 func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 	ctx := context.Background()
 	user := facade.NewUserContext("TestUser")
-	ctxWithUser := facade.NewContextWithUserContext(ctx, user)
+	ctxWithUser := facade.NewContextWithUser(ctx, user)
 
 	setupMockDb := func(insertMultiTimes int) {
 		mockCtrl := gomock.NewController(t)

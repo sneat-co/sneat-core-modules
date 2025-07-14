@@ -106,7 +106,7 @@ var runSpaceWorker = func(ctx facade.ContextWithUser, spaceID coretypes.SpaceID,
 	}
 	userCtx := ctx.User()
 	return facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		ctxWithUser := facade.NewContextWithUser(ctx, userCtx)
 		return RunSpaceWorkerTx(ctxWithUser, tx, spaceID, worker)
 	})
 }

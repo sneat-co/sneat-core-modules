@@ -151,7 +151,7 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 			}
 			return nil
 		}
-		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		ctxWithUser := facade.NewContextWithUser(ctx, userCtx)
 		if err = runSpaceWorkerTx(ctxWithUser, tx, spaceWorkerParams, nil, txSpaceWorker); err != nil {
 			return fmt.Errorf("failed in runSpaceWorkerTx(): %w", err)
 		}

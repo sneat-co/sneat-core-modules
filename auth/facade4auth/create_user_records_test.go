@@ -87,7 +87,7 @@ func Test_InitUserRecord(t *testing.T) {
 			// SETUP MOCKS ENDS
 
 			// TEST CALL BEGINS
-			gotParams, err := CreateUserRecords(facade.NewContextWithUserContext(ctx, tt.args.user), tt.args.userToCreate, tt.args.isCreateDefaultSpaces)
+			gotParams, err := CreateUserRecords(facade.NewContextWithUser(ctx, tt.args.user), tt.args.userToCreate, tt.args.isCreateDefaultSpaces)
 			// TEST CALL ENDS
 
 			if (err != nil) != tt.wantErr {

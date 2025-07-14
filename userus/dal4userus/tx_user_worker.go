@@ -22,7 +22,7 @@ type userWorker = func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, 
 var RunUserWorker = func(ctx facade.ContextWithUser, userRecordMustExists bool, worker userWorker) (err error) {
 	userCtx := ctx.User()
 	err = facade.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
-		ctxWithUser := facade.NewContextWithUserContext(ctx, userCtx)
+		ctxWithUser := facade.NewContextWithUser(ctx, userCtx)
 		return RunUserWorkerTx(ctxWithUser, tx, userCtx, userRecordMustExists, worker)
 	})
 	if err != nil {
