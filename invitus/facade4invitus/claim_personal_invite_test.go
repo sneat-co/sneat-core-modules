@@ -66,7 +66,9 @@ func TestAcceptPersonalInviteRequest_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			v := &ClaimPersonalInviteRequest{
-				InviteRequest: tt.fields.InviteRequest,
+				ClaimInviteRequest: ClaimInviteRequest{
+					InviteRequest: tt.fields.InviteRequest,
+				},
 			}
 			if err := v.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -126,16 +128,18 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 					Roles: []string{"contributor"},
 				}),
 				request: ClaimPersonalInviteRequest{
-					RemoteClient: dbmodels.RemoteClientInfo{
-						HostOrApp:  "unit-test",
-						RemoteAddr: "localhost",
-					},
-					InviteRequest: InviteRequest{
-						SpaceRequest: dto4spaceus.SpaceRequest{
-							SpaceID: "testspaceid",
+					ClaimInviteRequest: ClaimInviteRequest{
+						RemoteClient: dbmodels.RemoteClientInfo{
+							HostOrApp:  "unit-test",
+							RemoteAddr: "localhost",
 						},
-						InviteID: "test_personal_invite_id",
-						Pin:      "1234",
+						InviteRequest: InviteRequest{
+							InviteID: "test_personal_invite_id",
+							Pin:      "1234",
+						},
+					},
+					SpaceRequest: dto4spaceus.SpaceRequest{
+						SpaceID: "testspaceid",
 					},
 				},
 			},

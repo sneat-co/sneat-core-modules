@@ -3,6 +3,7 @@ package facade4invitus
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 )
 
@@ -17,4 +18,32 @@ func GetInviteByID(ctx context.Context, getter dal.ReadSession, id string) (invi
 func GetPersonalInviteByID(ctx context.Context, getter dal.ReadSession, id string) (invite InviteEntry, err error) {
 	invite = NewInviteEntry(id)
 	return invite, getter.Get(ctx, invite.Record)
+}
+
+func GetInviteByInlineQueryID(ctx context.Context, getter dal.ReadSession, inlineQueryID string) (invite InviteEntry, err error) {
+	q := dal.NewQueryBuilder(dal.NewCollectionRef(InvitesCollection, "", nil)).
+		WhereField("inlineQueryID", dal.Equal, inlineQueryID).
+		Limit(1).
+		SelectInto(func() dal.Record {
+			return NewInviteEntryWithDbo("", new(dbo4invitus.InviteDbo)).Record
+		})
+	var records []dal.Record
+	if records, err = getter.QueryAllRecords(ctx, q); err != nil {
+		return
+	}
+	if len(records) == 0 {
+		err = dal.ErrRecordNotFound
+		return
+	}
+	r := records[0]
+	key := r.Key()
+	invite = InviteEntry{
+		WithID: record.WithID[string]{
+			ID:     key.ID.(string),
+			Key:    key,
+			Record: r,
+		},
+		Data: r.Data().(*dbo4invitus.InviteDbo),
+	}
+	return
 }

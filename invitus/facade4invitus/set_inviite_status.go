@@ -9,12 +9,29 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
-func SetInviteStatus(ctx context.Context, inviteID string, currentStatus, newStatus dbo4invitus.InviteStatus) (invite InviteEntry, err error) {
+type inviteFields struct {
+	inlineMessageID string
+}
+
+type InviteFieldArg func(v *inviteFields)
+
+func WithInlineMessageID(inlineMessageID string) InviteFieldArg {
+	return func(v *inviteFields) {
+		v.inlineMessageID = inlineMessageID
+	}
+}
+
+func SetInviteStatus(ctx context.Context, inviteID string, currentStatus, newStatus dbo4invitus.InviteStatus, fields ...InviteFieldArg) (invite InviteEntry, err error) {
 	invite = NewInviteEntry(inviteID)
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
 		return
 	}
+	args := new(inviteFields)
+	for _, arg := range fields {
+		arg(args)
+	}
+
 	if err = db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 		if err = tx.Get(ctx, invite.Record); err != nil {
 			return err
@@ -38,11 +55,16 @@ func SetInviteStatus(ctx context.Context, inviteID string, currentStatus, newSta
 				}
 			}
 		}
+		updates := []update.Update{update.ByFieldName("status", newStatus)}
 		invite.Data.Status = newStatus
+		if args.inlineMessageID != "" {
+			invite.Data.InlineMessageID = args.inlineMessageID
+			updates = append(updates, update.ByFieldName("inlineMessageID", args.inlineMessageID))
+		}
 		if err = invite.Data.Validate(); err != nil {
 			return err
 		}
-		return tx.Update(ctx, invite.Key, []update.Update{update.ByFieldName("status", newStatus)})
+		return tx.Update(ctx, invite.Key, updates)
 	}); err != nil {
 		return
 	}

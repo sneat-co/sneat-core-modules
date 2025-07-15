@@ -25,16 +25,22 @@ type InviteDbo struct {
 	MessageID  string               `json:"messageID" firestore:"messageID"` // e.g. email message ContactID from AWS SES
 	CreatedAt  time.Time            `json:"createdAt" firestore:"createdAt"`
 	Created    dbmodels.CreatedInfo `json:"created" firestore:"created"`
-	Claimed    *time.Time           `json:"claimed,omitempty" firestore:"claimed,omitempty"`
-	Revoked    *time.Time           `json:"revoked" firestore:"revoked,omitempty"`
-	Sending    *time.Time           `json:"sending,omitempty" firestore:"sending,omitempty"`
-	Sent       *time.Time           `json:"sent,omitempty" firestore:"sent,omitempty"`
-	Expires    *time.Time           `json:"expires,omitempty" firestore:"expires,omitempty"`
+	Claimed    time.Time            `json:"claimed,omitempty" firestore:"claimed,omitempty"`
+	Revoked    time.Time            `json:"revoked,omitempty" firestore:"revoked,omitempty"`
+	Sending    time.Time            `json:"sending,omitempty" firestore:"sending,omitempty"`
+	Sent       time.Time            `json:"sent,omitempty" firestore:"sent,omitempty"`
+	Expires    time.Time            `json:"expires,omitempty" firestore:"expires,omitempty"`
 	Space      *InviteSpace         `json:"space,omitempty" firestore:"space,omitempty"`
 	Roles      []string             `json:"roles,omitempty" firestore:"roles,omitempty"`
 	FromUserID string               `json:"fromUserID" firestore:"fromUserID"`
 	ToUserID   string               `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
 	Message    string               `json:"message,omitempty" firestore:"message,omitempty"`
+
+	AcceptedByUserIDs []string `json:"acceptedByUserIDs,omitempty" firestore:"acceptedByUserIDs,omitempty"`
+	DeclinedByUserIDs []string `json:"declinedByUserIDs,omitempty" firestore:"declinedByUserIDs,omitempty"`
+
+	InlineQueryID   string `json:"inlineQueryID,omitempty" firestore:"inlineQueryID,omitempty"`
+	InlineMessageID string `json:"inlineMessageID,omitempty" firestore:"inlineMessageID,omitempty"`
 
 	// TODO: Document purpose
 	Attempts int `json:"attempts,omitempty" firestore:"attempts,omitempty"`
@@ -51,7 +57,7 @@ type InviteDbo struct {
 }
 
 func (v InviteDbo) IsClaimed() bool {
-	return v.Claimed != nil || v.Status == InviteStatusAccepted || v.Status == InviteStatusDeclined
+	return !v.Claimed.IsZero() || v.Status == InviteStatusAccepted || v.Status == InviteStatusDeclined
 }
 
 func (v InviteDbo) validateType(expected InviteType) error {

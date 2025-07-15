@@ -47,11 +47,10 @@ func createMassInviteTx(
 	response CreateInviteResponse, err error,
 ) {
 	invite := NewMassInviteEntryWithoutID(&request.Invite)
-	response.Invite = invite
-
 	if err = tx.Insert(ctx, invite.Record, dal.WithTimeStampStringID(dal.TimeStampAccuracyMicrosecond, 36, 3)); err != nil {
 		return
 	}
 	invite.ID = invite.Record.Key().ID.(string)
+	response.Invite = invite
 	return
 }

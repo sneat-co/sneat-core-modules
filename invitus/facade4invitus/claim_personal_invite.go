@@ -10,13 +10,12 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"github.com/strongo/validation"
 	"strings"
 	"time"
 )
@@ -36,38 +35,16 @@ var (
 )
 
 // ClaimPersonalInviteRequest holds parameters for accepting a personal invite
-type ClaimPersonalInviteRequest struct {
-	InviteRequest
-	Operation InviteClaimOperation `json:"operation"`
-
-	NoPinRequired bool `json:"noPinRequired"`
-
-	RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
-
-	// TODO: Document why we need this and why it's called 'member'?
-	//Member dbmodels.DtoWithID[*briefs4contactus.ContactBase] `json:"member"`
-
-	//FullName string                      `json:"fullName"`
-	//EmailAddress    string                      `json:"email"`
+type ClaimPersonalInviteRequest struct { // TODO: Should we have just a ClaimInviteRequest?
+	dto4spaceus.SpaceRequest
+	ClaimInviteRequest
 }
 
-// Validate validates request
 func (v *ClaimPersonalInviteRequest) Validate() error {
-	if err := v.InviteRequest.Validate(); err != nil {
+	if err := v.SpaceRequest.Validate(); err != nil {
 		return err
 	}
-	switch v.Operation {
-	case "":
-		return validation.NewErrRecordIsMissingRequiredField("operation")
-	case InviteClaimOperationAccept, InviteClaimOperationDecline:
-		// OK
-	default:
-		return validation.NewErrBadRequestFieldValue("operation", "invalid value: "+string(v.Operation))
-	}
-	//if err := v.Member.Validate(); err != nil {
-	//	return validation.NewErrBadRequestFieldValue("member", err.Error())
-	//}
-	return nil
+	return v.ClaimInviteRequest.Validate()
 }
 
 type ClaimPersonalInviteResponse struct {

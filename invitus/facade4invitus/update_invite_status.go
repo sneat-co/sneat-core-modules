@@ -19,13 +19,13 @@ func updateInviteStatus(
 ) (err error) {
 	var inviteUpdates []update.Update
 
-	if invite.Data.Claimed != nil &&
+	if !invite.Data.Claimed.IsZero() &&
 		(status == dbo4invitus.InviteStatusSending || status == dbo4invitus.InviteStatusPending) {
 		err = fmt.Errorf("claimed invite can not be moved to status %s", status)
 		return err
 	}
 
-	if invite.Data.Expires != nil && invite.Data.Expires.Before(now) {
+	if !invite.Data.Expires.IsZero() && invite.Data.Expires.Before(now) {
 		err = fmt.Errorf("%w: expired at: %s", ErrInviteExpired, invite.Data.Expires)
 		return
 	}
@@ -80,7 +80,7 @@ func updateInviteStatus(
 		}
 		return
 	default:
-		invite.Data.Claimed = &now
+		invite.Data.Claimed = now
 		inviteUpdates = append(inviteUpdates, update.ByFieldName("claimed", now))
 	}
 	invite.Data.Status = status
