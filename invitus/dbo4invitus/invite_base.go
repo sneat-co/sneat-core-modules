@@ -40,6 +40,9 @@ func (v InviteBase) Validate() error {
 	default:
 		return validation.NewErrBadRecordFieldValue("type", "unknown invite type: "+string(v.Type))
 	}
+	if err := v.From.Validate(); err != nil {
+		return err
+	}
 	if err := ValidateChannel(v.Channel, true); err != nil {
 		return err
 	}

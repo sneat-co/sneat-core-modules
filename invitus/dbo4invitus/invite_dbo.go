@@ -19,7 +19,7 @@ type InviteDbo struct {
 	InviteBase
 	Status     InviteStatus         `json:"status" firestore:"status" `
 	Pin        string               `json:"pin,omitempty" firestore:"pin,omitempty"`
-	SpaceID    coretypes.SpaceID    `json:"spaceID" firestore:"spaceID"`
+	SpaceID    coretypes.SpaceID    `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
 	TargetType string               `json:"targetType,omitempty" firestore:"targetType,omitempty"`
 	TargetIDs  []string             `json:"targetIDs,omitempty" firestore:"targetIDs,omitempty"`
 	MessageID  string               `json:"messageID" firestore:"messageID"` // e.g. email message ContactID from AWS SES
@@ -89,7 +89,7 @@ func (v InviteDbo) Validate() error {
 		return validation.NewErrRecordIsMissingRequiredField("targetIDs")
 	}
 	switch v.TargetType {
-	case "", "tracker": // known values
+	case "", "tracker", "user": // known values
 	default:
 		return validation.NewErrBadRecordFieldValue("targetType", "unknown value: "+v.TargetType)
 	}
@@ -124,10 +124,7 @@ func (v InviteDbo) Validate() error {
 			return validation.NewErrBadRecordFieldValue("to", err.Error())
 		}
 	}
-	if v.Type == "mass" && len(v.Roles) == 0 {
-		return validation.NewErrRecordIsMissingRequiredField("roles")
-	}
-	if len(v.Roles) == 0 {
+	if v.SpaceID != "" && len(v.Roles) == 0 {
 		return validation.NewErrRecordIsMissingRequiredField("roles")
 	}
 	for i, role := range v.Roles {

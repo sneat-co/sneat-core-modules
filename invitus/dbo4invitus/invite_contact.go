@@ -39,9 +39,9 @@ func (v InviteFrom) Validate() error {
 	if v.UserID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("userID")
 	}
-	if v.ContactID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("contactID")
-	}
+	//if v.ContactID == "" {
+	//	return validation.NewErrRecordIsMissingRequiredField("contactID")
+	//}
 	if err := v.InviteContact.Validate(); err != nil {
 		return err
 	}
