@@ -8,6 +8,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
@@ -61,9 +62,10 @@ func (v InviteInfo) Validate() error {
 
 // JoinInfoResponse response
 type JoinInfoResponse struct {
-	Space  dbo4invitus.InviteSpace                             `json:"space"`
-	Invite InviteInfo                                          `json:"invite"`
-	Member *dbmodels.DtoWithID[*briefs4contactus.ContactBrief] `json:"member"`
+	SpaceID coretypes.SpaceID                                   `json:"spaceID"`
+	Space   dbo4invitus.InviteSpace                             `json:"space"`
+	Invite  InviteInfo                                          `json:"invite"`
+	Member  *dbmodels.DtoWithID[*briefs4contactus.ContactBrief] `json:"member"`
 }
 
 func (v JoinInfoResponse) Validated() error {
@@ -118,8 +120,11 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 			return
 		}
 	}
-	response.Space = inviteDbo.Space
-	response.Space.ID = inviteDbo.SpaceID
+	if inviteDbo.Space != nil {
+		response.Space = *inviteDbo.Space
+
+	}
+	response.SpaceID = inviteDbo.SpaceID
 	response.Invite.Status = inviteDbo.Status
 	response.Invite.Created = inviteDbo.CreatedAt
 	response.Invite.From = inviteDbo.From

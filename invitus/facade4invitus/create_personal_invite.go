@@ -6,6 +6,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/random"
@@ -36,16 +37,19 @@ func createInviteToContactTx(
 	tx dal.ReadwriteTransaction,
 	uid string,
 	remoteClient dbmodels.RemoteClientInfo,
-	space dbo4invitus.InviteSpace,
+	spaceID coretypes.SpaceID,
+	space *dbo4invitus.InviteSpace,
 	from dbo4invitus.InviteFrom,
 	to dbo4invitus.InviteTo,
 	composeOnly bool,
 	message string,
 	toAvatar *dbprofile.Avatar,
 ) (invite InviteEntry, err error) {
-	if err = space.Validate(); err != nil {
-		err = fmt.Errorf("parameter 'space' is not valid: %w", err)
-		return
+	if space != nil {
+		if err = space.Validate(); err != nil {
+			err = fmt.Errorf("parameter 'space' is not valid: %w", err)
+			return
+		}
 	}
 	if err = to.Validate(); err != nil {
 		err = fmt.Errorf("parameter 'to' is not valid: %w", err)
@@ -55,15 +59,14 @@ func createInviteToContactTx(
 		err = fmt.Errorf("parameter 'from' is not valid: %w", err)
 		return
 	}
-	spaceID := space.ID
 	if spaceID == "" {
 		err = validation.NewErrRecordIsMissingRequiredField("space.InviteID")
 		return
 	}
-	space.ID = ""
-	if space.Type == "family" && space.Title != "" {
+	if space != nil && space.Title != "" && (space.Type == coretypes.SpaceTypeFamily || space.Type == coretypes.SpaceTypePrivate) {
 		space.Title = ""
 	}
+
 	var toAddress *mail.Address
 	if to.Address != "" {
 		toAddress, err = mail.ParseAddress(to.Address)

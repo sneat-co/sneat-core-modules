@@ -7,7 +7,7 @@ import (
 
 // InviteSpace a summary on space for which an invitation has been created
 type InviteSpace struct {
-	ID    coretypes.SpaceID   `json:"id,omitempty" firestore:"id,omitempty"`
+	//ID    coretypes.SpaceID   `json:"id,omitempty" firestore:"id,omitempty"`
 	Type  coretypes.SpaceType `json:"type" firestore:"type"`
 	Title string              `json:"title,omitempty" firestore:"title,omitempty"`
 }

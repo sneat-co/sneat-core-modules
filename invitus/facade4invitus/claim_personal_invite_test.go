@@ -197,8 +197,7 @@ func Test_updateInviteRecord(t *testing.T) {
 					Address:          "to.test.user@example.com",
 					Pin:              "1234",
 					SpaceID:          "testspaceid1",
-					Space: dbo4invitus.InviteSpace{
-						ID:    "testspaceid1",
+					Space: &dbo4invitus.InviteSpace{
 						Type:  "family",
 						Title: "Family",
 					},

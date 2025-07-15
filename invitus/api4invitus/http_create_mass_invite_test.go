@@ -6,6 +6,7 @@ import (
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
 	"net/http"
@@ -40,8 +41,10 @@ func TestCreateMassInvite(t *testing.T) {
 	//}
 	invite.FromUserID = "u1"
 	invite.SpaceID = spaceID
-	invite.Space.Type = "family"
-	invite.Space.Title = "Unit Test"
+	invite.Space = &dbo4invitus.InviteSpace{
+		Type:  coretypes.SpaceTypeFamily,
+		Title: "Unit Test",
+	}
 	invite.Created.Client.HostOrApp = "unit-test"
 	invite.Created.Client.RemoteAddr = "127.0.0.1"
 	invite.CreatedAt = time.Now()

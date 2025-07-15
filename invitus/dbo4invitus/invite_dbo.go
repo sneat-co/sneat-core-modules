@@ -30,7 +30,7 @@ type InviteDbo struct {
 	Sending    *time.Time           `json:"sending,omitempty" firestore:"sending,omitempty"`
 	Sent       *time.Time           `json:"sent,omitempty" firestore:"sent,omitempty"`
 	Expires    *time.Time           `json:"expires,omitempty" firestore:"expires,omitempty"`
-	Space      InviteSpace          `json:"space" firestore:"space"`
+	Space      *InviteSpace         `json:"space,omitempty" firestore:"space,omitempty"`
 	Roles      []string             `json:"roles,omitempty" firestore:"roles,omitempty"`
 	FromUserID string               `json:"fromUserID" firestore:"fromUserID"`
 	ToUserID   string               `json:"toUserID,omitempty" firestore:"toUserID,omitempty"`
@@ -102,15 +102,20 @@ func (v InviteDbo) Validate() error {
 		}
 	}
 
-	if v.SpaceID == "" {
+	if v.SpaceID == "" && v.Space != nil {
 		return validation.NewErrRecordIsMissingRequiredField("spaceID")
 	}
+
 	if err := v.Created.Validate(); err != nil {
 		return validation.NewErrBadRecordFieldValue("created", err.Error())
 	}
-	if err := v.Space.Validate(); err != nil {
-		return validation.NewErrBadRecordFieldValue("space", err.Error())
+
+	if v.Space != nil {
+		if err := v.Space.Validate(); err != nil {
+			return validation.NewErrBadRecordFieldValue("space", err.Error())
+		}
 	}
+
 	if err := v.From.Validate(); err != nil {
 		return validation.NewErrBadRecordFieldValue("from", err.Error())
 	}

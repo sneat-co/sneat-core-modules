@@ -13,6 +13,7 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
+	"strings"
 )
 
 // InviteContactRequest is a request DTO
@@ -61,10 +62,19 @@ func CreateOrReuseInviteToContact(
 	response CreateInviteResponse,
 	err error,
 ) {
+	if ctx == nil {
+		panic("argument 'ctx' cannot be nil")
+	}
+	if getRemoteClientInfo == nil {
+		panic("argument 'getRemoteClientInfo' cannot be nil")
+	}
 	if err = request.Validate(); err != nil {
-		err = fmt.Errorf("invalid request: %w", err)
+		err = validation.NewErrBadRequestFieldValue("request", fmt.Sprintf("invalid InviteContactRequest: %v", err))
 		return
 	}
+
+	userID := ctx.User().GetUserID()
+
 	err = dal4contactus.RunContactWorker(ctx, request.ContactRequest,
 		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
 			response.Contact = params.Contact
@@ -80,7 +90,6 @@ func CreateOrReuseInviteToContact(
 			if params.Space.Data.Type == coretypes.SpaceTypePrivate {
 				return errors.New("private space does not support invites")
 			}
-			userID := params.UserID()
 			_, fromContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 			if fromContactBrief == nil {
 				return fmt.Errorf(
@@ -105,7 +114,7 @@ func CreateOrReuseInviteToContact(
 
 			if invite.Data == nil {
 				if invite, err = createPersonalInvite(ctx, tx, userID, request, params, getRemoteClientInfo); err != nil {
-					return fmt.Errorf("failed to create personal invite record: %w", err)
+					return fmt.Errorf("failed to create personal invite: %w", err)
 				}
 			}
 			response.Invite = invite
@@ -118,14 +127,40 @@ func CreateOrReuseInviteToContact(
 func createPersonalInvite(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
-	uid string,
+	userID string,
 	request InviteContactRequest,
 	params *dal4contactus.ContactWorkerParams,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
 	invite InviteEntry, err error,
 ) {
-
+	if ctx == nil {
+		panic("argument 'ctx' cannot be nil")
+	}
+	if tx == nil {
+		panic("argument 'tx' cannot be nil")
+	}
+	if uid := strings.TrimSpace(userID); uid == "" {
+		err = validation.NewErrRequestIsMissingRequiredField("userID")
+		return
+	} else if uid != userID {
+		err = validation.NewErrBadRecordFieldValue("userID", "leading or trailing spaces")
+		return
+	}
+	if params == nil {
+		panic("argument 'params' cannot be nil")
+	}
+	if getRemoteClientInfo == nil {
+		panic("argument 'getRemoteClientInfo' cannot be nil")
+	}
+	if request.SpaceID == "" {
+		err = validation.NewErrRequestIsMissingRequiredField("spaceID")
+		return
+	}
+	if request.To.ContactID == "" {
+		err = validation.NewErrRequestIsMissingRequiredField("contactID")
+		return
+	}
 	toContactID := params.SpaceModuleEntry.Data.Contacts[request.To.ContactID]
 	if toContactID == nil {
 		err = errors.New("space has no 'to' contact with id=" + request.To.ContactID)
@@ -133,11 +168,11 @@ func createPersonalInvite(
 	}
 	request.To.Title = toContactID.GetTitle()
 
-	fromContactID, fromBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(uid)
+	fromContactID, fromBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
 
 	from := dbo4invitus.InviteFrom{
 		InviteContact: dbo4invitus.InviteContact{
-			UserID:    uid,
+			UserID:    userID,
 			ContactID: fromContactID,
 			Title:     fromBrief.GetTitle(),
 		},
@@ -148,8 +183,7 @@ func createPersonalInvite(
 		err = fmt.Errorf("space record should not exist before creating a personal invite")
 		return
 	}
-	inviteSpace := dbo4invitus.InviteSpace{
-		ID:    request.SpaceID,
+	inviteSpace := &dbo4invitus.InviteSpace{
 		Type:  params.Space.Data.Type,
 		Title: params.Space.Data.Title,
 	}
@@ -157,8 +191,9 @@ func createPersonalInvite(
 	invite, err = createInviteToContactTx(
 		ctx,
 		tx,
-		uid,
+		userID,
 		remoteClientInfo,
+		request.SpaceID,
 		inviteSpace,
 		from,
 		to,
@@ -184,7 +219,7 @@ func createPersonalInvite(
 
 	params.ContactUpdates = append(
 		params.ContactUpdates,
-		params.Contact.Data.AddInviteBrief(invite.ID, uid, request.To.Channel, invite.Data.CreatedAt),
+		params.Contact.Data.AddInviteBrief(invite.ID, userID, request.To.Channel, invite.Data.CreatedAt),
 	)
 	return
 }
