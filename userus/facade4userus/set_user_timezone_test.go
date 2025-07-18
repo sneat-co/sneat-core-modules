@@ -2,6 +2,7 @@ package facade4userus
 
 import (
 	"testing"
+	"time"
 )
 
 func TestSetUserTimezone(t *testing.T) {
@@ -11,6 +12,7 @@ func TestSetUserTimezone(t *testing.T) {
 				t.Fatal("panic expected but succeed")
 			}
 		}()
-		_, _ = SetUserTimezone(nil, "Europe/London")
+		tz, _ := time.LoadLocation("Europe/London")
+		_, _ = SetUserTimezone(nil, tz)
 	})
 }
