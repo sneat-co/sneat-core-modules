@@ -1,3 +1,3 @@
 package const4userus
 
-const ModuleID = "userus"
+const ExtensionID = "userus"

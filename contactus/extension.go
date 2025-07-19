@@ -7,11 +7,11 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/delays4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
-	"github.com/sneat-co/sneat-go-core/module"
+	"github.com/sneat-co/sneat-go-core/extension"
 )
 
-func Module() module.Module {
-	facade4linkage.RegisterDboFactory(const4contactus.ModuleID, const4contactus.ContactsCollection,
+func Extension() extension.Config {
+	facade4linkage.RegisterDboFactory(const4contactus.ExtensionID, const4contactus.ContactsCollection,
 		facade4linkage.NewDboFactory(
 			func() facade4linkage.SpaceItemDboWithRelatedAndIDs {
 				return new(dbo4contactus.ContactDbo)
@@ -21,8 +21,8 @@ func Module() module.Module {
 			},
 		),
 	)
-	return module.NewExtension(const4contactus.ModuleID,
-		module.RegisterRoutes(api4contactus.RegisterHttpRoutes),
-		module.RegisterDelays(delays4contactus.InitDelays4contactus),
+	return extension.NewExtension(const4contactus.ExtensionID,
+		extension.RegisterRoutes(api4contactus.RegisterHttpRoutes),
+		extension.RegisterDelays(delays4contactus.InitDelays4contactus),
 	)
 }

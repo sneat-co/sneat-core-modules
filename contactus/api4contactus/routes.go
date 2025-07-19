@@ -1,12 +1,12 @@
 package api4contactus
 
 import (
-	"github.com/sneat-co/sneat-go-core/module"
+	"github.com/sneat-co/sneat-go-core/extension"
 	"net/http"
 )
 
 // RegisterHttpRoutes registers contact routes
-func RegisterHttpRoutes(handle module.HTTPHandleFunc) {
+func RegisterHttpRoutes(handle extension.HTTPHandleFunc) {
 	handle(http.MethodPost, "/v0/contactus/create_contact", httpPostCreateContact)
 	handle(http.MethodDelete, "/v0/contactus/delete_contact", httpDeleteContact)
 	handle(http.MethodPost, "/v0/contactus/set_contacts_status", httpSetContactStatus)

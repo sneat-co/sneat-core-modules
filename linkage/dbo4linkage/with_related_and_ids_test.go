@@ -33,7 +33,7 @@ func TestAddRelationshipAndID(t *testing.T) {
 				withRelatedAndIDs: &WithRelatedAndIDs{},
 				command: RelationshipItemRolesCommand{
 					ItemRef: ItemRef{
-						Module:     "module1",
+						ExtID:      "module1",
 						Collection: "collection1",
 						ItemID:     "item1",
 					},
@@ -94,7 +94,7 @@ func TestRemoveRelatedAndID(t *testing.T) {
 				spaceID:           "space1",
 				withRelatedAndIDs: &WithRelatedAndIDs{},
 				ref: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},

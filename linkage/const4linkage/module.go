@@ -1,3 +1,3 @@
 package const4linkage
 
-const ModuleID = "linkage"
+const ExtensionID = "linkage"

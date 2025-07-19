@@ -1,5 +1,5 @@
 package const4wallet
 
-const ModuleID = "wallet"
+const ExtensionID = "wallet"
 
 const TransactionsCollection = "transactions"

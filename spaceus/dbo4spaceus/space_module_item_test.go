@@ -8,7 +8,7 @@ import (
 func TestNewSpaceModuleItemIncompleteKey(t *testing.T) {
 	type args struct {
 		spaceID    coretypes.SpaceID
-		moduleID   coretypes.ModuleID
+		moduleID   coretypes.ExtID
 		collection string
 	}
 	tests := []struct {

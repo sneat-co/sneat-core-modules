@@ -6,12 +6,12 @@ import (
 
 const SpaceItemIDSeparator = "@"
 
-func NewFullItemRef(module coretypes.ModuleID, collection string, spaceID coretypes.SpaceID, itemID string) ItemRef {
+func NewFullItemRef(extID coretypes.ExtID, collection string, spaceID coretypes.SpaceID, itemID string) ItemRef {
 	if spaceID == "" {
 		panic("spaceID is required for a full item reference")
 	}
 	if itemID == "" {
 		panic("itemID is required for a full item reference")
 	}
-	return newItemRef(module, collection, itemID+SpaceItemIDSeparator+string(spaceID))
+	return newItemRef(extID, collection, itemID+SpaceItemIDSeparator+string(spaceID))
 }

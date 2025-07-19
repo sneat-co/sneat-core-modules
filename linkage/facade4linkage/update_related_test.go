@@ -10,7 +10,7 @@ import (
 
 func TestRegisterDboFactory(t *testing.T) {
 	type args struct {
-		moduleID   coretypes.ModuleID
+		moduleID   coretypes.ExtID
 		collection string
 		f          RelatedDboFactory
 	}
@@ -21,7 +21,7 @@ func TestRegisterDboFactory(t *testing.T) {
 		{
 			name: "contactus/contact",
 			args: args{
-				moduleID:   const4contactus.ModuleID,
+				moduleID:   const4contactus.ExtensionID,
 				collection: const4contactus.ContactsCollection,
 				f: NewDboFactory(
 					func() SpaceItemDboWithRelatedAndIDs {

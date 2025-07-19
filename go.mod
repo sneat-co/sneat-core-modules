@@ -5,6 +5,7 @@ module github.com/sneat-co/sneat-core-modules
 go 1.24.3
 
 //replace github.com/sneat-co/sneat-go-core => ../sneat-go-core
+
 //replace github.com/dal-go/dalgo => ../../dal-go/dalgo
 
 require (
@@ -15,7 +16,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.53.0
+	github.com/sneat-co/sneat-go-core v0.54.0
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1

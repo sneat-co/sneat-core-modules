@@ -2,13 +2,13 @@ package auth
 
 import (
 	"github.com/sneat-co/sneat-core-modules/auth/const4auth"
-	"github.com/sneat-co/sneat-go-core/module"
+	"github.com/sneat-co/sneat-go-core/extension"
 )
 
-func Module() module.Module {
-	return module.NewExtension(
+func Extension() extension.Config {
+	return extension.NewExtension(
 		const4auth.ExtensionID,
-		module.RegisterRoutes(func(handle module.HTTPHandleFunc) {
+		extension.RegisterRoutes(func(handle extension.HTTPHandleFunc) {
 			// Moved to sneat-go-bots
 		}),
 	)

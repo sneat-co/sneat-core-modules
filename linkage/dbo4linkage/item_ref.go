@@ -11,22 +11,22 @@ import (
 )
 
 type ItemRef struct { // TODO: Move to sneat-go-core or document why not
-	Module     coretypes.ModuleID `json:"module" firestore:"module"`
-	Collection string             `json:"collection" firestore:"collection"`
-	ItemID     string             `json:"itemID" firestore:"itemID"`
+	ExtID      coretypes.ExtID `json:"module" firestore:"module"` // TODO: change to `json:"extID" firestore:"extID"`?
+	Collection string          `json:"collection" firestore:"collection"`
+	ItemID     string          `json:"itemID" firestore:"itemID"`
 	//SpaceID    coretypes.SpaceID  `json:"spaceID,omitempty" firestore:"spaceID,omitempty"`
 }
 
-func NewItemRefSameSpace(module coretypes.ModuleID, collection, itemID string) ItemRef {
+func NewItemRefSameSpace(extID coretypes.ExtID, collection, itemID string) ItemRef {
 	if strings.Contains(itemID, "@") {
 		panic("itemID must not contain a spaceID separated by '@'")
 	}
-	return newItemRef(module, collection, itemID)
+	return newItemRef(extID, collection, itemID)
 }
 
-func newItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
-	if module == "" {
-		panic("module is required")
+func newItemRef(extID coretypes.ExtID, collection, itemID string) ItemRef {
+	if extID == "" {
+		panic("extID is required")
 	}
 	if collection == "" {
 		panic("collection is required")
@@ -36,15 +36,15 @@ func newItemRef(module coretypes.ModuleID, collection, itemID string) ItemRef {
 	}
 	return ItemRef{
 		//SpaceID:    spaceID,
-		Module:     module,
+		ExtID:      extID,
 		Collection: collection,
 		ItemID:     itemID,
 	}
 }
 
 func NewItemRefFromQueryString(values url.Values) (itemRef ItemRef, err error) {
-	if itemRef.Module = coretypes.ModuleID(values.Get("m")); strings.TrimSpace(string(itemRef.Module)) == "" {
-		return itemRef, errors.New("moduleID 'm' parameter is required")
+	if itemRef.ExtID = coretypes.ExtID(values.Get("m")); strings.TrimSpace(string(itemRef.ExtID)) == "" {
+		return itemRef, errors.New("extension ID 'm' parameter is required")
 	}
 	if itemRef.Collection = values.Get("c"); strings.TrimSpace(string(itemRef.Collection)) == "" {
 		return itemRef, errors.New("collectionID 'c' parameter is required")
@@ -60,29 +60,29 @@ func NewItemRefFromQueryString(values url.Values) (itemRef ItemRef, err error) {
 
 func (v ItemRef) ID() string {
 	// The order is important for the RelatedIDs field
-	return fmt.Sprintf("m=%s&c=%s&i=%s", v.Module, v.Collection, v.ItemID)
+	return fmt.Sprintf("m=%s&c=%s&i=%s", v.ExtID, v.Collection, v.ItemID)
 }
 
 func (v ItemRef) String() string {
-	return fmt.Sprintf("{Module=%s,Collection=%s,ItemID=%s}", v.Module, v.Collection, v.ItemID)
+	return fmt.Sprintf("{ExtID=%s,Collection=%s,ItemID=%s}", v.ExtID, v.Collection, v.ItemID)
 }
 
-func (v ItemRef) ModuleID() string {
-	return "m=" + string(v.Module)
+func (v ItemRef) ExtensionID() string {
+	return "m=" + string(v.ExtID)
 }
 
-func (v ItemRef) ModuleCollectionPath() string {
+func (v ItemRef) ExtensionCollectionPath() string {
 	// The order is important for the RelatedIDs field
-	return fmt.Sprintf("%s.%s", v.Module, v.Collection)
+	return fmt.Sprintf("%s.%s", v.ExtID, v.Collection)
 }
 
-func (v ItemRef) ModuleCollectionID() string {
-	return fmt.Sprintf("m=%s&c=%s", v.Module, v.Collection)
+func (v ItemRef) ExtensionCollectionID() string {
+	return fmt.Sprintf("m=%s&c=%s", v.ExtID, v.Collection)
 }
 
 func (v ItemRef) Validate() error {
 	// SpaceID can be empty for global collections like Happening
-	if v.Module == "" {
+	if v.ExtID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("moduleID")
 	}
 	if v.Collection == "" {

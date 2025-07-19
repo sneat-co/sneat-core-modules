@@ -228,7 +228,7 @@ func applySpaceModuleUpdates[D SpaceModuleDbo](
 func CreateSpaceItem[D SpaceModuleDbo](
 	ctx facade.ContextWithUser,
 	spaceRequest dto4spaceus.SpaceRequest,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	data D,
 	worker func(
 		ctx facade.ContextWithUser,

@@ -50,7 +50,7 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 
-		key := dbo4spaceus.NewSpaceModuleItemKey(spaceID, itemRef.Module, itemRef.Collection, itemRef.ItemID)
+		key := dbo4spaceus.NewSpaceModuleItemKey(spaceID, itemRef.ExtID, itemRef.Collection, itemRef.ItemID)
 		item := record.NewDataWithID(itemRef.ItemID, key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
 		if err = tx.Get(ctx, item.Record); err != nil {
 			return err

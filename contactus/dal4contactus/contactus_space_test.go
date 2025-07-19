@@ -16,7 +16,7 @@ func TestNewContactusSpaceModuleKey(t *testing.T) {
 	t.Run("should_pass", func(t *testing.T) {
 		entry := NewContactusSpaceKey("space1")
 		assert.NotNil(t, entry)
-		assert.Equal(t, const4contactus.ModuleID, entry.ID)
+		assert.Equal(t, const4contactus.ExtensionID, entry.ID)
 	})
 }
 

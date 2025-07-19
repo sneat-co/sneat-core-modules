@@ -11,12 +11,12 @@ import (
 
 const UserExtCollection = coremodels.ExtCollection
 
-func NewUserExtKey(userID string, extID coretypes.ModuleID) *dal.Key {
+func NewUserExtKey(userID string, extID coretypes.ExtID) *dal.Key {
 	userKey := dbo4userus.NewUserKey(userID)
 	return dal.NewKeyWithParentAndID(userKey, UserExtCollection, extID)
 }
 
-func NewUserExtEntry[D any](userID string, extID coretypes.ModuleID, data D) record.DataWithID[coretypes.ModuleID, D] {
+func NewUserExtEntry[D any](userID string, extID coretypes.ExtID, data D) record.DataWithID[coretypes.ExtID, D] {
 	key := NewUserExtKey(userID, extID)
 	return record.NewDataWithID(extID, key, data)
 }

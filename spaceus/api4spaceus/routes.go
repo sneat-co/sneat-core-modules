@@ -1,12 +1,12 @@
 package api4spaceus
 
 import (
-	"github.com/sneat-co/sneat-go-core/module"
+	"github.com/sneat-co/sneat-go-core/extension"
 	"net/http"
 )
 
 // RegisterHttpRoutes registers space routes
-func RegisterHttpRoutes(handle module.HTTPHandleFunc) {
+func RegisterHttpRoutes(handle extension.HTTPHandleFunc) {
 	handle(http.MethodPost, "/v0/spaces/create_space", httpPostCreateSpace)
 	//
 	handle(http.MethodPost, "/v0/space/join_info", httpPostGetSpaceJoinInfo)

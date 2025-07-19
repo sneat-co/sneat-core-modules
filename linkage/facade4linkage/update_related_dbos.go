@@ -24,7 +24,7 @@ package facade4linkage
 //	}
 //	itemsWithUpdates := make([]relatedItem, 0, len(request.Related))
 //
-//	itemRef := dbo4linkage.NewItemRef(request.ModuleID, request.Collection, request.ID)
+//	itemRef := dbo4linkage.NewItemRef(request.ExtensionID, request.Collection, request.ID)
 //
 //	for _, command := range request.Related {
 //		targetRef := command.ItemRef
@@ -71,13 +71,13 @@ package facade4linkage
 //	update []update.Update,
 //	err error,
 //) {
-//	dboFactory := getDboFactory(targetRef.Module, targetRef.Collection)
+//	dboFactory := getDboFactory(targetRef.ExtID, targetRef.Collection)
 //	if dboFactory == nil {
-//		err = validation.NewBadRequestError(fmt.Errorf("unknown moduleID or collection: %s/%s", targetRef.Module, targetRef.Collection))
+//		err = validation.NewBadRequestError(fmt.Errorf("unknown moduleID or collection: %s/%s", targetRef.ExtID, targetRef.Collection))
 //		return
 //	}
 //
-//	targetKey := dbo4spaceus.NewSpaceModuleItemKey(spaceID, targetRef.Module, targetRef.Collection, targetRef.ItemID)
+//	targetKey := dbo4spaceus.NewSpaceModuleItemKey(spaceID, targetRef.ExtID, targetRef.Collection, targetRef.ItemID)
 //	targetDbo := dboFactory.NewItemDbo()
 //	target = record.NewDataWithID[string, SpaceItemDboWithRelatedAndIDs](targetRef.ItemID, targetKey, targetDbo)
 //	if err = tx.Get(ctx, target.Record); err != nil {

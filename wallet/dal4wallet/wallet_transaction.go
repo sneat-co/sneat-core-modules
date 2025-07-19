@@ -12,13 +12,13 @@ import (
 type TransactionEntry = record.DataWithID[int64, *dbo4wallet.WalletTransactionDbo]
 
 //func NewTransactionRecordWithIncompleteKey(userID string, dbo *dbo4wallet.WalletTransactionDbo) dal.Record {
-//	userWalletKey := dal4userus.NewUserExtKey(userID, const4wallet.ModuleID)
+//	userWalletKey := dal4userus.NewUserExtKey(userID, const4wallet.ExtensionID)
 //	transactionKey := dal.NewIncompleteKey(const4wallet.TransactionsCollection, reflect.String, userWalletKey)
 //	return dal.NewRecordWithData(transactionKey, dbo)
 //}
 
 func NewTransactionRecordWithTimestampID(userID string, dbo *dbo4wallet.WalletTransactionDbo) dal.Record {
-	userWalletKey := dal4userus.NewUserExtKey(userID, const4wallet.ModuleID)
+	userWalletKey := dal4userus.NewUserExtKey(userID, const4wallet.ExtensionID)
 	id := time.Now().UnixMicro()
 	transactionKey := dal.NewKeyWithParentAndID(userWalletKey, const4wallet.TransactionsCollection, id)
 	return dal.NewRecordWithData(transactionKey, dbo)

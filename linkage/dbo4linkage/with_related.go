@@ -45,7 +45,7 @@ func (v RelatedItemKey) Validate() error {
 }
 
 func GetRelatedItemByRef(relatedModules RelatedModules, itemRef ItemRef, createIfMissing bool) *RelatedItem {
-	relatedCollections := relatedModules[string(itemRef.Module)]
+	relatedCollections := relatedModules[string(itemRef.ExtID)]
 	if !createIfMissing && len(relatedCollections) == 0 {
 		return nil
 	}
@@ -70,7 +70,7 @@ func GetRelatedItemByRef(relatedModules RelatedModules, itemRef ItemRef, createI
 		if relatedModules == nil {
 			relatedModules = make(RelatedModules, 1)
 		}
-		relatedModules[string(itemRef.Module)] = relatedCollections
+		relatedModules[string(itemRef.ExtID)] = relatedCollections
 		return relatedItem
 	}
 	return nil
@@ -178,14 +178,14 @@ func (v *WithRelated) validateWithSpaceID(spaceID coretypes.SpaceID) error {
 // RemoveRelatedItem removes all relationships to a given item
 // TODO(help-wanted): needs 100% code coverage by tests
 func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
-	relatedCollections := v.Related[string(ref.Module)]
+	relatedCollections := v.Related[string(ref.ExtID)]
 	if relatedCollections == nil {
 		return
 	}
 	relatedItems := relatedCollections[ref.Collection]
 	deletePath := []string{
 		relatedField,
-		string(ref.Module),
+		string(ref.ExtID),
 		ref.Collection,
 		ref.ItemID,
 	}
@@ -198,7 +198,7 @@ func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
 			delete(relatedCollections, ref.Collection)
 			deletePath = deletePath[:len(deletePath)-1]
 			if len(relatedCollections) == 0 {
-				delete(v.Related, string(ref.Module))
+				delete(v.Related, string(ref.ExtID))
 				deletePath = deletePath[:len(deletePath)-1]
 				if len(v.Related) == 0 {
 					v.Related = nil
@@ -214,14 +214,14 @@ func (v *WithRelated) RemoveRelatedItem(ref ItemRef) (updates []update.Update) {
 }
 
 func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) error {
-	for moduleID, relatedCollections := range v.Related {
-		if moduleID == "" {
-			return validation.NewErrBadRecordFieldValue(relatedField, "has an empty module key")
+	for extID, relatedCollections := range v.Related {
+		if extID == "" {
+			return validation.NewErrBadRecordFieldValue(relatedField, "has an empty extID")
 		}
 		for collectionID, relatedItems := range relatedCollections {
 			if collectionID == "" {
 				return validation.NewErrBadRecordFieldValue(
-					fmt.Sprintf("%s.%s", relatedField, moduleID),
+					fmt.Sprintf("%s.%s", relatedField, extID),
 					"has an empty collection key",
 				)
 			}
@@ -229,21 +229,21 @@ func (v *WithRelated) ValidateRelated(validateID func(itemKey ItemRef) error) er
 				switch itemID {
 				case "":
 					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("%s.%s.%s", relatedField, moduleID, collectionID),
+						fmt.Sprintf("%s.%s.%s", relatedField, extID, collectionID),
 						"has an empty item key")
 				case "itemID":
 					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("%s.%s.%s", relatedField, moduleID, collectionID),
+						fmt.Sprintf("%s.%s.%s", relatedField, extID, collectionID),
 						"item key should not be 'itemID'")
 				}
 				if err := relatedItem.Validate(); err != nil {
 					return validation.NewErrBadRecordFieldValue(
-						fmt.Sprintf("%s.%s.%s.%s", relatedField, moduleID, collectionID, itemID),
+						fmt.Sprintf("%s.%s.%s.%s", relatedField, extID, collectionID, itemID),
 						err.Error())
 				}
 				if validateID != nil {
 					if err := validateID(ItemRef{
-						Module:     coretypes.ModuleID(moduleID),
+						ExtID:      coretypes.ExtID(extID),
 						Collection: collectionID,
 						ItemID:     itemID,
 					}); err != nil {
@@ -260,7 +260,7 @@ func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCo
 	if len(remove.RolesOfItem) == 0 && len(remove.RolesToItem) == 0 {
 		return
 	}
-	relatedCollections := v.Related[string(itemRef.Module)]
+	relatedCollections := v.Related[string(itemRef.ExtID)]
 	if relatedCollections == nil {
 		return
 	}
@@ -294,7 +294,7 @@ func (v *WithRelated) removeRolesFromRelatedItem(itemRef ItemRef, remove RolesCo
 				delete(roles, role)
 				updates = append(updates, update.ByFieldPath([]string{
 					relatedField,
-					string(itemRef.Module),
+					string(itemRef.ExtID),
 					itemRef.Collection,
 					itemRef.ItemID,
 					field,
@@ -332,10 +332,10 @@ func (v *WithRelated) addRolesToRelatedItem(itemRef ItemRef, add RolesCommand, u
 	add.RolesToItem = addOppositeRoles(add.RolesOfItem, add.RolesToItem)
 	add.RolesOfItem = addOppositeRoles(add.RolesToItem, add.RolesOfItem)
 
-	relatedCollections := v.Related[string(itemRef.Module)]
+	relatedCollections := v.Related[string(itemRef.ExtID)]
 	if relatedCollections == nil {
 		relatedCollections = make(RelatedCollections, 1)
-		v.Related[string(itemRef.Module)] = relatedCollections
+		v.Related[string(itemRef.ExtID)] = relatedCollections
 	}
 
 	relatedItems := relatedCollections[itemRef.Collection]
@@ -380,7 +380,7 @@ func (v *WithRelated) addRolesToRelatedItem(itemRef ItemRef, add RolesCommand, u
 
 	if relatedItemChanged {
 		updates = append(updates, update.ByFieldPath(
-			[]string{relatedField, string(itemRef.Module), itemRef.Collection, itemRef.ItemID},
+			[]string{relatedField, string(itemRef.ExtID), itemRef.Collection, itemRef.ItemID},
 			relatedItem,
 		))
 	}
@@ -425,10 +425,10 @@ func (v *WithRelated) ProcessRelatedCommand(
 //	if v.Related == nil {
 //		v.Related = make(RelatedModules, 1)
 //	}
-//	relatedByCollectionID := v.Related[command.Module]
+//	relatedByCollectionID := v.Related[command.ExtID]
 //	if relatedByCollectionID == nil {
 //		relatedByCollectionID = make(RelatedCollections, 1)
-//		v.Related[command.Module] = relatedByCollectionID
+//		v.Related[command.ExtID] = relatedByCollectionID
 //	}
 //	relatedItems := relatedByCollectionID[const4contactus.ContactsCollection]
 //	//if relatedItems == nil {

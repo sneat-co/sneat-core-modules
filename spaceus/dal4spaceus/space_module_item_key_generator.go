@@ -11,7 +11,7 @@ import (
 )
 
 func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransaction,
-	spaceID coretypes.SpaceID, moduleID coretypes.ModuleID, collection string, length, maxAttempts int,
+	spaceID coretypes.SpaceID, moduleID coretypes.ExtID, collection string, length, maxAttempts int,
 ) (
 	id string, key *dal.Key, err error,
 ) {

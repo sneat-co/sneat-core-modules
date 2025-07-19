@@ -25,7 +25,7 @@ func UpdateRelationshipsInRelatedItems(
 		for collection, relatedItems := range relatedCollections {
 			for itemID, relatedItem := range relatedItems {
 				itemRef := dbo4linkage.ItemRef{
-					Module:     coretypes.ModuleID(moduleID),
+					ExtID:      coretypes.ExtID(moduleID),
 					Collection: collection,
 					ItemID:     itemID,
 				}

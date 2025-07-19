@@ -16,7 +16,7 @@ import (
 // ModuleSpaceWorkerParams passes data to a space worker
 type ModuleSpaceWorkerParams[D SpaceModuleDbo] struct {
 	*SpaceWorkerParams
-	SpaceModuleEntry   record.DataWithID[coretypes.ModuleID, D]
+	SpaceModuleEntry   record.DataWithID[coretypes.ExtID, D]
 	SpaceModuleUpdates []update.Update
 }
 
@@ -40,7 +40,7 @@ func RunModuleSpaceWorkerNoUpdates[D SpaceModuleDbo](
 	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
 	spaceID coretypes.SpaceID,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	data D,
 	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
@@ -57,7 +57,7 @@ func RunModuleSpaceWorkerNoUpdates[D SpaceModuleDbo](
 }
 
 func NewSpaceModuleWorkerParams[D SpaceModuleDbo](
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	spaceWorkerParams *SpaceWorkerParams,
 	data D,
 ) *ModuleSpaceWorkerParams[D] {
@@ -104,7 +104,7 @@ func RunReadonlyModuleSpaceWorker[D SpaceModuleDbo](
 	ctx context.Context,
 	userCtx facade.UserContext,
 	request dto4spaceus.SpaceRequest,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	data D,
 	worker func(ctx context.Context, tx dal.ReadTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
@@ -119,7 +119,7 @@ func RunReadonlyModuleSpaceWorker[D SpaceModuleDbo](
 func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	ctx facade.ContextWithUser,
 	spaceID coretypes.SpaceID,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	data D,
 	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
@@ -167,7 +167,7 @@ func RunModuleSpaceWorkerTx[D SpaceModuleDbo](
 	ctx facade.ContextWithUser,
 	tx dal.ReadwriteTransaction,
 	spaceID coretypes.SpaceID,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	data D,
 	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, spaceWorkerParams *ModuleSpaceWorkerParams[D]) (err error),
 ) (err error) {
@@ -179,7 +179,7 @@ func RunModuleSpaceWorkerTx[D SpaceModuleDbo](
 	return runModuleSpaceWorkerReadwriteTx(ctx, tx, params, worker)
 }
 
-func validateRunModuleSpaceWorkerArgs[D SpaceModuleDbo](spaceID coretypes.SpaceID, moduleID coretypes.ModuleID, data D) error {
+func validateRunModuleSpaceWorkerArgs[D SpaceModuleDbo](spaceID coretypes.SpaceID, moduleID coretypes.ExtID, data D) error {
 	var d any
 	if d = data; d == nil {
 		panic("data is nil")

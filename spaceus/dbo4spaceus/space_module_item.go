@@ -7,12 +7,12 @@ import (
 	"reflect"
 )
 
-func NewSpaceModuleItemKey[K comparable](spaceID coretypes.SpaceID, moduleID coretypes.ModuleID, collection string, itemID K) *dal.Key {
+func NewSpaceModuleItemKey[K comparable](spaceID coretypes.SpaceID, moduleID coretypes.ExtID, collection string, itemID K) *dal.Key {
 	spaceModuleKey := NewSpaceModuleKey(spaceID, moduleID)
 	return dal.NewKeyWithParentAndID(spaceModuleKey, collection, itemID)
 }
 
-func NewSpaceModuleItemIncompleteKey[K comparable](spaceID coretypes.SpaceID, moduleID coretypes.ModuleID, collection string) *dal.Key {
+func NewSpaceModuleItemIncompleteKey[K comparable](spaceID coretypes.SpaceID, moduleID coretypes.ExtID, collection string) *dal.Key {
 	spaceModuleKey := NewSpaceModuleKey(spaceID, moduleID)
 	var zero K
 	idKind := reflect.TypeOf(zero).Kind()
@@ -20,5 +20,5 @@ func NewSpaceModuleItemIncompleteKey[K comparable](spaceID coretypes.SpaceID, mo
 }
 
 func NewSpaceModuleItemKeyFromItemRef(spaceID coretypes.SpaceID, itemRef dbo4linkage.ItemRef) *dal.Key {
-	return NewSpaceModuleItemKey(spaceID, itemRef.Module, itemRef.Collection, itemRef.ItemID)
+	return NewSpaceModuleItemKey(spaceID, itemRef.ExtID, itemRef.Collection, itemRef.ItemID)
 }

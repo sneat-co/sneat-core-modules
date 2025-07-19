@@ -54,7 +54,7 @@ func CreateContact(
 		return contact, fmt.Errorf("invalid CreateContactRequest: %w", err)
 	}
 
-	err = dal4spaceus.CreateSpaceItem(ctx, request.SpaceRequest, const4contactus.ModuleID, new(dbo4contactus.ContactusSpaceDbo),
+	err = dal4spaceus.CreateSpaceItem(ctx, request.SpaceRequest, const4contactus.ExtensionID, new(dbo4contactus.ContactusSpaceDbo),
 		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4spaceus.ModuleSpaceWorkerParams[*dbo4contactus.ContactusSpaceDbo]) (err error) {
 			if contact, err = CreateContactTx(ctx, tx, userCanBeNonSpaceMember, request, params); err != nil {
 				return fmt.Errorf("failed in CreateContactTx(): %w", err)
@@ -100,7 +100,7 @@ func CreateContactTx(
 		return
 	}
 	if len(request.Accounts) > 0 {
-		spaceContactusModuleKey := dbo4spaceus.NewSpaceModuleKey(params.Space.ID, const4contactus.ModuleID)
+		spaceContactusModuleKey := dbo4spaceus.NewSpaceModuleKey(params.Space.ID, const4contactus.ExtensionID)
 		recordMaker := func() dal.Record {
 			return dal.NewRecordWithData(dal.NewIncompleteKey(const4contactus.ContactsCollection, reflect.String, spaceContactusModuleKey), new(dbo4contactus.ContactDbo))
 		}
@@ -125,7 +125,7 @@ func CreateContactTx(
 		}
 	}
 	if request.Related != nil {
-		relatedByCollection := request.Related[string(const4contactus.ModuleID)]
+		relatedByCollection := request.Related[string(const4contactus.ExtensionID)]
 		if relatedByCollection != nil {
 			relatedItems := relatedByCollection[const4contactus.ContactsCollection]
 			if len(relatedItems) > 0 {

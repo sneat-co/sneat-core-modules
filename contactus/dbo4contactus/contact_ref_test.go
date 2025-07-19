@@ -24,7 +24,7 @@ func TestNewContactFullRef(t *testing.T) {
 				spaceID:   "space_1",
 				contactID: "contact_1",
 			},
-			want: dbo4linkage.NewFullItemRef(const4contactus.ModuleID, const4contactus.ContactsCollection, "space_1", "contact_1"),
+			want: dbo4linkage.NewFullItemRef(const4contactus.ExtensionID, const4contactus.ContactsCollection, "space_1", "contact_1"),
 		},
 	}
 	for _, tt := range tests {

@@ -75,7 +75,7 @@ func (v *SpaceItemWorkerParams[SpaceModuleDbo, SpaceItemDbo]) GetRecords(ctx con
 func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx facade.ContextWithUser,
 	request dto4spaceus.SpaceItemRequest,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	spaceModuleDbo ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
@@ -105,7 +105,7 @@ func RunSpaceItemWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 func DeleteSpaceItem[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	ctx facade.ContextWithUser,
 	request dto4spaceus.SpaceItemRequest,
-	moduleID coretypes.ModuleID,
+	moduleID coretypes.ExtID,
 	moduleData ModuleDbo,
 	spaceItemCollection string,
 	spaceItemDbo ItemDbo,
@@ -163,7 +163,7 @@ func deleteSpaceItemTxWorker[ModuleDbo SpaceModuleDbo, ItemDbo SpaceItemDbo](
 	return err
 }
 
-func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[coretypes.ModuleID, D], itemID string, adapter BriefsAdapter[D], updates []update.Update) ([]update.Update, error) {
+func deleteBrief[D SpaceModuleDbo](spaceModuleEntry record.DataWithID[coretypes.ExtID, D], itemID string, adapter BriefsAdapter[D], updates []update.Update) ([]update.Update, error) {
 	if adapter == nil {
 		return updates, nil
 	}

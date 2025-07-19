@@ -23,7 +23,7 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "test-contact-id",
 			},
 			want: ItemRef{
-				Module:     "contactus",
+				ExtID:      "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id@test-space-id",
 			},
@@ -35,7 +35,7 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "test-contact-id",
 			},
 			want: ItemRef{
-				Module:     "contactus",
+				ExtID:      "contactus",
 				Collection: "contacts",
 				ItemID:     "test-contact-id",
 			},
@@ -47,7 +47,7 @@ func TestNewContactFullRef(t *testing.T) {
 				contactID: "",
 			},
 			want: ItemRef{
-				Module:     "contactus",
+				ExtID:      "contactus",
 				Collection: "contacts",
 				ItemID:     "",
 			},

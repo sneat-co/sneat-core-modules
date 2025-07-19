@@ -44,7 +44,7 @@ func TestUpdateItemRelationships(t *testing.T) {
 						SpaceID: space1ID,
 					},
 					ItemRef: dbo4linkage.ItemRef{
-						Module:     const4contactus.ModuleID,
+						ExtID:      const4contactus.ExtensionID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     item1ID,
 					},

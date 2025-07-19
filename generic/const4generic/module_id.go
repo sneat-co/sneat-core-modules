@@ -1,3 +1,3 @@
 package const4generic
 
-const ModuleID = "generic"
+const ExtensionID = "generic"

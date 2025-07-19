@@ -28,7 +28,7 @@ func TestHttpAddMember(t *testing.T) {
 		},
 		WithRelated: dbo4linkage.WithRelated{
 			Related: dbo4linkage.RelatedModules{
-				string(const4contactus.ModuleID): dbo4linkage.RelatedCollections{
+				string(const4contactus.ExtensionID): dbo4linkage.RelatedCollections{
 					const4contactus.ContactsCollection: map[string]*dbo4linkage.RelatedItem{
 						"c1": {
 							RolesOfItem: map[dbo4linkage.RelationshipRoleID]*dbo4linkage.RelationshipRole{

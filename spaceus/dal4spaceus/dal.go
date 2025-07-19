@@ -29,7 +29,7 @@ func txUpdateSpace(ctx context.Context, tx dal.ReadwriteTransaction, timestamp t
 }
 
 func txUpdateSpaceModule[D SpaceModuleDbo](ctx context.Context, tx dal.ReadwriteTransaction, _ time.Time,
-	spaceModule record.DataWithID[coretypes.ModuleID, D], data []update.Update, opts ...dal.Precondition) error {
+	spaceModule record.DataWithID[coretypes.ExtID, D], data []update.Update, opts ...dal.Precondition) error {
 	if !spaceModule.Record.Exists() {
 		return fmt.Errorf("an attempt to update a space module record that does not exist: %s", spaceModule.Key.String())
 	}

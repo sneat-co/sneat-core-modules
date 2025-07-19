@@ -44,7 +44,7 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				spaceID: "space1",
 				command: RelationshipItemRolesCommand{
 					ItemRef: ItemRef{
-						Module:     const4contactus.ModuleID,
+						ExtID:      const4contactus.ExtensionID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     "contact1",
 					},
@@ -83,7 +83,7 @@ func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 				spaceID: "space1",
 				command: RelationshipItemRolesCommand{
 					ItemRef: ItemRef{
-						Module:     const4contactus.ModuleID,
+						ExtID:      const4contactus.ExtensionID,
 						Collection: const4contactus.ContactsCollection,
 						ItemID:     "contact1",
 					},
@@ -230,7 +230,7 @@ func TestWithRelated_RemoveRelatedItem(t *testing.T) {
 			},
 			args: args{
 				ref: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},
@@ -252,7 +252,7 @@ func TestWithRelated_RemoveRelatedItem(t *testing.T) {
 			},
 			args: args{
 				ref: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},
@@ -282,7 +282,7 @@ func TestWithRelated_RemoveRelatedItem(t *testing.T) {
 			},
 			args: args{
 				ref: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},
@@ -334,7 +334,7 @@ func TestWithRelated_removeRolesFromRelatedItem(t *testing.T) {
 			},
 			args: args{
 				itemRef: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},
@@ -362,7 +362,7 @@ func TestWithRelated_removeRolesFromRelatedItem(t *testing.T) {
 			},
 			args: args{
 				itemRef: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},
@@ -396,7 +396,7 @@ func TestWithRelated_removeRolesFromRelatedItem(t *testing.T) {
 			},
 			args: args{
 				itemRef: ItemRef{
-					Module:     "module1",
+					ExtID:      "module1",
 					Collection: "collection1",
 					ItemID:     "item1",
 				},

@@ -14,7 +14,7 @@ func TestGenerateNewSpaceModuleItemKey(t *testing.T) {
 		ctx         context.Context
 		tx          dal.ReadwriteTransaction
 		spaceID     coretypes.SpaceID
-		moduleID    coretypes.ModuleID
+		moduleID    coretypes.ExtID
 		collection  string
 		length      int
 		maxAttempts int

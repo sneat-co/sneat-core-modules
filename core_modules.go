@@ -8,17 +8,17 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus"
-	"github.com/sneat-co/sneat-go-core/module"
+	"github.com/sneat-co/sneat-go-core/extension"
 )
 
-func CoreModules() []module.Module {
-	return []module.Module{
-		auth.Module(),
-		contactus.Module(),
-		generic.Module(),
-		invitus.Module(),
-		linkage.Module(),
-		spaceus.Module(),
-		userus.Module(),
+func CoreExtensions() []extension.Config {
+	return []extension.Config{
+		auth.Extension(),
+		contactus.Extension(),
+		generic.Extension(),
+		invitus.Extension(),
+		linkage.Extension(),
+		spaceus.Extension(),
+		userus.Extension(),
 	}
 }

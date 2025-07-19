@@ -16,9 +16,9 @@ import (
 	"time"
 )
 
-var relatedDboFactories = make(map[coretypes.ModuleID]map[string]RelatedDboFactory)
+var relatedDboFactories = make(map[coretypes.ExtID]map[string]RelatedDboFactory)
 
-func RegisterDboFactory(moduleID coretypes.ModuleID, collection string, f RelatedDboFactory) {
+func RegisterDboFactory(moduleID coretypes.ExtID, collection string, f RelatedDboFactory) {
 	m, ok := relatedDboFactories[moduleID]
 	if !ok {
 		m = make(map[string]RelatedDboFactory)
@@ -30,7 +30,7 @@ func RegisterDboFactory(moduleID coretypes.ModuleID, collection string, f Relate
 	m[collection] = f
 }
 
-func getDboFactory(moduleID coretypes.ModuleID, collection string) RelatedDboFactory {
+func getDboFactory(moduleID coretypes.ExtID, collection string) RelatedDboFactory {
 	m := relatedDboFactories[moduleID]
 	if m == nil {
 		return nil
@@ -77,7 +77,7 @@ func updateRelatedTxWorker(
 	spaceItemDbo SpaceItemDboWithRelatedAndIDs,
 ) (spaceItemUpdates []update.Update, recordsUpdates []record.Updates, err error) {
 	itemRef := dbo4linkage.ItemRef{
-		Module:     const4contactus.ModuleID,
+		ExtID:      const4contactus.ExtensionID,
 		Collection: const4contactus.ContactsCollection,
 		ItemID:     request.ID,
 	}

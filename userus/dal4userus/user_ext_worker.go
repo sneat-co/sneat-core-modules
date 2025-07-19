@@ -21,7 +21,7 @@ type UserExtWorkerParams[T any] struct {
 
 func RunUserExtWorkerWithUserContext[T any](
 	ctx facade.ContextWithUser,
-	extID coretypes.ModuleID,
+	extID coretypes.ExtID,
 	userExtDbo *T,
 	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, param *UserExtWorkerParams[T]) error,
 ) error {
@@ -38,7 +38,7 @@ func RunUserExtWorkerWithUserContext[T any](
 func RunUserExtWorker[T any](
 	ctx context.Context,
 	userID string,
-	extID coretypes.ModuleID,
+	extID coretypes.ExtID,
 	userExtDbo *T,
 	worker func(ctx context.Context, tx dal.ReadwriteTransaction, param *UserExtWorkerParams[T]) error,
 ) error {

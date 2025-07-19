@@ -16,6 +16,6 @@ func NewContactKey(spaceID coretypes.SpaceID, contactID string) *dal.Key {
 	if !core.IsAlphanumericOrUnderscore(contactID) {
 		panic(fmt.Errorf("contactID should be alphanumeric, got: [%s]", contactID))
 	}
-	spaceModuleKey := dbo4spaceus.NewSpaceModuleKey(spaceID, const4contactus.ModuleID)
+	spaceModuleKey := dbo4spaceus.NewSpaceModuleKey(spaceID, const4contactus.ExtensionID)
 	return dal.NewKeyWithParentAndID(spaceModuleKey, dbo4contactus.SpaceContactsCollection, contactID)
 }

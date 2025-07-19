@@ -26,7 +26,7 @@ type WithRelatedAndIDs struct {
 	   	relatedIDs: ["space1:parent1:contactus:contacts:parent"],
 	   	related: {
 	   		"space1": { // SpaceID ContactID
-	   			"contactus": { // Module ContactID
+	   			"contactus": { // ExtID ContactID
 	   				"contacts": { // Collection
 	   					"parent1": { // Item ContactID
 	   						relatedAs: {
@@ -73,11 +73,11 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
 		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
 		//}
-		//if id := itemKey.ModuleCollectionID(); !slices.Contains(relatedIDs, id) {
+		//if id := itemKey.ExtensionCollectionID(); !slices.Contains(relatedIDs, id) {
 		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
 		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
 		//}
-		//if id := itemKey.ModuleID(); !slices.Contains(relatedIDs, id) {
+		//if id := itemKey.ExtensionID(); !slices.Contains(relatedIDs, id) {
 		//	return validation.NewErrBadRecordFieldValue("relatedIDs",
 		//		fmt.Sprintf(`does not have relevant value in 'relatedIDs' field: relatedID="%s", relatedIDs=[%s]`, id, strings.Join(relatedIDs, ",")))
 		//}
@@ -116,7 +116,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 					return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), "should be in format '{key}={value}', got: "+relatedID)
 				}
 				switch parts[0] {
-				case "m", "s": // Module or space
+				case "m", "s": // ExtID or space
 					if err := with.ValidateRecordID(parts[1]); err != nil {
 						return validation.NewErrBadRecordFieldValue(fmt.Sprintf("relatedIDs[%d]", i), err.Error())
 					}
@@ -141,17 +141,17 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 				return err
 			}
 
-			relatedCollections := withRelated.Related[string(relatedRef.Module)]
+			relatedCollections := withRelated.Related[string(relatedRef.ExtID)]
 			if relatedCollections == nil {
 				return validation.NewErrBadRecordFieldValue(
 					fmt.Sprintf("relatedIDs[%d]", i),
-					fmt.Sprintf("field 'related[%s]' does not have module value", relatedRef.Module))
+					fmt.Sprintf("field 'related[%s]' does not have module value", relatedRef.ExtID))
 			}
 			relatedItems := relatedCollections[relatedRef.Collection]
 			if relatedItems == nil {
 				return validation.NewErrBadRecordFieldValue(
 					fmt.Sprintf("relatedIDs[%d]", i),
-					fmt.Sprintf("field 'related[%s][%s]' does not have collection value", relatedRef.Module, relatedRef.Collection))
+					fmt.Sprintf("field 'related[%s][%s]' does not have collection value", relatedRef.ExtID, relatedRef.Collection))
 			}
 
 			if _, ok := relatedItems[relatedRef.ItemID]; !ok {
@@ -160,7 +160,7 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 					return validation.NewErrBadRecordFieldValue(
 						fmt.Sprintf("relatedIDs[%d]", i),
 						fmt.Sprintf("field 'related[%s][%s]' does not have values for either '%s' or '%s'",
-							relatedRef.Module, relatedRef.Collection, relatedRef.ItemID, itemID))
+							relatedRef.ExtID, relatedRef.Collection, relatedRef.ItemID, itemID))
 				}
 			}
 		}

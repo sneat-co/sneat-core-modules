@@ -32,7 +32,7 @@ func txUpdateItemRelationships(
 	params *dal4spaceus.SpaceWorkerParams,
 	request dto4linkage.UpdateItemRequest,
 ) (item record.DataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID], err error) {
-	key := dbo4spaceus.NewSpaceModuleItemKey(request.SpaceID, request.Module, request.Collection, request.ItemID)
+	key := dbo4spaceus.NewSpaceModuleItemKey(request.SpaceID, request.ExtID, request.Collection, request.ItemID)
 	item = record.NewDataWithID[string, *dbo4linkage.WithRelatedAndIDsAndUserID](request.ItemID, key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
 	if err = tx.Get(ctx, item.Record); err != nil {
 		return item, err

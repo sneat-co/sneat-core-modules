@@ -1,3 +1,3 @@
 package const4spaceus
 
-const ModuleID = "spaceus"
+const ExtensionID = "spaceus"

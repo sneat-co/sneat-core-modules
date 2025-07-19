@@ -10,10 +10,10 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 )
 
-type ContactusSpaceEntry = record.DataWithID[coretypes.ModuleID, *dbo4contactus.ContactusSpaceDbo]
+type ContactusSpaceEntry = record.DataWithID[coretypes.ExtID, *dbo4contactus.ContactusSpaceDbo]
 
 func NewContactusSpaceKey(spaceID coretypes.SpaceID) *dal.Key {
-	return dbo4spaceus.NewSpaceModuleKey(spaceID, const4contactus.ModuleID)
+	return dbo4spaceus.NewSpaceModuleKey(spaceID, const4contactus.ExtensionID)
 }
 
 func NewContactusSpaceEntry(spaceID coretypes.SpaceID) ContactusSpaceEntry {
@@ -21,5 +21,5 @@ func NewContactusSpaceEntry(spaceID coretypes.SpaceID) ContactusSpaceEntry {
 }
 
 func NewContactusSpaceEntryWithData(spaceID coretypes.SpaceID, data *dbo4contactus.ContactusSpaceDbo) ContactusSpaceEntry {
-	return dbo4spaceus.NewSpaceModuleEntry(spaceID, const4contactus.ModuleID, data)
+	return dbo4spaceus.NewSpaceModuleEntry(spaceID, const4contactus.ExtensionID, data)
 }

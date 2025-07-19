@@ -5,8 +5,8 @@ import (
 )
 
 func TestModule(t *testing.T) {
-	m := Module()
+	m := Extension()
 	if m == nil {
-		t.Fatal("Module() returned nil")
+		t.Fatal("ExtID() returned nil")
 	}
 }

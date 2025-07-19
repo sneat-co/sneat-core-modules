@@ -86,7 +86,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		result, err := CreateSpace(ctxWithUser, dto4spaceus.CreateSpaceRequest{})
 		assert.Error(t, err)
 		assert.Equal(t, coretypes.SpaceID(""), result.Space.ID)
-		assert.Equal(t, coretypes.ModuleID(""), result.ContactusSpace.ID)
+		assert.Equal(t, coretypes.ExtID(""), result.ContactusSpace.ID)
 	})
 
 	t.Run("user's 1st space", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		assert.Nil(t, result.Space.Data.Validate())
 		assert.Equal(t, 1, len(result.Space.Data.UserIDs))
 		assert.Equal(t, 1, result.Space.Data.Version)
-		assert.Equal(t, coretypes.ModuleID("contactus"), result.ContactusSpace.ID)
+		assert.Equal(t, coretypes.ExtID("contactus"), result.ContactusSpace.ID)
 	})
 
 }
