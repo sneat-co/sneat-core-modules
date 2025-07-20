@@ -8,14 +8,18 @@ import (
 const Kind = "users"
 
 // NewUserKey creates new user doc ref
-func NewUserKey(id string) *dal.Key {
-	return dal.NewKeyWithID(Kind, id)
+func NewUserKey[T comparable](userID T) *dal.Key {
+	var zero T
+	if userID == zero {
+		panic("userID is empty value")
+	}
+	return dal.NewKeyWithID(Kind, userID)
 }
 
 // NewUserKeys creates new api4meetingus doc refs
-func NewUserKeys(ids []string) (userKeys []*dal.Key) {
-	userKeys = make([]*dal.Key, len(ids))
-	for i, id := range ids {
+func NewUserKeys[T comparable](userIDs []T) (userKeys []*dal.Key) {
+	userKeys = make([]*dal.Key, len(userIDs))
+	for i, id := range userIDs {
 		userKeys[i] = NewUserKey(id)
 	}
 	return userKeys
