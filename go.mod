@@ -12,21 +12,21 @@ require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
 	github.com/dal-go/dalgo v0.26.3
-	github.com/dal-go/mocks4dalgo v0.3.6
+	github.com/dal-go/mocks4dalgo v0.3.7
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.54.1
+	github.com/sneat-co/sneat-go-core v0.54.2
 	github.com/stretchr/testify v1.10.0
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
-	github.com/strongo/i18n v0.8.5
+	github.com/strongo/i18n v0.8.6
 	github.com/strongo/logus v0.2.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.1
 	github.com/strongo/strongoapp v0.31.8
 	github.com/strongo/validation v0.0.7
-	go.uber.org/mock v0.5.2
+	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.41.0
 	golang.org/x/net v0.43.0
 )
