@@ -1,9 +1,8 @@
 package delays4contactus
 
 import (
+	"context"
 	"fmt"
-
-	"golang.org/x/net/context"
 )
 
 func delayedUpdateContactusSpaceDboWithContact(_ context.Context, userID string, contactID string) (err error) {
