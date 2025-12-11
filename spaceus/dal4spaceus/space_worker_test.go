@@ -3,6 +3,9 @@ package dal4spaceus
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
@@ -11,8 +14,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
-	"testing"
-	"time"
 )
 
 func TestSpaceWorkerParams_GetRecords(t *testing.T) {

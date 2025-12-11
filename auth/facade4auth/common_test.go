@@ -1,8 +1,9 @@
 package facade4auth
 
 import (
-	"github.com/dal-go/dalgo/dal"
 	"testing"
+
+	"github.com/dal-go/dalgo/dal"
 )
 
 func testStringKey(t *testing.T, expectedID string, key *dal.Key) {

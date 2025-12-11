@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/strongo/logus"
-	"net/http"
-	"strconv"
 )
 
 // TODO: Obsolete - migrate to HandleSignInWithPin

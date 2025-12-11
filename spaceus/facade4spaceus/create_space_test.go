@@ -2,6 +2,8 @@ package facade4spaceus
 
 import (
 	"context"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
@@ -14,7 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/strongo/strongoapp/person"
 	"go.uber.org/mock/gomock"
-	"testing"
 )
 
 func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests

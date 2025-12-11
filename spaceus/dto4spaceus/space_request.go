@@ -1,9 +1,10 @@
 package dto4spaceus
 
 import (
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // NewSpaceRequest creates new space request

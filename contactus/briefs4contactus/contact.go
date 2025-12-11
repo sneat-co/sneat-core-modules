@@ -2,11 +2,12 @@ package briefs4contactus
 
 import (
 	"fmt"
+	"slices"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"slices"
 )
 
 // WithGroupIDs is a mixin that adds groupIDs field

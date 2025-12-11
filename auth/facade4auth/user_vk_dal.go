@@ -3,9 +3,10 @@ package facade4auth
 import (
 	"context"
 	"errors"
+	"strconv"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
-	"strconv"
 )
 
 func NewUserVkKey(vkUserID int64) *dal.Key {

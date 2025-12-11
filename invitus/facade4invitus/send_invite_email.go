@@ -5,11 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/sneat-co/sneat-go-core"
-	"github.com/sneat-co/sneat-go-core/capturer"
-	"github.com/sneat-co/sneat-go-core/emails"
 	"html/template"
 	"mime"
+
+	core "github.com/sneat-co/sneat-go-core"
+	"github.com/sneat-co/sneat-go-core/capturer"
+	"github.com/sneat-co/sneat-go-core/emails"
 )
 
 const inviteEmailTemplateText = `

@@ -3,11 +3,12 @@ package dbo4linkage
 import (
 	"errors"
 	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/validation"
-	"net/url"
-	"strings"
 )
 
 type ItemRef struct { // TODO: Move to sneat-go-core or document why not

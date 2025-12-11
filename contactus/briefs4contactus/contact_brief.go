@@ -1,15 +1,16 @@
 package briefs4contactus
 
 import (
+	"strings"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core"
+	core "github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // ContactBrief needed as ContactBase is used in dbo4contactus.ContactDto and in dto4contactus.CreatePersonRequest

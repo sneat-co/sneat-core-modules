@@ -2,12 +2,13 @@ package api4auth
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp"
-	"net/http"
 )
 
 type AuthHandler func(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo)

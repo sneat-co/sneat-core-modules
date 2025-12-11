@@ -3,11 +3,12 @@ package dal4userus
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
-	"time"
 )
 
 // TxUpdateUser update user record

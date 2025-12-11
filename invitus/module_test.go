@@ -1,9 +1,10 @@
 package invitus
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/invitus/const4invitus"
 	"github.com/sneat-co/sneat-go-core/extension"
-	"testing"
 )
 
 func TestModule(t *testing.T) {

@@ -2,9 +2,10 @@ package dto4contactus
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // ContactRequest defines a request for a single contact

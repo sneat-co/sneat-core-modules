@@ -1,10 +1,11 @@
 package dbo4contactus
 
 import (
+	"time"
+
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/strongo/validation"
-	"time"
 )
 
 type InviteToContactBrief struct {

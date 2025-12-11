@@ -2,10 +2,11 @@ package models4auth
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/record"
 	"strconv"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/record"
 
 	"errors"
 )

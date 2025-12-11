@@ -1,8 +1,9 @@
 package models4auth
 
 import (
-	"github.com/dal-go/dalgo/record"
 	"time"
+
+	"github.com/dal-go/dalgo/record"
 )
 
 const UserOneSignalKind = "UserOneSignal"

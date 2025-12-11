@@ -2,14 +2,16 @@ package facade4spaceus
 
 import (
 	"fmt"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"time"
+
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 )
 
 // NewMemberContactEntryFromContactBrief creates a member record from member's brief

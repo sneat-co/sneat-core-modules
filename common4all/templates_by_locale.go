@@ -2,11 +2,12 @@ package common4all
 
 import (
 	"bytes"
-	"github.com/strongo/i18n"
-	"github.com/strongo/logus"
 	html "html/template"
 	"sync"
 	text "text/template"
+
+	"github.com/strongo/i18n"
+	"github.com/strongo/logus"
 
 	"context"
 )

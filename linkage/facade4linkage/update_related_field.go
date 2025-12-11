@@ -3,6 +3,8 @@ package facade4linkage
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
@@ -10,7 +12,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/validation"
-	"time"
 )
 
 func UpdateRelatedFields(

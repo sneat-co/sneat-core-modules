@@ -1,12 +1,13 @@
 package dbo4linkage
 
 import (
-	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-go-core/coretypes"
 	"reflect"
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
 func TestAddRelationshipAndID(t *testing.T) {

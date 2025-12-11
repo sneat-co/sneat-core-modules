@@ -1,11 +1,12 @@
 package dbo4userus
 
 import (
+	"testing"
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"testing"
-	"time"
 )
 
 // TestUserEntry_GetID tests the GetID method of UserEntry

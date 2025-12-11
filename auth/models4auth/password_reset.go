@@ -1,10 +1,11 @@
 package models4auth
 
 import (
+	"reflect"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/strongo/strongoapp/appuser"
-	"reflect"
 )
 
 const PasswordResetKind = "PwdRst"

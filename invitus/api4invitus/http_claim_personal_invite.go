@@ -1,10 +1,11 @@
 package api4invitus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"net/http"
 )
 
 // httpPostClaimPersonalInvite is an API endpoint that marks a personal invite as accepted

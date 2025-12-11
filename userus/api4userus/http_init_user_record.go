@@ -1,14 +1,15 @@
 package api4userus
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/sneat-co/sneat-core-modules/auth/facade4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/dto4auth"
 	"github.com/strongo/strongoapp/appuser"
-	"net/http"
-	"strings"
 )
 
 // httpInitUserRecord sets user title

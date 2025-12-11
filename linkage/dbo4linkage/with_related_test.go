@@ -2,14 +2,15 @@ package dbo4linkage
 
 import (
 	"encoding/json"
-	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-go-core/coretypes"
-	"github.com/strongo/strongoapp/with"
 	"reflect"
 	"slices"
 	"testing"
 	"time"
+
+	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+	"github.com/strongo/strongoapp/with"
 )
 
 func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {

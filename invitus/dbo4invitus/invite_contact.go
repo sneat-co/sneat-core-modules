@@ -2,9 +2,10 @@ package dbo4invitus
 
 import (
 	"fmt"
-	"github.com/strongo/validation"
 	"net/mail"
 	"strings"
+
+	"github.com/strongo/validation"
 )
 
 // InviteContact holds invitation contact data

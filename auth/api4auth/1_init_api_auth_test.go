@@ -1,9 +1,10 @@
 package api4auth
 
 import (
-	"github.com/strongo/strongoapp"
 	"slices"
 	"testing"
+
+	"github.com/strongo/strongoapp"
 )
 
 func TestInitApiForAuth(t *testing.T) {

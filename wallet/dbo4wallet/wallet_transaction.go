@@ -1,10 +1,11 @@
 package dbo4wallet
 
 import (
-	"github.com/strongo/strongoapp/with"
-	"github.com/strongo/validation"
 	"strconv"
 	"time"
+
+	"github.com/strongo/strongoapp/with"
+	"github.com/strongo/validation"
 )
 
 //type OwnerType string

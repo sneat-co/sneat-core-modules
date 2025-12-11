@@ -1,9 +1,10 @@
 package dto4contactus
 
 import (
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 type CreateLocationRequest struct {

@@ -3,6 +3,7 @@ package emailing
 import (
 	"context"
 	"fmt"
+
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 )

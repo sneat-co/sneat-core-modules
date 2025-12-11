@@ -3,6 +3,7 @@ package dal4userus
 import (
 	"context"
 	"fmt"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"

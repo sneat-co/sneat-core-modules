@@ -1,10 +1,11 @@
 package dal4contactus
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNewContactusSpaceModuleKey(t *testing.T) {

@@ -2,6 +2,10 @@ package facade4invitus
 
 import (
 	"context"
+	"slices"
+	"testing"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -17,9 +21,6 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"go.uber.org/mock/gomock"
-	"slices"
-	"testing"
-	"time"
 )
 
 func TestAcceptPersonalInvite(t *testing.T) {

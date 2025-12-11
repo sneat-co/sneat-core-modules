@@ -3,6 +3,9 @@ package facade4invitus
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -16,8 +19,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"strings"
-	"time"
 )
 
 type InviteClaimOperation string

@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/strongo/validation"
-	"net/http"
 )
 
 type TokenClaim func(claims *TokenClaims)

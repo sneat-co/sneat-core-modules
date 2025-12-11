@@ -3,10 +3,11 @@ package facade4userus
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTxGetUsers(t *testing.T) {

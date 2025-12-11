@@ -2,10 +2,11 @@ package facade4linkage
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"time"
 )
 
 //type RelatableAdapter[D dbo4linkage.Relatable] interface {

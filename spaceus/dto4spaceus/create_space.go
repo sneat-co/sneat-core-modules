@@ -1,10 +1,11 @@
 package dto4spaceus
 
 import (
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 var _ facade.Request = (*CreateSpaceRequest)(nil)

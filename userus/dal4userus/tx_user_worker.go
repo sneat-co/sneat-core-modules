@@ -3,11 +3,12 @@ package dal4userus
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"time"
 )
 
 // UserWorkerParams passes data to a space worker

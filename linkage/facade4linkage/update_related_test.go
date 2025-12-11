@@ -1,11 +1,12 @@
 package facade4linkage
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"testing"
 )
 
 func TestRegisterDboFactory(t *testing.T) {

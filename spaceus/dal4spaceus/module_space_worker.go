@@ -3,6 +3,8 @@ package dal4spaceus
 import (
 	"context"
 	"fmt"
+	"slices"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
@@ -10,7 +12,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"slices"
 )
 
 // ModuleSpaceWorkerParams passes data to a space worker

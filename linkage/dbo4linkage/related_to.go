@@ -2,9 +2,10 @@ package dbo4linkage
 
 import (
 	"fmt"
-	"github.com/strongo/validation"
 	"slices"
 	"strings"
+
+	"github.com/strongo/validation"
 )
 
 type RolesCommand struct {

@@ -3,10 +3,11 @@ package token4auth
 import (
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/strongo/logus"
 	"net/http"
 	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/strongo/logus"
 )
 
 //func getTokenSecret() []byte { // TODO: implement getting token that is good for Firebase auth

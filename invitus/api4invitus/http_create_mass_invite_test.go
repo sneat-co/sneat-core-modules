@@ -3,16 +3,17 @@ package api4invitus
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/sneatauth"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 func TestCreateMassInvite(t *testing.T) {

@@ -2,6 +2,8 @@ package facade4auth
 
 import (
 	"context"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
@@ -13,7 +15,6 @@ import (
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/person"
 	"go.uber.org/mock/gomock"
-	"testing"
 )
 
 func Test_InitUserRecord(t *testing.T) {

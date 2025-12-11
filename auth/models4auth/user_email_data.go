@@ -2,6 +2,7 @@ package models4auth
 
 import (
 	"encoding/base64"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/strongo/strongoapp/appuser"

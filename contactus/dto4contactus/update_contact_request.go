@@ -2,11 +2,12 @@ package dto4contactus
 
 import (
 	"errors"
+	"strings"
+	"time"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/validation"
-	"strings"
-	"time"
 )
 
 type UpdateContactRequest struct {

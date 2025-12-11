@@ -1,12 +1,13 @@
 package dal4wallet
 
 import (
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/wallet/const4wallet"
 	"github.com/sneat-co/sneat-core-modules/wallet/dbo4wallet"
-	"time"
 )
 
 type TransactionEntry = record.DataWithID[int64, *dbo4wallet.WalletTransactionDbo]

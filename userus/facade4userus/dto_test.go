@@ -1,9 +1,10 @@
 package facade4userus
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/userus/dto4userus"
 	"github.com/strongo/strongoapp/person"
-	"testing"
 )
 
 func TestSetUserTitleRequest_Validate(t *testing.T) {

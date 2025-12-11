@@ -1,8 +1,9 @@
 package facade4auth
 
 import (
-	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"testing"
+
+	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 )
 
 func TestNewUserEmailKey(t *testing.T) {

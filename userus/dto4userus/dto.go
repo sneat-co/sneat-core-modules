@@ -2,6 +2,9 @@ package dto4userus
 
 import (
 	"fmt"
+	"net/mail"
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -10,8 +13,6 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/strongoauth"
 	"github.com/strongo/validation"
-	"net/mail"
-	"strings"
 )
 
 var _ facade.Request = (*InitUserRecordRequest)(nil)

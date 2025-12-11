@@ -1,10 +1,11 @@
 package dbo4spaceus
 
 import (
+	"reflect"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"reflect"
 )
 
 func NewSpaceModuleItemKey[K comparable](spaceID coretypes.SpaceID, moduleID coretypes.ExtID, collection string, itemID K) *dal.Key {

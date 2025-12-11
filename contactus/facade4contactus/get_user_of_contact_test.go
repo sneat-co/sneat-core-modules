@@ -2,6 +2,9 @@ package facade4contactus
 
 import (
 	"context"
+	"reflect"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -9,8 +12,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"go.uber.org/mock/gomock"
-	"reflect"
-	"testing"
 )
 
 func TestGetUserOfContact(t *testing.T) {

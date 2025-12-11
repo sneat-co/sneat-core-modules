@@ -2,8 +2,9 @@ package common4all
 
 import (
 	"fmt"
-	"github.com/strongo/i18n"
 	"strings"
+
+	"github.com/strongo/i18n"
 )
 
 func Locale2to5(locale2 string) string {

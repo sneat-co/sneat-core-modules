@@ -2,8 +2,9 @@ package api4auth
 
 import (
 	"context"
-	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"net/http"
+
+	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 )
 
 //const VK_USER_ALEXT = 7631716

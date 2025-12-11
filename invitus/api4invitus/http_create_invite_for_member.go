@@ -2,6 +2,8 @@ package api4invitus
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
@@ -10,7 +12,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/httpserver"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
-	"net/http"
 )
 
 // httpPostCreateOrReuseInviteForMember supports both POST & GET methods

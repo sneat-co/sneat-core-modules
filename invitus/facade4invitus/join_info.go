@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
@@ -12,8 +15,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
-	"strconv"
-	"time"
 )
 
 // JoinInfoRequest request

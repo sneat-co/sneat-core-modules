@@ -3,8 +3,9 @@ package dbo4wallet
 import (
 	"errors"
 	"fmt"
-	"github.com/strongo/validation"
 	"strings"
+
+	"github.com/strongo/validation"
 )
 
 const EUR = "EUR"

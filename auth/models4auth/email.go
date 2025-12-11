@@ -1,10 +1,11 @@
 package models4auth
 
 import (
-	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/record"
 	"reflect"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/record"
 
 	"errors"
 )

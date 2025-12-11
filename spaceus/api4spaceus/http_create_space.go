@@ -1,12 +1,13 @@
 package api4spaceus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"net/http"
 )
 
 // httpPostCreateSpace is an API endpoint that creates a new space

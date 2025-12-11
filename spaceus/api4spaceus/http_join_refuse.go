@@ -1,11 +1,12 @@
 package api4spaceus
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"net/http"
-	"strconv"
 )
 
 // httpPostRefuseToJoinSpace an API endpoint that records user refusal to join a space

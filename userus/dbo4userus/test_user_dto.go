@@ -1,12 +1,13 @@
 package dbo4userus
 
 import (
+	"testing"
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"testing"
-	"time"
 )
 
 func TestUserDboValidate(t *testing.T) {

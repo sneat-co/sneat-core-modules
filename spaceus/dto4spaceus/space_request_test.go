@@ -1,8 +1,9 @@
 package dto4spaceus
 
 import (
-	"github.com/sneat-co/sneat-go-core/coretypes"
 	"testing"
+
+	"github.com/sneat-co/sneat-go-core/coretypes"
 )
 
 func TestNewSpaceRequest(t *testing.T) {

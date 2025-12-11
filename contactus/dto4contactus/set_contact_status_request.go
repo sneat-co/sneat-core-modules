@@ -1,8 +1,9 @@
 package dto4contactus
 
 import (
-	"github.com/strongo/validation"
 	"strings"
+
+	"github.com/strongo/validation"
 )
 
 type SetContactsStatusRequest struct {

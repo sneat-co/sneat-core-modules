@@ -2,6 +2,7 @@ package dto4contactus
 
 import (
 	"fmt"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"

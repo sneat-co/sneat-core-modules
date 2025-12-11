@@ -2,14 +2,15 @@ package dbo4linkage
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-go-core/coretypes"
-	"github.com/strongo/strongoapp/with"
-	"github.com/strongo/validation"
 	"net/url"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/dal-go/dalgo/update"
+	"github.com/sneat-co/sneat-go-core/coretypes"
+	"github.com/strongo/strongoapp/with"
+	"github.com/strongo/validation"
 )
 
 const NoRelatedID = "-"

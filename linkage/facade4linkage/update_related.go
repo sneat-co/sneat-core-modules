@@ -2,6 +2,8 @@ package facade4linkage
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
@@ -13,7 +15,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
-	"time"
 )
 
 var relatedDboFactories = make(map[coretypes.ExtID]map[string]RelatedDboFactory)

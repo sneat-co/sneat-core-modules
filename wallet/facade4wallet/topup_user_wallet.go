@@ -3,6 +3,8 @@ package facade4wallet
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -11,7 +13,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/wallet/dbo4wallet"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
-	"time"
 )
 
 type TopupUserWalletRequest struct {

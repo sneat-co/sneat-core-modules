@@ -2,6 +2,11 @@ package dbo4userus
 
 import (
 	"fmt"
+	"net/mail"
+	"slices"
+	"strings"
+	"time"
+
 	"github.com/bots-go-framework/bots-fw-store/botsfwmodels"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -13,10 +18,6 @@ import (
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"net/mail"
-	"slices"
-	"strings"
-	"time"
 )
 
 type WithUserIDs struct {

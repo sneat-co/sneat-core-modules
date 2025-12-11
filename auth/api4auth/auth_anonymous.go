@@ -3,12 +3,13 @@ package api4auth
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
-	"net/http"
 )
 
 func handleSignUpAnonymously(ctx context.Context, w http.ResponseWriter, r *http.Request) {

@@ -2,12 +2,13 @@ package facade4contactus
 
 import (
 	"fmt"
+	"slices"
+
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/strongo/slice"
-	"slices"
 )
 
 func updateContactRoles(params *dal4contactus.ContactWorkerParams, roles dto4contactus.SetRolesRequest) (updatedContactFields []string, err error) {

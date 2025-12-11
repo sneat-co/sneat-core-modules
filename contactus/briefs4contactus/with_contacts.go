@@ -2,6 +2,8 @@ package briefs4contactus
 
 import (
 	"fmt"
+	"slices"
+
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
@@ -9,7 +11,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/validate"
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
-	"slices"
 )
 
 type contactBrief interface {

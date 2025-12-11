@@ -3,13 +3,14 @@ package dal4spaceus
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade/db"
-	"time"
 )
 
 var txUpdate = func(ctx context.Context, tx dal.ReadwriteTransaction, key *dal.Key, data []update.Update, opts ...dal.Precondition) error {

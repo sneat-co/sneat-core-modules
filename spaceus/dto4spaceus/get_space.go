@@ -1,9 +1,10 @@
 package dto4spaceus
 
 import (
+	"strings"
+
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // GetSpaceRequest request

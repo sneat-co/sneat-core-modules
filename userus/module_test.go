@@ -1,9 +1,10 @@
 package userus
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-go-core/extension"
-	"testing"
 )
 
 func TestModule(t *testing.T) {

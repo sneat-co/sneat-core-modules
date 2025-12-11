@@ -3,6 +3,7 @@ package facade4userus
 import (
 	"context"
 	"errors"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 )

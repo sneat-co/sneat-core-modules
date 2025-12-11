@@ -1,9 +1,10 @@
 package facade4linkage
 
 import (
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"time"
 )
 
 // UpdateRelationshipsInRelatedItems TODO: This should be a generic function in the linkage module

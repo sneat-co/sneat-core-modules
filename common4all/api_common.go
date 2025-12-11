@@ -3,11 +3,12 @@ package common4all
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp"
-	"net/http"
 )
 
 func GetEnvironment(r *http.Request) string {

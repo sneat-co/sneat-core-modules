@@ -1,11 +1,12 @@
 package dbo4userus
 
 import (
+	"strings"
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"strings"
-	"testing"
 )
 
 // TestUserSpaceBrief_HasRole tests the HasRole method of UserSpaceBrief

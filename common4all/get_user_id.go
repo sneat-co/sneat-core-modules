@@ -2,8 +2,9 @@ package common4all
 
 import (
 	"context"
-	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"net/http"
+
+	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 )
 
 func GetUserID(_ context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) (userID string) {

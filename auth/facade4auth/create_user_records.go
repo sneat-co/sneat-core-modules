@@ -3,6 +3,9 @@ package facade4auth
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -15,8 +18,6 @@ import (
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"strings"
-	"time"
 )
 
 // CreateUserRecords sets user title

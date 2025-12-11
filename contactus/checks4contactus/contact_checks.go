@@ -1,8 +1,9 @@
 package checks4contactus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"slices"
+
+	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 )
 
 func IsSpaceMember(roles []string) bool {

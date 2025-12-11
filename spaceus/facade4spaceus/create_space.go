@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
@@ -20,8 +23,6 @@ import (
 	"github.com/strongo/random"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"strings"
-	"time"
 )
 
 // CreateSpaceParams is a result of CreateSpace

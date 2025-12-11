@@ -1,12 +1,13 @@
 package api4spaceus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"net/http"
 )
 
 // httpPostUpdateRelated is an API endpoint that adds or removes related items to a space item

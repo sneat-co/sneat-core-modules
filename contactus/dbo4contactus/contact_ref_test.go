@@ -1,11 +1,12 @@
 package dbo4contactus
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"reflect"
-	"testing"
 )
 
 func TestNewContactFullRef(t *testing.T) {

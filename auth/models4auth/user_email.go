@@ -1,13 +1,14 @@
 package models4auth
 
 import (
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/record"
 	"github.com/strongo/strongoapp/appuser"
 	"github.com/strongo/strongoapp/person"
 	"golang.org/x/crypto/bcrypt"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const UserEmailKind = "UserEmailEntry"

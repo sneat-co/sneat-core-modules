@@ -2,9 +2,10 @@ package delays4contactus
 
 import (
 	"context"
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/strongo/delaying"
-	"time"
 )
 
 func InitDelays4contactus(mustRegisterFunc func(key string, i any) delaying.Delayer) {

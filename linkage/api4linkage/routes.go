@@ -1,8 +1,9 @@
 package api4linkage
 
 import (
-	"github.com/sneat-co/sneat-go-core/extension"
 	"net/http"
+
+	"github.com/sneat-co/sneat-go-core/extension"
 )
 
 func RegisterHttpRoutes(handle extension.HTTPHandleFunc) {

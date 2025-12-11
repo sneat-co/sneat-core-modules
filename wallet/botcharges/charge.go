@@ -2,10 +2,11 @@ package botcharges
 
 import (
 	"context"
-	"github.com/dal-go/dalgo/dal"
-	"github.com/strongo/validation"
 	"strings"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
+	"github.com/strongo/validation"
 )
 
 type ChargeDbo struct {

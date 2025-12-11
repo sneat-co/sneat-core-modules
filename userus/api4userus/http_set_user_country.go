@@ -1,11 +1,12 @@
 package api4userus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/userus/facade4userus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"net/http"
 )
 
 func httpSetUserCountry(w http.ResponseWriter, r *http.Request) {

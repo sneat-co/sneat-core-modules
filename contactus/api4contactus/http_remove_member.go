@@ -1,11 +1,12 @@
 package api4contactus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"net/http"
 )
 
 // httpPostRemoveSpaceMember is an API endpoint that removes a members from a space

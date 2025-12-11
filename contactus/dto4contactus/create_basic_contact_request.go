@@ -1,8 +1,9 @@
 package dto4contactus
 
 import (
-	"github.com/strongo/validation"
 	"strings"
+
+	"github.com/strongo/validation"
 )
 
 // CreateBasicContactRequest - creates a basic contact

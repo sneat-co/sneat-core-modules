@@ -1,6 +1,11 @@
 package dbo4userus
 
 import (
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
@@ -8,10 +13,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
-	"reflect"
-	"strings"
-	"testing"
-	"time"
 )
 
 // createTestUserDbo creates a UserDbo instance for testing

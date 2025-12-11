@@ -1,9 +1,10 @@
 package dto4contactus
 
 import (
+	"strings"
+
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 type CommChannelRequest struct {

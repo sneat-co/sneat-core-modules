@@ -3,6 +3,9 @@ package dal4spaceus
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/mocks4dalgo/mock_dal"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
@@ -13,8 +16,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
-	"testing"
-	"time"
 )
 
 type fooModuleSpaceData struct {

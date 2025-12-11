@@ -2,6 +2,7 @@ package facade4contactus
 
 import (
 	"context"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
@@ -9,12 +10,13 @@ import (
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
+	"slices"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/slice"
-	"slices"
 )
 
 // RemoveSpaceMember removes members from a space

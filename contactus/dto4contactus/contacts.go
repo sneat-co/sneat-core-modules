@@ -2,9 +2,10 @@ package dto4contactus
 
 import (
 	"fmt"
-	"github.com/strongo/strongoapp/person"
 	"strconv"
 	"strings"
+
+	"github.com/strongo/strongoapp/person"
 )
 
 type PhoneContact struct {

@@ -2,14 +2,15 @@ package facade4invitus
 
 import (
 	"context"
+	"slices"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/slice"
 	"github.com/strongo/validation"
-	"slices"
-	"time"
 )
 
 type ClaimInviteRequest struct {

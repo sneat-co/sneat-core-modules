@@ -2,14 +2,15 @@ package dbo4linkage
 
 import (
 	"fmt"
+	"slices"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"slices"
-	"strings"
-	"time"
 )
 
 type RelationshipRoleID = string

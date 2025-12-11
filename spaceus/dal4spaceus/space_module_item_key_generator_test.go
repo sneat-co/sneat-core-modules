@@ -3,10 +3,11 @@ package dal4spaceus
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGenerateNewSpaceModuleItemKey(t *testing.T) {

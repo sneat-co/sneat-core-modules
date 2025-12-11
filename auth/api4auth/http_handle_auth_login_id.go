@@ -3,6 +3,10 @@ package api4auth
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
@@ -10,9 +14,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/common4all"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/logus"
-	"io"
-	"net/http"
-	"strings"
 )
 
 func handleAuthLoginId(ctx context.Context, w http.ResponseWriter, r *http.Request, authInfo token4auth.AuthInfo) {

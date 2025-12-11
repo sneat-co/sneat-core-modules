@@ -1,6 +1,8 @@
 package facade4spaceus
 
 import (
+	"strings"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/gosimple/slug"
@@ -9,7 +11,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // AddSpaceMetricRequest request

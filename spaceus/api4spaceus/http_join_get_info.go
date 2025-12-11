@@ -1,11 +1,12 @@
 package api4spaceus
 
 import (
+	"net/http"
+
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/httpserver"
-	"net/http"
 )
 
 // httpPostGetSpaceJoinInfo is an API endpoint that return space info for user willing to join

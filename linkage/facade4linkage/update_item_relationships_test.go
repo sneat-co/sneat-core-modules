@@ -2,6 +2,9 @@ package facade4linkage
 
 import (
 	"context"
+	"reflect"
+	"testing"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
@@ -9,8 +12,6 @@ import (
 	"github.com/sneat-co/sneat-core-modules/linkage/dto4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
-	"reflect"
-	"testing"
 )
 
 func TestUpdateItemRelationships(t *testing.T) {

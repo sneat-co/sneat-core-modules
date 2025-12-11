@@ -1,8 +1,9 @@
 package facade4spaceus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"testing"
+
+	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 )
 
 func TestCreateSpaceRequest_Validate(t *testing.T) {

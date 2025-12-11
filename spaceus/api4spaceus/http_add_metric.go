@@ -1,12 +1,13 @@
 package api4spaceus
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
 	"github.com/sneat-co/sneat-go-core/coretypes"
-	"net/http"
-	"strings"
 )
 
 // httpPostAddMetric is an API endpoint that adds a metric

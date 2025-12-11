@@ -1,8 +1,9 @@
 package api4auth
 
 import (
-	"github.com/strongo/strongoapp"
 	"net/http"
+
+	"github.com/strongo/strongoapp"
 )
 
 func InitApiForAuth(handle strongoapp.HandleHttpWithContext) {

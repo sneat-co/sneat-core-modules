@@ -2,10 +2,11 @@ package briefs4contactus
 
 import (
 	"fmt"
-	"github.com/sneat-co/sneat-go-core/models/dbmodels"
-	"github.com/strongo/validation"
 	"slices"
 	"strings"
+
+	"github.com/sneat-co/sneat-go-core/models/dbmodels"
+	"github.com/strongo/validation"
 )
 
 type WithContactIDs struct {

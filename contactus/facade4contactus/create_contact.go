@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"slices"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
@@ -19,8 +22,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp/person"
-	"reflect"
-	"slices"
 )
 
 var ErrContactWithSameAccountKeyAlreadyExists = errors.New("contact with the same account key already exists")

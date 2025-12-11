@@ -2,14 +2,15 @@ package dbo4invitus
 
 import (
 	"fmt"
+	"net/mail"
+	"strings"
+	"time"
+
 	core "github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/validation"
-	"net/mail"
-	"strings"
-	"time"
 )
 
 var _ core.Validatable = (*InviteDbo)(nil)

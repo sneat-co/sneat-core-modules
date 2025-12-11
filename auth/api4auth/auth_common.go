@@ -3,6 +3,8 @@ package api4auth
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/token4auth"
 	"github.com/sneat-co/sneat-core-modules/auth/unsorted4auth"
@@ -14,7 +16,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/strongo/logus"
 	"github.com/strongo/strongoapp/appuser"
-	"net/http"
 )
 
 type disconnectRequest struct{}

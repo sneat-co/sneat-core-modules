@@ -1,8 +1,9 @@
 package dbo4invitus
 
 import (
-	"github.com/strongo/validation"
 	"time"
+
+	"github.com/strongo/validation"
 )
 
 // MemberInviteBrief record

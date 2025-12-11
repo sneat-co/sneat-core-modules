@@ -3,6 +3,11 @@ package facade4invitus
 import (
 	"context"
 	"fmt"
+	"net/mail"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
@@ -11,10 +16,6 @@ import (
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/random"
 	"github.com/strongo/validation"
-	"net/mail"
-	"reflect"
-	"strings"
-	"time"
 )
 
 func NewInviteKey(inviteID string) *dal.Key {

@@ -1,9 +1,10 @@
 package spaceus
 
 import (
+	"testing"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/const4spaceus"
 	"github.com/sneat-co/sneat-go-core/extension"
-	"testing"
 )
 
 func TestModule(t *testing.T) {

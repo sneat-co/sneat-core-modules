@@ -2,6 +2,7 @@ package dbo4invitus
 
 import (
 	"fmt"
+
 	"github.com/strongo/validation"
 )
 

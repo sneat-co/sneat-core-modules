@@ -1,8 +1,9 @@
 package api4userus
 
 import (
-	"github.com/sneat-co/sneat-go-core/extension"
 	"net/http"
+
+	"github.com/sneat-co/sneat-go-core/extension"
 )
 
 // RegisterHttpRoutes initiates users module

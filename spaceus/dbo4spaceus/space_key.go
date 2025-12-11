@@ -2,10 +2,11 @@ package dbo4spaceus
 
 import (
 	"fmt"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
-	"github.com/sneat-co/sneat-go-core"
+	core "github.com/sneat-co/sneat-go-core"
 )
 
 // SpacesCollection table name

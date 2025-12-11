@@ -2,11 +2,12 @@ package briefs4contactus
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-go-core"
+	core "github.com/sneat-co/sneat-go-core"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/validation"
-	"strings"
 )
 
 // WithContactBriefs is a base struct for DTOs that have contacts

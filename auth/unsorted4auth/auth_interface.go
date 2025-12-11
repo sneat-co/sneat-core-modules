@@ -2,10 +2,11 @@ package unsorted4auth
 
 import (
 	"context"
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/auth/models4auth"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
-	"time"
 )
 
 type CreateUserData struct {

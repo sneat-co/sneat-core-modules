@@ -4,11 +4,12 @@ import (
 	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
+	"net/http"
+	"strings"
+
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
-	"net/http"
-	"strings"
 )
 
 // httpGetPersonal is an API endpoint that returns personal invite data

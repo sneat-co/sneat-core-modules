@@ -3,11 +3,12 @@ package briefs4contactus
 import (
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/sneat-co/sneat-go-core/models/dbprofile"
 	"github.com/strongo/validation"
-	"strings"
-	"time"
 )
 
 // ContactBase is used in dbo4contactus.ContactDbo and in requests to create a contactBrief
