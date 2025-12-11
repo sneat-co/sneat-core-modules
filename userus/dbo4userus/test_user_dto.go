@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func TestUserDtoValidate(t *testing.T) {
+func TestUserDboValidate(t *testing.T) {
 	now := time.Now()
 	userDto := UserDbo{
 		CreatedFields: with.CreatedFields{
