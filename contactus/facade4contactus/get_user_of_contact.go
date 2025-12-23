@@ -37,12 +37,12 @@ func GetUserOfContact(ctx context.Context, contact UserAccountsProvider, platfor
 		return
 	}
 	usersCollection := dal.NewCollectionRef(dbo4userus.UsersCollection, "", nil)
-	qb := dal.From(usersCollection).WhereField("accounts", "array-contains", account.String())
-	q := qb.SelectInto(func() dal.Record {
+	qb := dal.From(usersCollection).NewQuery().WhereField("accounts", "array-contains", account.String())
+	q := qb.SelectIntoRecord(func() dal.Record {
 		return dal.NewRecordWithIncompleteKey(dbo4userus.UsersCollection, reflect.String, new(dbo4userus.UserDbo))
 	})
 	var records []dal.Record
-	if records, err = db.QueryAllRecords(ctx, q); err != nil {
+	if records, err = dal.ExecuteQueryAndReadAllToRecords(ctx, q, db); err != nil {
 		return
 	}
 	switch count := len(records); count {

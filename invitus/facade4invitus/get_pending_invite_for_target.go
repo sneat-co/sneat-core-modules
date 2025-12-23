@@ -11,14 +11,14 @@ import (
 
 func GetPendingInviteForTarget(ctx context.Context, userID, spaceID, targetType, targetID string) (invite InviteEntry, err error) {
 	invitesCollection := dal.NewRootCollectionRef("invites", "i")
-	var q = dal.From(invitesCollection).
+	var q = dal.From(invitesCollection).NewQuery().
 		WhereField("fromUserID", dal.Equal, userID).
 		WhereField("spaceID", dal.Equal, spaceID).
 		WhereField("targetType", dal.Equal, targetType).
 		WhereInArrayField("targetIDs", targetID).
 		WhereField("status", dal.Equal, dbo4invitus.InviteStatusPending).
 		Limit(1).
-		SelectInto(func() dal.Record {
+		SelectIntoRecord(func() dal.Record {
 			return dal.NewRecordWithIncompleteKey(InvitesCollection, reflect.String, new(dbo4invitus.InviteDbo))
 		})
 	var db dal.DB
@@ -26,7 +26,7 @@ func GetPendingInviteForTarget(ctx context.Context, userID, spaceID, targetType,
 		return
 	}
 	var records []dal.Record
-	records, err = db.QueryAllRecords(ctx, q)
+	records, err = dal.ExecuteQueryAndReadAllToRecords(ctx, q, db)
 	if len(records) == 1 {
 		record := records[0]
 		invite.ID = record.Key().ID.(string)

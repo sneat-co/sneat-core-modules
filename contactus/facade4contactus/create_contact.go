@@ -107,16 +107,13 @@ func CreateContactTx(
 		}
 		query := dal.
 			From(dal.NewCollectionRef(const4contactus.ContactsCollection, "c", spaceContactusModuleKey)).
+			NewQuery().
 			WhereInArrayField("accounts", request.Accounts[0]).
 			Limit(1).
-			SelectInto(recordMaker)
-		var reader dal.Reader
-		if reader, err = tx.QueryReader(ctx, query); err != nil {
-			err = fmt.Errorf("failed to query contacts by account: %w", err)
-			return
-		}
+			SelectIntoRecord(recordMaker)
+
 		var contactRecords []dal.Record
-		if contactRecords, err = dal.ReadAll(ctx, reader, 0); err != nil {
+		if contactRecords, err = dal.ExecuteQueryAndReadAllToRecords(ctx, query, tx); err != nil {
 			err = fmt.Errorf("failed to load contacts records by account ID: %w", err)
 			return
 		}

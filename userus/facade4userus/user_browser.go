@@ -27,10 +27,10 @@ func SaveUserBrowser(ctx context.Context, userID string, userAgent string) (user
 		return
 	}
 	const limit = 1
-	q := dal.From(dal.NewRootCollectionRef(models4auth.UserBrowserKind, "")).
+	q := dal.From(dal.NewRootCollectionRef(models4auth.UserBrowserKind, "")).NewQuery().
 		WhereField("AppUserIntID", dal.Equal, userID).
 		WhereField("UserAgent", dal.Equal, userAgent)
-	query := q.Limit(limit).SelectInto(models4auth.NewUserBrowserRecord)
+	query := q.Limit(limit).SelectIntoRecord(models4auth.NewUserBrowserRecord)
 
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
@@ -38,7 +38,7 @@ func SaveUserBrowser(ctx context.Context, userID string, userAgent string) (user
 	}
 
 	var records []dal.Record
-	if records, err = db.QueryAllRecords(ctx, query); err != nil {
+	if records, err = dal.ExecuteQueryAndReadAllToRecords(ctx, query, db); err != nil {
 		return
 	}
 

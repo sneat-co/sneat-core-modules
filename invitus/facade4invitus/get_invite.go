@@ -22,14 +22,14 @@ func GetPersonalInviteByID(ctx context.Context, getter dal.ReadSession, id strin
 }
 
 func GetInviteByInlineQueryID(ctx context.Context, getter dal.ReadSession, inlineQueryID string) (invite InviteEntry, err error) {
-	q := dal.NewQueryBuilder(dal.NewCollectionRef(InvitesCollection, "", nil)).
+	q := dal.From(dal.NewCollectionRef(InvitesCollection, "", nil)).NewQuery().
 		WhereField("inlineQueryID", dal.Equal, inlineQueryID).
 		Limit(1).
-		SelectInto(func() dal.Record {
+		SelectIntoRecord(func() dal.Record {
 			return NewInviteEntryWithDbo("", new(dbo4invitus.InviteDbo)).Record
 		})
 	var records []dal.Record
-	if records, err = getter.QueryAllRecords(ctx, q); err != nil {
+	if records, err = dal.ExecuteQueryAndReadAllToRecords(ctx, q, getter); err != nil {
 		return
 	}
 	if len(records) == 0 {
