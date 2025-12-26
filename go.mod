@@ -11,11 +11,11 @@ go 1.24.3
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
-	github.com/dal-go/dalgo v0.40.0
+	github.com/dal-go/dalgo v0.40.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.54.6
+	github.com/sneat-co/sneat-go-core v0.54.7
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
