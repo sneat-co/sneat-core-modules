@@ -15,7 +15,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.54.9
+	github.com/sneat-co/sneat-go-core v0.54.10
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
@@ -23,7 +23,7 @@ require (
 	github.com/strongo/logus v0.4.0
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.3
-	github.com/strongo/strongoapp v0.31.12
+	github.com/strongo/strongoapp v0.31.13
 	github.com/strongo/validation v0.0.7
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.46.0
