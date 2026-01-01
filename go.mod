@@ -15,7 +15,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.54.10
+	github.com/sneat-co/sneat-go-core v0.54.11
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
