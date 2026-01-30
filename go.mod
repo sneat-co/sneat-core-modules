@@ -12,7 +12,7 @@ require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
 	github.com/dal-go/dalgo v0.41.1
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
 	github.com/sneat-co/sneat-go-core v0.54.11
