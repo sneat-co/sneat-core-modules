@@ -11,11 +11,11 @@ go 1.25.0
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.0
 	github.com/crediterra/money v0.3.0
-	github.com/dal-go/dalgo v0.41.8
+	github.com/dal-go/dalgo v0.41.9
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.54.19
+	github.com/sneat-co/sneat-go-core v0.54.20
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
@@ -31,7 +31,7 @@ require (
 
 require (
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
-	github.com/RoaringBitmap/roaring/v2 v2.15.0 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.16.0 // indirect
 	github.com/alexsergivan/transliterator v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
