@@ -8,6 +8,8 @@ github.com/RoaringBitmap/roaring/v2 v2.15.0 h1:gCbixa3UiG7g6WUZNVOfEEg2HTc1vR4OV
 github.com/RoaringBitmap/roaring/v2 v2.15.0/go.mod h1:eq4wdNXxtJIS/oikeCzdX1rBzek7ANzbth041hrU8Q4=
 github.com/RoaringBitmap/roaring/v2 v2.16.0 h1:Kys1UNf49d5W8Tq3bpuAhIr/Z8/yPB+59CO8A6c/BbE=
 github.com/RoaringBitmap/roaring/v2 v2.16.0/go.mod h1:eq4wdNXxtJIS/oikeCzdX1rBzek7ANzbth041hrU8Q4=
+github.com/RoaringBitmap/roaring/v2 v2.18.0 h1:h7sS0VqCkfBMGgcHaudJFB4FE6Td71H6svRB2poRnGY=
+github.com/RoaringBitmap/roaring/v2 v2.18.0/go.mod h1:eq4wdNXxtJIS/oikeCzdX1rBzek7ANzbth041hrU8Q4=
 github.com/alexsergivan/transliterator v1.0.1 h1:vON2ilWCHjq+S5Y4obhLGhHK4Y1VIhsHEtQlij5d9pI=
 github.com/alexsergivan/transliterator v1.0.1/go.mod h1:0IrumukulURJ4PD0z6UcdJKP2job1DYDhnHAP5y+5pE=
 github.com/bits-and-blooms/bitset v1.12.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
@@ -17,6 +19,8 @@ github.com/bots-go-framework/bots-fw-store v0.10.0 h1:e6bD274mjrHVp+X05/7uqqT3s5
 github.com/bots-go-framework/bots-fw-store v0.10.0/go.mod h1:7oU4B8j5HuJZM8AftosbyQD+AqckXsDv8eU1auGPzn8=
 github.com/bots-go-framework/bots-fw-store v0.10.1 h1:z82JwkYNJwb9i+AvzEuc57rfj6aZQovtjrh6kKAIUBo=
 github.com/bots-go-framework/bots-fw-store v0.10.1/go.mod h1:7oU4B8j5HuJZM8AftosbyQD+AqckXsDv8eU1auGPzn8=
+github.com/bots-go-framework/bots-fw-store v0.10.3 h1:nGw1puS+wzI5XAnNyUBFerbaqxAT9sxCMs4ESq+kH9Y=
+github.com/bots-go-framework/bots-fw-store v0.10.3/go.mod h1:s5L7PAMhdpf+zqkewV5m4uQKm/oVtv4QNyhdkSmNJwE=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crediterra/money v0.3.0 h1:dHWEZhkMGGxkHTAbGQOaeg8eYbL8qJSCgcqdOTbNg20=
 github.com/crediterra/money v0.3.0/go.mod h1:0BT7dzPk4Wv+Wi8J6sxlFbCknYioLWVVQM4ciMJh6TI=
@@ -44,6 +48,8 @@ github.com/dal-go/dalgo v0.41.9 h1:gZP/RkVFv5Z1tAp/WPWQ1yNDzF5MWrGe5EDjbAKgOuk=
 github.com/dal-go/dalgo v0.41.9/go.mod h1:jPNOxd415Z6KOuU7ZjdcjiRs4Vl4OkirOzyRbtuFZzI=
 github.com/dal-go/dalgo v0.41.10 h1:xs51xwNy/dXdl1bJHaIZRc/UKY1TeDg0etqWg03X4PM=
 github.com/dal-go/dalgo v0.41.10/go.mod h1:jPNOxd415Z6KOuU7ZjdcjiRs4Vl4OkirOzyRbtuFZzI=
+github.com/dal-go/dalgo v0.41.13 h1:by8KSNv68utcihE9yoOoQibZGMA+bs5DNL5x5jAw4MI=
+github.com/dal-go/dalgo v0.41.13/go.mod h1:mGR/cl9X6O2QCmu1FzrM8gVgFkkhdR33Ur3msnJJJXU=
 github.com/dal-go/mocks4dalgo v0.3.12 h1:qfiQk6fLwzQtgDGSPx82LSUVNiPY2Koq4raYSuslnY0=
 github.com/dal-go/mocks4dalgo v0.3.12/go.mod h1:Y5YwXTtq+ZBt1CuKsp8oEZXL/wKKw0XHGfLbth9BpDs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -104,6 +110,8 @@ github.com/sneat-co/sneat-go-core v0.54.23 h1:Qce46/n+v/iq4JihQS/HpSmZFC3P01L0R6
 github.com/sneat-co/sneat-go-core v0.54.23/go.mod h1:GLmVtg15GwPLzUL4AcKi8r3frFkDqHCq3+egEhc2y4s=
 github.com/sneat-co/sneat-go-core v0.54.24 h1:fG+MQnhyt7Vj5v1I1Y33EceYQZPtFMxQFflEEs05OvM=
 github.com/sneat-co/sneat-go-core v0.54.24/go.mod h1:QE+8s4VmxPcboHgE4vA3lHt4wkIvdEbKaqyZxXjUw1Y=
+github.com/sneat-co/sneat-go-core v0.54.25 h1:uViMkYMq7kjsL0DgO0O4qZIZt8huxCEi0FmlbnwwoRQ=
+github.com/sneat-co/sneat-go-core v0.54.25/go.mod h1:7sGq3OD1Az9Rag5EyJBNSV3aaUIWOeTpmnVQ9y31iV4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
@@ -161,6 +169,8 @@ github.com/strongo/strongoapp v0.31.21 h1:sbI50bfc0snNp5heqkAKwN0ZkFIAOGCXyL0KtD
 github.com/strongo/strongoapp v0.31.21/go.mod h1:jVYGKnSDPfgIAMOmovSC/mbX9NYILMapfKXGg2GvMNU=
 github.com/strongo/strongoapp v0.31.22 h1:y+Qi9jNOGwZBqlEXfoKtedYBkIRbRQklMkJbwDGRZlw=
 github.com/strongo/strongoapp v0.31.22/go.mod h1:1cjV7mCtabktC3jZ7l+tW32mttFPcOa+wLaVKuU4mCE=
+github.com/strongo/strongoapp v0.31.25 h1:e/Qqlkfo0FZB6DO+Q8lxA1HFxg4W+Gppyjb4jWFuvAQ=
+github.com/strongo/strongoapp v0.31.25/go.mod h1:5A/zqE+Wq1Ep1Gy+rqIUBASpMSrPdxmDfOhZaXCUAeI=
 github.com/strongo/validation v0.0.7 h1:gs6YkwPsYtVsepQaQOB+ZF+T0Gu5+nk4ZMND8F85e+U=
 github.com/strongo/validation v0.0.7/go.mod h1:YUwoPEItLJd/Bc9X1OCUm03ofhvm3kwZvuihU7/jz58=
 github.com/strongo/validation v0.0.8 h1:LL3FODf1MTOROKa8fHJuwYxiKHcvd1W2Vs0OXc1H46U=
