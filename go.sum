@@ -112,6 +112,8 @@ github.com/sneat-co/sneat-go-core v0.54.24 h1:fG+MQnhyt7Vj5v1I1Y33EceYQZPtFMxQFf
 github.com/sneat-co/sneat-go-core v0.54.24/go.mod h1:QE+8s4VmxPcboHgE4vA3lHt4wkIvdEbKaqyZxXjUw1Y=
 github.com/sneat-co/sneat-go-core v0.54.25 h1:uViMkYMq7kjsL0DgO0O4qZIZt8huxCEi0FmlbnwwoRQ=
 github.com/sneat-co/sneat-go-core v0.54.25/go.mod h1:7sGq3OD1Az9Rag5EyJBNSV3aaUIWOeTpmnVQ9y31iV4=
+github.com/sneat-co/sneat-go-core v0.54.26 h1:kkq5QEoBCaLXxboryXlIhn0kDJ/HpAxXEeMlAlZvU+c=
+github.com/sneat-co/sneat-go-core v0.54.26/go.mod h1:4wqG86nurJ/tcdhbKmBYVZF1hLR52kiFhMvJMCUeuLA=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
@@ -123,6 +125,8 @@ github.com/strongo/analytics v0.2.3 h1:zGJfB0HmW1TTsQjIM0qHvNSPgAQq15+PZIeVNA5LN
 github.com/strongo/analytics v0.2.3/go.mod h1:Qvk9Yfg0ni27upMrLYQc6J4CcKTGgDOfUhMQejyJmPg=
 github.com/strongo/analytics v0.2.4 h1:E5GF9DDtwnRwCSeid9vpQtxnNQDfGhgn+H93GsTVv9c=
 github.com/strongo/analytics v0.2.4/go.mod h1:Qvk9Yfg0ni27upMrLYQc6J4CcKTGgDOfUhMQejyJmPg=
+github.com/strongo/analytics v0.2.5 h1:wNobPTa5C9hQUembtVYEXHIGGBWO29H0iUhTicR9CEo=
+github.com/strongo/analytics v0.2.5/go.mod h1:UcOgf57sMznb4zRxLA827+lC+HX6WWBU30YIQmbNwu0=
 github.com/strongo/decimal v0.1.1 h1:k7HY/0NmG6Ne5YPV7XybII+AT7O4AShl6HZpLiNZsb4=
 github.com/strongo/decimal v0.1.1/go.mod h1:uKFgetJbR2uT026stdbK54ELXTH9h0vZOPPOp7DAODk=
 github.com/strongo/delaying v0.2.1 h1:vpugNAmvwF81ZcICARgAzMWjACi3UXDSTLxfe9fB/4w=
