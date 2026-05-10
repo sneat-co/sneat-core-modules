@@ -19,14 +19,14 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/delaying v0.2.1
 	github.com/strongo/facebook v1.8.1
-	github.com/strongo/i18n v0.8.9
+	github.com/strongo/i18n v0.8.10
 	github.com/strongo/logus v0.4.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.4
-	github.com/strongo/strongoapp v0.31.27
+	github.com/strongo/strongoapp v0.31.28
 	github.com/strongo/validation v0.0.8
 	go.uber.org/mock v0.6.0
-	golang.org/x/crypto v0.50.0
+	golang.org/x/crypto v0.51.0
 )
 
 require (
