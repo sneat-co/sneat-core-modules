@@ -26,7 +26,7 @@ require (
 	github.com/strongo/strongoapp v0.31.30
 	github.com/strongo/validation v0.0.8
 	go.uber.org/mock v0.6.0
-	golang.org/x/crypto v0.51.0
+	golang.org/x/crypto v0.52.0
 )
 
 require (
