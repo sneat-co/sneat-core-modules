@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/record"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 )
 
@@ -39,7 +38,7 @@ func GetInviteByInlineQueryID(ctx context.Context, getter dal.ReadSession, inlin
 	r := records[0]
 	key := r.Key()
 	invite = InviteEntry{
-		WithID: record.WithID[string]{
+		RecordWithID: dal.RecordWithID[string]{
 			ID:     key.ID.(string),
 			Key:    key,
 			Record: r,
