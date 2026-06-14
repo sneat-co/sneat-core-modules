@@ -23,7 +23,7 @@ func NewUserEntry(id string) (user UserEntry) {
 // NewUserEntryWithDbo creates new user context with user DTO
 func NewUserEntryWithDbo(id string, dto *UserDbo) (user UserEntry) {
 	key := NewUserKey(id)
-	user.WithID = record.WithID[string]{
+	user.RecordWithID = dal.RecordWithID[string]{
 		ID:     id,
 		FullID: "users/" + id,
 		Key:    key,
