@@ -6,7 +6,6 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -39,9 +38,9 @@ type PersonalInviteResponse struct {
 	Members map[string]*briefs4contactus.ContactBrief `json:"members,omitempty"`
 }
 
-func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, params *dal4contactus.ContactusSpaceWorkerParams, inviteID string) (
+func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, session SpaceContactsSession, inviteID string) (
 	invite InviteEntry,
-	member dal4contactus.ContactEntry,
+	member MemberContact,
 	err error,
 ) {
 	if inviteID == "" {
@@ -51,13 +50,13 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 	invite = NewInviteEntry(inviteID)
 
 	records := []dal.Record{invite.Record}
-	if err = params.GetRecords(ctx, getter, records...); err != nil {
+	if err = session.GetRecords(ctx, getter, records...); err != nil {
 		return
 	}
-	if !params.SpaceModuleEntry.Record.Exists() {
+	if !session.SpaceModuleRecordExists() {
 		err = validation.NewErrBadRequestFieldValue("spaceID",
 			fmt.Sprintf("contactusSpace record not found by key=%v: record.Error=%v",
-				params.SpaceModuleEntry.Key, params.SpaceModuleEntry.Record.Error()),
+				session.SpaceModuleKey(), session.SpaceModuleRecordError()),
 		)
 		return
 	}
@@ -69,15 +68,14 @@ func getPersonalInviteRecords(ctx context.Context, getter dal.ReadSession, param
 		return
 	}
 
-	member = dal4contactus.NewContactEntry(invite.Data.SpaceID, invite.Data.To.ContactID)
-	if err = getter.Get(ctx, member.Record); err != nil {
+	if member, err = session.LoadMemberContact(ctx, getter, invite.Data.To.ContactID); err != nil {
 		return
 	}
 
-	if member.Record != nil && !member.Record.Exists() {
+	if member.Record() != nil && !member.Record().Exists() {
 		err = validation.NewErrBadRequestFieldValue("memberID",
 			fmt.Sprintf("member record not found in database by key=%v: record.Error=%v",
-				member.Record.Key(), member.Record.Error()))
+				member.Record().Key(), member.Record().Error()))
 		return
 	}
 	return
@@ -88,15 +86,15 @@ func GetPersonal(ctx facade.ContextWithUser, request GetPersonalInviteRequest) (
 	if err = request.Validate(); err != nil {
 		return
 	}
-	return response, dal4contactus.RunReadonlyContactusSpaceWorker(ctx, ctx.User(), request.SpaceRequest, func(ctx context.Context, tx dal.ReadTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
-		invite, _, err := getPersonalInviteRecords(ctx, tx, params, request.InviteID)
+	return response, contactusAccess.RunReadonlySpaceContactsTx(ctx, ctx.User(), request.SpaceRequest, func(ctx context.Context, tx dal.ReadTransaction, session SpaceContactsSession) error {
+		invite, _, err := getPersonalInviteRecords(ctx, tx, session, request.InviteID)
 		if err != nil {
 			return err
 		}
 		invite.Data.Pin = "" // Hide PIN code from visitor
 		response = PersonalInviteResponse{
 			Invite:  invite.Data,
-			Members: make(map[string]*briefs4contactus.ContactBrief, len(params.SpaceModuleEntry.Data.Contacts)),
+			Members: make(map[string]*briefs4contactus.ContactBrief, len(session.Contacts())),
 		}
 		// TODO: Is this is a security breach in current implementation?
 		//for id, contact := range contactusSpace.Data.Contacts {

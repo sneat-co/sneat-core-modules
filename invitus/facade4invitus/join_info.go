@@ -9,7 +9,6 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -113,10 +112,9 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 		)
 		return
 	}
-	var member dal4contactus.ContactEntry
+	var memberBrief *briefs4contactus.ContactBrief
 	if inviteDbo.To.ContactID != "" {
-		member = dal4contactus.NewContactEntry(inviteDbo.SpaceID, inviteDbo.To.ContactID)
-		if err = db.Get(ctx, member.Record); err != nil {
+		if memberBrief, err = contactusAccess.GetSpaceMemberContactBrief(ctx, db, inviteDbo.SpaceID, inviteDbo.To.ContactID); err != nil {
 			err = fmt.Errorf("failed to get space member's contact record: %w", err)
 			return
 		}
@@ -134,7 +132,7 @@ func GetSpaceJoinInfo(ctx context.Context, request JoinInfoRequest) (response Jo
 	if inviteDbo.To.ContactID != "" {
 		response.Member = &dbmodels.DtoWithID[*briefs4contactus.ContactBrief]{
 			ID:   inviteDbo.To.ContactID,
-			Data: &member.Data.ContactBrief,
+			Data: memberBrief,
 		}
 	}
 	return response, nil

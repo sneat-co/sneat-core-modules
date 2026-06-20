@@ -8,8 +8,6 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
@@ -19,7 +17,7 @@ import (
 
 // InviteContactRequest is a request DTO
 type InviteContactRequest struct {
-	dto4contactus.ContactRequest
+	ContactRequest
 	//RemoteClient dbmodels.RemoteClientInfo `json:"remoteClient"`
 
 	To    dbo4invitus.InviteTo `json:"to"`
@@ -76,32 +74,26 @@ func CreateOrReuseInviteToContact(
 
 	userID := ctx.User().GetUserID()
 
-	err = dal4contactus.RunContactWorker(ctx, request.ContactRequest,
-		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactWorkerParams) (err error) {
-			response.Contact = params.Contact
-			response.ContactusSpace = params.SpaceModuleEntry
-			response.Space = params.Space
-			if err = tx.GetMulti(ctx, []dal.Record{
-				params.Space.Record,
-				params.Contact.Record,
-				params.SpaceModuleEntry.Record,
-			}); err != nil {
+	err = contactusAccess.RunContactTx(ctx, request.ContactRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, session ContactSession) (err error) {
+			response.Space = session.Space()
+			if err = session.GetRecords(ctx, tx); err != nil {
 				return
 			}
-			if params.Space.Data.Type == coretypes.SpaceTypePrivate {
+			if session.Space().Data.Type == coretypes.SpaceTypePrivate {
 				return errors.New("private space does not support invites")
 			}
-			_, fromContactBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
+			_, fromContactBrief := session.GetContactBriefByUserID(userID)
 			if fromContactBrief == nil {
 				return fmt.Errorf(
 					"%w: current user does not belong to the space: user={id=%s}, space={id=%s,type=%s}",
-					facade.ErrUnauthorized, userID, params.Space.ID, params.Space.Data.Type)
+					facade.ErrUnauthorized, userID, session.Space().ID, session.Space().Data.Type)
 			}
 
 			var invite InviteEntry
 
 			//var inviteToContactBrief *dbo4contactus.InviteToContactBrief
-			invite.ID, _ = params.Contact.Data.GetInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
+			invite.ID = session.GetContactInviteBriefByChannelAndInviterUserID(request.To.Channel, userID)
 			if invite.ID != "" {
 				invite, err = GetPersonalInviteByID(ctx, tx, invite.ID)
 				if invite.Data.Status == "active" || invite.Data.Status == "" {
@@ -109,12 +101,12 @@ func CreateOrReuseInviteToContact(
 					return
 				}
 				invite.Data = nil
-				params.ContactUpdates = append(params.ContactUpdates, params.Contact.Data.DeleteInviteBrief(invite.ID))
+				session.AppendContactDeleteInviteBrief(invite.ID)
 				return
 			}
 
 			if invite.Data == nil {
-				if invite, err = createPersonalInvite(ctx, tx, userID, request, params, getRemoteClientInfo); err != nil {
+				if invite, err = createPersonalInvite(ctx, tx, userID, request, session, getRemoteClientInfo); err != nil {
 					return fmt.Errorf("failed to create personal invite: %w", err)
 				}
 			}
@@ -130,7 +122,7 @@ func createPersonalInvite(
 	tx dal.ReadwriteTransaction,
 	userID string,
 	request InviteContactRequest,
-	params *dal4contactus.ContactWorkerParams,
+	session ContactSession,
 	getRemoteClientInfo func() dbmodels.RemoteClientInfo,
 ) (
 	invite InviteEntry, err error,
@@ -148,8 +140,8 @@ func createPersonalInvite(
 		err = validation.NewErrBadRecordFieldValue("userID", "leading or trailing spaces")
 		return
 	}
-	if params == nil {
-		panic("argument 'params' cannot be nil")
+	if session == nil {
+		panic("argument 'session' cannot be nil")
 	}
 	if getRemoteClientInfo == nil {
 		panic("argument 'getRemoteClientInfo' cannot be nil")
@@ -162,14 +154,14 @@ func createPersonalInvite(
 		err = validation.NewErrRequestIsMissingRequiredField("contactID")
 		return
 	}
-	toContactID := params.SpaceModuleEntry.Data.Contacts[request.To.ContactID]
+	toContactID := session.Contacts()[request.To.ContactID]
 	if toContactID == nil {
 		err = errors.New("space has no 'to' contact with id=" + request.To.ContactID)
 		return
 	}
 	request.To.Title = toContactID.GetTitle()
 
-	fromContactID, fromBrief := params.SpaceModuleEntry.Data.GetContactBriefByUserID(userID)
+	fromContactID, fromBrief := session.GetContactBriefByUserID(userID)
 
 	from := dbo4invitus.InviteFrom{
 		InviteContact: dbo4invitus.InviteContact{
@@ -180,13 +172,13 @@ func createPersonalInvite(
 	}
 	to := request.To
 	to.Title = toContactID.GetTitle()
-	if !params.Space.Record.Exists() {
+	if !session.Space().Record.Exists() {
 		err = fmt.Errorf("space record should not exist before creating a personal invite")
 		return
 	}
 	inviteSpace := &dbo4invitus.InviteSpace{
-		Type:  params.Space.Data.Type,
-		Title: params.Space.Data.Title,
+		Type:  session.Space().Data.Type,
+		Title: session.Space().Data.Title,
 	}
 	remoteClientInfo := getRemoteClientInfo()
 	invite, err = createInviteToContactTx(
@@ -218,9 +210,6 @@ func createPersonalInvite(
 		}
 	}
 
-	params.ContactUpdates = append(
-		params.ContactUpdates,
-		params.Contact.Data.AddInviteBrief(invite.ID, userID, request.To.Channel, invite.Data.CreatedAt),
-	)
+	session.AppendContactAddInviteBrief(invite.ID, userID, request.To.Channel, invite.Data.CreatedAt)
 	return
 }

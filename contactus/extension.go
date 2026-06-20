@@ -2,9 +2,10 @@ package contactus
 
 import (
 	"github.com/sneat-co/sneat-core-modules/contactus/api4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/delays4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/invitus/facade4invitus"
 	"github.com/sneat-co/sneat-core-modules/linkage/facade4linkage"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dal4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
@@ -15,6 +16,7 @@ import (
 func Extension() extension.Config {
 	facade4spaceus.RegisterContactusSpaceContributor(spaceusContactusContributor{})
 	facade4userus.RegisterContactusCountryUpdater(userusContactusContributor{})
+	facade4invitus.RegisterContactusAccess(invitusContactusAccess{})
 	facade4linkage.RegisterDboFactory(const4contactus.ExtensionID, const4contactus.ContactsCollection,
 		facade4linkage.NewDboFactory(
 			func() facade4linkage.SpaceItemDboWithRelatedAndIDs {
