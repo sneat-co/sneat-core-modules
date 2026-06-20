@@ -10,7 +10,6 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
@@ -49,10 +48,8 @@ func (v *ClaimPersonalInviteRequest) Validate() error {
 }
 
 type ClaimPersonalInviteResponse struct {
-	Invite         InviteEntry
-	Space          dbo4spaceus.SpaceEntry
-	Contact        dal4contactus.ContactEntry
-	ContactusSpace dal4contactus.ContactusSpaceEntry
+	Invite InviteEntry
+	Space  dbo4spaceus.SpaceEntry
 }
 
 // ClaimPersonalInvite accepts personal invite and joins user to a space.
@@ -67,12 +64,12 @@ func ClaimPersonalInvite(
 	}
 	uid := ctx.User().GetUserID()
 
-	err = dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
-		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
-			response.Space = params.Space
-			response.ContactusSpace = params.SpaceModuleEntry
+	err = contactusAccess.RunSpaceContactsTx(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, session SpaceContactsSession) error {
+			response.Space = session.Space()
 
-			if response.Invite, response.Contact, err = getPersonalInviteRecords(ctx, tx, params, request.InviteID); err != nil {
+			var member MemberContact
+			if response.Invite, member, err = getPersonalInviteRecords(ctx, tx, session, request.InviteID); err != nil {
 				return err
 			}
 
@@ -95,17 +92,17 @@ func ClaimPersonalInvite(
 			case InviteClaimOperationAccept:
 				if newInviteStatus = dbo4invitus.InviteStatusAccepted; oldInviteStatus != newInviteStatus {
 					var spaceMember *briefs4contactus.ContactBase
-					if spaceMember, err = updateContactusSpaceRecord(uid, response.Invite.Data.ToSpaceContactID, params, response.Contact); err != nil {
+					if spaceMember, err = updateContactusSpaceRecord(uid, response.Invite.Data.ToSpaceContactID, session, member); err != nil {
 						return fmt.Errorf("failed to update space record: %w", err)
 					}
 
-					memberContext := dal4contactus.NewContactEntry(params.Space.ID, response.Contact.ID)
+					memberContext := session.NewMemberContact(member.ID())
 
-					if err = updateMemberRecord(ctx, tx, uid, memberContext, &response.Contact.Data.ContactBase, spaceMember); err != nil {
+					if err = updateMemberRecord(ctx, tx, uid, memberContext, member.ContactBase(), spaceMember); err != nil {
 						return fmt.Errorf("failed to update space member record: %w", err)
 					}
 
-					if err = createOrUpdateUserRecord(ctx, tx, now, user, request, response.Contact, params, spaceMember, response.Invite); err != nil {
+					if err = createOrUpdateUserRecord(ctx, tx, now, user, request, member, session, spaceMember, response.Invite); err != nil {
 						return fmt.Errorf("failed to create or update user record: %w", err)
 					}
 				}
@@ -126,13 +123,13 @@ func updateMemberRecord(
 	ctx context.Context,
 	tx dal.ReadwriteTransaction,
 	uid string,
-	member dal4contactus.ContactEntry,
+	member MemberContact,
 	requestMember *briefs4contactus.ContactBase,
 	spaceMember *briefs4contactus.ContactBase,
 ) (err error) {
 	updates := []update.Update{update.ByFieldName("userID", uid)}
-	updates = updatePersonDetails(&member.Data.ContactBase, requestMember, spaceMember, updates)
-	if err = tx.Update(ctx, member.Key, updates); err != nil {
+	updates = updatePersonDetails(member.ContactBase(), requestMember, spaceMember, updates)
+	if err = tx.Update(ctx, member.Key(), updates); err != nil {
 		return err
 	}
 	return err
@@ -140,19 +137,19 @@ func updateMemberRecord(
 
 func updateContactusSpaceRecord(
 	uid, memberID string,
-	params *dal4contactus.ContactusSpaceWorkerParams,
-	requestMember dal4contactus.ContactEntry,
+	session SpaceContactsSession,
+	requestMember MemberContact,
 ) (spaceMember *briefs4contactus.ContactBase, err error) {
 	if uid == "" {
 		panic("required parameter `uid` is empty string")
 	}
 
 	inviteToMemberID := memberID[strings.Index(memberID, ":")+1:]
-	for contactID, m := range params.SpaceModuleEntry.Data.Contacts {
+	for contactID, m := range session.Contacts() {
 		if contactID == inviteToMemberID {
 			m.UserID = uid
-			params.SpaceModuleEntry.Data.AddUserID(uid)
-			params.SpaceModuleEntry.Data.AddContact(contactID, m)
+			session.AddSpaceModuleUserID(uid)
+			session.AddContact(contactID, m)
 			//request.ContactID.Roles = m.Roles
 			//m = request.ContactID
 			m.UserID = uid
@@ -160,10 +157,10 @@ func updateContactusSpaceRecord(
 				ContactBrief: *m,
 			}
 			//space.Members[i] = m
-			updatePersonDetails(spaceMember, &requestMember.Data.ContactBase, spaceMember, nil)
-			params.SpaceModuleUpdates = append(params.SpaceModuleUpdates, params.SpaceModuleEntry.Data.AddUserID(uid)...)
+			updatePersonDetails(spaceMember, requestMember.ContactBase(), spaceMember, nil)
+			session.AppendSpaceModuleUpdates(session.AddSpaceModuleUserID(uid)...)
 			if m.AddRole(const4contactus.SpaceMemberRoleMember) {
-				params.SpaceModuleUpdates = append(params.SpaceModuleUpdates,
+				session.AppendSpaceModuleUpdates(
 					update.ByFieldPath([]string{"contacts", contactID, "roles"}, m.Roles))
 			}
 			break
@@ -173,10 +170,10 @@ func updateContactusSpaceRecord(
 		return spaceMember, fmt.Errorf("space member is not found by inviteToMemberID=%s", inviteToMemberID)
 	}
 
-	if params.Space.Data.HasUserID(uid) {
+	if session.Space().Data.HasUserID(uid) {
 		goto UserIdAdded
 	}
-	params.SpaceUpdates = append(params.SpaceUpdates, update.ByFieldName("userIDs", params.Space.Data.UserIDs))
+	session.AppendSpaceUpdates(update.ByFieldName("userIDs", session.Space().Data.UserIDs))
 UserIdAdded:
 	return spaceMember, err
 }
@@ -187,8 +184,8 @@ func createOrUpdateUserRecord(
 	now time.Time,
 	user dbo4userus.UserEntry,
 	request ClaimPersonalInviteRequest,
-	member dal4contactus.ContactEntry,
-	params *dal4contactus.ContactusSpaceWorkerParams,
+	member MemberContact,
+	session SpaceContactsSession,
 	spaceMember *briefs4contactus.ContactBase,
 	invite InviteEntry,
 ) (err error) {
@@ -204,7 +201,7 @@ func createOrUpdateUserRecord(
 	}
 
 	userSpaceInfo := dbo4userus.UserSpaceBrief{
-		SpaceBrief: params.Space.Data.SpaceBrief,
+		SpaceBrief: session.Space().Data.SpaceBrief,
 		Roles:      invite.Data.Roles, // TODO: Validate roles?
 	}
 	if err = userSpaceInfo.Validate(); err != nil {
@@ -216,7 +213,7 @@ func createOrUpdateUserRecord(
 		userUpdates := []update.Update{
 			update.ByFieldName("spaces", user.Data.Spaces),
 		}
-		userUpdates = updatePersonDetails(&user.Data.ContactBase, &member.Data.ContactBase, spaceMember, userUpdates)
+		userUpdates = updatePersonDetails(&user.Data.ContactBase, member.ContactBase(), spaceMember, userUpdates)
 		if err = user.Data.Validate(); err != nil {
 			return fmt.Errorf("user record prepared for update is not valid: %w", err)
 		}
@@ -227,22 +224,22 @@ func createOrUpdateUserRecord(
 		user.Data.CreatedAt = now
 		user.Data.Created.Client = request.RemoteClient
 		user.Data.Type = briefs4contactus.ContactTypePerson
-		user.Data.Names = member.Data.Names
+		user.Data.Names = member.ContactBase().Names
 		if user.Data.Names.IsEmpty() {
 			user.Data.Names = spaceMember.Names
 		}
-		updatePersonDetails(&user.Data.ContactBase, &member.Data.ContactBase, spaceMember, nil)
+		updatePersonDetails(&user.Data.ContactBase, member.ContactBase(), spaceMember, nil)
 		if user.Data.Gender == "" {
 			user.Data.Gender = "unknown"
 		}
 		if user.Data.CountryID == "" {
 			user.Data.CountryID = with.UnknownCountryID
 		}
-		if len(member.Data.Emails) > 0 {
-			user.Data.Emails = member.Data.Emails
+		if len(member.Emails()) > 0 {
+			user.Data.Emails = member.Emails()
 		}
-		if len(member.Data.Phones) > 0 {
-			user.Data.Phones = member.Data.Phones
+		if len(member.Phones()) > 0 {
+			user.Data.Phones = member.Phones()
 		}
 		if err = user.Data.Validate(); err != nil {
 			return fmt.Errorf("user record prepared for insert is not valid: %w", err)

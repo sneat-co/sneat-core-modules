@@ -53,7 +53,15 @@ behavior they need; contactus provides + registers the implementation at init; r
 - **linkage** — 0 back-edges (prod + test; test uses local fakes).
 - **auth** test regression fixed (registers a fake contributor; stays contactus-free).
 
-**DEFERRED — invitus (7 files), separate follow-up:**
+**DONE (follow-up branch `refactor/b1-invitus-cycle-break`) — invitus, accessor inversion:**
+invitus now imports zero contactus-module packages (incl. tests). All 4 modules at 0 back-edges →
+**module cycle fully broken.** Approach: `facade4invitus` owns `ContactusAccess` (+ `SpaceContactsSession`,
+`ContactSession`, `MemberContact`, local `ContactRequest`) registered by `contactus.Extension()`;
+impl `contactus/invitus_contributor.go` adapts the contactus workers/DBOs. invitus keeps owning each
+transaction (one worker callback per op) so claim/join/create atomicity is preserved. Write-only
+response fields `Contact`/`ContactusSpace` dropped (no readers). `go build`/`go test ./...` green.
+
+**(historical) DEFERRED — invitus (7 files), separate follow-up:**
 `claim_personal_invite.go`, `join_space.go`, `create_invite_to_contact.go`, `get_personal_invite.go`,
 `join_info.go`, `create_invite_response.go`, `claim_personal_invite_test.go`.
 

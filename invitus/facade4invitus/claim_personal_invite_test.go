@@ -8,13 +8,13 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/mocks/mock_dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/stretchr/testify/assert"
@@ -22,6 +22,147 @@ import (
 	"github.com/strongo/strongoapp/with"
 	"go.uber.org/mock/gomock"
 )
+
+// fakeMemberContact is a contactus-free test double for MemberContact.
+type fakeMemberContact struct {
+	id          string
+	key         *dal.Key
+	record      dal.Record
+	contactBase *briefs4contactus.ContactBase
+	emails      map[string]*with.CommunicationChannelProps
+	phones      map[string]*with.CommunicationChannelProps
+}
+
+func newFakeMemberContact(id string) *fakeMemberContact {
+	return &fakeMemberContact{
+		id:          id,
+		key:         dal.NewKeyWithID("contacts", id),
+		contactBase: &briefs4contactus.ContactBase{},
+	}
+}
+
+func (m *fakeMemberContact) ID() string                                 { return m.id }
+func (m *fakeMemberContact) Key() *dal.Key                              { return m.key }
+func (m *fakeMemberContact) Record() dal.Record                         { return m.record }
+func (m *fakeMemberContact) ContactBase() *briefs4contactus.ContactBase { return m.contactBase }
+func (m *fakeMemberContact) Emails() map[string]*with.CommunicationChannelProps {
+	return m.emails
+}
+func (m *fakeMemberContact) Phones() map[string]*with.CommunicationChannelProps {
+	return m.phones
+}
+
+// fakeSpaceContactsSession is a contactus-free test double for SpaceContactsSession.
+type fakeSpaceContactsSession struct {
+	space              dbo4spaceus.SpaceEntry
+	contacts           map[string]*briefs4contactus.ContactBrief
+	moduleUserIDs      []string
+	spaceModuleUpdates []update.Update
+	spaceUpdates       []update.Update
+}
+
+func (s *fakeSpaceContactsSession) Space() dbo4spaceus.SpaceEntry { return s.space }
+
+func (s *fakeSpaceContactsSession) Contacts() map[string]*briefs4contactus.ContactBrief {
+	return s.contacts
+}
+
+func (s *fakeSpaceContactsSession) GetContactBriefByUserID(userID string) (id string, brief *briefs4contactus.ContactBrief) {
+	for cid, c := range s.contacts {
+		if c.UserID == userID {
+			return cid, c
+		}
+	}
+	return "", nil
+}
+
+func (s *fakeSpaceContactsSession) AddContact(contactID string, brief *briefs4contactus.ContactBrief) {
+	if s.contacts == nil {
+		s.contacts = make(map[string]*briefs4contactus.ContactBrief)
+	}
+	s.contacts[contactID] = brief
+}
+
+func (s *fakeSpaceContactsSession) AddSpaceModuleUserID(userID string) []update.Update {
+	if !slices.Contains(s.moduleUserIDs, userID) {
+		s.moduleUserIDs = append(s.moduleUserIDs, userID)
+	}
+	return []update.Update{update.ByFieldName("userIDs", s.moduleUserIDs)}
+}
+
+func (s *fakeSpaceContactsSession) SpaceModuleUserIDs() []string { return s.moduleUserIDs }
+
+func (s *fakeSpaceContactsSession) SpaceModuleRecordExists() bool { return false }
+
+func (s *fakeSpaceContactsSession) SpaceModuleKey() *dal.Key { return nil }
+
+func (s *fakeSpaceContactsSession) SpaceModuleRecordError() error { return nil }
+
+func (s *fakeSpaceContactsSession) AppendSpaceModuleUpdates(updates ...update.Update) {
+	s.spaceModuleUpdates = append(s.spaceModuleUpdates, updates...)
+}
+
+func (s *fakeSpaceContactsSession) AppendSpaceUpdates(updates ...update.Update) {
+	s.spaceUpdates = append(s.spaceUpdates, updates...)
+}
+
+func (s *fakeSpaceContactsSession) GetRecords(_ context.Context, _ dal.ReadSession, _ ...dal.Record) error {
+	return nil
+}
+
+func (s *fakeSpaceContactsSession) NewMemberContact(contactID string) MemberContact {
+	return newFakeMemberContact(contactID)
+}
+
+func (s *fakeSpaceContactsSession) LoadMemberContact(_ context.Context, _ dal.ReadSession, contactID string) (MemberContact, error) {
+	return newFakeMemberContact(contactID), nil
+}
+
+// fakeContactusAccess is a contactus-free test double for ContactusAccess.
+// It validates the space request (mirroring the real worker) so invitus flows
+// surface request errors without importing the contactus module.
+type fakeContactusAccess struct{}
+
+func (fakeContactusAccess) RunSpaceContactsTx(
+	_ facade.ContextWithUser,
+	request dto4spaceus.SpaceRequest,
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, session SpaceContactsSession) error,
+) error {
+	_ = worker
+	return request.Validate()
+}
+
+func (fakeContactusAccess) RunReadonlySpaceContactsTx(
+	_ context.Context,
+	_ facade.UserContext,
+	request dto4spaceus.SpaceRequest,
+	worker func(ctx context.Context, tx dal.ReadTransaction, session SpaceContactsSession) error,
+) error {
+	_ = worker
+	return request.Validate()
+}
+
+func (fakeContactusAccess) RunContactTx(
+	_ facade.ContextWithUser,
+	request ContactRequest,
+	worker func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, session ContactSession) error,
+) error {
+	_ = worker
+	return request.Validate()
+}
+
+func (fakeContactusAccess) GetSpaceMemberContactBrief(
+	_ context.Context,
+	_ dal.ReadSession,
+	_ coretypes.SpaceID,
+	_ string,
+) (*briefs4contactus.ContactBrief, error) {
+	return &briefs4contactus.ContactBrief{}, nil
+}
+
+func init() {
+	RegisterContactusAccess(fakeContactusAccess{})
+}
 
 func TestAcceptPersonalInvite(t *testing.T) {
 	type args struct {
@@ -160,9 +301,9 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 				tx.EXPECT().Insert(gomock.Any(), tt.args.user.Record).Return(nil)
 			}
 			now := time.Now()
-			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.user.ID), tt.args.space.ID)
-			var member dal4contactus.ContactEntry
-			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, member, params, tt.args.spaceMember.Data, tt.args.invite); err != nil {
+			session := &fakeSpaceContactsSession{space: tt.args.space}
+			member := newFakeMemberContact("test_member_id")
+			if err := createOrUpdateUserRecord(ctx, tx, now, tt.args.user, tt.args.request, member, session, tt.args.spaceMember.Data, tt.args.invite); err != nil {
 				if !tt.wantErr {
 					t.Errorf("createOrUpdateUserRecord() error = %v, wantErr %v", err, tt.wantErr)
 				}
@@ -170,7 +311,7 @@ func Test_createOrUpdateUserRecord(t *testing.T) {
 			}
 			userDto := tt.args.user.Data
 			assert.Equal(t, now, userDto.CreatedAt, "CreatedAt")
-			assert.Equal(t, member.Data.Gender, userDto.Gender, "Gender")
+			assert.Equal(t, member.ContactBase().Gender, userDto.Gender, "Gender")
 			assert.Equal(t, 1, len(userDto.Spaces), "len(Spaces)")
 			assert.Equal(t, 1, len(userDto.SpaceIDs), "len(SpaceIDs)")
 			assert.True(t, slices.Contains(userDto.SpaceIDs, string(tt.args.request.SpaceID)), "SpaceIDs contains tt.args.request.SpaceID")
@@ -254,11 +395,10 @@ func Test_updateInviteRecord(t *testing.T) {
 
 func Test_updateSpaceRecord(t *testing.T) {
 	type args struct {
-		uid            string
-		memberID       string
-		space          dbo4spaceus.SpaceEntry
-		contactusSpace dal4contactus.ContactusSpaceEntry
-		requestMember  dbmodels.DtoWithID[*briefs4contactus.ContactBase]
+		uid           string
+		memberID      string
+		space         dbo4spaceus.SpaceEntry
+		requestMember dbmodels.DtoWithID[*briefs4contactus.ContactBase]
 	}
 	testMember := dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 		ID:   "test_member_id1",
@@ -283,17 +423,6 @@ func Test_updateSpaceRecord(t *testing.T) {
 						Title: "Family",
 					},
 				}),
-				contactusSpace: dal4contactus.NewContactusSpaceEntryWithData("testspaceid", &dbo4contactus.ContactusSpaceDbo{
-					WithSingleSpaceContactsWithoutContactIDs: briefs4contactus.WithSingleSpaceContactsWithoutContactIDs[*briefs4contactus.ContactBrief]{
-						WithContactsBase: briefs4contactus.WithContactsBase[*briefs4contactus.ContactBrief]{
-							WithContactBriefs: briefs4contactus.WithContactBriefs[*briefs4contactus.ContactBrief]{
-								Contacts: map[string]*briefs4contactus.ContactBrief{
-									testMember.ID: &testMember.Data.ContactBrief,
-								},
-							},
-						},
-					},
-				}),
 				requestMember: dbmodels.DtoWithID[*briefs4contactus.ContactBase]{
 					ID: testMember.ID,
 					Data: &briefs4contactus.ContactBase{
@@ -311,25 +440,17 @@ func Test_updateSpaceRecord(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			//mockCtrl := gomock.NewController(t)
-			//tx := mock_dal.NewMockReadwriteTransaction(mockCtrl)
-			//tx.EXPECT().Update(gomock.Any(), tt.args.space.Key, gomock.Any()).Return(nil)
-			//tx.EXPECT().Update(gomock.Any(), tt.args.contactusSpace.Key, gomock.Any()).Return(nil)
-			tt.args.contactusSpace.Record.SetError(tt.spaceRecordErr)
-			params := dal4contactus.NewContactusSpaceWorkerParams(facade.NewUserContext(tt.args.uid), tt.args.space.ID)
-			params.SpaceModuleEntry.Data.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
-			params.SpaceModuleEntry.Data.AddUserID(tt.args.uid)
-			params.Space.Data.AddUserID(tt.args.uid)
-			member := dal4contactus.NewContactEntry(tt.args.space.ID, "member1")
-			gotSpaceMember, err := updateContactusSpaceRecord(tt.args.uid, tt.args.memberID, params, member)
+			session := &fakeSpaceContactsSession{space: tt.args.space}
+			session.AddContact(tt.args.memberID, &tt.args.requestMember.Data.ContactBrief)
+			session.AddSpaceModuleUserID(tt.args.uid)
+			session.space.Data.AddUserID(tt.args.uid)
+			member := newFakeMemberContact("member1")
+			gotSpaceMember, err := updateContactusSpaceRecord(tt.args.uid, tt.args.memberID, session, member)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("updateSpaceRecord() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			assert.NotNil(t, gotSpaceMember, "gotSpaceMember is nil")
-			//if !reflect.DeepEqual(gotSpaceMember, tt.wantSpaceMember) {
-			//	t.Errorf("updateSpaceRecord() gotSpaceMember = %v, want %v", gotSpaceMember, tt.wantSpaceMember)
-			//}
 		})
 	}
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 
@@ -51,8 +50,8 @@ func JoinSpace(ctx facade.ContextWithUser, request JoinSpaceRequest) (space *dbo
 	}
 
 	// We intentionally do not use space worker to query both space & user records in parallel
-	err = dal4contactus.RunContactusSpaceWorker(ctx, request.SpaceRequest,
-		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, params *dal4contactus.ContactusSpaceWorkerParams) error {
+	err = contactusAccess.RunSpaceContactsTx(ctx, request.SpaceRequest,
+		func(ctx facade.ContextWithUser, tx dal.ReadwriteTransaction, session SpaceContactsSession) error {
 
 			uid := ctx.User().GetUserID()
 			userKey := dbo4userus.NewUserKey(uid)
@@ -63,7 +62,7 @@ func JoinSpace(ctx facade.ContextWithUser, request JoinSpaceRequest) (space *dbo
 			inviteDto := new(dbo4invitus.InviteDbo)
 			inviteRecord := dal.NewRecordWithData(inviteKey, inviteDto)
 
-			if err = params.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
+			if err = session.GetRecords(ctx, tx, userRecord, inviteRecord); err != nil {
 				return fmt.Errorf("failed to get some records from DB by ContactID: %w", err)
 			}
 
@@ -96,19 +95,19 @@ func JoinSpace(ctx facade.ContextWithUser, request JoinSpaceRequest) (space *dbo
 			//	}
 			//}
 
-			member := dal4contactus.NewContactEntry(inviteDto.SpaceID, inviteDto.To.ContactID)
-			if err = tx.Get(ctx, member.Record); err != nil {
+			member := session.NewMemberContact(inviteDto.To.ContactID)
+			if err = tx.Get(ctx, member.Record()); err != nil {
 				return fmt.Errorf("failed to get member record: %w", err)
 			}
 
-			member.Data.UserID = uid
+			member.ContactBase().UserID = uid
 			memberUpdates := []update.Update{update.ByFieldName("userID", uid)}
-			if err = tx.Update(ctx, member.Key, memberUpdates); err != nil {
+			if err = tx.Update(ctx, member.Key(), memberUpdates); err != nil {
 				return fmt.Errorf("failed to update member record")
 			}
 
 			if err = onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
-				ctx, tx, params, inviteDto.From.ContactID, member, uid, userDto,
+				ctx, tx, session, inviteDto.From.ContactID, member, uid, userDto,
 			); err != nil {
 				return err
 			}
@@ -175,7 +174,7 @@ func onJoinAddSpaceToUser(
 	userRecord dal.Record,
 	spaceID coretypes.SpaceID,
 	space *dbo4spaceus.SpaceDbo,
-	member dal4contactus.ContactEntry,
+	member MemberContact,
 ) (err error) {
 	var updates []update.Update
 	if userDto == nil {
@@ -191,13 +190,13 @@ func onJoinAddSpaceToUser(
 	if spaceInfo == nil {
 		spaceInfo = &dbo4userus.UserSpaceBrief{
 			SpaceBrief: space.SpaceBrief,
-			Roles:      member.Data.Roles,
+			Roles:      member.ContactBase().Roles,
 			//MemberType:   "", // TODO: populate?
 		}
 		userDto.Spaces[string(spaceID)] = spaceInfo
 		userDto.SpaceIDs = append(userDto.SpaceIDs, string(spaceID))
 	} else {
-		for _, role := range member.Data.Roles {
+		for _, role := range member.ContactBase().Roles {
 			hasRole := spaceInfo.HasRole(role)
 			if spaceInfo.Title == space.Title && hasRole {
 				return // no changes
@@ -232,9 +231,9 @@ func onJoinAddSpaceToUser(
 func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	_ context.Context,
 	_ dal.ReadwriteTransaction,
-	params *dal4contactus.ContactusSpaceWorkerParams,
+	session SpaceContactsSession,
 	inviterMemberID string,
-	member dal4contactus.ContactEntry,
+	member MemberContact,
 	uid string,
 	user *dbo4userus.UserDbo,
 ) (err error) {
@@ -242,20 +241,20 @@ func onJoinUpdateMemberBriefInSpaceOrAddIfMissing(
 	if strings.TrimSpace(uid) == "" {
 		panic("missing required parameter 'uid'")
 	}
-	if strings.TrimSpace(member.Data.UserID) == "" {
+	if strings.TrimSpace(member.ContactBase().UserID) == "" {
 		return validation.NewErrBadRecordFieldValue("userID", "joining member should have populated field 'userID'")
 	}
-	if member.Data.UserID != uid {
-		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ContactID as current user, got: {uid=%s, member.Data.UserID=%s}", uid, member.Data.UserID))
+	if member.ContactBase().UserID != uid {
+		return validation.NewErrBadRecordFieldValue("userID", fmt.Sprintf("joining member should have same user ContactID as current user, got: {uid=%s, member.Data.UserID=%s}", uid, member.ContactBase().UserID))
 	}
 	//updates = make([]update.Update, 0, 2)
-	for _, userID := range params.SpaceModuleEntry.Data.UserIDs {
+	for _, userID := range session.SpaceModuleUserIDs() {
 		if userID == uid {
 			goto UserIdAddedToUserIDsField
 		}
 	}
 
-	_ = params.Space.Data.AddUserID(uid)
+	_ = session.Space().Data.AddUserID(uid)
 	//if u, ok := params.SpaceID.Data.AddUserID(uid); ok {
 	//	updates = append(updates, u)
 	//}
@@ -266,8 +265,8 @@ UserIdAddedToUserIDsField:
 
 	var isValidInviter bool
 
-	for mID, m := range params.SpaceModuleEntry.Data.Contacts {
-		if mID == member.ID {
+	for mID, m := range session.Contacts() {
+		if mID == member.ID() {
 			memberBrief = m
 			goto MemberAdded
 		} else if m.UserID == uid {
@@ -285,7 +284,7 @@ UserIdAddedToUserIDsField:
 		Title:  user.Names.GetFullName(),
 		Avatar: user.Avatar,
 		RolesField: with.RolesField{
-			Roles: member.Data.Roles,
+			Roles: member.ContactBase().Roles,
 		},
 		//Emails: user.Emails,
 		//Invites: []briefs4memberus.MemberInvite{
@@ -297,7 +296,7 @@ UserIdAddedToUserIDsField:
 		//	},
 		//},
 	}
-	params.SpaceModuleEntry.Data.AddContact(member.ID, memberBrief)
+	session.AddContact(member.ID(), memberBrief)
 MemberAdded:
 	switch memberBrief.UserID {
 	case "":
