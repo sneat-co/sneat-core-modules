@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"

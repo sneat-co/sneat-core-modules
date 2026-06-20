@@ -3,7 +3,7 @@ package contactus
 import (
 	"testing"
 
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-go-core/extension"
 )
 

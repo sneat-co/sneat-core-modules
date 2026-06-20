@@ -9,7 +9,7 @@ import (
 
 	"github.com/bots-go-framework/bots-fw-store/botsfwmodels"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/core/coremodels"
 	"github.com/sneat-co/sneat-core-modules/userus/const4userus"
 	"github.com/sneat-co/sneat-core-modules/wallet/dbo4wallet"

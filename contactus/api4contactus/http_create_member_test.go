@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"

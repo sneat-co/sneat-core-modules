@@ -11,8 +11,7 @@ import (
 	"github.com/dal-go/dalgo/record"
 	"github.com/dal-go/dalgo/update"
 	"github.com/gosimple/slug"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dal4userus"
@@ -27,11 +26,9 @@ import (
 
 // CreateSpaceParams is a result of CreateSpace
 type CreateSpaceParams struct {
-	UserUpdates    []update.Update
-	User           dbo4userus.UserEntry
-	Space          dbo4spaceus.SpaceEntry
-	ContactusSpace dal4contactus.ContactusSpaceEntry
-	Member         dal4contactus.ContactEntry
+	UserUpdates []update.Update
+	User        dbo4userus.UserEntry
+	Space       dbo4spaceus.SpaceEntry
 	*record.WithRecordChanges
 }
 
@@ -78,8 +75,7 @@ func CreateSpaceTxWorker(
 		params.Space.ID, _ = params.User.Data.GetFirstSpaceBriefBySpaceType(request.Type)
 		if params.Space.ID != "" {
 			params.Space = dbo4spaceus.NewSpaceEntry(params.Space.ID)
-			params.ContactusSpace = dal4contactus.NewContactusSpaceEntry(params.Space.ID)
-			err = tx.GetMulti(ctx, []dal.Record{params.Space.Record, params.ContactusSpace.Record})
+			err = tx.Get(ctx, params.Space.Record)
 			return
 		}
 	}
@@ -154,8 +150,6 @@ func CreateSpaceTxWorker(
 
 	params.Space = dbo4spaceus.NewSpaceEntryWithDbo(spaceID, params.Space.Data)
 
-	params.ContactusSpace = dal4contactus.NewContactusSpaceEntry(spaceID)
-
 	spaceContactBrief := params.User.Data.ContactBrief // This should copy data from user's contact brief as it's not a pointer
 	spaceContactBrief.Joined = true
 
@@ -178,15 +172,6 @@ func CreateSpaceTxWorker(
 	if params.User.Data.Defaults != nil && len(params.User.Data.Defaults.ShortNames) > 0 {
 		spaceContactBrief.ShortTitle = params.User.Data.Defaults.ShortNames[0].Name
 	}
-	params.ContactusSpace.Data.AddContact(userSpaceContactID, &spaceContactBrief)
-	if err = params.ContactusSpace.Data.Validate(); err != nil {
-		err = fmt.Errorf("newly created contactus space record is not valid: %w", err)
-		return
-	}
-	params.ContactusSpace.Record.MarkAsChanged()
-	params.ContactusSpace.Record.SetError(nil)
-	params.QueueForInsert(params.ContactusSpace.Record)
-
 	params.UserUpdates = append(params.UserUpdates, updateUserWithSpaceBrief(params.User, spaceID, userSpaceContactID, params.Space.Data.SpaceBrief, roles)...)
 
 	if err = params.User.Data.Validate(); err != nil {
@@ -195,11 +180,16 @@ func CreateSpaceTxWorker(
 	}
 	params.User.Record.MarkAsChanged()
 
-	if params.Member, err = NewMemberContactEntryFromContactBrief(spaceID, userSpaceContactID, spaceContactBrief, createdAt, params.User.ID); err != nil {
-		err = fmt.Errorf("failed to create member's record: %w", err)
-		return
+	if contactusSpaceContributor == nil {
+		return errors.New("contactus space contributor is not registered")
 	}
-	params.QueueForInsert(params.Member.Record)
+	contactusRecords, err := contactusSpaceContributor.BuildSpaceCreationRecords(spaceID, userSpaceContactID, spaceContactBrief, createdAt, params.User.ID)
+	if err != nil {
+		return fmt.Errorf("failed to build contactus records for new space: %w", err)
+	}
+	for _, rec := range contactusRecords {
+		params.QueueForInsert(rec)
+	}
 
 	if err = params.Space.Data.Validate(); err != nil {
 		params.Space.Record.SetError(err)

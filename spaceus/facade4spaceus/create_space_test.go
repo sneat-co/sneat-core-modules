@@ -4,10 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"time"
+
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/mocks/mock_dal"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
@@ -84,14 +86,18 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 
 	t.Run("error on bad request", func(t *testing.T) {
 		setupMockDb(0)
+		fakeContributor := &fakeContactusSpaceContributor{}
+		RegisterContactusSpaceContributor(fakeContributor)
 		result, err := CreateSpace(ctxWithUser, dto4spaceus.CreateSpaceRequest{})
 		assert.Error(t, err)
 		assert.Equal(t, coretypes.SpaceID(""), result.Space.ID)
-		assert.Equal(t, coretypes.ExtID(""), result.ContactusSpace.ID)
+		assert.False(t, fakeContributor.called)
 	})
 
 	t.Run("user's 1st space", func(t *testing.T) {
 		setupMockDb(1)
+		fakeContributor := &fakeContactusSpaceContributor{}
+		RegisterContactusSpaceContributor(fakeContributor)
 
 		result, err := CreateSpace(ctxWithUser, dto4spaceus.CreateSpaceRequest{Type: coretypes.SpaceTypeFamily})
 		assert.Nil(t, err)
@@ -100,9 +106,32 @@ func TestCreateSpace(t *testing.T) { // TODO: Implement unit tests
 		assert.Nil(t, result.Space.Data.Validate())
 		assert.Equal(t, 1, len(result.Space.Data.UserIDs))
 		assert.Equal(t, 1, result.Space.Data.Version)
-		assert.Equal(t, coretypes.ExtID("contactus"), result.ContactusSpace.ID)
+		assert.True(t, fakeContributor.called)
+		assert.Equal(t, result.Space.ID, fakeContributor.gotSpaceID)
 	})
 
+}
+
+// fakeContactusSpaceContributor is a test double for ContactusSpaceContributor so that
+// spaceus tests stay decoupled from the contactus module.
+type fakeContactusSpaceContributor struct {
+	called     bool
+	gotSpaceID coretypes.SpaceID
+}
+
+func (f *fakeContactusSpaceContributor) BuildSpaceCreationRecords(
+	spaceID coretypes.SpaceID,
+	_ string,
+	_ briefs4contactus.ContactBrief,
+	_ time.Time,
+	_ string,
+) ([]dal.Record, error) {
+	f.called = true
+	f.gotSpaceID = spaceID
+	rec := dal.NewRecordWithData(dal.NewKeyWithID("contactus", "contactus"), &struct{}{})
+	rec.MarkAsChanged()
+	rec.SetError(nil)
+	return []dal.Record{rec}, nil
 }
 
 func Test_getUniqueSpaceID(t *testing.T) {

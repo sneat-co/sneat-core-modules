@@ -8,7 +8,7 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/mocks/mock_dal"
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dbo4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"

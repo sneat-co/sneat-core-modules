@@ -8,8 +8,8 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"

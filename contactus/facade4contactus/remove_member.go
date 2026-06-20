@@ -5,7 +5,7 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
 	"github.com/sneat-co/sneat-core-modules/contactus/dto4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"

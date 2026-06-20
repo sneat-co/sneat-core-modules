@@ -3,10 +3,14 @@ package facade4auth
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/mocks/mock_dal"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/spaceus/facade4spaceus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
+	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/dto4auth"
 	"github.com/sneat-co/sneat-go-core/facade"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
@@ -16,6 +20,23 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"go.uber.org/mock/gomock"
 )
+
+// fakeContactusSpaceContributor is a test double so auth tests that create default
+// spaces do not depend on the contactus module (cycle-break).
+type fakeContactusSpaceContributor struct{}
+
+func (fakeContactusSpaceContributor) BuildSpaceCreationRecords(
+	spaceID coretypes.SpaceID,
+	_ string,
+	_ briefs4contactus.ContactBrief,
+	_ time.Time,
+	_ string,
+) ([]dal.Record, error) {
+	rec := dal.NewRecordWithData(dal.NewKeyWithID("contactus", "contactus_"+string(spaceID)), &struct{}{})
+	rec.MarkAsChanged()
+	rec.SetError(nil)
+	return []dal.Record{rec}, nil
+}
 
 func Test_InitUserRecord(t *testing.T) {
 	ctx := context.Background()
@@ -85,6 +106,7 @@ func Test_InitUserRecord(t *testing.T) {
 				}
 				return
 			}
+			facade4spaceus.RegisterContactusSpaceContributor(fakeContactusSpaceContributor{})
 			// SETUP MOCKS ENDS
 
 			// TEST CALL BEGINS
