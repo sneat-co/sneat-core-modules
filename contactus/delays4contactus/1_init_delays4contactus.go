@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/sneat-co/sneat-core-modules/contactus/const4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
 	"github.com/strongo/delaying"
 )
 

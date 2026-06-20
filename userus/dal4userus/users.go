@@ -7,9 +7,15 @@ import (
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
-	"github.com/sneat-co/sneat-core-modules/contactus/dal4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/userus/dbo4userus"
 )
+
+// contactusSpaceContactsReader is the subset of the contactus space module data that
+// GetUserSpaceContactID needs, defined here so userus does not depend on contactus DAL types.
+type contactusSpaceContactsReader interface {
+	GetContactBriefByUserID(userID string) (string, *briefs4contactus.ContactBrief)
+}
 
 // TxUpdateUser update user record
 var TxUpdateUser = func(
@@ -40,9 +46,9 @@ func TxGetUsers(ctx context.Context, tx dal.ReadwriteTransaction, users []dal.Re
 	return tx.GetMulti(ctx, users)
 }
 
-func GetUserSpaceContactID(ctx context.Context, tx dal.ReadSession, userID string, contactusSpaceEntry dal4contactus.ContactusSpaceEntry) (userContactID string, err error) {
+func GetUserSpaceContactID(ctx context.Context, tx dal.ReadSession, userID string, spaceID string, spaceContacts contactusSpaceContactsReader) (userContactID string, err error) {
 
-	userContactID, _ = contactusSpaceEntry.Data.GetContactBriefByUserID(userID)
+	userContactID, _ = spaceContacts.GetContactBriefByUserID(userID)
 
 	if userContactID != "" {
 		return userContactID, nil
@@ -53,8 +59,6 @@ func GetUserSpaceContactID(ctx context.Context, tx dal.ReadSession, userID strin
 	if err = GetUser(ctx, tx, user); err != nil || !user.Record.Exists() {
 		return "", err
 	}
-
-	spaceID := contactusSpaceEntry.Key.Parent().ID.(string)
 
 	userSpaceBrief := user.Data.Spaces[spaceID]
 

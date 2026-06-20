@@ -1,13 +1,37 @@
 package api4spaceus
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/sneat-co/sneat-core-modules/contactus/facade4contactus"
 	"github.com/sneat-co/sneat-go-core/apicore"
 	"github.com/sneat-co/sneat-go-core/apicore/verify"
+	"github.com/sneat-co/sneat-go-core/facade"
+	"github.com/strongo/validation"
 )
+
+// refuseToJoinSpaceRequest request
+type refuseToJoinSpaceRequest struct {
+	SpaceID string `json:"id"`
+	Pin     int32  `json:"pin"`
+}
+
+// Validate validates request
+func (v *refuseToJoinSpaceRequest) Validate() error {
+	if v.SpaceID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("space")
+	}
+	return nil
+}
+
+// refuseToJoinSpace refuses to join space
+func refuseToJoinSpace(_ facade.ContextWithUser, request refuseToJoinSpaceRequest) (err error) {
+	if err = request.Validate(); err != nil {
+		return
+	}
+	return errors.New("not implemented")
+}
 
 // httpPostRefuseToJoinSpace an API endpoint that records user refusal to join a space
 func httpPostRefuseToJoinSpace(w http.ResponseWriter, r *http.Request) {
@@ -22,10 +46,10 @@ func httpPostRefuseToJoinSpace(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("pin is expected to be an integer"))
 		return
 	}
-	request := facade4contactus.RefuseToJoinSpaceRequest{
+	request := refuseToJoinSpaceRequest{
 		SpaceID: q.Get("id"),
 		Pin:     int32(pin),
 	}
-	err = facade4contactus.RefuseToJoinSpace(ctx, request)
+	err = refuseToJoinSpace(ctx, request)
 	apicore.IfNoErrorReturnOK(ctx, w, r, err)
 }

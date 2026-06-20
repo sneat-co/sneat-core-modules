@@ -1,7 +1,7 @@
 package dbo4contactus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 )
 
 type ContactusSpaceDbo struct {

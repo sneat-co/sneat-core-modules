@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sneat-co/sneat-core-modules/contactus/briefs4contactus"
+	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-go-core/models/dbmodels"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
