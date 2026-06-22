@@ -9,22 +9,22 @@ go 1.25.0
 //replace github.com/dal-go/dalgo => ../../dal-go/dalgo
 
 require (
-	github.com/bots-go-framework/bots-fw-store v0.10.3
+	github.com/bots-go-framework/bots-fw-store v0.10.5
 	github.com/crediterra/money v0.3.1
-	github.com/dal-go/dalgo v0.62.2
+	github.com/dal-go/dalgo v0.62.7
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
-	github.com/sneat-co/sneat-go-core v0.55.3
+	github.com/sneat-co/sneat-go-core v0.55.6
 	github.com/stretchr/testify v1.11.1
-	github.com/strongo/delaying v0.2.1
+	github.com/strongo/delaying v0.2.2
 	github.com/strongo/facebook v1.8.1
-	github.com/strongo/i18n v0.8.12
+	github.com/strongo/i18n v0.8.13
 	github.com/strongo/logus v0.4.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.5
-	github.com/strongo/strongoapp v0.31.36
-	github.com/strongo/validation v0.0.8
+	github.com/strongo/strongoapp v0.31.39
+	github.com/strongo/validation v0.0.9
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.53.0
 )
