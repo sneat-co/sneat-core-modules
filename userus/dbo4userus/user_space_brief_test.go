@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sneat-co/sneat-core-modules/contactusmodels/const4contactus"
+	"github.com/sneat-co/contactus-ext/backend/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dbo4spaceus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 )

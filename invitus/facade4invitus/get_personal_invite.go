@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dal-go/dalgo/dal"
-	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
+	"github.com/sneat-co/contactus-ext/backend/contactusmodels/briefs4contactus"
 	"github.com/sneat-co/sneat-core-modules/invitus/dbo4invitus"
 	"github.com/sneat-co/sneat-core-modules/spaceus/dto4spaceus"
 	"github.com/sneat-co/sneat-go-core/facade"

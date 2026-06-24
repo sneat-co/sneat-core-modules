@@ -1,7 +1,7 @@
 package dbo4userus
 
 import (
-	"github.com/sneat-co/sneat-core-modules/contactusmodels/briefs4contactus"
+	"github.com/sneat-co/contactus-ext/backend/contactusmodels/briefs4contactus"
 )
 
 // UsersCollection a name of the user's db table
