@@ -11,7 +11,7 @@ go 1.25.0
 require (
 	github.com/bots-go-framework/bots-fw-store v0.10.5
 	github.com/crediterra/money v0.3.1
-	github.com/dal-go/dalgo v0.62.7
+	github.com/dal-go/dalgo v0.62.8
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gosimple/slug v1.15.0
 	github.com/pquerna/ffjson v0.0.0-20190930134022-aa0246cd15f7
