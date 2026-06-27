@@ -21,6 +21,9 @@ func (request *CreateSpaceRequest) Validate() error {
 	if strings.TrimSpace(string(request.Type)) == "" {
 		return validation.NewErrRecordIsMissingRequiredField("type")
 	}
+	if request.Type == coretypes.SpaceTypeSystem {
+		return validation.NewErrBadRequestFieldValue("type", "system spaces are provisioned by the platform only")
+	}
 	if request.Type != coretypes.SpaceTypeFamily &&
 		request.Type != coretypes.SpaceTypePrivate &&
 		strings.TrimSpace(request.Title) == "" {
