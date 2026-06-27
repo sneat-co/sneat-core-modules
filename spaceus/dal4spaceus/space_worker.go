@@ -78,7 +78,10 @@ func (v SpaceWorkerParams) GetRecords(ctx context.Context, tx dal.MultiGetter, r
 		if !v.Space.Record.Exists() {
 			return errors.New("space record does not exist")
 		}
-		if !slices.Contains(v.Space.Data.UserIDs, userID) {
+		// System spaces are not gated by membership: any authenticated user may
+		// access records (per-record authorization is delegated to the owning
+		// extension), and reads are public.
+		if v.Space.Data.Type != coretypes.SpaceTypeSystem && !slices.Contains(v.Space.Data.UserIDs, userID) {
 			return fmt.Errorf("%w: space record has no current userID in UserIDs field: %s", facade.ErrUnauthorized, userID)
 		}
 	}

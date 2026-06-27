@@ -41,6 +41,8 @@ github.com/sneat-co/contactus-ext/backend v0.1.0 h1:b5C8+gxOoyxAzEilMZaQ/LXTtgdy
 github.com/sneat-co/contactus-ext/backend v0.1.0/go.mod h1:B6Ivk2AM/KCpLPIZpdMwjam9vYRYRXDie0mFCeessEM=
 github.com/sneat-co/sneat-go-core v0.55.6 h1:8Tg+vCJMl9YCYUj9ltTZ++yg0XnlNF7z0HfdQBt8K+Q=
 github.com/sneat-co/sneat-go-core v0.55.6/go.mod h1:da7Yy6qj4QMs+PkeK+tr0Y7Eyw2A6hd7cKpLg8+N4Tk=
+github.com/sneat-co/sneat-go-core v0.57.0 h1:fZyXx1GIPMHBZboIbfawGOtfuAuQVqtBgeerN6eV7oE=
+github.com/sneat-co/sneat-go-core v0.57.0/go.mod h1:da7Yy6qj4QMs+PkeK+tr0Y7Eyw2A6hd7cKpLg8+N4Tk=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=

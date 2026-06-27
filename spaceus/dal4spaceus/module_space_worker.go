@@ -138,7 +138,14 @@ func RunModuleSpaceWorkerWithUserCtx[D SpaceModuleDbo](
 	if err = db.Get(ctx, spaceWorkerParams.Space.Record); err != nil {
 		return fmt.Errorf("failed to get space record outside of transaction: %w", err)
 	}
-	if userID := spaceWorkerParams.UserID(); userID != "" {
+	if spaceWorkerParams.Space.Data.Type == coretypes.SpaceTypeSystem {
+		// System spaces accept writes from any authenticated user (membership is
+		// not required); per-record authorization is delegated to the owning
+		// extension. Unauthenticated writes are rejected.
+		if spaceWorkerParams.UserID() == "" {
+			return fmt.Errorf("%w: authentication is required to write to a system space", facade.ErrUnauthorized)
+		}
+	} else if userID := spaceWorkerParams.UserID(); userID != "" {
 		if !slices.Contains(spaceWorkerParams.Space.Data.UserIDs, userID) {
 			return fmt.Errorf("%w: user is not a member of the space", facade.ErrUnauthorized)
 		}
