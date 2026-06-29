@@ -156,7 +156,12 @@ func ValidateRelatedAndRelatedIDs(withRelated WithRelated, relatedIDs []string) 
 			}
 
 			if _, ok := relatedItems[relatedRef.ItemID]; !ok {
-				itemID := relatedRef.ItemID[:strings.Index(relatedRef.ItemID, SpaceItemIDSeparator)]
+				// Strip the optional "@{spaceID}" suffix to recover the bare
+				// itemID. Absence of "@" means the system namespace (no space).
+				itemID := relatedRef.ItemID
+				if sep := strings.Index(itemID, SpaceItemIDSeparator); sep >= 0 {
+					itemID = itemID[:sep]
+				}
 				if _, ok = relatedItems[itemID]; !ok {
 					return validation.NewErrBadRecordFieldValue(
 						fmt.Sprintf("relatedIDs[%d]", i),

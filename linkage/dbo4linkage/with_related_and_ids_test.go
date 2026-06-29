@@ -1,6 +1,7 @@
 package dbo4linkage
 
 import (
+	"net/url"
 	"reflect"
 	"slices"
 	"testing"
@@ -9,6 +10,40 @@ import (
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 )
+
+// TestNewItemRefFromQueryString_BothShapes verifies that the presence of the
+// "s" (space) query parameter is the sole discriminator (sneat-specs Decision
+// 0002): when present, the itemID carries an "@{spaceID}" suffix (space-bound);
+// when absent, the itemID stays bare (spaceless system namespace).
+func TestNewItemRefFromQueryString_BothShapes(t *testing.T) {
+	tests := []struct {
+		name       string
+		values     url.Values
+		wantItemID string
+	}{
+		{
+			name:       "space_bound",
+			values:     url.Values{"m": {"contactus"}, "c": {"contacts"}, "i": {"item1"}, "s": {"space1"}},
+			wantItemID: "item1@space1",
+		},
+		{
+			name:       "system_namespace_no_space",
+			values:     url.Values{"m": {"contactus"}, "c": {"contacts"}, "i": {"item1"}},
+			wantItemID: "item1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ref, err := NewItemRefFromQueryString(tt.values)
+			if err != nil {
+				t.Fatalf("NewItemRefFromQueryString() error = %v", err)
+			}
+			if ref.ItemID != tt.wantItemID {
+				t.Errorf("NewItemRefFromQueryString() ItemID = %q, want %q", ref.ItemID, tt.wantItemID)
+			}
+		})
+	}
+}
 
 func TestAddRelationshipAndID(t *testing.T) {
 	type args struct {
