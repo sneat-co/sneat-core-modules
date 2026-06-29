@@ -44,6 +44,15 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 		return nil
 	}
 
+	// specscore: decisions/0002-reserved-extension-space-ids
+	// Fail closed: the write target must stay inside the request's authorized
+	// space. A cross-space ("@otherSpace") or spaceless (trailing "@") ref is
+	// rejected so this user-facing path cannot write outside the caller's space.
+	// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
+	if err = assertRelatedItemRefInSpace(spaceID, itemRef); err != nil {
+		return err
+	}
+
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
 		return err
@@ -51,13 +60,10 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) (err error) {
 
-		// specscore: decisions/0002-reserved-extension-space-ids
-		// NewSpaceModuleItemKeyFromItemRef honours an "@{spaceID}" suffix on the
-		// itemID and resolves to the spaceless system namespace (/ext/...) when
-		// the effective space is empty. See sneat-specs Decision 0002:
-		// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 		key := dbo4spaceus.NewSpaceModuleItemKeyFromItemRef(spaceID, itemRef)
-		item := record.NewDataWithID(itemRef.ItemID, key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
+		// The record id must match the document id used to build the key (the
+		// bare itemID with any "@{spaceID}" suffix stripped).
+		item := record.NewDataWithID(itemRef.DocID(), key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
 		if err = tx.Get(ctx, item.Record); err != nil {
 			return err
 		}

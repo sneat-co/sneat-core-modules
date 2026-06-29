@@ -28,12 +28,21 @@ func UpdateRelatedItemTx(
 	if objectRef == relatedItemRef {
 		return nil, fmt.Errorf("objectRef and command.ItemRef are the same: %+v", objectRef)
 	}
-	relatedItemID := relatedItemRef.ItemID
 
 	// specscore: decisions/0002-reserved-extension-space-ids
-	// Resolve via the @{space}-aware builder so a spaceless ref maps to
-	// /ext/{ext-id}/... See sneat-specs Decision 0002:
+	// Fail closed: this is the untrusted, user-facing reciprocal-update write
+	// path, so a related ItemRef must stay inside the request's authorized
+	// space. A cross-space ("@otherSpace") or spaceless (trailing "@") ref is
+	// rejected here so it cannot write outside the caller's space.
 	// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
+	if err = assertRelatedItemRefInSpace(spaceID, relatedItemRef); err != nil {
+		return nil, err
+	}
+
+	// The record id must match the document id used to build the key (the bare
+	// itemID with any "@{spaceID}" suffix stripped).
+	relatedItemID := relatedItemRef.DocID()
+
 	key := dbo4spaceus.NewSpaceModuleItemKeyFromItemRef(spaceID, relatedItemRef)
 	dbo := new(dbo4linkage.WithRelatedAndIDsAndUserID)
 	dbo.WithRelatedAndIDs = new(dbo4linkage.WithRelatedAndIDs)
