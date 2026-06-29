@@ -31,14 +31,25 @@ type RelatedItemKey struct {
 	ItemID  string            `json:"itemID" firestore:"itemID"`
 }
 
+// specscore: decisions/0002-reserved-extension-space-ids
+// Ref serialization for the spaceless system namespace: omit the "@{spaceID}"
+// suffix when there is no space. See sneat-specs Decision 0002:
+// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 func (v RelatedItemKey) String() string {
+	if v.SpaceID == "" {
+		// System namespace (spaceless) reference: no "@{spaceID}" suffix.
+		return v.ItemID
+	}
 	return fmt.Sprintf("%s@%s", v.ItemID, v.SpaceID)
 }
 
+// specscore: decisions/0002-reserved-extension-space-ids
+// SpaceID is optional (empty ⇒ system namespace). See sneat-specs Decision 0002:
+// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 func (v RelatedItemKey) Validate() error {
-	if v.SpaceID == "" {
-		return validation.NewErrRecordIsMissingRequiredField("spaceID")
-	}
+	// SpaceID is optional: an empty SpaceID denotes the spaceless system
+	// namespace (record stored at /ext/{ext-id}/...). A non-empty SpaceID
+	// denotes a space-bound record at /spaces/{space-id}/ext/{ext-id}/...
 	if v.ItemID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("itemID")
 	}
@@ -152,13 +163,27 @@ func (v *WithRelated) Validate() error {
 	return v.ValidateRelated(nil)
 }
 
+// specscore: decisions/0002-reserved-extension-space-ids
+// Recognise a spaceless storage key (/ext/{ext-id}/..., no space ancestor) as
+// the system namespace instead of walking off the top of the key. See
+// sneat-specs Decision 0002:
+// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 func (v *WithRelated) ValidateWithKey(key *dal.Key) error {
-	parent := key.Parent()
+	// A record lives either at:
+	//   /spaces/{space-id}/ext/{ext-id}/{collection}/{item-id}[/...]  (space-bound)
+	// or, for the spaceless system namespace, at:
+	//   /ext/{ext-id}/{collection}/{item-id}[/...]                    (system)
+	// Walk up the key to find the "ext" segment. If it has a parent then that
+	// parent is the space key; otherwise the "ext" segment is at the root and
+	// the record belongs to the spaceless system namespace (empty spaceID).
 	var spaceID coretypes.SpaceID
-	if parent.Collection() == "ext" {
-		spaceID = coretypes.SpaceID(parent.Parent().ID.(string))
-	} else {
-		spaceID = coretypes.SpaceID(parent.Parent().Parent().ID.(string))
+	for k := key.Parent(); k != nil; k = k.Parent() {
+		if k.Collection() == "ext" {
+			if spaceKey := k.Parent(); spaceKey != nil {
+				spaceID = coretypes.SpaceID(spaceKey.ID.(string))
+			}
+			break
+		}
 	}
 	return v.validateWithSpaceID(spaceID)
 }

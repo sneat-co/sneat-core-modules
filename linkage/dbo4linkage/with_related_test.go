@@ -7,11 +7,95 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
 	"github.com/sneat-co/contactus-ext/backend/contactusmodels/const4contactus"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/strongo/strongoapp/with"
 )
+
+func TestRelatedItemKey_String(t *testing.T) {
+	tests := []struct {
+		name string
+		key  RelatedItemKey
+		want string
+	}{
+		{
+			name: "space_bound",
+			key:  RelatedItemKey{SpaceID: "space1", ItemID: "item1"},
+			want: "item1@space1",
+		},
+		{
+			name: "system_namespace_no_space",
+			key:  RelatedItemKey{ItemID: "item1"},
+			want: "item1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.key.String(); got != tt.want {
+				t.Errorf("RelatedItemKey.String() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRelatedItemKey_Validate(t *testing.T) {
+	tests := []struct {
+		name    string
+		key     RelatedItemKey
+		wantErr bool
+	}{
+		{name: "space_bound", key: RelatedItemKey{SpaceID: "space1", ItemID: "item1"}, wantErr: false},
+		{name: "system_namespace_empty_space", key: RelatedItemKey{ItemID: "item1"}, wantErr: false},
+		{name: "empty_item_id", key: RelatedItemKey{SpaceID: "space1"}, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.key.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("RelatedItemKey.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestWithRelated_ValidateWithKey(t *testing.T) {
+	// space-bound record key: /spaces/{spaceID}/ext/{extID}/{collection}/{itemID}
+	spaceBoundKey := dal.NewKeyWithParentAndID(
+		dal.NewKeyWithParentAndID(
+			dal.NewKeyWithID("spaces", "space1"),
+			"ext", "contactus"),
+		"contacts", "item1")
+	// spaceless system-namespace key: /ext/{extID}/{collection}/{itemID}
+	systemKey := dal.NewKeyWithParentAndID(
+		dal.NewKeyWithID("ext", "contactus"),
+		"contacts", "item1")
+	// nested spaceless key: /ext/{extID}/spots/{spotID}/days/{date}
+	nestedSystemKey := dal.NewKeyWithParentAndID(
+		dal.NewKeyWithParentAndID(
+			dal.NewKeyWithID("ext", "happenings"),
+			"spots", "spot1"),
+		"days", "2026-06-29")
+
+	tests := []struct {
+		name string
+		key  *dal.Key
+	}{
+		{name: "space_bound", key: spaceBoundKey},
+		{name: "system_namespace", key: systemKey},
+		{name: "nested_system_namespace", key: nestedSystemKey},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := &WithRelated{Related: RelatedModules{
+				"module1": {"collection1": {"item2@space2": {}}},
+			}}
+			if err := v.ValidateWithKey(tt.key); err != nil {
+				t.Errorf("ValidateWithKey() unexpected error = %v", err)
+			}
+		})
+	}
+}
 
 func TestWithRelatedAndIDs_SetRelationshipToItem(t *testing.T) {
 	type fields struct {

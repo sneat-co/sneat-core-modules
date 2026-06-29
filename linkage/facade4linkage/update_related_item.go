@@ -30,6 +30,10 @@ func UpdateRelatedItemTx(
 	}
 	relatedItemID := relatedItemRef.ItemID
 
+	// specscore: decisions/0002-reserved-extension-space-ids
+	// Resolve via the @{space}-aware builder so a spaceless ref maps to
+	// /ext/{ext-id}/... See sneat-specs Decision 0002:
+	// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 	key := dbo4spaceus.NewSpaceModuleItemKeyFromItemRef(spaceID, relatedItemRef)
 	dbo := new(dbo4linkage.WithRelatedAndIDsAndUserID)
 	dbo.WithRelatedAndIDs = new(dbo4linkage.WithRelatedAndIDs)

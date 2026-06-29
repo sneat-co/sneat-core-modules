@@ -29,7 +29,9 @@ func TestNewContactFullRef(t *testing.T) {
 			},
 		},
 		{
-			name: "panic on empty space",
+			// sneat-specs Decision 0002: an empty spaceID denotes the spaceless
+			// system namespace, so no "@{spaceID}" suffix is appended (no panic).
+			name: "empty space resolves to system namespace",
 			args: args{
 				spaceID:   "",
 				contactID: "test-contact-id",
@@ -56,13 +58,6 @@ func TestNewContactFullRef(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.args.contactID == "" {
-				defer func() {
-					if r := recover(); r == nil {
-						t.Errorf("NewFullItemRef() did not panic on empty itemID")
-					}
-				}()
-			}
-			if tt.args.spaceID == "" {
 				defer func() {
 					if r := recover(); r == nil {
 						t.Errorf("NewFullItemRef() did not panic on empty itemID")
