@@ -49,13 +49,13 @@ func classifyRelatedItemRef(spaceID coretypes.SpaceID, ref dbo4linkage.ItemRef) 
 	return false, nil
 }
 
-// specscore: features/reserved-extension-space-ids/R4
+// specscore: decisions/0002-reserved-extension-space-ids
 // authorizeSpacelessRelatedWrite enforces per-record access control for a write
 // to a spaceless /ext/ record. Authorization comes solely from the record's own
 // ACL: the caller must hold an explicit "edit" grant. A record with no ACL (or a
 // caller without an edit grant) is denied — there is no blanket "any
 // authenticated user may write /ext/".
-// https://github.com/sneat-co/sneat-specs/blob/main/spec/features/reserved-extension-space-ids/README.md
+// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
 func authorizeSpacelessRelatedWrite(userID string, acl *dbo4acl.ACL) error {
 	if acl == nil || !acl.UserCan(userID, const4acl.PermittedToEdit) {
 		return fmt.Errorf(

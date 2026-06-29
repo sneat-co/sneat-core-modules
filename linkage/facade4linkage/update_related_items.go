@@ -69,7 +69,7 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 		if err = tx.Get(ctx, item.Record); err != nil {
 			return err
 		}
-		// specscore: features/reserved-extension-space-ids/R4
+		// specscore: decisions/0002-reserved-extension-space-ids
 		// A spaceless /ext/ record is authorized per-record against its own ACL.
 		if spaceless {
 			if err = authorizeSpacelessRelatedWrite(userID, item.Data.ACL); err != nil {

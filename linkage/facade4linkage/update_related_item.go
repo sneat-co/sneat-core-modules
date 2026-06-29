@@ -55,7 +55,7 @@ func UpdateRelatedItemTx(
 		return recordsUpdates, fmt.Errorf("record is not valid after loading from DB: %w", err)
 	}
 
-	// specscore: features/reserved-extension-space-ids/R4
+	// specscore: decisions/0002-reserved-extension-space-ids
 	// A spaceless /ext/ record is authorized per-record: the caller must hold an
 	// edit grant in the loaded record's own ACL. Space-bound writes were already
 	// gated by space membership upstream.

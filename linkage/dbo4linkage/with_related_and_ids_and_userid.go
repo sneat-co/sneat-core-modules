@@ -13,7 +13,7 @@ type WithRelatedAndIDsAndUserID struct {
 	// loading a spaceless system-namespace record (/ext/{ext-id}/...), whose
 	// writes are authorized per-record rather than by space membership (Decision
 	// 0002). Space-bound records leave it nil and are gated by space membership.
-	// specscore: features/reserved-extension-space-ids/R4
+	// specscore: decisions/0002-reserved-extension-space-ids
 	ACL *dbo4acl.ACL `json:"acl,omitempty" firestore:"acl,omitempty"`
 }
 
