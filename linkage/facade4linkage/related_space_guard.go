@@ -5,33 +5,62 @@ import (
 	"strings"
 
 	"github.com/sneat-co/sneat-core-modules/linkage/dbo4linkage"
+	"github.com/sneat-co/sneat-go-core/acl/const4acl"
+	"github.com/sneat-co/sneat-go-core/acl/dbo4acl"
 	"github.com/sneat-co/sneat-go-core/coretypes"
 	"github.com/sneat-co/sneat-go-core/facade"
 )
 
 // specscore: decisions/0002-reserved-extension-space-ids
-// assertRelatedItemRefInSpace fails closed on the untrusted, user-facing
-// relationship-update WRITE path. A user-supplied related ItemRef must resolve
-// to the request's own authorized space. The "@{spaceID}" suffix introduced by
-// sneat-specs Decision 0002 lets a ref name a DIFFERENT space ("@otherSpace")
-// or the spaceless system namespace (a trailing "@" => empty space). Honouring
-// either here would let a caller authorized only for spaceID write outside it,
-// so both are rejected. Legitimate same-space refs (a bare itemID, or
-// "itemID@{requestSpace}") are allowed and resolve to the request space exactly
-// as before. Spaceless / cross-space writes are expected only from trusted
-// server/worker paths under the deferred system-namespace ACL work, never from
-// this endpoint.
+// classifyRelatedItemRef gates the untrusted, user-facing relationship-update
+// WRITE path. A user-supplied related ItemRef resolves either to the request's
+// own authorized space or, via the "@{spaceID}" suffix from sneat-specs
+// Decision 0002, to another space or the spaceless system namespace (a trailing
+// "@" => empty space). It returns the resolved target space and whether that is
+// the spaceless /ext/ namespace:
+//   - a DIFFERENT, non-empty space ("@otherSpace") is rejected: the caller is
+//     authorized only for spaceID and must not write outside it (B1);
+//   - the spaceless namespace (target == "") is NOT authorized here — the caller
+//     MUST enforce the record's per-record ACL after loading it
+//     (see authorizeSpacelessRelatedWrite), because /ext/ is a storage location,
+//     not an authorization scope;
+//   - a same-space ref (bare itemID, or "itemID@{requestSpace}") is allowed and
+//     resolves to the request space exactly as before.
+//
+// Gating on the RESOLVED target space (not just the presence of "@") also closes
+// the empty-request-space case: a bare ref under an empty spaceID resolves to the
+// spaceless namespace and is therefore routed through the per-record ACL too.
 // https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
-func assertRelatedItemRefInSpace(spaceID coretypes.SpaceID, ref dbo4linkage.ItemRef) error {
+func classifyRelatedItemRef(spaceID coretypes.SpaceID, ref dbo4linkage.ItemRef) (spaceless bool, err error) {
 	// Use the explicit separator index (NOT ItemRef.SpaceID) so a trailing "@"
 	// (empty space => spaceless /ext/) is detected as a space override too.
+	target := spaceID
 	if i := strings.Index(ref.ItemID, dbo4linkage.SpaceItemIDSeparator); i >= 0 {
-		targetSpace := coretypes.SpaceID(ref.ItemID[i+1:])
-		if targetSpace != spaceID {
-			return fmt.Errorf(
-				"%w: related item ref %q resolves to space %q outside the authorized request space %q",
-				facade.ErrUnauthorized, ref.ItemID, targetSpace, spaceID)
-		}
+		target = coretypes.SpaceID(ref.ItemID[i+1:])
+	}
+	if target == "" {
+		return true, nil // spaceless /ext/ — authorization deferred to per-record ACL
+	}
+	if target != spaceID {
+		return false, fmt.Errorf(
+			"%w: related item ref %q resolves to space %q outside the authorized request space %q",
+			facade.ErrUnauthorized, ref.ItemID, target, spaceID)
+	}
+	return false, nil
+}
+
+// specscore: features/reserved-extension-space-ids/R4
+// authorizeSpacelessRelatedWrite enforces per-record access control for a write
+// to a spaceless /ext/ record. Authorization comes solely from the record's own
+// ACL: the caller must hold an explicit "edit" grant. A record with no ACL (or a
+// caller without an edit grant) is denied — there is no blanket "any
+// authenticated user may write /ext/".
+// https://github.com/sneat-co/sneat-specs/blob/main/spec/features/reserved-extension-space-ids/README.md
+func authorizeSpacelessRelatedWrite(userID string, acl *dbo4acl.ACL) error {
+	if acl == nil || !acl.UserCan(userID, const4acl.PermittedToEdit) {
+		return fmt.Errorf(
+			"%w: caller %q is not granted edit on the spaceless /ext/ record",
+			facade.ErrUnauthorized, userID)
 	}
 	return nil
 }

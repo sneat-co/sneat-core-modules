@@ -31,11 +31,12 @@ func UpdateRelatedItemTx(
 
 	// specscore: decisions/0002-reserved-extension-space-ids
 	// Fail closed: this is the untrusted, user-facing reciprocal-update write
-	// path, so a related ItemRef must stay inside the request's authorized
-	// space. A cross-space ("@otherSpace") or spaceless (trailing "@") ref is
-	// rejected here so it cannot write outside the caller's space.
+	// path. A cross-space ("@otherSpace") ref is rejected outright; a spaceless
+	// (/ext/) ref is allowed through here but its write is authorized per-record
+	// against the loaded record's ACL below.
 	// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
-	if err = assertRelatedItemRefInSpace(spaceID, relatedItemRef); err != nil {
+	spaceless, err := classifyRelatedItemRef(spaceID, relatedItemRef)
+	if err != nil {
 		return nil, err
 	}
 
@@ -52,6 +53,16 @@ func UpdateRelatedItemTx(
 	}
 	if err = related.Data.Validate(); err != nil {
 		return recordsUpdates, fmt.Errorf("record is not valid after loading from DB: %w", err)
+	}
+
+	// specscore: features/reserved-extension-space-ids/R4
+	// A spaceless /ext/ record is authorized per-record: the caller must hold an
+	// edit grant in the loaded record's own ACL. Space-bound writes were already
+	// gated by space membership upstream.
+	if spaceless {
+		if err = authorizeSpacelessRelatedWrite(userID, dbo.ACL); err != nil {
+			return nil, err
+		}
 	}
 
 	var result SetRelatedResult

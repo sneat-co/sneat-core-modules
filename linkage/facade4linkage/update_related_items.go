@@ -45,13 +45,15 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 	}
 
 	// specscore: decisions/0002-reserved-extension-space-ids
-	// Fail closed: the write target must stay inside the request's authorized
-	// space. A cross-space ("@otherSpace") or spaceless (trailing "@") ref is
-	// rejected so this user-facing path cannot write outside the caller's space.
+	// Fail closed: a cross-space ("@otherSpace") ref is rejected outright; a
+	// spaceless (/ext/) ref is allowed through here but its write is authorized
+	// per-record against the loaded record's ACL below.
 	// https://github.com/sneat-co/sneat-specs/blob/main/spec/decisions/0002-reserved-extension-space-ids.md
-	if err = assertRelatedItemRefInSpace(spaceID, itemRef); err != nil {
+	spaceless, err := classifyRelatedItemRef(spaceID, itemRef)
+	if err != nil {
 		return err
 	}
+	userID := ctx.User().GetUserID()
 
 	var db dal.DB
 	if db, err = facade.GetSneatDB(ctx); err != nil {
@@ -66,6 +68,13 @@ func updateItemWithLatestRelationshipsFromRelatedItem(
 		item := record.NewDataWithID(itemRef.DocID(), key, new(dbo4linkage.WithRelatedAndIDsAndUserID))
 		if err = tx.Get(ctx, item.Record); err != nil {
 			return err
+		}
+		// specscore: features/reserved-extension-space-ids/R4
+		// A spaceless /ext/ record is authorized per-record against its own ACL.
+		if spaceless {
+			if err = authorizeSpacelessRelatedWrite(userID, item.Data.ACL); err != nil {
+				return err
+			}
 		}
 		relatedItem := dbo4linkage.GetRelatedItemByRef(item.Data.Related, relatedItemRef, true)
 
