@@ -20,9 +20,12 @@ type RelationshipItemRolesCommand struct {
 }
 
 func (v RelationshipItemRolesCommand) Validate() error {
-	//if err := v.ItemRef.Validate(); err != nil {
-	//	return err
-	//}
+	// Validate the (untrusted) related ItemRef: rejects a malformed "@" suffix
+	// such as a trailing "@" (empty spaceID) or an embedded "@" in the document
+	// id (sneat-specs Decision 0002 — "@" is the reserved space separator).
+	if err := v.ItemRef.Validate(); err != nil {
+		return validation.NewErrBadRequestFieldValue("itemRef", err.Error())
+	}
 	if err := v.Add.Validate(); err != nil {
 		return validation.NewErrBadRequestFieldValue("add", err.Error())
 	}

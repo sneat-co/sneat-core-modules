@@ -81,6 +81,15 @@ func (v ItemRef) ExtensionCollectionID() string {
 	return fmt.Sprintf("m=%s&c=%s", v.ExtID, v.Collection)
 }
 
+// DocID returns the bare document id with any optional "@{spaceID}" suffix
+// removed. For a bare itemID it returns the itemID unchanged.
+func (v ItemRef) DocID() string {
+	if i := strings.Index(v.ItemID, SpaceItemIDSeparator); i >= 0 {
+		return v.ItemID[:i]
+	}
+	return v.ItemID
+}
+
 func (v ItemRef) Validate() error {
 	// SpaceID can be empty for global collections like Happening
 	if v.ExtID == "" {
@@ -91,7 +100,27 @@ func (v ItemRef) Validate() error {
 	}
 	if v.ItemID == "" {
 		return validation.NewErrRecordIsMissingRequiredField("itemID")
-	} else if err := validate.RecordID(v.ItemID); err != nil {
+	}
+	// The ItemID may carry at most one optional "@{spaceID}" suffix (sneat-specs
+	// Decision 0002). "@" is the reserved space separator, so a document id must
+	// never contain it: split on the first "@" and require both the document id
+	// and the spaceID segment to be non-empty, and the spaceID to hold no further
+	// "@". A bare itemID (no "@") is the common case.
+	docID := v.ItemID
+	if i := strings.Index(v.ItemID, SpaceItemIDSeparator); i >= 0 {
+		docID = v.ItemID[:i]
+		spaceID := v.ItemID[i+1:]
+		if docID == "" {
+			return validation.NewErrBadRecordFieldValue("itemID", "empty document id before '@' separator")
+		}
+		if spaceID == "" {
+			return validation.NewErrBadRecordFieldValue("itemID", "empty spaceID after '@' separator")
+		}
+		if strings.Contains(spaceID, SpaceItemIDSeparator) {
+			return validation.NewErrBadRecordFieldValue("itemID", "must not contain more than one '@' separator")
+		}
+	}
+	if err := validate.RecordID(docID); err != nil {
 		return validation.NewErrBadRecordFieldValue("itemID", err.Error())
 	}
 	return nil
