@@ -22,12 +22,19 @@ func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransact
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
 		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)
-		if _, err = tx.Exists(ctx, key); err != nil { // TODO: use tx.Exists()
-			if dal.IsNotFound(err) {
-				return id, key, nil
-			}
+		// tx.Exists reports a missing document as (false, nil) — it does NOT
+		// return a not-found error (dalgo2firestore clears it). So branch on the
+		// returned bool: a non-existent key is the free id we want. The earlier
+		// `if err != nil { if dal.IsNotFound(err) … }` form never fired (err was
+		// always nil) and so always exhausted maxAttempts — breaking every
+		// space-module item create (e.g. eventus event → calendarius happening).
+		var exists bool
+		if exists, err = tx.Exists(ctx, key); err != nil {
 			return "", nil, err
 		}
+		if !exists {
+			return id, key, nil
+		}
 	}
-	return "", nil, errors.New("too many attempts  to generate a random happening ContactID")
+	return "", nil, errors.New("too many attempts to generate a random happening ContactID")
 }
