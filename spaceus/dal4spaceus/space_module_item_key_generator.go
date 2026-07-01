@@ -22,12 +22,15 @@ func GenerateNewSpaceModuleItemKey(ctx context.Context, tx dal.ReadwriteTransact
 	for i := 0; i < maxAttempts; i++ {
 		id = random.ID(length)
 		key = dbo4spaceus.NewSpaceModuleItemKey(spaceID, moduleID, collection, id)
-		if _, err = tx.Exists(ctx, key); err != nil { // TODO: use tx.Exists()
-			if dal.IsNotFound(err) {
-				return id, key, nil
-			}
+		// tx.Exists returns (exists, nil) for a free key — it does NOT return a
+		// not-found error. The old code only reacted to err != nil, so a free key
+		// (false, nil) was never returned and the loop always exhausted maxAttempts.
+		var exists bool
+		if exists, err = tx.Exists(ctx, key); err != nil {
 			return "", nil, err
+		} else if !exists {
+			return id, key, nil
 		}
 	}
-	return "", nil, errors.New("too many attempts  to generate a random happening ContactID")
+	return "", nil, errors.New("too many attempts to generate a random space module item key")
 }
