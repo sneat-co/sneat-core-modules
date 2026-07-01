@@ -62,8 +62,8 @@ func AdminOnly(handler AuthHandler) strongoapp.HttpHandlerWithContext {
 		if authInfo, _, err := token4auth.Authenticate(w, r, true); err == nil {
 			if !authInfo.IsAdmin {
 				logus.Debugf(ctx, "Not admin!")
-				//hashedWriter.WriteHeader(http.StatusForbidden)
-				//return
+				w.WriteHeader(http.StatusForbidden)
+				return
 			}
 			handler(ctx, w, r, authInfo)
 		} else {
